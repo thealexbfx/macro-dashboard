@@ -12,10 +12,16 @@ from datetime import datetime
 from dateutil.parser import parse
 import gzip
 import yfinance as yf
+from dotenv import load_dotenv
+import os
 
 # -------- API Setup --------
-fred = Fred(api_key="3be1b836ee6f78badf0f0a5a4905ab73")  # FRED API Key
-estat_api_key = "c32d5c310336f78c4b37477485938b3cbdbb8ca5"  # e-Stat API Key
+load_dotenv()
+
+fred_api_key = os.getenv("FRED_API_KEY")
+estat_api_key = os.getenv("ESTAT_API_KEY")
+
+fred = Fred(api_key=fred_api_key)
 
 # -------- Helper Functions --------
 def get_data(series_id, start_date, end_date):
@@ -239,7 +245,7 @@ def get_uk_base_rate_from_url():
     response = requests.get(url, headers=headers)
     response.raise_for_status()
 
-    xls = pd.ExcelFile(BytesIO(response.content))
+    xls = pd.ExcelFile(BytesIO(response.content)), , engine='openpyxl')
     sheet_name = "HISTORICAL SINCE 1694"
 
     df_raw = xls.parse(sheet_name, header=None)
