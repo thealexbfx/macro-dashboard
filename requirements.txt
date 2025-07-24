@@ -6,4 +6,4 @@ python-dateutil
 requests
 yfinance
 python-dotenv
-openpyxl
+xlrd

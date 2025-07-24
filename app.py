@@ -245,12 +245,8 @@ def get_uk_base_rate_from_url():
     response = requests.get(url, headers=headers)
     response.raise_for_status()
 
-    xls = pd.ExcelFile(BytesIO(response.content), engine='openpyxl')
+    xls = pd.ExcelFile(BytesIO(response.content), engine='xlrd')
     sheet_name = "HISTORICAL SINCE 1694"
-    
-    print(response.status_code)
-    print(response.headers.get("Content-Type"))
-
 
     df_raw = xls.parse(sheet_name, header=None)
     df_raw = df_raw.dropna(how='all').reset_index(drop=True)
