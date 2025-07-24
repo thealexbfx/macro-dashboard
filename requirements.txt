@@ -1,0 +1,7 @@
+streamlit
+pandas
+fredapi
+plotly
+python-dateutil
+requests
+yfinance
