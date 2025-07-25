@@ -522,28 +522,44 @@ def get_fx_data_yahoo(ticker="GBPUSD=X", start_date=None, end_date=None):
     return df
 
 # -------- Streamlit App --------
-st.set_page_config(layout="wide")
+import streamlit as st
+from streamlit_option_menu import option_menu
 
-# Top navigation bar
+st.set_page_config(layout="wide", page_title="Macro Dashboard", page_icon="🌍")
+
+# ---------- Top Navbar ----------
 with st.container():
-    cols = st.columns([1, 5])
-    
-    with cols[0]:
-        st.markdown("""
-            <a href='/?tab=Home' style='text-decoration: none;'>
-                <h2 style='color: #3366cc; margin-top: 0;'>thealexbfx</h2>
-            </a>
-        """, unsafe_allow_html=True)
+    selected_tab = option_menu(
+        menu_title=None,
+        options=["Home", "USA", "Japan", "UK", "EURO", "FX Rates"],
+        icons=["house", "flag", "globe", "graph-up", "currency-euro", "currency-exchange"],
+        orientation="horizontal",
+        default_index=0,
+        styles={
+            "container": {"padding": "0!important", "background-color": "#f8f9fa"},
+            "icon": {"color": "black", "font-size": "18px"},
+            "nav-link": {"font-size": "16px", "text-align": "center", "margin": "0px"},
+            "nav-link-selected": {"background-color": "#cce5ff", "color": "black"},
+        }
+    )
 
-    with cols[1]:
-        selected_tab = option_menu(
-            menu_title="",
-            options=["Home", "USA", "Japan", "UK", "EURO", "FX Rates"],
-            icons=["house", "flag", "globe", "graph-up", "currency-euro", "currency-exchange"],
-            orientation="horizontal",
-            default_index=0,
-            key="top_nav"
-        )
+# ---------- thealexbfx Logo (Top Left) ----------
+st.markdown("""
+    <style>
+        .logo {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            z-index: 999;
+            font-size: 22px;
+            font-weight: 700;
+        }
+    </style>
+    <div class="logo">
+        <a href="/" style="text-decoration: none; color: #3366cc;">thealexbfx</a>
+    </div>
+""", unsafe_allow_html=True)
+
 
 # -------- Home Tab --------
 if selected_tab == "Home":
