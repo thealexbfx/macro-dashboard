@@ -14,6 +14,8 @@ import gzip
 import yfinance as yf
 from dotenv import load_dotenv
 import os
+from streamlit_option_menu import option_menu
+
 
 # -------- API Setup --------
 load_dotenv()
@@ -521,12 +523,30 @@ def get_fx_data_yahoo(ticker="GBPUSD=X", start_date=None, end_date=None):
 
 # -------- Streamlit App --------
 st.set_page_config(layout="wide")
-st.title("🌐 Global Macro Dashboard")
 
-tab = st.sidebar.radio("Select Section", ["Home", "USA", "Japan", "UK", "EURO", "FX Rates"])
+# Top navigation bar
+with st.container():
+    cols = st.columns([1, 5])
+    
+    with cols[0]:
+        st.markdown("""
+            <a href='/?tab=Home' style='text-decoration: none;'>
+                <h2 style='color: #3366cc; margin-top: 0;'>thealexbfx</h2>
+            </a>
+        """, unsafe_allow_html=True)
+
+    with cols[1]:
+        selected_tab = option_menu(
+            menu_title="",
+            options=["Home", "USA", "Japan", "UK", "EURO", "FX Rates"],
+            icons=["house", "flag", "globe", "graph-up", "currency-euro", "currency-exchange"],
+            orientation="horizontal",
+            default_index=0,
+            key="top_nav"
+        )
 
 # -------- Home Tab --------
-if tab == "Home":
+if selected_tab == "Home":
     st.header("Welcome to the Macro Dashboard")
     st.markdown("""
     This dashboard visualizes key macroeconomic indicators for major economies.
@@ -537,7 +557,7 @@ if tab == "Home":
     """)
 
 # -------- USA Tab --------
-if tab == "USA":
+if selected_tab == "USA":
     st.header("🇺🇸 United States Macro Data")
 
     indicator = st.sidebar.radio("Select Indicator", [
@@ -595,7 +615,7 @@ if tab == "USA":
         st.plotly_chart(plot_chart(df, "2-Year Government Bond Yield (%)", chart_type), use_container_width=True)
 
 # -------- Japan Tab --------
-if tab == "Japan":
+if selected_tab == "Japan":
     st.header("🇯🇵 Japan Macro Data")
     indicator = st.sidebar.radio("Select Indicator", ["CPI YoY Change (%)", "Unemployment Rate", "Real GDP QoQ Growth", "Interest Rate (Short-Term)",
     "Interest Rate (Long-Term)"])
@@ -633,7 +653,7 @@ if tab == "Japan":
         st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
         
 # -------- UK Tab --------        
-if tab == "UK":
+if selected_tab == "UK":
     st.header("🇬🇧 UK Macro Data")
     indicator = st.sidebar.radio("Select Indicator", [
         "Bank of England Base Rate (%)",
@@ -680,7 +700,7 @@ if tab == "UK":
         st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
         
 # -------- EURO Tab --------
-if tab == "EURO":
+if selected_tab == "EURO":
     st.header("🇪🇺 Euro Area Macro Data")
     indicator = st.sidebar.radio("Select Indicator", [
         "ECB Main Refinancing Rate",
@@ -733,7 +753,7 @@ if tab == "EURO":
         df = get_data("IRLTLT01EZM156N", start_date, end_date)
         st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
         
-if tab == "FX Rates":
+if selected_tab == "FX Rates":
     st.header("FX Rates")
     indicator = st.sidebar.radio("Select Indicator", [
         "EUR/USD", "GBP/USD", "USD/JPY", "EUR/GBP", "EURJPY", "GBPJPY", "DXY"
