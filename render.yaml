@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: macro-dashboard
+    env: python
+    repo: https://github.com/thealexbfx/macro-dashboard
+    branch: main
+    buildCommand: ""
+    startCommand: streamlit run app.py
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10
