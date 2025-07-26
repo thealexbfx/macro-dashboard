@@ -369,9 +369,6 @@ def get_uk_unemployment_rate():
     df = df[['date', 'value']].dropna().sort_values('date')
     return df
 
-import requests
-import pandas as pd
-
 def get_ecb_refinancing_rate(start_date, end_date):
     # Convert start_date and end_date to pd.Timestamp to avoid comparison issues
     start_date = pd.Timestamp(start_date)
@@ -430,11 +427,6 @@ def get_euro_hicp_annual_gzip(start_date, end_date):
     euro_area = euro_area.reset_index(drop=True)
 
     return euro_area
-    
-import requests
-import pandas as pd
-import io
-import gzip
 
 def get_euro_unemployment_gzip(start_date, end_date):
     url = (
@@ -521,62 +513,102 @@ def get_fx_data_yahoo(ticker="GBPUSD=X", start_date=None, end_date=None):
     df = df.sort_values('date').reset_index(drop=True)
     return df
 
-# -------- Streamlit App --------
+
 import streamlit as st
-from streamlit_option_menu import option_menu
 
-st.set_page_config(layout="wide", page_title="Macro Dashboard", page_icon="🌍")
+st.set_page_config(page_title="Macro Dashboard", layout="wide")
 
-# ---------- Top Navbar ----------
-with st.container():
-    selected_tab = option_menu(
-        menu_title=None,
-        options=["Home", "USA", "Japan", "UK", "EURO", "FX Rates"],
-        icons=["house", "flag", "globe", "graph-up", "currency-euro", "currency-exchange"],
-        orientation="horizontal",
-        default_index=0,
-        styles={
-            "container": {"padding": "0!important", "background-color": "#f8f9fa"},
-            "icon": {"color": "black", "font-size": "18px"},
-            "nav-link": {"font-size": "16px", "text-align": "center", "margin": "0px"},
-            "nav-link-selected": {"background-color": "#cce5ff", "color": "black"},
-        }
-    )
-
-# ---------- thealexbfx Logo (Top Left) ----------
+# --- Hide Default UI ---
 st.markdown("""
     <style>
-        .logo {
-            position: absolute;
-            top: 10px;
-            left: 15px;
-            z-index: 999;
-            font-size: 22px;
-            font-weight: 700;
-        }
+    #MainMenu, header, footer {visibility: hidden;}
+
+    .block-container {
+        padding-top: 0rem !important;
+    }
+
+    .custom-header {
+        background-color: #f2f2f2;
+        width: 100%;
+        padding: 1rem 2rem;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .custom-header .logo {
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .custom-header .menu {
+        display: flex;
+        justify-content: center;
+        flex-grow: 1;
+        gap: 2rem;
+    }
+
+    .custom-header .menu a {
+        text-decoration: none;
+        font-size: 1rem;
+        color: black;
+        font-weight: 500;
+    }
+
+    .custom-header .menu a:hover {
+        color: #007bff;
+    }
+
+    .spacer {
+        height: 80px;
+    }
     </style>
-    <div class="logo">
-        <a href="/" style="text-decoration: none; color: #3366cc;">thealexbfx</a>
+""", unsafe_allow_html=True)
+
+# --- Fixed Top Bar (HTML block) ---
+st.markdown("""
+    <div class="custom-header">
+        <div class="logo">THEALEXBFX</div>
+        <div class="menu">
+            <a href="?page=Home">Home</a>
+            <a href="?page=USA">USA</a>
+            <a href="?page=Japan">Japan</a>
+            <a href="?page=UK">UK</a>
+            <a href="?page=EURO">EURO</a>
+            <a href="?page=FX%20Rates">FX Rates</a>
+        </div>
     </div>
 """, unsafe_allow_html=True)
 
 
-# -------- Home Tab --------
-if selected_tab == "Home":
-    st.header("Welcome to the Macro Dashboard")
-    st.markdown("""
-    This dashboard visualizes key macroeconomic indicators for major economies.
+query_params = st.query_params
+page = query_params.get("page", "Home")  # default to Home if not specified
 
-    ✅ Data updates daily via the [FRED API](https://fred.stlouisfed.org) and [e-Stat API](https://www.e-stat.go.jp/en/)  
-    ✅ Choose time ranges and chart styles  
-    ✅ Built for macro-FX strategists and analysts  
-    """)
+if "page" not in st.query_params:
+    st.query_params.page = "Home"
+
+
+# --- Spacer to prevent content being hidden under fixed bar ---
+st.markdown('<div class="spacer"></div>', unsafe_allow_html=True)
+
+# --- Main Content Below Header ---
+st.title("Welcome to the Macro Dashboard")
+st.markdown("""
+✅ Data updates daily via the [FRED API](https://fred.stlouisfed.org) and [e-Stat API](https://www.e-stat.go.jp/en/)  
+✅ Choose time ranges and chart styles  
+✅ Built for macro-FX strategists and analysts  
+""")
 
 # -------- USA Tab --------
-if selected_tab == "USA":
+if page == "USA":
     st.header("🇺🇸 United States Macro Data")
 
-    indicator = st.sidebar.radio("Select Indicator", [
+    indicator = st.selectbox("Select Indicator", [
         "Interest Rate",
         "Inflation Rate",
         "GDP Growth Rate",
@@ -631,9 +663,9 @@ if selected_tab == "USA":
         st.plotly_chart(plot_chart(df, "2-Year Government Bond Yield (%)", chart_type), use_container_width=True)
 
 # -------- Japan Tab --------
-if selected_tab == "Japan":
+if page == "Japan":
     st.header("🇯🇵 Japan Macro Data")
-    indicator = st.sidebar.radio("Select Indicator", ["CPI YoY Change (%)", "Unemployment Rate", "Real GDP QoQ Growth", "Interest Rate (Short-Term)",
+    indicator = st.selectbox("Select Indicator", ["CPI YoY Change (%)", "Unemployment Rate", "Real GDP QoQ Growth", "Interest Rate (Short-Term)",
     "Interest Rate (Long-Term)"])
     chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
     col1, col2 = st.columns(2)
@@ -669,9 +701,9 @@ if selected_tab == "Japan":
         st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
         
 # -------- UK Tab --------        
-if selected_tab == "UK":
+if page == "UK":
     st.header("🇬🇧 UK Macro Data")
-    indicator = st.sidebar.radio("Select Indicator", [
+    indicator = st.selectbox("Select Indicator", [
         "Bank of England Base Rate (%)",
         "CPI Inflation Rate (YoY %)",
     "GDP Growth Rate (QoQ %)", "Unemployment Rate", "Interest Rate (Short-Term)", "Interest Rate (Long-Term)"
@@ -716,9 +748,9 @@ if selected_tab == "UK":
         st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
         
 # -------- EURO Tab --------
-if selected_tab == "EURO":
+if page == "EURO":
     st.header("🇪🇺 Euro Area Macro Data")
-    indicator = st.sidebar.radio("Select Indicator", [
+    indicator = st.selectbox("Select Indicator", [
         "ECB Main Refinancing Rate",
         "HICP Annual Change (Eurostat gzip)", "Unemployment Rate (Seasonally Adjusted)", "GDP Quarterly Growth (Seasonally Adjusted)", 
         "Interest Rate (Short-Term)", "Interest Rate (Long-Term)"
@@ -769,9 +801,9 @@ if selected_tab == "EURO":
         df = get_data("IRLTLT01EZM156N", start_date, end_date)
         st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
         
-if selected_tab == "FX Rates":
+if page == "FX Rates":
     st.header("FX Rates")
-    indicator = st.sidebar.radio("Select Indicator", [
+    indicator = st.selectbox("Select Indicator", [
         "EUR/USD", "GBP/USD", "USD/JPY", "EUR/GBP", "EURJPY", "GBPJPY", "DXY"
         
     ])
