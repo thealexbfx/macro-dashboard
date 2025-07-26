@@ -14,7 +14,6 @@ import gzip
 import yfinance as yf
 from dotenv import load_dotenv
 import os
-from streamlit_option_menu import option_menu
 
 
 # -------- API Setup --------
@@ -540,6 +539,12 @@ st.markdown("""
         justify-content: space-between;
         align-items: center;
     }
+    
+    .custom-header .menu {
+    flex-wrap: wrap;
+    overflow-x: auto;
+}
+
 
     .custom-header .logo {
         font-weight: bold;
