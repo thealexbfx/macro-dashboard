@@ -14,6 +14,7 @@ import gzip
 import yfinance as yf
 from dotenv import load_dotenv
 import os
+import plotly.graph_objects as go
 
 
 # -------- API Setup --------
@@ -25,22 +26,58 @@ estat_api_key = os.getenv("ESTAT_API_KEY")
 fred = Fred(api_key=fred_api_key)
 
 # -------- Helper Functions --------
-def get_data(series_id, start_date, end_date):
+def get_data(series_id, start_date=None, end_date=None):
     data = fred.get_series(series_id)
     df = pd.DataFrame(data)
     df.columns = ['value']
     df.index.name = 'date'
     df = df.reset_index()
-    df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
+    
+    if start_date and end_date:
+        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
+
     return df
 
-def plot_chart(df, title, chart_type):
+def plot_chart(df, title, chart_type, width=700, height=450, date_format="daily"):
+    # Define hover date format
+    if date_format == "daily":
+        hover_date_format = "%d %B %Y"  # e.g., 24 July 2025
+    elif date_format == "monthly":
+        hover_date_format = "%B %Y"     # e.g., July 2025
+    elif date_format == "quarterly":
+        # Convert to 'Qx YYYY' string manually
+        df = df.copy()
+        df['hover_label'] = df['date'].dt.to_period('Q').astype(str).str.replace('Q', 'Q')
+        hovertemplate = "<b>%{customdata}</b><br>Value: %{y:.2f}<extra></extra>"
+    else:
+        hover_date_format = "%Y-%m-%d"  # fallback
+
+    # Choose chart type
     if chart_type == "Line":
-        fig = px.line(df, x='date', y='value', height=600, title=title)
+        fig = px.line(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, width=width, height=height)
     elif chart_type == "Area":
-        fig = px.area(df, x='date', y='value', height=600, title=title)
+        fig = px.area(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, width=width, height=height)
     elif chart_type == "Bar":
-        fig = px.bar(df, x='date', y='value', height=600, title=title)
+        fig = px.bar(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, width=width, height=height)
+
+    # Apply custom hover and styling
+    fig.update_layout(
+        margin=dict(l=40, r=30, t=40, b=40),
+        hovermode="closest",
+        xaxis=dict(showgrid=True, showline=False, title=''),
+        yaxis=dict(showgrid=True, showline=False, title='')
+    )
+
+    if date_format == "quarterly":
+        fig.update_traces(
+            hovertemplate=hovertemplate,
+            customdata=df['hover_label']
+        )
+    else:
+        fig.update_traces(
+            hovertemplate=f"<b>%{{x|{hover_date_format}}}</b><br>Value: %{{y:.2f}}<extra></extra>"
+        )
+
     return fig
 
 def get_japan_cpi_yoy_data():
@@ -368,18 +405,23 @@ def get_uk_unemployment_rate():
     df = df[['date', 'value']].dropna().sort_values('date')
     return df
 
-def get_ecb_refinancing_rate(start_date, end_date):
-    # Convert start_date and end_date to pd.Timestamp to avoid comparison issues
-    start_date = pd.Timestamp(start_date)
-    end_date = pd.Timestamp(end_date)
+def get_ecb_refinancing_rate(start_date=None, end_date=None):
+    # Convert start_date and end_date to pd.Timestamp if provided, else set to None
+    if start_date is not None and end_date is not None:
+        start_date = pd.Timestamp(start_date)
+        end_date = pd.Timestamp(end_date)
+        params = {
+            'startPeriod': start_date.strftime('%Y-%m'),
+            'endPeriod': end_date.strftime('%Y-%m'),
+            'format': 'jsondata'
+        }
+    else:
+        # If no dates given, request without date filtering parameters
+        params = {
+            'format': 'jsondata'
+        }
 
     url = "https://sdw-wsrest.ecb.europa.eu/service/data/FM/B.U2.EUR.4F.KR.MRR_FR.LEV"
-    params = {
-        'startPeriod': start_date.strftime('%Y-%m'),
-        'endPeriod': end_date.strftime('%Y-%m'),
-        'format': 'jsondata'
-    }
-
     response = requests.get(url, params=params)
     response.raise_for_status()
     data = response.json()
@@ -399,14 +441,19 @@ def get_ecb_refinancing_rate(start_date, end_date):
         if obs_key in observations:
             rate = observations[obs_key][0]  # rate value
             date = pd.to_datetime(date_str)
-            if start_date <= date <= end_date:
+            # Only filter by date if start_date and end_date are provided
+            if start_date is not None and end_date is not None:
+                if start_date <= date <= end_date:
+                    results.append({'date': date, 'value': rate})
+            else:
+                # If no date filtering params, add all data points
                 results.append({'date': date, 'value': rate})
 
     df = pd.DataFrame(results)
     df = df.sort_values('date').reset_index(drop=True)
     return df
 
-def get_euro_hicp_annual_gzip(start_date, end_date):
+def get_euro_hicp_annual_gzip(start_date=None, end_date=None):
     url = ("https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/prc_hicp_manr/"
            "1.0/*.*.*.*?c[freq]=M&c[unit]=RCH_A&c[coicop]=CP00&c[geo]=EA&compress=true&format=csvdata&formatVersion=1.0&lang=en&labels=label_only")
     r = requests.get(url)
@@ -417,17 +464,19 @@ def get_euro_hicp_annual_gzip(start_date, end_date):
 
     euro_area = df[df['geo'].str.contains("Euro area")][['TIME_PERIOD', 'OBS_VALUE']].sort_values('TIME_PERIOD')
 
-    # Filter by start_date and end_date (convert to datetime for filtering)
+    # Convert to datetime
     euro_area['TIME_PERIOD'] = pd.to_datetime(euro_area['TIME_PERIOD'], format='%Y-%m')
-    euro_area = euro_area[(euro_area['TIME_PERIOD'] >= pd.to_datetime(start_date)) & 
-                          (euro_area['TIME_PERIOD'] <= pd.to_datetime(end_date))]
 
-    euro_area = euro_area.rename(columns={'TIME_PERIOD': 'date', 'OBS_VALUE': 'value'})
-    euro_area = euro_area.reset_index(drop=True)
+    # Filter by date only if start_date and end_date are provided
+    if start_date is not None and end_date is not None:
+        euro_area = euro_area[(euro_area['TIME_PERIOD'] >= pd.to_datetime(start_date)) & 
+                              (euro_area['TIME_PERIOD'] <= pd.to_datetime(end_date))]
+
+    euro_area = euro_area.rename(columns={'TIME_PERIOD': 'date', 'OBS_VALUE': 'value'}).reset_index(drop=True)
 
     return euro_area
 
-def get_euro_unemployment_gzip(start_date, end_date):
+def get_euro_unemployment_gzip(start_date=None, end_date=None):
     url = (
         "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/une_rt_m/1.0/"
         "*.*.*.*.*.*?"
@@ -442,23 +491,31 @@ def get_euro_unemployment_gzip(start_date, end_date):
     with gzip.GzipFile(fileobj=io.BytesIO(r.content)) as f:
         df = pd.read_csv(f)
 
-    # We'll extract Euro Area (EA20) only for consistency
+    # Extract Euro Area data only
     euro_area = df[df['geo'].str.contains("Euro area")][['TIME_PERIOD', 'OBS_VALUE']].sort_values('TIME_PERIOD')
 
+    # Convert TIME_PERIOD to datetime for filtering
     euro_area['TIME_PERIOD'] = pd.to_datetime(euro_area['TIME_PERIOD'], format='%Y-%m')
-    euro_area = euro_area[(euro_area['TIME_PERIOD'] >= pd.to_datetime(start_date)) & 
-                          (euro_area['TIME_PERIOD'] <= pd.to_datetime(end_date))]
 
-    euro_area = euro_area.rename(columns={'TIME_PERIOD': 'date', 'OBS_VALUE': 'value'})
-    euro_area = euro_area.reset_index(drop=True)
+    # Filter by dates only if both provided
+    if start_date is not None and end_date is not None:
+        euro_area = euro_area[
+            (euro_area['TIME_PERIOD'] >= pd.to_datetime(start_date)) & 
+            (euro_area['TIME_PERIOD'] <= pd.to_datetime(end_date))
+        ]
+
+    # Rename columns for consistency
+    euro_area = euro_area.rename(columns={'TIME_PERIOD': 'date', 'OBS_VALUE': 'value'}).reset_index(drop=True)
 
     return euro_area
     
-def get_gdp_quarterly_gzip(start_date, end_date):
-    url = ("https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_gdp/1.0/*.*.*.*.*?"
-           "c[freq]=Q&c[unit]=CLV_PCH_PRE,CLV_PCH_SM,CLV_PCH_ANN&c[s_adj]=SA,SCA&c[na_item]=B1GQ&"
-           "c[geo]=EU27_2020,EA20,BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,HU,MT,NL,AT,PL,PT,RO,SI,SK,FI,SE,IS,NO,CH,UK,BA,ME,MK,AL,RS,TR,XK&"
-           "compress=true&format=csvdata&formatVersion=1.0&lang=en&labels=label_only")
+def get_gdp_quarterly_gzip(start_dt=None, end_dt=None):
+    url = (
+        "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_gdp/1.0/*.*.*.*.*?"
+        "c[freq]=Q&c[unit]=CLV_PCH_PRE,CLV_PCH_SM,CLV_PCH_ANN&c[s_adj]=SA,SCA&c[na_item]=B1GQ&"
+        "c[geo]=EU27_2020,EA20,BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,HU,MT,NL,AT,PL,PT,RO,SI,SK,FI,SE,IS,NO,CH,UK,BA,ME,MK,AL,RS,TR,XK&"
+        "compress=true&format=csvdata&formatVersion=1.0&lang=en&labels=label_only"
+    )
 
     r = requests.get(url)
     r.raise_for_status()
@@ -466,26 +523,25 @@ def get_gdp_quarterly_gzip(start_date, end_date):
     with gzip.GzipFile(fileobj=io.BytesIO(r.content)) as f:
         df = pd.read_csv(f)
 
-    # Exact string for Euro area geo
     euro_area_geo = 'Euro area – 20 countries (from 2023)'
-
-    # Unit description you want
     desired_unit = 'Chain linked volumes, percentage change on previous period'
 
-    # Filter by geo and unit
-    euro_area = df[(df['geo'] == euro_area_geo) & (df['unit'] == desired_unit)][['TIME_PERIOD', 'OBS_VALUE']].sort_values('TIME_PERIOD')
+    euro_area = df[
+        (df['geo'] == euro_area_geo) & 
+        (df['unit'] == desired_unit)
+    ][['TIME_PERIOD', 'OBS_VALUE']].sort_values('TIME_PERIOD')
 
-    # Convert quarters to timestamps (start of the quarter)
     euro_area['TIME_PERIOD'] = pd.PeriodIndex(euro_area['TIME_PERIOD'], freq='Q').to_timestamp()
 
-    # Convert input dates to datetime
-    start_dt = pd.to_datetime(start_date)
-    end_dt = pd.to_datetime(end_date)
+    # Only convert and filter if both dates are provided
+    if start_dt is not None and end_dt is not None:
+        start_dt = pd.to_datetime(start_dt)
+        end_dt = pd.to_datetime(end_dt)
+        euro_area = euro_area[
+            (euro_area['TIME_PERIOD'] >= start_dt) & 
+            (euro_area['TIME_PERIOD'] <= end_dt)
+        ]
 
-    # Filter by date range
-    euro_area = euro_area[(euro_area['TIME_PERIOD'] >= start_dt) & (euro_area['TIME_PERIOD'] <= end_dt)]
-
-    # Rename columns
     euro_area = euro_area.rename(columns={'TIME_PERIOD': 'date', 'OBS_VALUE': 'value'}).reset_index(drop=True)
 
     return euro_area
@@ -513,9 +569,17 @@ def get_fx_data_yahoo(ticker="GBPUSD=X", start_date=None, end_date=None):
     return df
 
 
-import streamlit as st
+#####-----Streamlit App-----#####
 
 st.set_page_config(page_title="Macro Dashboard", layout="wide")
+
+st.markdown("""
+    <style>
+    .js-plotly-plot .plotly .cursor-crosshair {
+        cursor: default !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # --- Hide Default UI ---
 st.markdown("""
@@ -539,12 +603,6 @@ st.markdown("""
         justify-content: space-between;
         align-items: center;
     }
-    
-    .custom-header .menu {
-    flex-wrap: wrap;
-    overflow-x: auto;
-}
-
 
     .custom-header .logo {
         font-weight: bold;
@@ -580,12 +638,12 @@ st.markdown("""
     <div class="custom-header">
         <div class="logo">THEALEXBFX</div>
         <div class="menu">
-            <a href="?page=Home">Home</a>
-            <a href="?page=USA">USA</a>
-            <a href="?page=Japan">Japan</a>
-            <a href="?page=UK">UK</a>
-            <a href="?page=EURO">EURO</a>
-            <a href="?page=FX%20Rates">FX Rates</a>
+            <a href="?page=Home" target="_self">Home</a>
+            <a href="?page=USA" target="_self">USA</a>
+            <a href="?page=Japan" target="_self">Japan</a>
+            <a href="?page=UK" target="_self">UK</a>
+            <a href="?page=EURO" target="_self">Euro Area</a>
+            <a href="?page=FX%20Rates" target="_self">FX Rates</a>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -594,264 +652,373 @@ st.markdown("""
 query_params = st.query_params
 page = query_params.get("page", "Home")  # default to Home if not specified
 
-if "page" not in st.query_params:
-    st.query_params.page = "Home"
-
 
 # --- Spacer to prevent content being hidden under fixed bar ---
 st.markdown('<div class="spacer"></div>', unsafe_allow_html=True)
 
 # --- Main Content Below Header ---
-st.title("Welcome to the Macro Dashboard")
-st.markdown("""
-✅ Data updates daily via the [FRED API](https://fred.stlouisfed.org) and [e-Stat API](https://www.e-stat.go.jp/en/)  
-✅ Choose time ranges and chart styles  
-✅ Built for macro-FX strategists and analysts  
-""")
+
+if page == "Home":
+    st.title("Welcome to the Macro Dashboard")
+    st.markdown("""
+    ✅ Data updates daily via the [FRED API](https://fred.stlouisfed.org) and [e-Stat API](https://www.e-stat.go.jp/en/)  
+    ✅ Choose time ranges and chart styles  
+    ✅ Built for macro-FX strategists and analysts  
+    """)
 
 # -------- USA Tab --------
 if page == "USA":
-    st.header("🇺🇸 United States Macro Data")
+    col1, col2 = st.columns([1, 3])  # Left col narrow, right col wide
 
-    indicator = st.selectbox("Select Indicator", [
-        "Interest Rate",
-        "Inflation Rate",
-        "GDP Growth Rate",
-        "Unemployment Rate",
-        "10Y Yield",
-        "2Y Yield"
-    ])
+    with col1: 
+        st.header("🇺🇸 United States Macro Data")
 
-    chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
-    col1, col2 = st.columns(2)
-    with col1:
-        start_date = st.date_input("Start Date", dt.date(2010, 1, 1), min_value=dt.date(1980, 1, 1), max_value=dt.date.today())
+        indicator = st.selectbox("Select Indicator", [
+            "Interest Rate",
+            "Inflation Rate",
+            "GDP Growth Rate",
+            "Unemployment Rate",
+            "10Y Yield",
+            "2Y Yield"
+        ])
+
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
+
+        # Load full data once to define earliest/latest dates dynamically
+        if indicator == "Interest Rate":
+            df = get_data("FEDFUNDS")
+        elif indicator == "Inflation Rate":
+            cpi_raw = fred.get_series('CPIAUCSL')
+            df = pd.DataFrame(cpi_raw).reset_index()
+            df.columns = ['date', 'value']
+        elif indicator == "GDP Growth Rate":
+            df = get_data("A191RL1Q225SBEA")
+        elif indicator == "Unemployment Rate":
+            df = get_data("UNRATE")
+        elif indicator == "10Y Yield":
+            df = get_data("DGS10")
+        elif indicator == "2Y Yield":
+            df = get_data("DGS2")
+
+        df = df.dropna()
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        default_start_date = max(earliest_date, latest_date - dt.timedelta(days=1825))
+
+        # Date inputs
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
+        if start_date > end_date:
+            st.warning("Start date cannot be after end date.")
+            st.stop()
+
     with col2:
-        end_date = st.date_input("End Date", dt.date.today(), min_value=dt.date(1980, 1, 1), max_value=dt.date.today())
+        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
 
-    if indicator == "Interest Rate":
-        st.subheader("Federal Funds Rate")
-        df = get_data("FEDFUNDS", start_date, end_date)
-        st.plotly_chart(plot_chart(df, "Federal Funds Rate (%)", chart_type), use_container_width=True)
+        if indicator == "Interest Rate":
+            st.subheader("Federal Funds Rate")
+            st.plotly_chart(plot_chart(df, "Federal Funds Rate (%)", chart_type), use_container_width=True)
 
-    elif indicator == "Inflation Rate":
-        st.subheader("CPI Inflation Rate (YoY %)")
-        cpi_raw = fred.get_series('CPIAUCSL')
-        df_cpi = pd.DataFrame(cpi_raw)
-        df_cpi.columns = ['value']
-        df_cpi.index.name = 'date'
-        df_cpi = df_cpi.reset_index()
-        df_cpi['YoY Inflation Rate'] = (df_cpi['value'].pct_change(periods=12) * 100).round(2)
-        df_cpi = df_cpi[(df_cpi['date'] >= pd.to_datetime(start_date)) & (df_cpi['date'] <= pd.to_datetime(end_date))]
-        df_cpi = df_cpi.dropna()
-        fig = plot_chart(df_cpi[['date', 'YoY Inflation Rate']].rename(columns={'YoY Inflation Rate': 'value'}), "Inflation Rate (YoY %)", chart_type)
-        st.plotly_chart(fig, use_container_width=True)
+        elif indicator == "Inflation Rate":
+            st.subheader("CPI Inflation Rate (YoY %)")
+            df['YoY Inflation Rate'] = (df['value'].pct_change(periods=12) * 100).round(2)
+            df = df.dropna()
+            fig = plot_chart(df[['date', 'YoY Inflation Rate']].rename(columns={'YoY Inflation Rate': 'value'}), "Inflation Rate (YoY %)", chart_type)
+            st.plotly_chart(fig, use_container_width=True)
 
-    elif indicator == "GDP Growth Rate":
-        st.subheader("Real GDP Growth Rate (QoQ Annualized %)")
-        df = get_data("A191RL1Q225SBEA", start_date, end_date)
-        st.plotly_chart(plot_chart(df, "GDP Growth Rate (QoQ Annualized %)", chart_type), use_container_width=True)
+        elif indicator == "GDP Growth Rate":
+            st.subheader("Real GDP Growth Rate (QoQ Annualized %)")
+            st.plotly_chart(plot_chart(df, "Real GDP Growth Rate %", chart_type), use_container_width=True)
 
-    elif indicator == "Unemployment Rate":
-        st.subheader("Unemployment Rate")
-        df = get_data("UNRATE", start_date, end_date)
-        st.plotly_chart(plot_chart(df, "Unemployment Rate (%)", chart_type), use_container_width=True)
+        elif indicator == "Unemployment Rate":
+            st.subheader("Unemployment Rate")
+            st.plotly_chart(plot_chart(df, "Unemployment Rate (%)", chart_type), use_container_width=True)
 
-    elif indicator == "10Y Yield":
-        st.subheader("10-Year Treasury Yield")
-        df = get_data("DGS10", start_date, end_date)
-        st.plotly_chart(plot_chart(df, "10-Year Government Bond Yield (%)", chart_type), use_container_width=True)
+        elif indicator == "10Y Yield":
+            st.subheader("10-Year Treasury Yield")
+            st.plotly_chart(plot_chart(df, "10-Year Government Bond Yield (%)", chart_type), use_container_width=True)
 
-    elif indicator == "2Y Yield":
-        st.subheader("2-Year Treasury Yield")
-        df = get_data("DGS2", start_date, end_date)
-        st.plotly_chart(plot_chart(df, "2-Year Government Bond Yield (%)", chart_type), use_container_width=True)
+        elif indicator == "2Y Yield":
+            st.subheader("2-Year Treasury Yield")
+            st.plotly_chart(plot_chart(df, "2-Year Government Bond Yield (%)", chart_type), use_container_width=True)
 
 # -------- Japan Tab --------
 if page == "Japan":
-    st.header("🇯🇵 Japan Macro Data")
-    indicator = st.selectbox("Select Indicator", ["CPI YoY Change (%)", "Unemployment Rate", "Real GDP QoQ Growth", "Interest Rate (Short-Term)",
-    "Interest Rate (Long-Term)"])
-    chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1, 3])  # Make col1 narrow, col2 wide
+
     with col1:
-        start_date = st.date_input("Start Date", dt.date(1980, 1, 1), min_value=dt.date(1980, 1, 1), max_value=dt.date.today())
+        st.header("🇯🇵 Japan Macro Data")
+
+        indicator = st.selectbox("Select Indicator", [
+            "CPI YoY Change (%)",
+            "Unemployment Rate",
+            "Real GDP QoQ Growth",
+            "Interest Rate (Short-Term)",
+            "Interest Rate (Long-Term)"
+        ])
+
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
+
+        # Load full dataset to determine bounds
+        if indicator == "CPI YoY Change (%)":
+            df = get_japan_cpi_yoy_data()
+        elif indicator == "Unemployment Rate":
+            df = get_japan_unemployment_data()
+        elif indicator == "Real GDP QoQ Growth":
+            df = get_japan_gdp_qoq_growth()
+            df.rename(columns={'gdp_qoq_growth': 'value'}, inplace=True)
+        elif indicator == "Interest Rate (Short-Term)":
+            df = get_data("IRSTCI01JPM156N")
+        elif indicator == "Interest Rate (Long-Term)":
+            df = get_data("IRLTLT01JPM156N")
+
+        df = df.dropna()
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        default_start_date = max(earliest_date, latest_date - dt.timedelta(days=1825))
+
+        # Date input widgets
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
+        if start_date > end_date:
+            st.warning("Start date cannot be after end date.")
+            st.stop()
+
     with col2:
-        end_date = st.date_input("End Date", dt.date.today(), min_value=dt.date(1980, 1, 1), max_value=dt.date.today())
+        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
 
-    if indicator == "CPI YoY Change (%)":
-        st.subheader("Japan CPI Year-over-Year Change (All Items)")
-        df = get_japan_cpi_yoy_data()
-        st.plotly_chart(plot_chart(df, "CPI YoY Change (%)", chart_type), use_container_width=True)
+        if df.empty:
+            st.warning("No data available for this date range.")
+        else:
+            if indicator == "CPI YoY Change (%)":
+                st.subheader("Japan CPI Year-over-Year Change (All Items)")
+                st.plotly_chart(plot_chart(df, "CPI YoY Change (%)", chart_type), use_container_width=True)
 
-    elif indicator == "Unemployment Rate":
-        st.subheader("Japan Unemployment Rate")
-        df = get_japan_unemployment_data()
-        st.plotly_chart(plot_chart(df, "Unemployment Rate", chart_type), use_container_width=True)
+            elif indicator == "Unemployment Rate":
+                st.subheader("Japan Unemployment Rate")
+                st.plotly_chart(plot_chart(df, "Unemployment Rate", chart_type), use_container_width=True)
 
-    elif indicator == "Real GDP QoQ Growth":
-        st.subheader("Japan Real GDP QoQ Growth Rate (%)")
-        df = get_japan_gdp_qoq_growth()
-        df.rename(columns={'gdp_qoq_growth': 'value'}, inplace=True)
-        st.plotly_chart(plot_chart(df, "Real GDP QoQ Growth", chart_type), use_container_width=True)
-     
-    elif indicator == "Interest Rate (Short-Term)":
-        st.subheader("Japan Short-Term Interest Rate (FRED: IRSTCI01JPM156N)")
-        df = get_data("IRSTCI01JPM156N", start_date, end_date)
-        st.plotly_chart(plot_chart(df, "Interest Rate (Short-Term)", chart_type), use_container_width=True)
-        
-    elif indicator == "Interest Rate (Long-Term)":
-        st.subheader("Japan Long-Term Interest Rate (FRED: IRLTLT01JPM156N)")
-        df = get_data("IRLTLT01JPM156N", start_date, end_date)
-        st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
+            elif indicator == "Real GDP QoQ Growth":
+                st.subheader("Japan Real GDP QoQ Growth Rate (%)")
+                st.plotly_chart(plot_chart(df, "Real GDP QoQ Growth", chart_type), use_container_width=True)
+
+            elif indicator == "Interest Rate (Short-Term)":
+                st.subheader("Japan Short-Term Interest Rate (FRED: IRSTCI01JPM156N)")
+                st.plotly_chart(plot_chart(df, "Interest Rate (Short-Term)", chart_type), use_container_width=True)
+
+            elif indicator == "Interest Rate (Long-Term)":
+                st.subheader("Japan Long-Term Interest Rate (FRED: IRLTLT01JPM156N)")
+                st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
         
 # -------- UK Tab --------        
 if page == "UK":
-    st.header("🇬🇧 UK Macro Data")
-    indicator = st.selectbox("Select Indicator", [
-        "Bank of England Base Rate (%)",
-        "CPI Inflation Rate (YoY %)",
-    "GDP Growth Rate (QoQ %)", "Unemployment Rate", "Interest Rate (Short-Term)", "Interest Rate (Long-Term)"
-    ])
+    col1, col2 = st.columns([1, 3])  # Left: narrow for controls, Right: wide for output
 
-    chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
-    col1, col2 = st.columns(2)
     with col1:
-        start_date = st.date_input("Start Date", pd.to_datetime("1989-01-01"))
+        st.header("🇬🇧 UK Macro Data")
+
+        indicator = st.selectbox("Select Indicator", [
+            "Bank of England Base Rate (%)",
+            "CPI Inflation Rate (YoY %)",
+            "GDP Growth Rate (QoQ %)",
+            "Unemployment Rate",
+            "Interest Rate (Short-Term)",
+            "Interest Rate (Long-Term)"
+        ])
+
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
+
+        # Load full dataset temporarily for date bounds
+        if indicator == "Bank of England Base Rate (%)":
+            df = get_uk_base_rate_from_url().rename(columns={'Date': 'date', 'Bank Rate': 'value'})
+        elif indicator == "CPI Inflation Rate (YoY %)":
+            df = get_uk_cpi_yoy()
+            df = df.rename(columns={'cpi_yoy': 'value'}) if 'cpi_yoy' in df.columns else df
+        elif indicator == "GDP Growth Rate (QoQ %)":
+            df = get_uk_gdp_qoq()
+            df = df.rename(columns={'gdp_qoq': 'value'}) if 'gdp_qoq' in df.columns else df
+        elif indicator == "Unemployment Rate":
+            df = get_uk_unemployment_rate()
+            df = df.rename(columns={'unemployment_rate': 'value'}) if 'unemployment_rate' in df.columns else df
+        elif indicator == "Interest Rate (Short-Term)":
+            df = get_data("IR3TIB01GBM156N")
+        elif indicator == "Interest Rate (Long-Term)":
+            df = get_data("IRLTLT01GBM156N")
+
+        df = df.dropna()
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        default_start_date = max(earliest_date, latest_date - dt.timedelta(days=1825))
+
+        # Date inputs with safe bounds
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
+        if start_date > end_date:
+            st.warning("Start date cannot be after end date.")
+            st.stop()
+
     with col2:
-        end_date = st.date_input("End Date", pd.Timestamp.today())
+        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
 
-    if indicator == "Bank of England Base Rate (%)":
-        df = get_uk_base_rate_from_url()
-        df = df.rename(columns={'Date': 'date', 'Bank Rate': 'value'})
-        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
-        st.plotly_chart(plot_chart(df, "Bank of England Base Rate (%)", chart_type), use_container_width=True)
+        if df.empty:
+            st.warning("No data found for this date range.")
+        else:
+            if indicator == "Bank of England Base Rate (%)":
+                st.subheader("Bank of England Base Rate (%)")
+                st.plotly_chart(plot_chart(df, "Bank of England Base Rate (%)", chart_type), use_container_width=True)
 
-    elif indicator == "CPI Inflation Rate (YoY %)":
-        df = get_uk_cpi_yoy()
-        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
-        st.plotly_chart(plot_chart(df, "UK CPI Inflation Rate (YoY %)", chart_type), use_container_width=True)
-        
-    elif indicator == "GDP Growth Rate (QoQ %)":
-        df = get_uk_gdp_qoq()
-        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
-        st.plotly_chart(plot_chart(df, "UK Real GDP QoQ Growth (%)", chart_type), use_container_width=True)
+            elif indicator == "CPI Inflation Rate (YoY %)":
+                st.subheader("UK CPI Inflation Rate (YoY %)")
+                st.plotly_chart(plot_chart(df, "UK CPI Inflation Rate (YoY %)", chart_type), use_container_width=True)
 
-    elif indicator == "Unemployment Rate":
-        df = get_uk_unemployment_rate()
-        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
-        st.plotly_chart(plot_chart(df, "UK Unemployment Rate (%)", chart_type), use_container_width=True)
-        
-    elif indicator == "Interest Rate (Short-Term)":
-        st.subheader("UK Short-Term Interest Rate (FRED: IR3TIB01GBM156N)")
-        df = get_data("IR3TIB01GBM156N", start_date, end_date)
-        st.plotly_chart(plot_chart(df, "Interest Rate (Short-Term)", chart_type), use_container_width=True)
-        
-    elif indicator == "Interest Rate (Long-Term)":
-        st.subheader("UK Long-Term Interest Rate (FRED: IRLTLT01GBM156N)")
-        df = get_data("IRLTLT01GBM156N", start_date, end_date)
-        st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
+            elif indicator == "GDP Growth Rate (QoQ %)":
+                st.subheader("UK Real GDP QoQ Growth (%)")
+                st.plotly_chart(plot_chart(df, "UK Real GDP QoQ Growth (%)", chart_type), use_container_width=True)
+
+            elif indicator == "Unemployment Rate":
+                st.subheader("UK Unemployment Rate (%)")
+                st.plotly_chart(plot_chart(df, "UK Unemployment Rate (%)", chart_type), use_container_width=True)
+
+            elif indicator == "Interest Rate (Short-Term)":
+                st.subheader("UK Short-Term Interest Rate (FRED: IR3TIB01GBM156N)")
+                st.plotly_chart(plot_chart(df, "Interest Rate (Short-Term)", chart_type), use_container_width=True)
+
+            elif indicator == "Interest Rate (Long-Term)":
+                st.subheader("UK Long-Term Interest Rate (FRED: IRLTLT01GBM156N)")
+                st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
         
 # -------- EURO Tab --------
 if page == "EURO":
-    st.header("🇪🇺 Euro Area Macro Data")
-    indicator = st.selectbox("Select Indicator", [
-        "ECB Main Refinancing Rate",
-        "HICP Annual Change (Eurostat gzip)", "Unemployment Rate (Seasonally Adjusted)", "GDP Quarterly Growth (Seasonally Adjusted)", 
-        "Interest Rate (Short-Term)", "Interest Rate (Long-Term)"
-    ])
-    chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
-    c1, c2 = st.columns(2)
-    with c1:
-        start_date = st.date_input("Start Date", dt.date(2020, 1, 1), min_value=dt.date(2000,1,1), max_value=dt.date.today())
-    with c2:
-        end_date = st.date_input("End Date", dt.date.today(), min_value=dt.date(2000,1,1), max_value=dt.date.today())
+    col1, col2 = st.columns([1, 3])  # Controls (left), output (right)
 
-    if indicator == "ECB Main Refinancing Rate":
-        st.subheader("ECB Main Refinancing Rate (%)")
-        df = get_ecb_refinancing_rate(start_date, end_date)
-        st.plotly_chart(plot_chart(df, "ECB Refinancing Rate", chart_type), use_container_width=True)
+    with col1:
+        st.header("🇪🇺 Euro Area Macro Data")
 
-    elif indicator == "HICP Annual Change (Eurostat gzip)":
-        st.subheader("Euro Area HICP Annual Change (Eurostat gzip data)")
-        df = get_euro_hicp_annual_gzip(start_date, end_date)
+        indicator = st.selectbox("Select Indicator", [
+            "ECB Main Refinancing Rate",
+            "HICP Annual Change (Eurostat gzip)",
+            "Unemployment Rate (Seasonally Adjusted)",
+            "GDP Quarterly Growth (Seasonally Adjusted)",
+            "Interest Rate (Short-Term)",
+            "Interest Rate (Long-Term)"
+        ])
+
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
+
+        # Temporarily load full dataset for date range
+        if indicator == "ECB Main Refinancing Rate":
+            df = get_ecb_refinancing_rate()
+        elif indicator == "HICP Annual Change (Eurostat gzip)":
+            df = get_euro_hicp_annual_gzip()
+        elif indicator == "Unemployment Rate (Seasonally Adjusted)":
+            df = get_euro_unemployment_gzip()
+        elif indicator == "GDP Quarterly Growth (Seasonally Adjusted)":
+            df = get_gdp_quarterly_gzip()
+        elif indicator == "Interest Rate (Short-Term)":
+            df = get_data("IR3TIB01EZM156N")
+        elif indicator == "Interest Rate (Long-Term)":
+            df = get_data("IRLTLT01EZM156N")
+
+        df = df.dropna()
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        default_start_date = max(earliest_date, latest_date - dt.timedelta(days=1825))
+
+        # Date inputs with bounds
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
+        # Validation: prevent wrong ordering
+        if start_date > end_date:
+            st.warning("Start date cannot be after end date.")
+            st.stop()
+
+    with col2:
+        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
+
         if df.empty:
-            st.warning("No HICP data found for this period.")
+            st.warning("No data found for this date range.")
         else:
-            st.plotly_chart(plot_chart(df, "Euro Area HICP Annual Change (%)", chart_type), use_container_width=True)
-            
-    elif indicator == "Unemployment Rate (Seasonally Adjusted)":
-        st.subheader("Euro Area Unemployment Rate (Seasonally Adjusted, Eurostat gzip data)")
-        df = get_euro_unemployment_gzip(start_date, end_date)
-        if df.empty:
-            st.warning("No unemployment data found for this period.")
-        else:
-            st.plotly_chart(plot_chart(df, "Euro Area Unemployment Rate (%)", chart_type), use_container_width=True)
-            
-    elif indicator == "GDP Quarterly Growth (Seasonally Adjusted)":
-        st.subheader("Euro Area GDP Quarterly Growth (Seasonally Adjusted, Eurostat gzip data)")
-        df = get_gdp_quarterly_gzip(start_date, end_date)
-        if df.empty:
-            st.warning("No GDP data found for this period.")
-        else:
-            st.plotly_chart(plot_chart(df, "GDP Quarterly Growth (%)", chart_type), use_container_width=True)
-    
-    elif indicator == "Interest Rate (Short-Term)":
-        st.subheader("EURO Short-Term Interest Rate (FRED: IR3TIB01EZM156N)")
-        df = get_data("IR3TIB01EZM156N", start_date, end_date)
-        st.plotly_chart(plot_chart(df, "Interest Rate (Short-Term)", chart_type), use_container_width=True)
+            if indicator == "ECB Main Refinancing Rate":
+                st.subheader("ECB Main Refinancing Rate (%)")
+                st.plotly_chart(plot_chart(df, "ECB Refinancing Rate", chart_type), use_container_width=True)
+
+            elif indicator == "HICP Annual Change (Eurostat gzip)":
+                st.subheader("Euro Area HICP Annual Change (%)")
+                st.plotly_chart(plot_chart(df, "Euro Area HICP Annual Change (%)", chart_type), use_container_width=True)
+
+            elif indicator == "Unemployment Rate (Seasonally Adjusted)":
+                st.subheader("Euro Area Unemployment Rate (Seasonally Adjusted)")
+                st.plotly_chart(plot_chart(df, "Euro Area Unemployment Rate (%)", chart_type), use_container_width=True)
+
+            elif indicator == "GDP Quarterly Growth (Seasonally Adjusted)":
+                st.subheader("Euro Area GDP Quarterly Growth (%)")
+                st.plotly_chart(plot_chart(df, "GDP Quarterly Growth (%)", chart_type), use_container_width=True)
+
+            elif indicator == "Interest Rate (Short-Term)":
+                st.subheader("EURO Short-Term Interest Rate (FRED: IR3TIB01EZM156N)")
+                st.plotly_chart(plot_chart(df, "Interest Rate (Short-Term)", chart_type), use_container_width=True)
+
+            elif indicator == "Interest Rate (Long-Term)":
+                st.subheader("EURO Long-Term Interest Rate (FRED: IRLTLT01EZM156N)")
+                st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
         
-    elif indicator == "Interest Rate (Long-Term)":
-        st.subheader("EURO Long-Term Interest Rate (FRED: IRLTLT01EZM156N)")
-        df = get_data("IRLTLT01EZM156N", start_date, end_date)
-        st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
-        
+# -------- FX Rates Tab --------
 if page == "FX Rates":
-    st.header("FX Rates")
-    indicator = st.selectbox("Select Indicator", [
-        "EUR/USD", "GBP/USD", "USD/JPY", "EUR/GBP", "EURJPY", "GBPJPY", "DXY"
-        
-    ])
-    chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
-    c1, c2 = st.columns(2)
-    with c1:
-        start_date = st.date_input("Start Date", dt.date(2020, 1, 1), min_value=dt.date(2000,1,1), max_value=dt.date.today())
-    with c2:
-        end_date = st.date_input("End Date", dt.date.today(), min_value=dt.date(2000,1,1), max_value=dt.date.today())
+    col1, col2 = st.columns([1, 3])
 
-    if indicator == "EUR/USD":
-        st.subheader("EUR/USD Daily Exchange Rate (Close Price)")
-        df = get_fx_data_yahoo("EURUSD=X", start_date, end_date)
+    with col1:
+        st.header("🌍 FX Rates")
+
+        indicator = st.selectbox("Select Indicator", [
+            "EUR/USD", "GBP/USD", "USD/JPY", "EUR/GBP", "EUR/JPY", "GBP/JPY", "DXY"
+        ])
+
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
+
+        fx_tickers = {
+            "EUR/USD": ("EURUSD=X", "EUR/USD Close Price"),
+            "GBP/USD": ("GBPUSD=X", "GBP/USD Close Price"),
+            "USD/JPY": ("USDJPY=X", "USD/JPY Close Price"),
+            "EUR/GBP": ("EURGBP=X", "EUR/GBP Close Price"),
+            "EUR/JPY": ("EURJPY=X", "EUR/JPY Close Price"),
+            "GBP/JPY": ("GBPJPY=X", "GBP/JPY Close Price"),
+            "DXY":     ("DX-Y.NYB", "DXY Close Price")
+        }
+
+        ticker, title = fx_tickers[indicator]
+
+        # Load the full FX data to get the true date range
+        df = get_fx_data_yahoo(ticker, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
+        df = df.dropna()
+
         if df.empty:
-            st.error("Could not load FX data.")
-        else:
-            st.plotly_chart(plot_chart(df, "EUR/USD Close Price", chart_type), use_container_width=True)
-            
-    elif indicator == "GBP/USD":
-        st.subheader("GBP/USD Daily Exchange Rate (Close Price)")
-        df = get_fx_data_yahoo("GBPUSD=X", start_date, end_date)
-        if df.empty:
-            st.error("Could not load FX data.")
-        else:
-            st.plotly_chart(plot_chart(df, "GBP/USD Close Price", chart_type), use_container_width=True)
-            
-    elif indicator == "USD/JPY":
-        st.subheader("USD/JPY Daily Exchange Rate (Close Price)")
-        df = get_fx_data_yahoo("USDJPY=X", start_date, end_date)
-        if df.empty:
-            st.error("Could not load FX data.")
-        else:
-            st.plotly_chart(plot_chart(df, "USD/JPY Close Price", chart_type), use_container_width=True)
-            
-    elif indicator == "DXY":
-        st.subheader("DXY Daily Exchange Rate (Close Price)")
-        df = get_fx_data_yahoo("DX-Y.NYB", start_date, end_date)
-        if df.empty:
-            st.error("Could not load FX data.")
-        else:
-            st.plotly_chart(plot_chart(df, "DXY Close Price", chart_type), use_container_width=True)
+            st.error("No data available.")
+            st.stop()
 
+        # Get dynamic min/max date bounds from data
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
 
+        # Set default start date to 1 year before the latest available date
+        default_start_date = max(earliest_date, latest_date - dt.timedelta(days=1825))
 
+        # User date inputs with valid bounds
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
 
+        # Validation: prevent start_date > end_date
+        if start_date > end_date:
+            st.warning("Start date must be before end date.")
+            st.stop()
 
+    with col2:
+        st.subheader(f"{indicator} Daily Exchange Rate (Close Price)")
+
+        # Filter data by selected date range
+        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
+
+        st.plotly_chart(plot_chart(df, title, chart_type), use_container_width=True)
