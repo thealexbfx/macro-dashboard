@@ -672,19 +672,108 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- Fixed Top Bar (HTML block) ---
+# --- Responsive Fixed Top Bar (Desktop + Mobile) ---
 st.markdown("""
-    <div class="custom-header">
-        <div class="logo">THEALEXBFX</div>
-        <div class="menu">
-            <a href="?page=Home" target="_self">Home</a>
-            <a href="?page=USA" target="_self">USA</a>
-            <a href="?page=Japan" target="_self">Japan</a>
-            <a href="?page=UK" target="_self">UK</a>
-            <a href="?page=EURO" target="_self">Euro Area</a>
-            <a href="?page=FX%20Rates" target="_self">FX Rates</a>
-        </div>
+<style>
+/* Base Navbar Style */
+.navbar {
+    background-color: #ffffff;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 9999;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Logo */
+.navbar .logo {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: black;
+}
+
+/* Menu Links */
+.navbar .menu {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.navbar .menu a {
+    text-decoration: none;
+    color: black;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.navbar .menu a:hover {
+    color: #007bff;
+}
+
+/* Hamburger Icon */
+.navbar .icon {
+    display: none;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* Responsive Mobile Menu */
+@media screen and (max-width: 768px) {
+    .navbar .menu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .navbar.responsive .menu {
+        display: flex;
+    }
+
+    .navbar .icon {
+        display: block;
+        color: black;
+    }
+
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .navbar.responsive {
+        align-items: flex-start;
+    }
+}
+</style>
+
+<div class="navbar" id="topNavbar">
+    <div class="logo"><a href="?page=Home" style="color:inherit;text-decoration:none;">THEALEXBFX</a></div>
+    <div class="icon" onclick="toggleNavbar()">☰</div>
+    <div class="menu">
+        <a href="?page=Home" target="_self">Home</a>
+        <a href="?page=USA" target="_self">USA</a>
+        <a href="?page=Japan" target="_self">Japan</a>
+        <a href="?page=UK" target="_self">UK</a>
+        <a href="?page=EURO" target="_self">Euro Area</a>
+        <a href="?page=FX%20Rates" target="_self">FX Rates</a>
     </div>
+</div>
+
+<script>
+function toggleNavbar() {
+    var nav = document.getElementById("topNavbar");
+    if (nav.classList.contains("responsive")) {
+        nav.classList.remove("responsive");
+    } else {
+        nav.classList.add("responsive");
+    }
+}
+</script>
+
+<br><br><br><br>
 """, unsafe_allow_html=True)
 
 
