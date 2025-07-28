@@ -736,6 +736,9 @@ st.markdown("""
         <a href="?page=EURO" target="_self">Euro Area</a>
         <a href="?page=FX%20Rates" target="_self">FX Rates</a>
     </div>
+    
+    <div class="hamburger">&#9776;</div>
+</div>
 
 <div class="mobile-menu">
     <a href="?page=Home" target="_self">Home</a>
