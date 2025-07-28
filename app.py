@@ -82,6 +82,7 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily"):
 
     return fig
 
+
 def get_japan_cpi_yoy_data():
     url = "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData"
     params = {
@@ -646,6 +647,7 @@ st.markdown("""
     .custom-header .logo {
         font-weight: bold;
         font-size: 1.2rem;
+        color: black;  /* make logo visible */
     }
 
     .custom-header .menu {
@@ -654,6 +656,26 @@ st.markdown("""
         flex-grow: 1;
         gap: 2rem;
     }
+  
+/* Hide menu and show hamburger only on mobile */
+@media only screen and (max-width: 768px) {
+    .custom-header .menu {
+        display: none;  /* hide full menu on mobile */
+    }
+
+    .custom-header .hamburger {
+        display: block;
+        cursor: pointer;
+        font-size: 1.5rem;
+        user-select: none;
+        color: black;  /* visible on light bg */
+    }
+}
+
+/* Hide hamburger by default on desktop */
+.custom-header .hamburger {
+    display: none;
+}
 
     .custom-header .menu a {
         text-decoration: none;
@@ -669,89 +691,43 @@ st.markdown("""
     .spacer {
         height: 80px;
     }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- Responsive Fixed Top Bar (Desktop + Mobile) ---
-st.markdown("""
-<style>
-/* Base Navbar Style */
-.navbar {
-    background-color: #ffffff;
-    overflow: hidden;
+    
+.mobile-menu {
+    display: none;
     position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 9999;
+    top: 80px;  /* same as spacer height */
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 9998;
+    flex-direction: column;
+    border-top: 1px solid #ddd;
+}
+
+.mobile-menu.show {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid #e0e0e0;
 }
 
-/* Logo */
-.navbar .logo {
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: black;
-}
-
-/* Menu Links */
-.navbar .menu {
-    display: flex;
-    gap: 1.5rem;
-}
-
-.navbar .menu a {
+.mobile-menu a {
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #eee;
     text-decoration: none;
     color: black;
-    font-size: 1rem;
     font-weight: 500;
 }
 
-.navbar .menu a:hover {
+.mobile-menu a:hover {
+    background-color: #f0f0f0;
     color: #007bff;
 }
 
-/* Hamburger Icon */
-.navbar .icon {
-    display: none;
-    font-size: 22px;
-    cursor: pointer;
-}
+    </style>
+""", unsafe_allow_html=True)
 
-/* Responsive Mobile Menu */
-@media screen and (max-width: 768px) {
-    .navbar .menu {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .navbar.responsive .menu {
-        display: flex;
-    }
-
-    .navbar .icon {
-        display: block;
-        color: black;
-    }
-
-    .navbar {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .navbar.responsive {
-        align-items: flex-start;
-    }
-}
-</style>
-
-<div class="navbar" id="topNavbar">
-    <div class="logo"><a href="?page=Home" style="color:inherit;text-decoration:none;">THEALEXBFX</a></div>
-    <div class="icon" onclick="toggleNavbar()">☰</div>
+# --- Fixed Top Bar (HTML block) ---
+st.markdown("""
+<div class="custom-header">
+    <div class="logo">THEALEXBFX</div>
     <div class="menu">
         <a href="?page=Home" target="_self">Home</a>
         <a href="?page=USA" target="_self">USA</a>
@@ -760,20 +736,26 @@ st.markdown("""
         <a href="?page=EURO" target="_self">Euro Area</a>
         <a href="?page=FX%20Rates" target="_self">FX Rates</a>
     </div>
+
+<div class="mobile-menu">
+    <a href="?page=Home" target="_self">Home</a>
+    <a href="?page=USA" target="_self">USA</a>
+    <a href="?page=Japan" target="_self">Japan</a>
+    <a href="?page=UK" target="_self">UK</a>
+    <a href="?page=EURO" target="_self">Euro Area</a>
+    <a href="?page=FX%20Rates" target="_self">FX Rates</a>
 </div>
+""", unsafe_allow_html=True)
 
+st.markdown("""
 <script>
-function toggleNavbar() {
-    var nav = document.getElementById("topNavbar");
-    if (nav.classList.contains("responsive")) {
-        nav.classList.remove("responsive");
-    } else {
-        nav.classList.add("responsive");
-    }
-}
-</script>
+const hamburger = document.querySelector('.hamburger');
+const mobileMenu = document.querySelector('.mobile-menu');
 
-<br><br><br><br>
+hamburger.addEventListener('click', () => {
+    mobileMenu.classList.toggle('show');
+});
+</script>
 """, unsafe_allow_html=True)
 
 
