@@ -38,36 +38,38 @@ def get_data(series_id, start_date=None, end_date=None):
 
     return df
 
-def plot_chart(df, title, chart_type, width=700, height=450, date_format="daily"):
+def plot_chart(df, title, chart_type, height=450, date_format="daily"):
     # Define hover date format
     if date_format == "daily":
         hover_date_format = "%d %B %Y"  # e.g., 24 July 2025
     elif date_format == "monthly":
         hover_date_format = "%B %Y"     # e.g., July 2025
     elif date_format == "quarterly":
-        # Convert to 'Qx YYYY' string manually
         df = df.copy()
         df['hover_label'] = df['date'].dt.to_period('Q').astype(str).str.replace('Q', 'Q')
         hovertemplate = "<b>%{customdata}</b><br>Value: %{y:.2f}<extra></extra>"
     else:
         hover_date_format = "%Y-%m-%d"  # fallback
 
-    # Choose chart type
+    # Choose chart type (no fixed width so it resizes on mobile)
     if chart_type == "Line":
-        fig = px.line(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, width=width, height=height)
+        fig = px.line(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
     elif chart_type == "Area":
-        fig = px.area(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, width=width, height=height)
+        fig = px.area(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
     elif chart_type == "Bar":
-        fig = px.bar(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, width=width, height=height)
+        fig = px.bar(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
 
-    # Apply custom hover and styling
+    # Layout tweaks
     fig.update_layout(
-        margin=dict(l=40, r=30, t=40, b=40),
+        margin=dict(l=20, r=20, t=40, b=20),
         hovermode="closest",
         xaxis=dict(showgrid=True, showline=False, title=''),
-        yaxis=dict(showgrid=True, showline=False, title='')
+        yaxis=dict(showgrid=True, showline=False, title=''),
+        font=dict(size=12),
+        title=dict(font=dict(size=16))
     )
 
+    # Hover formatting
     if date_format == "quarterly":
         fig.update_traces(
             hovertemplate=hovertemplate,
@@ -572,6 +574,43 @@ def get_fx_data_yahoo(ticker="GBPUSD=X", start_date=None, end_date=None):
 #####-----Streamlit App-----#####
 
 st.set_page_config(page_title="Macro Dashboard", layout="wide")
+
+st.markdown("""
+<style>
+/* Mobile responsiveness adjustments */
+@media only screen and (max-width: 768px) {
+    .block-container {
+        padding: 0.5rem 0.5rem !important;
+    }
+
+    .stSelectbox label, .stDateInput label {
+        font-size: 0.9rem !important;
+    }
+
+    .stSelectbox div[data-baseweb="select"] {
+        font-size: 0.9rem !important;
+    }
+
+    .stButton > button {
+        width: 100% !important;
+    }
+
+    h1, h2, h3 {
+        font-size: 1.2rem !important;
+    }
+
+    .stPlotlyChart {
+        width: 100% !important;
+        height: auto !important;
+    }
+}
+
+/* Prevent horizontal scrollbars */
+html, body {
+    overflow-x: hidden;
+}
+</style>
+""", unsafe_allow_html=True)
 
 st.markdown("""
     <style>
