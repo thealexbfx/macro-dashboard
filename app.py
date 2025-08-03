@@ -24,7 +24,7 @@ load_dotenv()
 fred_api_key = os.getenv("FRED_API_KEY")
 estat_api_key = os.getenv("ESTAT_API_KEY")
 
-fred = Fred(api_key=fred_api_key)
+fred = Fred(api_key="3be1b836ee6f78badf0f0a5a4905ab73")
 
 # -------- Helper Functions --------
 def get_data(series_id, start_date=None, end_date=None):
@@ -687,7 +687,6 @@ st.markdown("""
             <a href="?page=FX%20Rates" target="_self">FX Rates</a>
             <a href="?page=Compare" target="_self">Compare</a>
             <a href="?page=Calendar" target="_self">Calendar</a>
-            <a href="?page=FX Signals" target="_self">FX Signals</a>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -1593,99 +1592,3 @@ if page == "Calendar":
             st.subheader(month)
             for _, row in group.iterrows():
                 render_event_card(row)
-                
-                
-# -------- FX Signals Tab --------
-if page == "FX Signals":
-    st.header("📊 FX Macro Signal: GBP/USD")
-
-    def compute_trend_strength(values, direction="positive"):
-        trend = 0
-        for i in range(4):
-            if pd.isna(values[i]) or pd.isna(values[i+1]):
-                continue
-            if values[i] > values[i+1]:
-                trend += 1 if direction == "positive" else -1
-            elif values[i] < values[i+1]:
-                trend -= 1 if direction == "positive" else -1
-        return trend
-
-    def compute_currency_score(data):
-        score = 0
-        score += compute_trend_strength(data["cpi"], direction="positive") * 1.0
-        score += compute_trend_strength(data["gdp"], direction="positive") * 1.2
-        score += compute_trend_strength(data["unemployment"], direction="negative") * 1.0
-        score += compute_trend_strength(data["rate"], direction="positive") * 1.5
-        return round(score, 2)
-
-    def generate_fx_signal(base_currency_data, quote_currency_data):
-        base_score = compute_currency_score(base_currency_data)
-        quote_score = compute_currency_score(quote_currency_data)
-        diff = base_score - quote_score
-
-        if diff >= 6:
-            return "🟢 Strong Buy", diff
-        elif diff >= 3:
-            return "🟢 Buy", diff
-        elif diff <= -6:
-            return "🔴 Strong Sell", diff
-        elif diff <= -3:
-            return "🔴 Sell", diff
-        else:
-            return "🟡 Neutral", diff
-
-    # --- Fetch latest 5 values for each indicator ---
-
-    # GBP
-    gbp_cpi = get_uk_cpi_yoy().sort_values("date", ascending=False)["value"].head(5).tolist()
-    gbp_gdp = get_uk_gdp_qoq().sort_values("date", ascending=False)["value"].head(5).tolist()
-    gbp_unemp = get_uk_unemployment_rate().sort_values("date", ascending=False)["value"].head(5).tolist()
-    gbp_rate = get_uk_base_rate_from_url().sort_values("Date", ascending=False)["Bank Rate"].head(5).tolist()
-
-    # USD
-    usa_cpi_raw = fred.get_series('CPIAUCSL')
-    usa_cpi_df = pd.DataFrame({'date': usa_cpi_raw.index, 'value': usa_cpi_raw.values})
-    usa_cpi_df['YoY'] = usa_cpi_df['value'].pct_change(12) * 100
-    usa_cpi = usa_cpi_df.dropna().sort_values("date", ascending=False)["YoY"].head(5).tolist()
-
-    usa_gdp = get_data("A191RL1Q225SBEA").sort_values("date", ascending=False)["value"].head(5).tolist()
-    usa_unemp = get_data("UNRATE").sort_values("date", ascending=False)["value"].head(5).tolist()
-    usa_rate = get_data("FEDFUNDS").sort_values("date", ascending=False)["value"].head(5).tolist()
-
-    # --- Create signal ---
-    gbp_data = {
-        "cpi": gbp_cpi,
-        "gdp": gbp_gdp,
-        "unemployment": gbp_unemp,
-        "rate": gbp_rate
-    }
-
-    usd_data = {
-        "cpi": usa_cpi,
-        "gdp": usa_gdp,
-        "unemployment": usa_unemp,
-        "rate": usa_rate
-    }
-
-    signal, diff = generate_fx_signal(gbp_data, usd_data)
-
-    # --- Display result ---
-    st.markdown(f"""
-    <div style='
-        padding: 1.2rem;
-        background-color: #f0f4f8;
-        border-radius: 0.75rem;
-        border-left: 8px solid #007bff;
-        font-size: 1.3rem;
-        margin-top: 1rem;
-        margin-bottom: 2rem;
-    '>
-        💡 <b>GBP/USD Macro Signal:</b> {signal} &nbsp;&nbsp;|&nbsp;&nbsp; <i>Macro Score Diff: {diff}</i>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("### 🇬🇧 GBP Trends")
-    st.write(pd.DataFrame(gbp_data).T.rename(columns={i: f"T-{i}" for i in range(5)}))
-
-    st.markdown("### 🇺🇸 USD Trends")
-    st.write(pd.DataFrame(usd_data).T.rename(columns={i: f"T-{i}" for i in range(5)}))
