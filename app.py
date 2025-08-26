@@ -132,9 +132,10 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
     return fig
 
 
-def get_japan_interest_rate_data(
-    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\Japan_Interest_Rate.txt"
-):
+def get_japan_interest_rate_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "Japan_Interest_Rate.txt")
+    
     # Use whitespace delimiter for space/tab-separated file
     df = pd.read_csv(file_path, delim_whitespace=True)
 
@@ -155,9 +156,10 @@ def get_japan_interest_rate_data(
 
     return df
 
-def get_uk_interest_rate_data(
-    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\UK_Interest_Rate.txt"
-):
+def get_uk_interest_rate_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "UK_Interest_Rate.txt")
+    
     # Use whitespace delimiter for space/tab-separated file
     df = pd.read_csv(file_path, delim_whitespace=True)
 
@@ -178,9 +180,10 @@ def get_uk_interest_rate_data(
 
     return df
     
-def get_usa_interest_rate_data(
-    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\USA_Interest_Rate.txt"
-):
+def get_usa_interest_rate_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "USA_Interest_Rate.txt")
+
     # Use whitespace delimiter for space/tab-separated file
     df = pd.read_csv(file_path, delim_whitespace=True)
 
@@ -201,9 +204,10 @@ def get_usa_interest_rate_data(
 
     return df
 
-def get_euro_interest_rate_data(
-    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\EURO_Interest_Rate.txt"
-):
+def get_euro_interest_rate_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "EURO_Interest_Rate.txt")
+    
     # Use whitespace delimiter for space/tab-separated file
     df = pd.read_csv(file_path, delim_whitespace=True)
 
@@ -224,9 +228,10 @@ def get_euro_interest_rate_data(
 
     return df
 
-def get_usa_cpi_yoy_data(
-    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\USA_CPI_YoY.txt"
-):
+def get_usa_cpi_yoy_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "USA_CPI_YoY.txt")
+    
     # Read using regex for 2+ spaces
     df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
 
@@ -253,11 +258,10 @@ def get_usa_cpi_yoy_data(
 
     return df
 
-def get_usa_gdp_qoq_data(
-    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\USA_GDP_Growth_Rate_QoQ.txt"
-):
-    import pandas as pd
-
+def get_usa_gdp_qoq_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "USA_GDP_Growth_Rate_QoQ.txt")
+    
     # Read the file (split on 2+ spaces, so "Q1 2008" stays together)
     df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
 
@@ -290,9 +294,10 @@ def get_usa_gdp_qoq_data(
 
     return df
     
-def get_usa_unemployment_rate_data(
-    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\USA_Unemployment_Rate.txt"
-):
+def get_usa_unemployment_rate_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "USA_Unemployment_Rate.txt")
+    
     # Read using regex for 2+ spaces
     df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
 
@@ -319,11 +324,10 @@ def get_usa_unemployment_rate_data(
 
     return df
 
-def get_usa_10yr_yield_data(
-    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\USA_10_Year_Yield.txt"
-):
-    import pandas as pd
-
+def get_usa_10yr_yield_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "USA_10_Year_Yield.txt")
+        
     # Read tab or whitespace-delimited file
     df = pd.read_csv(file_path, delim_whitespace=True)
 
@@ -350,11 +354,10 @@ def get_usa_10yr_yield_data(
 
     return df
 
-def get_usa_2yr_yield_data(
-    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\USA_2_Year_Yield.txt"
-):
-    import pandas as pd
-
+def get_usa_2yr_yield_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "USA_2_Year_Yield.txt")
+  
     # Read tab or whitespace-delimited file
     df = pd.read_csv(file_path, delim_whitespace=True)
 
