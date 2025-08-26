@@ -1,0 +1,16 @@
+credentials:
+  usernames:
+    alex:
+      name: Alex BFX
+      email: alex@thealexbfx.com
+      password: "$2b$12$WlY7DDDN4uLqPPlm.4nFz.H7N7ySOG1BOSyDhA9XtdNYheHooX6Ju"
+    guest:
+      name: Guest
+      email: guest@example.com
+      password: "$2b$12$2N7LlxHLq6yKTYvl7iQL5uFq3jh/O6GB1/9wMoyh5kKRz6KwPISwS"
+cookie:
+  name: "thealexbfx_cookie"
+  key: "some_random_secure_key_that_is_long_enough"
+  expiry_days: 30
+preauthorized:
+  emails: []

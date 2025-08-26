@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from fredapi import Fred
 import plotly.express as px
 import datetime as dt
 import requests
@@ -17,538 +16,370 @@ import os
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
 
-
-# -------- API Setup --------
-load_dotenv()
-
-fred_api_key = os.getenv("FRED_API_KEY")
-estat_api_key = os.getenv("ESTAT_API_KEY")
-
-fred = Fred(api_key="3be1b836ee6f78badf0f0a5a4905ab73")
-
 # -------- Helper Functions --------
-def get_data(series_id, start_date=None, end_date=None):
-    data = fred.get_series(series_id)
-    df = pd.DataFrame(data)
-    df.columns = ['value']
-    df.index.name = 'date'
-    df = df.reset_index()
-    
-    if start_date and end_date:
-        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
+def plot_chart(df, title, chart_type, height=450, date_format="daily",
+               yaxis_suffix='', reference_lines=None, shaded_regions=None,
+               tickformat_override=None):
 
-    return df
+    df = df.copy()
+    chart_color = '#1f77b4'
 
-def plot_chart(df, title, chart_type, height=450, date_format="daily"):
-    # Define hover date format
+    # -------------------- Hover Formatting --------------------
     if date_format == "daily":
-        hover_date_format = "%d %B %Y"  # e.g., 24 July 2025
+        hover_date_format = "%d %B %Y"
     elif date_format == "monthly":
-        hover_date_format = "%B %Y"     # e.g., July 2025
+        hover_date_format = "%B %Y"
     elif date_format == "quarterly":
-        df = df.copy()
-        df['hover_label'] = df['date'].dt.to_period('Q').astype(str).str.replace('Q', 'Q')
-        hovertemplate = "<b>%{customdata}</b><br>Value: %{y:.2f}<extra></extra>"
+        df['hover_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+        hovertemplate = "<b>%{customdata}</b><br>Value: %{y:.2f}" + yaxis_suffix + "<extra></extra>"
     else:
-        hover_date_format = "%Y-%m-%d"  # fallback
+        hover_date_format = "%Y-%m-%d"
 
-    # Choose chart type (no fixed width so it resizes on mobile)
+    # -------------------- Chart Type --------------------
     if chart_type == "Line":
         fig = px.line(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
+        fig.update_traces(line=dict(width=3, color=chart_color), mode='lines')
+    elif chart_type == "Step":
+        fig = px.line(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
+        fig.update_traces(line_shape='hv', line=dict(width=3, color=chart_color))
     elif chart_type == "Area":
         fig = px.area(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
+        fig.update_traces(line_color=chart_color, fillcolor='rgba(31,119,180,0.3)')
     elif chart_type == "Bar":
         fig = px.bar(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
+        fig.update_traces(marker_color=chart_color, marker_line_color='black', marker_line_width=1)
+    else:
+        raise ValueError(f"Unsupported chart_type: {chart_type}")
 
-    # Layout tweaks
+    # -------------------- Layout --------------------
     fig.update_layout(
-        margin=dict(l=20, r=20, t=40, b=20),
-        hovermode="closest",
-        xaxis=dict(showgrid=False, showline=False, title=''),
-        yaxis=dict(showgrid=True, showline=False, title=''),
-        font=dict(size=12),
-        title=dict(font=dict(size=16))
+        margin=dict(l=30, r=30, t=50, b=30),
+        hovermode='closest',
+        dragmode=False,
+        title=dict(font=dict(size=20, family="Arial Bold"), x=0.5, xanchor='center'),
+        xaxis=dict(
+            showgrid=False,
+            showline=True,
+            linecolor='black',
+            linewidth=2,
+            ticks='outside',
+            ticklen=10,
+            tickwidth=2,
+            tickfont=dict(size=14, family="Arial Bold", color="black")
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='LightGrey',
+            gridwidth=0.3,
+            showline=True,
+            linecolor='black',
+            linewidth=2,
+            ticks='outside',
+            tickfont=dict(size=14, family="Arial Bold", color="black"),
+            tickformat=f',.2f{yaxis_suffix}'
+        ),
+        hoverlabel=dict(
+            font_size=16,
+            bgcolor="white",
+            bordercolor="black",
+            align="left",
+            namelength=0
+        )
     )
 
-    # Hover formatting
+    # -------------------- Reference Lines --------------------
+    if reference_lines:
+        for ref in reference_lines:
+            fig.add_hline(y=ref['value'], line_dash='dash', line_color='red',
+                          annotation_text=ref.get('label', ''),
+                          annotation_position="top left",
+                          annotation_font=dict(size=12, color='red'))
+
+    # -------------------- Shaded Regions --------------------
+    if shaded_regions:
+        for region in shaded_regions:
+            fig.add_vrect(x0=region['start'], x1=region['end'],
+                          fillcolor=region.get('color', 'LightGrey'),
+                          opacity=region.get('opacity', 0.3),
+                          layer="below",
+                          line_width=0)
+
+    # -------------------- Hover Template --------------------
     if date_format == "quarterly":
-        fig.update_traces(
-            hovertemplate=hovertemplate,
-            customdata=df['hover_label']
-        )
+        # Hover for all quarters
+        fig.update_traces(hovertemplate=hovertemplate, customdata=df['hover_label'])
+
+        # Only show Q4 labels on x-axis
+        tickvals = df[df['date'].dt.quarter == 4]['date']
+        ticktext = df[df['date'].dt.quarter == 4]['hover_label']
+        fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
     else:
+        # Daily/monthly hover
         fig.update_traces(
-            hovertemplate=f"<b>%{{x|{hover_date_format}}}</b><br>Value: %{{y:.2f}}<extra></extra>"
+            hovertemplate=f"<b>%{{x|{hover_date_format}}}</b><br>Value: %{{y:.2f}}{yaxis_suffix}<extra></extra>"
         )
+
+        # Apply tickformat_override using ticktext for clean axis labels
+        if tickformat_override:
+            df['tick_label'] = df['date'].dt.strftime(tickformat_override)
+            fig.update_xaxes(
+                tickmode='array',
+                tickvals=df['date'],
+                ticktext=df['tick_label']
+            )
 
     return fig
 
 
-def get_japan_cpi_yoy_data():
-    url = "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData"
-    params = {
-        "appId": estat_api_key,
-        "statsDataId": "0003427113",
-        "cdArea": "00000",  # All-Japan
-        "lang": "E",
-        "metaGetFlg": "Y",
-        "cntGetFlg": "N",
-        "explanationGetFlg": "Y",
-        "annotationGetFlg": "Y",
-        "sectionHeaderFlg": "1"
-    }
+def get_japan_interest_rate_data(
+    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\Japan_Interest_Rate.txt"
+):
+    # Use whitespace delimiter for space/tab-separated file
+    df = pd.read_csv(file_path, delim_whitespace=True)
 
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    json_data = response.json()
+    # Strip column names to remove hidden spaces
+    df.columns = df.columns.str.strip()
 
-    # DEBUG: print keys at top level and sample VALUE entries
-    #st.write("Top-level keys in JSON:", json_data.keys())
-    try:
-        values = json_data['GET_STATS_DATA']['STATISTICAL_DATA']['DATA_INF']['VALUE']
-        #st.write(f"Number of VALUE entries: {len(values)}")
-        # Show first 5 entries raw
-        #for i, val in enumerate(values[:5]):
-            #st.write(f"Entry {i}:", val)
-    except Exception as e:
-        st.write("Error accessing VALUE in JSON:", e)
-        return pd.DataFrame()
+    # Rename for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
 
-    records = []
-    for item in values[:600]:
-        # Temporarily comment out filter to check all items:
-        # if item.get('@cat01') == '000' and item.get('@tab') == '020':
-        time_str = item.get('@time')
-        val_str = item.get('$')
-        #st.write(f"Time: {time_str}, Value: {val_str}, Cat01: {item.get('@cat01')}, Tab: {item.get('@tab')}")
-        try:
-            timestr1 = time_str[:4] + time_str[-2:]
-            if time_str[-2:] != '00':
-                date = pd.to_datetime(timestr1, format='%Y%m')
-                value = float(val_str) if val_str != '-' else None
-                if value is not None:
-                    records.append({'date': date, 'value': value})
-        except Exception as e:
-            st.write(f"Error parsing item: {e}")
-            continue
+    # Convert date column to datetime
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
 
-    df = pd.DataFrame(records)
-    df = df.sort_values('date')
-    df['value'] = (df['value'].pct_change(periods=12) * 100).round(2)
+    # Drop any rows where date could not be parsed
+    df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+
+def get_uk_interest_rate_data(
+    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\UK_Interest_Rate.txt"
+):
+    # Use whitespace delimiter for space/tab-separated file
+    df = pd.read_csv(file_path, delim_whitespace=True)
+
+    # Strip column names to remove hidden spaces
+    df.columns = df.columns.str.strip()
+
+    # Rename for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
+
+    # Convert date column to datetime
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
+    # Drop any rows where date could not be parsed
+    df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
     return df
     
-def get_japan_unemployment_data():
-    url = "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData"
-    params = {
-        "appId": estat_api_key,
-        "statsDataId": "0003006300",  # Unemployment rate dataset
-        "cdTab": "02",                # Tab code: Rate
-        "cdCat01": "08",              # Labour force status: Unemployed person
-        "cdCat02": "0",               # Sex: Both sexes (aggregate)
-        "cdCat03": "000",             # Industry: All industries
-        "cdCat04": "00",              # Household: Total
-        "cdArea": "00000",            # All-Japan
-        "lang": "E",
-        "metaGetFlg": "Y",
-        "cntGetFlg": "N",
-        "explanationGetFlg": "Y",
-        "annotationGetFlg": "Y",
-        "sectionHeaderFlg": "1"
-    }
+def get_usa_interest_rate_data(
+    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\USA_Interest_Rate.txt"
+):
+    # Use whitespace delimiter for space/tab-separated file
+    df = pd.read_csv(file_path, delim_whitespace=True)
 
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    json_data = response.json()
+    # Strip column names to remove hidden spaces
+    df.columns = df.columns.str.strip()
 
-    try:
-        values = json_data['GET_STATS_DATA']['STATISTICAL_DATA']['DATA_INF']['VALUE']
-    except Exception as e:
-        st.write("Error accessing VALUE in JSON:", e)
-        return pd.DataFrame()
+    # Rename for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
 
-    records = []
-    for item in values:
-        # Filter explicitly just in case
-        if item.get('@cat02') != '0':
-            continue
-        if item.get('@cat03') != '000':
-            continue
-        if item.get('@cat04') != '00':
-            continue
+    # Convert date column to datetime
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
 
-        time_str = item.get('@time')
-        val_str = item.get('$')
-        try:
-            if val_str in ('-', '…', None):
-                continue
+    # Drop any rows where date could not be parsed
+    df = df.dropna(subset=['date'])
 
-            timestr1 = time_str[:4] + time_str[-2:]
-            if time_str[-2:] != '00':  # Ignore yearly totals or invalid months
-                date = pd.to_datetime(timestr1, format='%Y%m')
-                value = float(val_str)
-                records.append({'date': date, 'value': value})
-        except Exception as e:
-            st.write(f"Error parsing item: {e}")
-            continue
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
 
-    df = pd.DataFrame(records)
-    df = df.sort_values('date')
-    return df
-    
-def get_japan_gdp_qoq_growth():
-    url = 'https://www.esri.cao.go.jp/en/sna/data/sokuhou/files/2025/qe251_2/gdemenuea.html'
-    target_text = "Real, Seasonally Adjusted Series (Quarter-to-Quarter)"
-
-    page_resp = requests.get(url)
-    page_resp.raise_for_status()
-
-    from bs4 import BeautifulSoup
-    soup = BeautifulSoup(page_resp.text, 'html.parser')
-
-    csv_url = None
-    for link in soup.find_all('a', href=True):
-        if target_text in link.text:
-            csv_url = urljoin(url, link['href'])
-            break
-
-    if not csv_url:
-        st.error("Could not find the GDP CSV link on the page.")
-        return pd.DataFrame()
-
-    csv_resp = requests.get(csv_url)
-    csv_resp.raise_for_status()
-    content = csv_resp.content.decode('cp932')
-
-    reader = csv.reader(io.StringIO(content))
-
-    results = []
-    last_year = None
-    for row in reader:
-        if not row or len(row) < 2:
-            continue
-        quarter_label = row[0].strip()
-
-        # Track the year if it's present in this row
-        if '/' in quarter_label:
-            parts = quarter_label.split('/')
-            if len(parts) == 2:
-                try:
-                    last_year = int(parts[0].strip())
-                    quarter = parts[1].strip().replace('.', '')
-                except:
-                    continue
-        else:
-            quarter = quarter_label.strip().replace('.', '')
-
-        if last_year is None or not quarter:
-            continue
-
-        # Determine quarter end month
-        if '1- 3' in quarter:
-            month = 3
-        elif '4- 6' in quarter:
-            month = 6
-        elif '7- 9' in quarter:
-            month = 9
-        elif '10-12' in quarter:
-            month = 12
-        else:
-            continue  # Skip unrecognized quarters
-
-        # Get first valid numeric value
-        first_value = None
-        for val in row[1:]:
-            val = val.strip()
-            if val and (val[0].isdigit() or val[0] == '-' or val[0] == '.'):
-                try:
-                    first_value = float(val)
-                    break
-                except ValueError:
-                    continue
-
-        if first_value is not None:
-            results.append({
-                'date': pd.Timestamp(year=last_year, month=month, day=1),
-                'gdp_qoq_growth': first_value
-            })
-
-    df = pd.DataFrame(results)
-    df = df.sort_values('date')
     return df
 
-def get_uk_base_rate_from_url():
-    url = "https://www.bankofengland.co.uk/-/media/boe/files/monetary-policy/baserate.xls"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                      "AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/115.0.0.0 Safari/537.36"
-    }
+def get_euro_interest_rate_data(
+    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\EURO_Interest_Rate.txt"
+):
+    # Use whitespace delimiter for space/tab-separated file
+    df = pd.read_csv(file_path, delim_whitespace=True)
 
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
+    # Strip column names to remove hidden spaces
+    df.columns = df.columns.str.strip()
 
-    xls = pd.ExcelFile(BytesIO(response.content), engine='xlrd')
-    sheet_name = "HISTORICAL SINCE 1694"
+    # Rename for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
 
-    df_raw = xls.parse(sheet_name, header=None)
-    df_raw = df_raw.dropna(how='all').reset_index(drop=True)
+    # Convert date column to datetime
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
 
-    # Forward fill the Year column (column 0)
-    df_raw[0] = df_raw[0].ffill()
+    # Drop any rows where date could not be parsed
+    df = df.dropna(subset=['date'])
 
-    # Filter for years >= 1951
-    df_data = df_raw[df_raw[0].apply(lambda x: str(x).isdigit() and int(x) >= 1951)].copy()
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
 
-    # Select columns: Year, Day, Month, Bank Rate
-    df_data = df_data[[0, 1, 2, 3]]
-    df_data.columns = ['Year', 'Day', 'Month', 'Bank Rate']
+    return df
 
-    # Remove rows where 'Day' is not numeric (to exclude e.g. 'no changes' rows)
-    df_data = df_data[pd.to_numeric(df_data['Day'], errors='coerce').notnull()]
-    df_data['Day'] = df_data['Day'].astype(int)
+def get_usa_cpi_yoy_data(
+    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\USA_CPI_YoY.txt"
+):
+    # Read using regex for 2+ spaces
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
 
-    # Map month names to numbers
-    month_map = {
-        'Jan':1, 'Feb':2, 'Mar':3, 'Apr':4, 'May':5, 'Jun':6,
-        'Jul':7, 'Aug':8, 'Sep':9, 'Oct':10, 'Nov':11, 'Dec':12
-    }
-    df_data['Month'] = df_data['Month'].map(month_map)
-
-    # Construct datetime column
-    df_data['Date'] = pd.to_datetime(df_data[['Year','Month','Day']])
-
-    # Sort by date ascending
-    df_data = df_data.sort_values('Date').reset_index(drop=True)
-
-    # Convert Bank Rate to numeric, coerce errors to NaN
-    df_data['Bank Rate'] = pd.to_numeric(df_data['Bank Rate'], errors='coerce')
-
-    # Filter date range from 1951-01-01 to today
-    df_final = df_data[(df_data['Date'] >= '1951-01-01') & (df_data['Date'] <= pd.Timestamp.today())]
-
-    return df_final[['Date', 'Bank Rate']]
-
-def get_uk_cpi_yoy():
-    url = "https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/d7g7/mm23"
-    response = requests.get(url)
-    response.raise_for_status()
-
-    # Load CSV, skip bad rows
-    df = pd.read_csv(io.StringIO(response.content.decode("utf-8")), header=None)
-
-    # Filter only rows that look like '2025 JAN' or similar
-    df = df[df[0].str.match(r"^\d{4} [A-Z]{3}$", na=False)]
+    # Clean column names
+    df.columns = df.columns.str.strip()
 
     # Rename columns for consistency
-    df.columns = ['date', 'value']
-
-    # Convert date
-    df['date'] = pd.to_datetime(df['date'], format='%Y %b')
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
 
     # Convert value to float
     df['value'] = pd.to_numeric(df['value'], errors='coerce')
 
-    df = df.dropna()
-    df = df.sort_values('date')
+    # Drop invalid rows
+    df = df.dropna(subset=['value'])
+
+    # Convert Month Year to datetime
+    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
+
+    # Drop rows with invalid dates
+    df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+
+def get_usa_gdp_qoq_data(
+    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\USA_GDP_Growth_Rate_QoQ.txt"
+):
+    import pandas as pd
+
+    # Read the file (split on 2+ spaces, so "Q1 2008" stays together)
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+
+    # Clean up column names
+    df.columns = df.columns.str.strip()
+
+    # Rename for consistency
+    df.rename(columns={"Date": "quarter", "Rate": "value"}, inplace=True)
+
+    # Function to convert "Q1 2008" -> datetime (end of quarter)
+    def parse_quarter(q):
+        q = str(q).strip()
+        if "Q" not in q:
+            return pd.NaT
+        quarter, year = q.split()
+        month_map = {"Q1": 3, "Q2": 6, "Q3": 9, "Q4": 12}
+        month = month_map.get(quarter, 3)
+        return pd.Timestamp(year=int(year), month=month, day=1) + pd.offsets.MonthEnd(0)
+
+    df["date"] = df["quarter"].apply(parse_quarter)
+
+    # Keep only relevant columns
+    df = df[["date", "value"]]
+
+    # Convert value to numeric
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    # Drop invalid rows
+    df = df.dropna(subset=["date", "value"]).sort_values("date").reset_index(drop=True)
+
     return df
     
-def get_uk_gdp_qoq():
-    url = "https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihyq/pn2"
-    response = requests.get(url)
-    response.raise_for_status()
+def get_usa_unemployment_rate_data(
+    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\USA_Unemployment_Rate.txt"
+):
+    # Read using regex for 2+ spaces
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
 
-    df = pd.read_csv(io.StringIO(response.content.decode("utf-8")), header=None)
+    # Clean column names
+    df.columns = df.columns.str.strip()
 
-    # Keep only rows that look like "2024 Q1"
-    df = df[df[0].str.match(r"^\d{4} Q[1-4]$", na=False)]
-    df.columns = ['date_str', 'value']
-
-    # Extract year and quarter
-    df['year'] = df['date_str'].str[:4].astype(int)
-    df['quarter'] = df['date_str'].str[-2:]
-
-    # Map quarter to month-end date
-    quarter_to_month = {
-        "Q1": 3,
-        "Q2": 6,
-        "Q3": 9,
-        "Q4": 12
-    }
-
-    df['month'] = df['quarter'].map(quarter_to_month)
-    df['date'] = pd.to_datetime({
-        'year': df['year'],
-        'month': df['month'],
-        'day': 1
-    })
-
-    df['value'] = pd.to_numeric(df['value'], errors='coerce')
-    df = df[['date', 'value']].dropna().sort_values('date')
-    return df
-    
-def get_uk_unemployment_rate():
-    url = "https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms"
-    response = requests.get(url)
-    response.raise_for_status()
-
-    df = pd.read_csv(io.StringIO(response.content.decode("utf-8")), header=None)
-
-    # Keep only rows like "2025 JAN","4.4"
-    df = df[df[0].str.match(r"^\d{4} [A-Z]{3}$", na=False)]
-
-    # Rename columns
-    df.columns = ['date_str', 'value']
-
-    # Convert date_str to datetime
-    df['date'] = pd.to_datetime(df['date_str'], format='%Y %b')
+    # Rename columns for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
 
     # Convert value to float
     df['value'] = pd.to_numeric(df['value'], errors='coerce')
 
-    # Drop rows with missing values and sort
-    df = df[['date', 'value']].dropna().sort_values('date')
+    # Drop invalid rows
+    df = df.dropna(subset=['value'])
+
+    # Convert Month Year to datetime
+    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
+
+    # Drop rows with invalid dates
+    df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
     return df
 
-def get_ecb_refinancing_rate(start_date=None, end_date=None):
-    # Convert start_date and end_date to pd.Timestamp if provided, else set to None
-    if start_date is not None and end_date is not None:
-        start_date = pd.Timestamp(start_date)
-        end_date = pd.Timestamp(end_date)
-        params = {
-            'startPeriod': start_date.strftime('%Y-%m'),
-            'endPeriod': end_date.strftime('%Y-%m'),
-            'format': 'jsondata'
-        }
-    else:
-        # If no dates given, request without date filtering parameters
-        params = {
-            'format': 'jsondata'
-        }
+def get_usa_10yr_yield_data(
+    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\USA_10_Year_Yield.txt"
+):
+    import pandas as pd
 
-    url = "https://sdw-wsrest.ecb.europa.eu/service/data/FM/B.U2.EUR.4F.KR.MRR_FR.LEV"
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    data = response.json()
+    # Read tab or whitespace-delimited file
+    df = pd.read_csv(file_path, delim_whitespace=True)
 
-    # Extract series key and observations
-    series_key = list(data['dataSets'][0]['series'].keys())[0]
-    series_data = data['dataSets'][0]['series'][series_key]
-    observations = series_data['observations']
+    # Strip column names
+    df.columns = df.columns.str.strip()
 
-    # Extract dates from structure
-    dates = data['structure']['dimensions']['observation'][0]['values']
+    # Rename for consistency
+    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
 
-    results = []
-    for idx, date_info in enumerate(dates):
-        date_str = date_info['id']  # e.g., '2024-06-12'
-        obs_key = str(idx)
-        if obs_key in observations:
-            rate = observations[obs_key][0]  # rate value
-            date = pd.to_datetime(date_str)
-            # Only filter by date if start_date and end_date are provided
-            if start_date is not None and end_date is not None:
-                if start_date <= date <= end_date:
-                    results.append({'date': date, 'value': rate})
-            else:
-                # If no date filtering params, add all data points
-                results.append({'date': date, 'value': rate})
+    # Convert date to datetime
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
 
-    df = pd.DataFrame(results)
-    df = df.sort_values('date').reset_index(drop=True)
+    # Drop invalid dates
+    df = df.dropna(subset=["date"])
+
+    # Ensure value is numeric
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    # Drop rows with missing values
+    df = df.dropna(subset=["value"])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
     return df
 
-def get_euro_hicp_annual_gzip(start_date=None, end_date=None):
-    url = ("https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/prc_hicp_manr/"
-           "1.0/*.*.*.*?c[freq]=M&c[unit]=RCH_A&c[coicop]=CP00&c[geo]=EA&compress=true&format=csvdata&formatVersion=1.0&lang=en&labels=label_only")
-    r = requests.get(url)
-    r.raise_for_status()
+def get_usa_2yr_yield_data(
+    file_path=r"C:\Users\algba\OneDrive\Documents\Trading-Investing\macro_dashboard\data\USA_2_Year_Yield.txt"
+):
+    import pandas as pd
 
-    with gzip.GzipFile(fileobj=io.BytesIO(r.content)) as f:
-        df = pd.read_csv(f)
+    # Read tab or whitespace-delimited file
+    df = pd.read_csv(file_path, delim_whitespace=True)
 
-    euro_area = df[df['geo'].str.contains("Euro area")][['TIME_PERIOD', 'OBS_VALUE']].sort_values('TIME_PERIOD')
+    # Strip column names
+    df.columns = df.columns.str.strip()
 
-    # Convert to datetime
-    euro_area['TIME_PERIOD'] = pd.to_datetime(euro_area['TIME_PERIOD'], format='%Y-%m')
+    # Rename for consistency
+    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
 
-    # Filter by date only if start_date and end_date are provided
-    if start_date is not None and end_date is not None:
-        euro_area = euro_area[(euro_area['TIME_PERIOD'] >= pd.to_datetime(start_date)) & 
-                              (euro_area['TIME_PERIOD'] <= pd.to_datetime(end_date))]
+    # Convert date to datetime
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
 
-    euro_area = euro_area.rename(columns={'TIME_PERIOD': 'date', 'OBS_VALUE': 'value'}).reset_index(drop=True)
+    # Drop invalid dates
+    df = df.dropna(subset=["date"])
 
-    return euro_area
+    # Ensure value is numeric
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
-def get_euro_unemployment_gzip(start_date=None, end_date=None):
-    url = (
-        "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/une_rt_m/1.0/"
-        "*.*.*.*.*.*?"
-        "c[freq]=M&c[s_adj]=SA&c[age]=TOTAL&c[unit]=PC_ACT&c[sex]=T&"
-        "c[geo]=EU27_2020,EA20,BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,HU,MT,NL,AT,PL,PT,RO,SI,SK,FI,SE,IS,NO,CH,UK&"
-        "compress=true&format=csvdata&formatVersion=1.0&lang=en&labels=label_only"
-    )
+    # Drop rows with missing values
+    df = df.dropna(subset=["value"])
 
-    r = requests.get(url)
-    r.raise_for_status()
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
 
-    with gzip.GzipFile(fileobj=io.BytesIO(r.content)) as f:
-        df = pd.read_csv(f)
-
-    # Extract Euro Area data only
-    euro_area = df[df['geo'].str.contains("Euro area")][['TIME_PERIOD', 'OBS_VALUE']].sort_values('TIME_PERIOD')
-
-    # Convert TIME_PERIOD to datetime for filtering
-    euro_area['TIME_PERIOD'] = pd.to_datetime(euro_area['TIME_PERIOD'], format='%Y-%m')
-
-    # Filter by dates only if both provided
-    if start_date is not None and end_date is not None:
-        euro_area = euro_area[
-            (euro_area['TIME_PERIOD'] >= pd.to_datetime(start_date)) & 
-            (euro_area['TIME_PERIOD'] <= pd.to_datetime(end_date))
-        ]
-
-    # Rename columns for consistency
-    euro_area = euro_area.rename(columns={'TIME_PERIOD': 'date', 'OBS_VALUE': 'value'}).reset_index(drop=True)
-
-    return euro_area
-    
-def get_gdp_quarterly_gzip(start_dt=None, end_dt=None):
-    url = (
-        "https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/namq_10_gdp/1.0/*.*.*.*.*?"
-        "c[freq]=Q&c[unit]=CLV_PCH_PRE,CLV_PCH_SM,CLV_PCH_ANN&c[s_adj]=SA,SCA&c[na_item]=B1GQ&"
-        "c[geo]=EU27_2020,EA20,BE,BG,CZ,DK,DE,EE,IE,EL,ES,FR,HR,IT,CY,LV,LT,LU,HU,MT,NL,AT,PL,PT,RO,SI,SK,FI,SE,IS,NO,CH,UK,BA,ME,MK,AL,RS,TR,XK&"
-        "compress=true&format=csvdata&formatVersion=1.0&lang=en&labels=label_only"
-    )
-
-    r = requests.get(url)
-    r.raise_for_status()
-
-    with gzip.GzipFile(fileobj=io.BytesIO(r.content)) as f:
-        df = pd.read_csv(f)
-
-    euro_area_geo = 'Euro area – 20 countries (from 2023)'
-    desired_unit = 'Chain linked volumes, percentage change on previous period'
-
-    euro_area = df[
-        (df['geo'] == euro_area_geo) & 
-        (df['unit'] == desired_unit)
-    ][['TIME_PERIOD', 'OBS_VALUE']].sort_values('TIME_PERIOD')
-
-    euro_area['TIME_PERIOD'] = pd.PeriodIndex(euro_area['TIME_PERIOD'], freq='Q').to_timestamp()
-
-    # Only convert and filter if both dates are provided
-    if start_dt is not None and end_dt is not None:
-        start_dt = pd.to_datetime(start_dt)
-        end_dt = pd.to_datetime(end_dt)
-        euro_area = euro_area[
-            (euro_area['TIME_PERIOD'] >= start_dt) & 
-            (euro_area['TIME_PERIOD'] <= end_dt)
-        ]
-
-    euro_area = euro_area.rename(columns={'TIME_PERIOD': 'date', 'OBS_VALUE': 'value'}).reset_index(drop=True)
-
-    return euro_area
+    return df
 
 def get_fx_data_yahoo(ticker="GBPUSD=X", start_date=None, end_date=None):
     # Download historical daily data from yfinance
@@ -577,6 +408,7 @@ def get_fx_data_yahoo(ticker="GBPUSD=X", start_date=None, end_date=None):
 
 st.set_page_config(page_title="Macro Dashboard", layout="wide")
 
+# --- Global Styles ---
 st.markdown("""
 <style>
 /* Mobile responsiveness adjustments */
@@ -610,103 +442,241 @@ st.markdown("""
 /* Prevent horizontal scrollbars */
 html, body {
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+/* Hide default Streamlit UI */
+#MainMenu, header, footer {visibility: hidden;}
+.block-container {padding-top: 0rem !important;}
+
+/* Fixed Top Bar */
+.custom-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background-color: #f2f2f2;
+    width: 100%;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.custom-header .logo {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.custom-header .menu {
+    display: flex;
+    justify-content: center;
+    flex-grow: 1;
+    gap: 2rem;
+}
+
+.custom-header .menu a {
+    text-decoration: none;
+    font-size: 1rem;
+    color: black;
+    font-weight: 500;
+}
+
+.custom-header .menu a:hover {
+    color: #007bff;
+}
+
+/* Dropdown menu for countries */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: black;
+
+    display: flex;        /* make it a flex container */
+    align-items: center;  /* vertically center text */
+    height: 100%;         /* match parent menu height */
+    padding: 0;           /* remove extra padding */
+    line-height: 1;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 10px 14px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {display: block;}
+.dropdown:hover .dropdown-btn {color: #007bff;}
+
+/* Main content starts below fixed top bar */
+.main-content {
+    margin-top: 80px;  /* same height as .custom-header */
+    padding: 0 1rem;
+}
+
+/* Hero section */
+.hero {
+    padding: 0;
+    margin: 0 0 2rem 0;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0.2rem 0 0.5rem 0;
+    color: #111;
+    line-height: 1.2;
+}
+
+.hero p {
+    font-size: 1.15rem;
+    color: #444;
+    margin-bottom: 1.8rem;
 }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-    <style>
-    .js-plotly-plot .plotly .cursor-crosshair {
-        cursor: default !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- Hide Default UI ---
-st.markdown("""
-    <style>
-    #MainMenu, header, footer {visibility: hidden;}
-
-    .block-container {
-        padding-top: 0rem !important;
-    }
-
-    .custom-header {
-        background-color: #f2f2f2;
-        width: 100%;
-        padding: 1rem 2rem;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 9999;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .custom-header .logo {
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
-
-    .custom-header .menu {
-        display: flex;
-        justify-content: center;
-        flex-grow: 1;
-        gap: 2rem;
-    }
-
-    .custom-header .menu a {
-        text-decoration: none;
-        font-size: 1rem;
-        color: black;
-        font-weight: 500;
-    }
-
-    .custom-header .menu a:hover {
-        color: #007bff;
-    }
-
-    .spacer {
-        height: 80px;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 # --- Fixed Top Bar (HTML block) ---
 st.markdown("""
-    <div class="custom-header">
-        <div class="logo">THEALEXBFX</div>
-        <div class="menu">
-            <a href="?page=Home" target="_self">Home</a>
-            <a href="?page=USA" target="_self">USA</a>
-            <a href="?page=Japan" target="_self">Japan</a>
-            <a href="?page=UK" target="_self">UK</a>
-            <a href="?page=EURO" target="_self">Euro Area</a>
-            <a href="?page=FX%20Rates" target="_self">FX Rates</a>
-            <a href="?page=Compare" target="_self">Compare</a>
-            <a href="?page=Calendar" target="_self">Calendar</a>
+<div class="custom-header">
+    <div class="logo">THEALEXBFX</div>
+    <div class="menu">
+        <a href="?page=Home" target="_self">Home</a>
+        <div class="dropdown">
+            <button class="dropdown-btn">Countries ▾</button>
+            <div class="dropdown-content">
+                <a href="?page=USA" target="_self">USA</a>
+                <a href="?page=Japan" target="_self">Japan</a>
+                <a href="?page=UK" target="_self">UK</a>
+                <a href="?page=EURO" target="_self">Euro Area</a>
+            </div>
         </div>
+        <a href="?page=FX%20Rates" target="_self">FX Rates</a>
+        <a href="?page=Compare" target="_self">Compare</a>
+        <a href="?page=Calendar" target="_self">Calendar</a>
+        <a href="?page=Login" target="_self">Login</a>
     </div>
+</div>
 """, unsafe_allow_html=True)
-
 
 query_params = st.query_params
 page = query_params.get("page", "Home")  # default to Home if not specified
 
+# --- Main content wrapper to start scroll below header ---
+st.markdown('<div class="main-content">', unsafe_allow_html=True)
 
-# --- Spacer to prevent content being hidden under fixed bar ---
-st.markdown('<div class="spacer"></div>', unsafe_allow_html=True)
+st.markdown("""
+<style>
+/* --------- Select Box Labels --------- */
+label[data-baseweb="select"] {
+    font-weight: 700 !important;   /* Bold */
+    font-size: 18px !important;    /* Larger font */
+    color: #1a1a1a !important;
+}
+label[data-baseweb="select"]::after {
+    content: ":";   /* Colon stuck to word */
+}
+
+/* --------- Select Box --------- */
+div[data-baseweb="select"] {
+    border: 1.5px solid #000000 !important;  /* Black border */
+    border-radius: 6px !important;
+    font-size: 15px !important;
+    background-color: #f5f5f5 !important;   /* Grey background */
+}
+div[data-baseweb="select"] > div {
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    color: #1a1a1a !important;
+}
+div[data-baseweb="select"]:hover {
+    border-color: #000000 !important;       /* Black on hover */
+}
+
+/* --------- Date Input Labels --------- */
+label[data-baseweb="input"] {
+    font-weight: 700 !important;   /* Bold */
+    font-size: 18px !important;    /* Larger font */
+    color: #1a1a1a !important;
+}
+label[data-baseweb="input"]::after {
+    content: ":";   /* Colon stuck to word */
+}
+
+/* --------- Date Input --------- */
+div[data-baseweb="input"] {
+    border: 1.5px solid #000000 !important;  /* Black border */
+    border-radius: 6px !important;
+    font-size: 15px !important;
+    /* No background override → keeps Streamlit default */
+}
+div[data-baseweb="input"] input {
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    color: #1a1a1a !important;
+}
+div[data-baseweb="input"]:hover {
+    border-color: #000000 !important;       /* Black on hover */
+}
+</style>
+""", unsafe_allow_html=True)
 
 # --- Main Content Below Header ---
 
 if page == "Home":
-    import pandas as pd
-    import datetime as dt
 
     st.markdown("""
         <style>
+                /* Reset page spacing */
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Sticky top navigation bar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            margin: 0;
+            padding: 0.75rem 1rem;  /* adjust to taste */
+            background-color: #fff; /* or your theme color */
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Push content down so it doesn’t overlap navbar */
+        .main-content {
+            margin-top: 4rem;  /* same height as navbar */
+        }
+
+        /* Hero section (dashboard title) */
         .hero {
             padding: 0;
             border: none;
@@ -714,15 +684,17 @@ if page == "Home":
             box-shadow: none;
             background: none;
             text-align: center;
-            margin-bottom: 2rem;
+            margin: 0 0 2rem 0; /* remove top margin */
         }
 
         .hero h1 {
             font-size: 2.5rem;
             font-weight: bold;
-            margin-bottom: 0.5rem;
+            margin: 0.2rem 0 0.5rem 0;  /* kill default top gap */
             color: #111;
+            line-height: 1.2;
         }
+
 
         .hero p {
             font-size: 1.15rem;
@@ -953,23 +925,22 @@ if page == "Home":
         <div class="footer">
             <p>Built by <b>thealexbfx</b> • All data updates daily</p>
             <p>
-                Contact: <a href="mailto:alex@thealexbfx.com">alex@thealexbfx.com</a> &nbsp;|&nbsp;
-                <a href="https://twitter.com/thealexbfx" target="_blank">X</a> • 
-                <a href="https://youtube.com/@thealexbfx" target="_blank">YouTube</a> • 
-                <a href="https://github.com/thealexbfx" target="_blank">GitHub</a>
+                Contact: <a href="https://www.linkedin.com/in/alex-ballinger-059919302/" target="_blank">LinkedIn</a> |
+                <a href="https://youtube.com/@thealexbfx" target="_blank">YouTube</a> |
+                <a href="https://www.instagram.com/thealexbfx/" target="_blank">Instagram</a>
             </p>
             <p>&copy; 2025 thealexbfx. All rights reserved.</p>
         </div>
     """, unsafe_allow_html=True)
-
+    
 # -------- USA Tab --------
 if page == "USA":
-    col1, col2 = st.columns([1, 3])  # Left col narrow, right col wide
+    st.markdown("<h2 style='text-align:left; font-weight:bold;'>USA Macro Data</h2>", unsafe_allow_html=True)
+    col1, col2 = st.columns([1, 5])
 
-    with col1: 
-        st.header("🇺🇸 United States Macro Data")
-
-        indicator = st.selectbox("Select Indicator", [
+    with col1:
+        # Dropdowns
+        indicator = st.selectbox("**Indicator**", [
             "Interest Rate",
             "Inflation Rate",
             "GDP Growth Rate",
@@ -977,67 +948,72 @@ if page == "USA":
             "10Y Yield",
             "2Y Yield"
         ])
+        chart_type = st.selectbox("**Chart Type**", ["Line", "Area", "Bar", "Step"])
 
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
-
-        # Load full data once to define earliest/latest dates dynamically
+        # Load data based on indicator
         if indicator == "Interest Rate":
-            df = get_data("FEDFUNDS")
+            df = get_usa_interest_rate_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
         elif indicator == "Inflation Rate":
-            cpi_raw = fred.get_series('CPIAUCSL')
-            df = pd.DataFrame(cpi_raw).reset_index()
-            df.columns = ['date', 'value']
+            df = get_usa_cpi_yoy_data()
+            date_format = "monthly"
         elif indicator == "GDP Growth Rate":
-            df = get_data("A191RL1Q225SBEA")
+            df = get_usa_gdp_qoq_data()
+            date_format = "quarterly"
+            df['tick_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
         elif indicator == "Unemployment Rate":
-            df = get_data("UNRATE")
+            df = get_usa_unemployment_rate_data()
+            date_format = "monthly"
         elif indicator == "10Y Yield":
-            df = get_data("DGS10")
+            df = get_usa_10yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
         elif indicator == "2Y Yield":
-            df = get_data("DGS2")
+            df = get_usa_2yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
 
         df = df.dropna()
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        default_start_date = max(earliest_date, latest_date - dt.timedelta(days=1825))
+
+        # -------- Time Frame Selector --------
+        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y", ""))
+            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
+        else:
+            default_start_date = earliest_date
 
         # Date inputs
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        start_date = st.date_input("**Start Date**", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("**End Date**", latest_date, min_value=earliest_date, max_value=latest_date)
 
         if start_date > end_date:
             st.warning("Start date cannot be after end date.")
             st.stop()
 
     with col2:
+        # Filter data
         df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
 
-        if indicator == "Interest Rate":
-            st.subheader("Federal Funds Rate")
-            st.plotly_chart(plot_chart(df, "Federal Funds Rate (%)", chart_type), use_container_width=True)
+        # Dynamic Title
+        titles = {
+            "Interest Rate": "Federal Funds Rate (%)",
+            "Inflation Rate": "CPI YoY (%)",
+            "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
+            "Unemployment Rate": "Unemployment Rate (%)",
+            "10Y Yield": "10-Year Government Bond Yield (%)",
+            "2Y Yield": "2-Year Government Bond Yield (%)"
+        }
 
-        elif indicator == "Inflation Rate":
-            st.subheader("CPI Inflation Rate (YoY %)")
-            df['YoY Inflation Rate'] = (df['value'].pct_change(periods=12) * 100).round(2)
-            df = df.dropna()
-            fig = plot_chart(df[['date', 'YoY Inflation Rate']].rename(columns={'YoY Inflation Rate': 'value'}), "Inflation Rate (YoY %)", chart_type)
-            st.plotly_chart(fig, use_container_width=True)
-
-        elif indicator == "GDP Growth Rate":
-            st.subheader("Real GDP Growth Rate (QoQ Annualized %)")
-            st.plotly_chart(plot_chart(df, "Real GDP Growth Rate %", chart_type), use_container_width=True)
-
-        elif indicator == "Unemployment Rate":
-            st.subheader("Unemployment Rate")
-            st.plotly_chart(plot_chart(df, "Unemployment Rate (%)", chart_type), use_container_width=True)
-
-        elif indicator == "10Y Yield":
-            st.subheader("10-Year Treasury Yield")
-            st.plotly_chart(plot_chart(df, "10-Year Government Bond Yield (%)", chart_type), use_container_width=True)
-
-        elif indicator == "2Y Yield":
-            st.subheader("2-Year Treasury Yield")
-            st.plotly_chart(plot_chart(df, "2-Year Government Bond Yield (%)", chart_type), use_container_width=True)
+        # Chart plotting
+        st.plotly_chart(
+            plot_chart(df, titles[indicator], chart_type, date_format=date_format),
+            use_container_width=True
+        )
 
 # -------- Japan Tab --------
 if page == "Japan":
@@ -1051,13 +1027,16 @@ if page == "Japan":
             "Unemployment Rate",
             "Real GDP QoQ Growth",
             "Interest Rate (Short-Term)",
-            "Interest Rate (Long-Term)"
+            "Interest Rate (Long-Term)",
+            "BOJ Interest Rate"
         ])
 
         chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
 
         # Load full dataset to determine bounds
-        if indicator == "CPI YoY Change (%)":
+        if indicator == "BOJ Interest Rate":  # <-- new option
+            df = get_japan_interest_rate_data()
+        elif indicator == "CPI YoY Change (%)":
             df = get_japan_cpi_yoy_data()
         elif indicator == "Unemployment Rate":
             df = get_japan_unemployment_data()
@@ -1068,7 +1047,7 @@ if page == "Japan":
             df = get_data("IRSTCI01JPM156N")
         elif indicator == "Interest Rate (Long-Term)":
             df = get_data("IRLTLT01JPM156N")
-
+        
         df = df.dropna()
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
@@ -1107,6 +1086,11 @@ if page == "Japan":
             elif indicator == "Interest Rate (Long-Term)":
                 st.subheader("Japan Long-Term Interest Rate (FRED: IRLTLT01JPM156N)")
                 st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
+                
+            elif indicator == "BOJ Interest Rate":
+                st.subheader("BOJ Official Interest Rate")
+                st.plotly_chart(plot_chart(df, "BOJ Interest Rate (%)", chart_type), use_container_width=True)
+
         
 # -------- UK Tab --------        
 if page == "UK":
@@ -1128,7 +1112,7 @@ if page == "UK":
 
         # Load full dataset temporarily for date bounds
         if indicator == "Bank of England Base Rate (%)":
-            df = get_uk_base_rate_from_url().rename(columns={'Date': 'date', 'Bank Rate': 'value'})
+            df = get_uk_interest_rate_data().rename(columns={'Date': 'date', 'Bank Rate': 'value'})
         elif indicator == "CPI Inflation Rate (YoY %)":
             df = get_uk_cpi_yoy()
             df = df.rename(columns={'cpi_yoy': 'value'}) if 'cpi_yoy' in df.columns else df
@@ -1206,7 +1190,7 @@ if page == "EURO":
 
         # Temporarily load full dataset for date range
         if indicator == "ECB Main Refinancing Rate":
-            df = get_ecb_refinancing_rate()
+            df = get_euro_interest_rate_data()
         elif indicator == "HICP Annual Change (Eurostat gzip)":
             df = get_euro_hicp_annual_gzip()
         elif indicator == "Unemployment Rate (Seasonally Adjusted)":
@@ -1264,30 +1248,30 @@ if page == "EURO":
         
 # -------- FX Rates Tab --------
 if page == "FX Rates":
-    col1, col2 = st.columns([1, 3])
+    st.markdown("<h2 style='text-align:left; font-weight:bold;'>Forex Rates</h2>", unsafe_allow_html=True)
+    col1, col2 = st.columns([1, 5])
 
     with col1:
-        st.header("🌍 FX Rates")
-
+       
+        # Select indicator and chart type
         indicator = st.selectbox("Select Indicator", [
             "EUR/USD", "GBP/USD", "USD/JPY", "EUR/GBP", "EUR/JPY", "GBP/JPY", "DXY"
         ])
-
         chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
 
+        # Map indicator to Yahoo ticker and chart title
         fx_tickers = {
-            "EUR/USD": ("EURUSD=X", "EUR/USD Close Price"),
-            "GBP/USD": ("GBPUSD=X", "GBP/USD Close Price"),
-            "USD/JPY": ("USDJPY=X", "USD/JPY Close Price"),
-            "EUR/GBP": ("EURGBP=X", "EUR/GBP Close Price"),
-            "EUR/JPY": ("EURJPY=X", "EUR/JPY Close Price"),
-            "GBP/JPY": ("GBPJPY=X", "GBP/JPY Close Price"),
-            "DXY":     ("DX-Y.NYB", "DXY Close Price")
+            "EUR/USD": ("EURUSD=X", "EUR/USD"),
+            "GBP/USD": ("GBPUSD=X", "GBP/USD"),
+            "USD/JPY": ("USDJPY=X", "USD/JPY"),
+            "EUR/GBP": ("EURGBP=X", "EUR/GBP"),
+            "EUR/JPY": ("EURJPY=X", "EUR/JPY"),
+            "GBP/JPY": ("GBPJPY=X", "GBP/JPY"),
+            "DXY":     ("DX-Y.NYB", "DXY")
         }
-
         ticker, title = fx_tickers[indicator]
 
-        # Load the full FX data to get the true date range
+        # Load full FX data
         df = get_fx_data_yahoo(ticker, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
         df = df.dropna()
 
@@ -1295,29 +1279,37 @@ if page == "FX Rates":
             st.error("No data available.")
             st.stop()
 
-        # Get dynamic min/max date bounds from data
+        # Get dynamic min/max dates
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
 
-        # Set default start date to 1 year before the latest available date
-        default_start_date = max(earliest_date, latest_date - dt.timedelta(days=1825))
+        # -------- Time Frame Selector --------
+        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y", ""))
+            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
+        else:
+            default_start_date = earliest_date
 
-        # User date inputs with valid bounds
+        # Date inputs
         start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
         end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
 
-        # Validation: prevent start_date > end_date
+        # Validate dates
         if start_date > end_date:
             st.warning("Start date must be before end date.")
             st.stop()
 
     with col2:
-        st.subheader(f"{indicator} Daily Exchange Rate (Close Price)")
+        
 
-        # Filter data by selected date range
-        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
+        # Filter data by user-selected date range
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
+                         (df['date'] <= pd.to_datetime(end_date))]
 
-        st.plotly_chart(plot_chart(df, title, chart_type), use_container_width=True)
+        # Plot chart
+        st.plotly_chart(plot_chart(df_filtered, title, chart_type), use_container_width=True)
+
         
 
 if page == "Compare":
@@ -1592,3 +1584,19 @@ if page == "Calendar":
             st.subheader(month)
             for _, row in group.iterrows():
                 render_event_card(row)
+ 
+
+if page == "Login":
+    authenticator.login(location='main', key="login_form")
+
+    auth_status = st.session_state.get("authentication_status")
+    name = st.session_state.get("name")
+    username = st.session_state.get("username")
+
+    if auth_status is False:
+        st.error("❌ Incorrect username or password")
+    elif auth_status is None:
+        st.warning("Please enter your username and password")
+    elif auth_status:
+        st.success(f"Welcome {name}!")
+        st.write("You are logged in.")
