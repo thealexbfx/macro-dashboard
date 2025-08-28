@@ -17,9 +17,9 @@ import plotly.graph_objects as go
 import streamlit.components.v1 as components
 
 # -------- Helper Functions --------
-def plot_chart(df, title, chart_type, height=450, date_format="daily",
+def plot_chart(df, title, chart_type, height=550, date_format="daily",
                yaxis_suffix='', reference_lines=None, shaded_regions=None,
-               tickformat_override=None):
+               tickformat_override=None, hover_style="delta", delta_type="cumulative", show_markers=False):
 
     df = df.copy()
     chart_color = '#1f77b4'
@@ -30,18 +30,19 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
     elif date_format == "monthly":
         hover_date_format = "%B %Y"
     elif date_format == "quarterly":
-        df['hover_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
-        hovertemplate = "<b>%{customdata}</b><br>Value: %{y:.2f}" + yaxis_suffix + "<extra></extra>"
+        # handled separately inside hover_style
+        hover_date_format = None
     else:
         hover_date_format = "%Y-%m-%d"
 
     # -------------------- Chart Type --------------------
+    mode = 'lines+markers' if show_markers else 'lines'
     if chart_type == "Line":
         fig = px.line(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
-        fig.update_traces(line=dict(width=3, color=chart_color), mode='lines')
+        fig.update_traces(line=dict(width=3, color=chart_color), mode=mode)
     elif chart_type == "Step":
         fig = px.line(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
-        fig.update_traces(line_shape='hv', line=dict(width=3, color=chart_color))
+        fig.update_traces(line_shape='hv', line=dict(width=3, color=chart_color), mode=mode)
     elif chart_type == "Area":
         fig = px.area(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
         fig.update_traces(line_color=chart_color, fillcolor='rgba(31,119,180,0.3)')
@@ -53,7 +54,7 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
 
     # -------------------- Layout --------------------
     fig.update_layout(
-        margin=dict(l=30, r=30, t=50, b=30),
+        margin=dict(l=40, r=30, t=60, b=20),
         hovermode='closest',
         dragmode=False,
         title=dict(font=dict(size=20, family="Arial Bold"), x=0.5, xanchor='center'),
@@ -80,7 +81,7 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
         ),
         hoverlabel=dict(
             font_size=16,
-            bgcolor="white",
+            bgcolor="#F9F9F9",  # Updated hover box color
             bordercolor="black",
             align="left",
             namelength=0
@@ -104,30 +105,70 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
                           layer="below",
                           line_width=0)
 
-    # -------------------- Hover Template --------------------
-    if date_format == "quarterly":
-        # Hover for all quarters
-        fig.update_traces(hovertemplate=hovertemplate, customdata=df['hover_label'])
+    # -------------------- Hover Styles --------------------
+    if hover_style == "delta":
+        if delta_type == "daily":
+            df['delta'] = df['value'].pct_change() * 100
+        else:  # cumulative
+            df['delta'] = (df['value'] / df['value'].iloc[0] - 1) * 100
 
-        # Only show Q4 labels on x-axis
-        tickvals = df[df['date'].dt.quarter == 4]['date']
-        ticktext = df[df['date'].dt.quarter == 4]['hover_label']
-        fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
-
-    else:
-        # Daily/monthly hover
-        fig.update_traces(
-            hovertemplate=f"<b>%{{x|{hover_date_format}}}</b><br>Value: %{{y:.2f}}{yaxis_suffix}<extra></extra>"
+        df['delta_str'] = df['delta'].apply(
+            lambda x: f"▲ {x:.2f}%" if x > 0 else (
+                f"▼ {abs(x):.2f}%" if pd.notnull(x) and x < 0 else "— 0.00%"
+            )
+        )
+        df['delta_color'] = df['delta'].apply(
+            lambda x: "green" if x > 0 else ("red" if x < 0 else "gray")
         )
 
-        # Apply tickformat_override using ticktext for clean axis labels
-        if tickformat_override:
-            df['tick_label'] = df['date'].dt.strftime(tickformat_override)
-            fig.update_xaxes(
-                tickmode='array',
-                tickvals=df['date'],
-                ticktext=df['tick_label']
+        if date_format == "quarterly":
+            # Quarterly: use custom Q labels
+            df['hover_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            fig.update_traces(
+                customdata=df[['hover_label', 'delta_str', 'delta_color']],
+                hovertemplate=(
+                    "<span style='color:black'><b>%{customdata[0]}</b></span><br>"   # Quarter
+                    "<span style='color:black'>%{y:,.2f}" + yaxis_suffix + "</span><br>"  # Value
+                    "<span style='color:%{customdata[2]}; font-weight:bold'>%{customdata[1]}</span>"
+                    "<extra></extra>"
+                )
             )
+        else:
+            # Daily/Monthly/Yearly
+            fig.update_traces(
+                customdata=df[['delta_str', 'delta_color']],
+                hovertemplate=(
+                    "<span style='color:black'><b>%{x|" + hover_date_format + "}</b></span><br>"
+                    "<span style='color:black'>%{y:,.2f}" + yaxis_suffix + "</span><br>"
+                    "<span style='color:%{customdata[1]}; font-weight:bold'>%{customdata[0]}</span>"
+                    "<extra></extra>"
+                )
+            )
+
+    else:
+        if date_format == "quarterly":
+            df['hover_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            fig.update_traces(
+                customdata=df['hover_label'],
+                hovertemplate="<b>%{customdata}</b><br>%{y:,.2f}" + yaxis_suffix + "<extra></extra>"
+            )
+            tickvals = df[df['date'].dt.quarter == 4]['date']
+            ticktext = df[df['date'].dt.quarter == 4]['hover_label']
+            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+        else:
+            hovertemplate = (
+                "<b>%{x|" + hover_date_format + "}</b><br>"
+                "%{y:,.2f}" + yaxis_suffix + "<extra></extra>"
+            )
+            fig.update_traces(hovertemplate=hovertemplate)
+
+            if tickformat_override:
+                df['tick_label'] = df['date'].dt.strftime(tickformat_override)
+                fig.update_xaxes(
+                    tickmode='array',
+                    tickvals=df['date'],
+                    ticktext=df['tick_label']
+                )
 
     return fig
 
@@ -149,6 +190,102 @@ def get_japan_interest_rate_data():
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
 
     # Drop any rows where date could not be parsed
+    df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_japan_cpi_yoy_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "Japan_CPI_YoY.txt")
+    
+    # Read using regex for 2+ spaces
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+
+    # Clean column names
+    df.columns = df.columns.str.strip()
+
+    # Rename columns for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
+
+    # Convert value to float
+    df['value'] = pd.to_numeric(df['value'], errors='coerce')
+
+    # Drop invalid rows
+    df = df.dropna(subset=['value'])
+
+    # Convert Month Year to datetime
+    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
+
+    # Drop rows with invalid dates
+    df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_japan_gdp_qoq_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "Japan_GDP_Growth_Rate_QoQ.txt")
+    
+    # Read the file (split on 2+ spaces, so "Q1 2008" stays together)
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+
+    # Clean up column names
+    df.columns = df.columns.str.strip()
+
+    # Rename for consistency
+    df.rename(columns={"Date": "quarter", "Rate": "value"}, inplace=True)
+
+    # Function to convert "Q1 2008" -> datetime (end of quarter)
+    def parse_quarter(q):
+        q = str(q).strip()
+        if "Q" not in q:
+            return pd.NaT
+        quarter, year = q.split()
+        month_map = {"Q1": 3, "Q2": 6, "Q3": 9, "Q4": 12}
+        month = month_map.get(quarter, 3)
+        return pd.Timestamp(year=int(year), month=month, day=1) + pd.offsets.MonthEnd(0)
+
+    df["date"] = df["quarter"].apply(parse_quarter)
+
+    # Keep only relevant columns
+    df = df[["date", "value"]]
+
+    # Convert value to numeric
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    # Drop invalid rows
+    df = df.dropna(subset=["date", "value"]).sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_japan_unemployment_rate_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "Japan_Unemployment_Rate.txt")
+    
+    # Read using regex for 2+ spaces
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+
+    # Clean column names
+    df.columns = df.columns.str.strip()
+
+    # Rename columns for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
+
+    # Convert value to float
+    df['value'] = pd.to_numeric(df['value'], errors='coerce')
+
+    # Drop invalid rows
+    df = df.dropna(subset=['value'])
+
+    # Convert Month Year to datetime
+    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
+
+    # Drop rows with invalid dates
     df = df.dropna(subset=['date'])
 
     # Sort by date
@@ -180,10 +317,106 @@ def get_uk_interest_rate_data():
 
     return df
     
-def get_usa_interest_rate_data():
+def get_uk_cpi_yoy_data():
     base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "USA_Interest_Rate.txt")
+    file_path = os.path.join(base_dir, "UK_CPI_YoY.txt")
+    
+    # Read using regex for 2+ spaces
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
 
+    # Clean column names
+    df.columns = df.columns.str.strip()
+
+    # Rename columns for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
+
+    # Convert value to float
+    df['value'] = pd.to_numeric(df['value'], errors='coerce')
+
+    # Drop invalid rows
+    df = df.dropna(subset=['value'])
+
+    # Convert Month Year to datetime
+    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
+
+    # Drop rows with invalid dates
+    df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_uk_gdp_qoq_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "UK_GDP_Growth_Rate_QoQ.txt")
+    
+    # Read the file (split on 2+ spaces, so "Q1 2008" stays together)
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+
+    # Clean up column names
+    df.columns = df.columns.str.strip()
+
+    # Rename for consistency
+    df.rename(columns={"Date": "quarter", "Rate": "value"}, inplace=True)
+
+    # Function to convert "Q1 2008" -> datetime (end of quarter)
+    def parse_quarter(q):
+        q = str(q).strip()
+        if "Q" not in q:
+            return pd.NaT
+        quarter, year = q.split()
+        month_map = {"Q1": 3, "Q2": 6, "Q3": 9, "Q4": 12}
+        month = month_map.get(quarter, 3)
+        return pd.Timestamp(year=int(year), month=month, day=1) + pd.offsets.MonthEnd(0)
+
+    df["date"] = df["quarter"].apply(parse_quarter)
+
+    # Keep only relevant columns
+    df = df[["date", "value"]]
+
+    # Convert value to numeric
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    # Drop invalid rows
+    df = df.dropna(subset=["date", "value"]).sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_uk_unemployment_rate_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "UK_Unemployment_Rate.txt")
+    
+    # Read using regex for 2+ spaces
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+
+    # Clean column names
+    df.columns = df.columns.str.strip()
+
+    # Rename columns for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
+
+    # Convert value to float
+    df['value'] = pd.to_numeric(df['value'], errors='coerce')
+
+    # Drop invalid rows
+    df = df.dropna(subset=['value'])
+
+    # Convert Month Year to datetime
+    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
+
+    # Drop rows with invalid dates
+    df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_euro_interest_rate_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "EURO_Interest_Rate.txt")
+    
     # Use whitespace delimiter for space/tab-separated file
     df = pd.read_csv(file_path, delim_whitespace=True)
 
@@ -203,11 +436,107 @@ def get_usa_interest_rate_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-
-def get_euro_interest_rate_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "EURO_Interest_Rate.txt")
     
+def get_euro_cpi_yoy_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "EURO_CPI_YoY.txt")
+    
+    # Read using regex for 2+ spaces
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+
+    # Clean column names
+    df.columns = df.columns.str.strip()
+
+    # Rename columns for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
+
+    # Convert value to float
+    df['value'] = pd.to_numeric(df['value'], errors='coerce')
+
+    # Drop invalid rows
+    df = df.dropna(subset=['value'])
+
+    # Convert Month Year to datetime
+    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
+
+    # Drop rows with invalid dates
+    df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_euro_gdp_qoq_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "EURO_GDP_Growth_Rate_QoQ.txt")
+    
+    # Read the file (split on 2+ spaces, so "Q1 2008" stays together)
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+
+    # Clean up column names
+    df.columns = df.columns.str.strip()
+
+    # Rename for consistency
+    df.rename(columns={"Date": "quarter", "Rate": "value"}, inplace=True)
+
+    # Function to convert "Q1 2008" -> datetime (end of quarter)
+    def parse_quarter(q):
+        q = str(q).strip()
+        if "Q" not in q:
+            return pd.NaT
+        quarter, year = q.split()
+        month_map = {"Q1": 3, "Q2": 6, "Q3": 9, "Q4": 12}
+        month = month_map.get(quarter, 3)
+        return pd.Timestamp(year=int(year), month=month, day=1) + pd.offsets.MonthEnd(0)
+
+    df["date"] = df["quarter"].apply(parse_quarter)
+
+    # Keep only relevant columns
+    df = df[["date", "value"]]
+
+    # Convert value to numeric
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    # Drop invalid rows
+    df = df.dropna(subset=["date", "value"]).sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_euro_unemployment_rate_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "EURO_Unemployment_Rate.txt")
+    
+    # Read using regex for 2+ spaces
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+
+    # Clean column names
+    df.columns = df.columns.str.strip()
+
+    # Rename columns for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
+
+    # Convert value to float
+    df['value'] = pd.to_numeric(df['value'], errors='coerce')
+
+    # Drop invalid rows
+    df = df.dropna(subset=['value'])
+
+    # Convert Month Year to datetime
+    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
+
+    # Drop rows with invalid dates
+    df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_usa_interest_rate_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "USA_Interest_Rate.txt")
+
     # Use whitespace delimiter for space/tab-separated file
     df = pd.read_csv(file_path, delim_whitespace=True)
 
@@ -460,12 +789,22 @@ html, body {
     left: 0;
     right: 0;
     z-index: 9999;
-    background-color: #f2f2f2;
+    background-color: #F9F9F9;
     width: 100%;
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    /* Default = thin border */
+    border-bottom: 1px solid #e5e5e5;
+    transition: box-shadow 0.2s ease, border-bottom 0.2s ease;
+}
+
+/* When page is scrolled */
+.custom-header.scrolled {
+    border-bottom: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .custom-header .logo {
@@ -505,10 +844,10 @@ html, body {
     cursor: pointer;
     color: black;
 
-    display: flex;        /* make it a flex container */
-    align-items: center;  /* vertically center text */
-    height: 100%;         /* match parent menu height */
-    padding: 0;           /* remove extra padding */
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0;
     line-height: 1;
 }
 
@@ -585,6 +924,20 @@ st.markdown("""
         <a href="?page=Login" target="_self">Login</a>
     </div>
 </div>
+""", unsafe_allow_html=True)
+
+# --- JS to toggle shadow on scroll ---
+st.markdown("""
+<script>
+window.addEventListener('scroll', function() {
+    const header = document.querySelector('.custom-header');
+    if (window.scrollY > 10) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
+    }
+});
+</script>
 """, unsafe_allow_html=True)
 
 query_params = st.query_params
@@ -826,7 +1179,7 @@ if page == "Home":
             font-weight: 700;
         }
         </style>
-
+        
         <div class="hero">
             <h1>thealexbfx Macro Dashboard</h1>
             <p>Track global macroeconomic trends and FX markets—daily updated, interactive, and analyst-ready.</p>
@@ -877,7 +1230,7 @@ if page == "Home":
     dxy_df = get_fx_data_yahoo("DX-Y.NYB", start_date=dt.date.today() - dt.timedelta(days=365), end_date=dt.date.today())
     dxy_chart = plot_chart(dxy_df, "DXY (US Dollar Index)", chart_type="Line")
 
-    st.markdown('<div class="chart-title">📉 Sample FX Chart: US Dollar Index (DXY)</div>', unsafe_allow_html=True)
+    
     st.plotly_chart(dxy_chart, use_container_width=True)
 
     # Features and footer
@@ -938,12 +1291,13 @@ if page == "Home":
     
 # -------- USA Tab --------
 if page == "USA":
-    st.markdown("<h2 style='text-align:left; font-weight:bold;'>USA Macro Data</h2>", unsafe_allow_html=True)
     col1, col2 = st.columns([1, 5])
 
     with col1:
+        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+
         # Dropdowns
-        indicator = st.selectbox("**Indicator**", [
+        indicator = st.selectbox("Select Indicator", [
             "Interest Rate",
             "Inflation Rate",
             "GDP Growth Rate",
@@ -951,7 +1305,10 @@ if page == "USA":
             "10Y Yield",
             "2Y Yield"
         ])
-        chart_type = st.selectbox("**Chart Type**", ["Line", "Area", "Bar", "Step"])
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+
+        # Toggle for delta type
+        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
 
         # Load data based on indicator
         if indicator == "Interest Rate":
@@ -961,13 +1318,16 @@ if page == "USA":
         elif indicator == "Inflation Rate":
             df = get_usa_cpi_yoy_data()
             date_format = "monthly"
+            tickformat_override = None
         elif indicator == "GDP Growth Rate":
             df = get_usa_gdp_qoq_data()
             date_format = "quarterly"
             df['tick_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            tickformat_override = None
         elif indicator == "Unemployment Rate":
             df = get_usa_unemployment_rate_data()
             date_format = "monthly"
+            tickformat_override = None
         elif indicator == "10Y Yield":
             df = get_usa_10yr_yield_data()
             date_format = "daily"
@@ -978,10 +1338,13 @@ if page == "USA":
             tickformat_override = "%b %Y"
 
         df = df.dropna()
-        earliest_date = df['date'].min().date()
-        latest_date = df['date'].max().date()
+        if df.empty:
+            st.error("No data available.")
+            st.stop()
 
         # -------- Time Frame Selector --------
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
         timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
 
         if timeframe != "MAX":
@@ -991,276 +1354,597 @@ if page == "USA":
             default_start_date = earliest_date
 
         # Date inputs
-        start_date = st.date_input("**Start Date**", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("**End Date**", latest_date, min_value=earliest_date, max_value=latest_date)
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
 
         if start_date > end_date:
             st.warning("Start date cannot be after end date.")
             st.stop()
 
-    with col2:
-        # Filter data
-        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        # Dynamic Title
+    with col2:
+        # Commentary for each indicator
+        commentary = {
+            "Interest Rate": "The Federal Funds Rate reflects U.S. monetary policy stance and impacts global markets.",
+            "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
+            "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
+            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy.",
+            "10Y Yield": "The 10-Year Treasury yield is a benchmark for global borrowing costs and risk sentiment.",
+            "2Y Yield": "The 2-Year Treasury yield reflects expectations for near-term Fed policy moves."
+        }
+
+        # Display commentary above chart
+        st.markdown(
+            f"""
+            <div style="
+                position: relative;
+                top: -20px;
+                margin-left: 30px;
+                font-size:22px;
+                font-family: 'Arial Bold';
+                font-weight:normal;
+                color:#333;
+            ">
+                {commentary.get(indicator, "")}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Filter data by selected date range
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
+                         (df['date'] <= pd.to_datetime(end_date))]
+
+        # Dynamic Titles
         titles = {
             "Interest Rate": "Federal Funds Rate (%)",
             "Inflation Rate": "CPI YoY (%)",
             "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
             "Unemployment Rate": "Unemployment Rate (%)",
-            "10Y Yield": "10-Year Government Bond Yield (%)",
-            "2Y Yield": "2-Year Government Bond Yield (%)"
+            "10Y Yield": "10-Year Treasury Yield (%)",
+            "2Y Yield": "2-Year Treasury Yield (%)"
         }
 
-        # Chart plotting
+        # Detect if quarterly data
+        quarterly = (date_format == "quarterly")
+
+        # Plot chart with delta hover (same as FX tab)
+        fig = plot_chart(
+            df_filtered,
+            titles[indicator],
+            chart_type,
+            hover_style="delta",
+            delta_type=delta_type.lower(),
+            date_format="quarterly" if quarterly else date_format,
+            tickformat_override=tickformat_override,
+            show_markers=False
+        )
+
+        # For quarterly charts, show only Q4 labels
+        if quarterly:
+            tickvals = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date']
+            ticktext = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date'] \
+                .dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
+        # Display chart with clean modebar
         st.plotly_chart(
-            plot_chart(df, titles[indicator], chart_type, date_format=date_format),
-            use_container_width=True
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": True,
+                "displaylogo": False,
+                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
+            }
+        )
+
+        # -------- CSV Download --------
+        csv_data = df_filtered.to_csv(index=False)
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv_data,
+            file_name=f"USA_{indicator.replace(' ', '_')}_data.csv",
+            mime="text/csv"
         )
 
 # -------- Japan Tab --------
 if page == "Japan":
-    col1, col2 = st.columns([1, 3])  # Make col1 narrow, col2 wide
-
-    with col1:
-        st.header("🇯🇵 Japan Macro Data")
-
-        indicator = st.selectbox("Select Indicator", [
-            "CPI YoY Change (%)",
-            "Unemployment Rate",
-            "Real GDP QoQ Growth",
-            "Interest Rate (Short-Term)",
-            "Interest Rate (Long-Term)",
-            "BOJ Interest Rate"
-        ])
-
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
-
-        # Load full dataset to determine bounds
-        if indicator == "BOJ Interest Rate":  # <-- new option
-            df = get_japan_interest_rate_data()
-        elif indicator == "CPI YoY Change (%)":
-            df = get_japan_cpi_yoy_data()
-        elif indicator == "Unemployment Rate":
-            df = get_japan_unemployment_data()
-        elif indicator == "Real GDP QoQ Growth":
-            df = get_japan_gdp_qoq_growth()
-            df.rename(columns={'gdp_qoq_growth': 'value'}, inplace=True)
-        elif indicator == "Interest Rate (Short-Term)":
-            df = get_data("IRSTCI01JPM156N")
-        elif indicator == "Interest Rate (Long-Term)":
-            df = get_data("IRLTLT01JPM156N")
-        
-        df = df.dropna()
-        earliest_date = df['date'].min().date()
-        latest_date = df['date'].max().date()
-        default_start_date = max(earliest_date, latest_date - dt.timedelta(days=1825))
-
-        # Date input widgets
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
-
-        if start_date > end_date:
-            st.warning("Start date cannot be after end date.")
-            st.stop()
-
-    with col2:
-        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
-
-        if df.empty:
-            st.warning("No data available for this date range.")
-        else:
-            if indicator == "CPI YoY Change (%)":
-                st.subheader("Japan CPI Year-over-Year Change (All Items)")
-                st.plotly_chart(plot_chart(df, "CPI YoY Change (%)", chart_type), use_container_width=True)
-
-            elif indicator == "Unemployment Rate":
-                st.subheader("Japan Unemployment Rate")
-                st.plotly_chart(plot_chart(df, "Unemployment Rate", chart_type), use_container_width=True)
-
-            elif indicator == "Real GDP QoQ Growth":
-                st.subheader("Japan Real GDP QoQ Growth Rate (%)")
-                st.plotly_chart(plot_chart(df, "Real GDP QoQ Growth", chart_type), use_container_width=True)
-
-            elif indicator == "Interest Rate (Short-Term)":
-                st.subheader("Japan Short-Term Interest Rate (FRED: IRSTCI01JPM156N)")
-                st.plotly_chart(plot_chart(df, "Interest Rate (Short-Term)", chart_type), use_container_width=True)
-
-            elif indicator == "Interest Rate (Long-Term)":
-                st.subheader("Japan Long-Term Interest Rate (FRED: IRLTLT01JPM156N)")
-                st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
-                
-            elif indicator == "BOJ Interest Rate":
-                st.subheader("BOJ Official Interest Rate")
-                st.plotly_chart(plot_chart(df, "BOJ Interest Rate (%)", chart_type), use_container_width=True)
-
-        
-# -------- UK Tab --------        
-if page == "UK":
-    col1, col2 = st.columns([1, 3])  # Left: narrow for controls, Right: wide for output
-
-    with col1:
-        st.header("🇬🇧 UK Macro Data")
-
-        indicator = st.selectbox("Select Indicator", [
-            "Bank of England Base Rate (%)",
-            "CPI Inflation Rate (YoY %)",
-            "GDP Growth Rate (QoQ %)",
-            "Unemployment Rate",
-            "Interest Rate (Short-Term)",
-            "Interest Rate (Long-Term)"
-        ])
-
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
-
-        # Load full dataset temporarily for date bounds
-        if indicator == "Bank of England Base Rate (%)":
-            df = get_uk_interest_rate_data().rename(columns={'Date': 'date', 'Bank Rate': 'value'})
-        elif indicator == "CPI Inflation Rate (YoY %)":
-            df = get_uk_cpi_yoy()
-            df = df.rename(columns={'cpi_yoy': 'value'}) if 'cpi_yoy' in df.columns else df
-        elif indicator == "GDP Growth Rate (QoQ %)":
-            df = get_uk_gdp_qoq()
-            df = df.rename(columns={'gdp_qoq': 'value'}) if 'gdp_qoq' in df.columns else df
-        elif indicator == "Unemployment Rate":
-            df = get_uk_unemployment_rate()
-            df = df.rename(columns={'unemployment_rate': 'value'}) if 'unemployment_rate' in df.columns else df
-        elif indicator == "Interest Rate (Short-Term)":
-            df = get_data("IR3TIB01GBM156N")
-        elif indicator == "Interest Rate (Long-Term)":
-            df = get_data("IRLTLT01GBM156N")
-
-        df = df.dropna()
-        earliest_date = df['date'].min().date()
-        latest_date = df['date'].max().date()
-        default_start_date = max(earliest_date, latest_date - dt.timedelta(days=1825))
-
-        # Date inputs with safe bounds
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
-
-        if start_date > end_date:
-            st.warning("Start date cannot be after end date.")
-            st.stop()
-
-    with col2:
-        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
-
-        if df.empty:
-            st.warning("No data found for this date range.")
-        else:
-            if indicator == "Bank of England Base Rate (%)":
-                st.subheader("Bank of England Base Rate (%)")
-                st.plotly_chart(plot_chart(df, "Bank of England Base Rate (%)", chart_type), use_container_width=True)
-
-            elif indicator == "CPI Inflation Rate (YoY %)":
-                st.subheader("UK CPI Inflation Rate (YoY %)")
-                st.plotly_chart(plot_chart(df, "UK CPI Inflation Rate (YoY %)", chart_type), use_container_width=True)
-
-            elif indicator == "GDP Growth Rate (QoQ %)":
-                st.subheader("UK Real GDP QoQ Growth (%)")
-                st.plotly_chart(plot_chart(df, "UK Real GDP QoQ Growth (%)", chart_type), use_container_width=True)
-
-            elif indicator == "Unemployment Rate":
-                st.subheader("UK Unemployment Rate (%)")
-                st.plotly_chart(plot_chart(df, "UK Unemployment Rate (%)", chart_type), use_container_width=True)
-
-            elif indicator == "Interest Rate (Short-Term)":
-                st.subheader("UK Short-Term Interest Rate (FRED: IR3TIB01GBM156N)")
-                st.plotly_chart(plot_chart(df, "Interest Rate (Short-Term)", chart_type), use_container_width=True)
-
-            elif indicator == "Interest Rate (Long-Term)":
-                st.subheader("UK Long-Term Interest Rate (FRED: IRLTLT01GBM156N)")
-                st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
-        
-# -------- EURO Tab --------
-if page == "EURO":
-    col1, col2 = st.columns([1, 3])  # Controls (left), output (right)
-
-    with col1:
-        st.header("🇪🇺 Euro Area Macro Data")
-
-        indicator = st.selectbox("Select Indicator", [
-            "ECB Main Refinancing Rate",
-            "HICP Annual Change (Eurostat gzip)",
-            "Unemployment Rate (Seasonally Adjusted)",
-            "GDP Quarterly Growth (Seasonally Adjusted)",
-            "Interest Rate (Short-Term)",
-            "Interest Rate (Long-Term)"
-        ])
-
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
-
-        # Temporarily load full dataset for date range
-        if indicator == "ECB Main Refinancing Rate":
-            df = get_euro_interest_rate_data()
-        elif indicator == "HICP Annual Change (Eurostat gzip)":
-            df = get_euro_hicp_annual_gzip()
-        elif indicator == "Unemployment Rate (Seasonally Adjusted)":
-            df = get_euro_unemployment_gzip()
-        elif indicator == "GDP Quarterly Growth (Seasonally Adjusted)":
-            df = get_gdp_quarterly_gzip()
-        elif indicator == "Interest Rate (Short-Term)":
-            df = get_data("IR3TIB01EZM156N")
-        elif indicator == "Interest Rate (Long-Term)":
-            df = get_data("IRLTLT01EZM156N")
-
-        df = df.dropna()
-        earliest_date = df['date'].min().date()
-        latest_date = df['date'].max().date()
-        default_start_date = max(earliest_date, latest_date - dt.timedelta(days=1825))
-
-        # Date inputs with bounds
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
-
-        # Validation: prevent wrong ordering
-        if start_date > end_date:
-            st.warning("Start date cannot be after end date.")
-            st.stop()
-
-    with col2:
-        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
-
-        if df.empty:
-            st.warning("No data found for this date range.")
-        else:
-            if indicator == "ECB Main Refinancing Rate":
-                st.subheader("ECB Main Refinancing Rate (%)")
-                st.plotly_chart(plot_chart(df, "ECB Refinancing Rate", chart_type), use_container_width=True)
-
-            elif indicator == "HICP Annual Change (Eurostat gzip)":
-                st.subheader("Euro Area HICP Annual Change (%)")
-                st.plotly_chart(plot_chart(df, "Euro Area HICP Annual Change (%)", chart_type), use_container_width=True)
-
-            elif indicator == "Unemployment Rate (Seasonally Adjusted)":
-                st.subheader("Euro Area Unemployment Rate (Seasonally Adjusted)")
-                st.plotly_chart(plot_chart(df, "Euro Area Unemployment Rate (%)", chart_type), use_container_width=True)
-
-            elif indicator == "GDP Quarterly Growth (Seasonally Adjusted)":
-                st.subheader("Euro Area GDP Quarterly Growth (%)")
-                st.plotly_chart(plot_chart(df, "GDP Quarterly Growth (%)", chart_type), use_container_width=True)
-
-            elif indicator == "Interest Rate (Short-Term)":
-                st.subheader("EURO Short-Term Interest Rate (FRED: IR3TIB01EZM156N)")
-                st.plotly_chart(plot_chart(df, "Interest Rate (Short-Term)", chart_type), use_container_width=True)
-
-            elif indicator == "Interest Rate (Long-Term)":
-                st.subheader("EURO Long-Term Interest Rate (FRED: IRLTLT01EZM156N)")
-                st.plotly_chart(plot_chart(df, "Interest Rate (Long-Term)", chart_type), use_container_width=True)
-        
-# -------- FX Rates Tab --------
-if page == "FX Rates":
-    st.markdown("<h2 style='text-align:left; font-weight:bold;'>Forex Rates</h2>", unsafe_allow_html=True)
     col1, col2 = st.columns([1, 5])
 
     with col1:
+        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+
+        # Dropdowns
+        indicator = st.selectbox("Select Indicator", [
+            "Interest Rate",
+            "Inflation Rate",
+            "GDP Growth Rate",
+            "Unemployment Rate",
+            "10Y Yield",
+            "2Y Yield"
+        ])
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+
+        # Toggle for delta type
+        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+
+        # Load data based on indicator
+        if indicator == "Interest Rate":
+            df = get_japan_interest_rate_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "Inflation Rate":
+            df = get_japan_cpi_yoy_data()
+            date_format = "monthly"
+            tickformat_override = None
+        elif indicator == "GDP Growth Rate":
+            df = get_japan_gdp_qoq_data()
+            date_format = "quarterly"
+            df['tick_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            tickformat_override = None
+        elif indicator == "Unemployment Rate":
+            df = get_japan_unemployment_rate_data()
+            date_format = "monthly"
+            tickformat_override = None
+        elif indicator == "10Y Yield":
+            df = get_japan_10yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "2Y Yield":
+            df = get_japan_2yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+
+        df = df.dropna()
+        if df.empty:
+            st.error("No data available.")
+            st.stop()
+
+        # -------- Time Frame Selector --------
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y", ""))
+            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
+        else:
+            default_start_date = earliest_date
+
+        # Date inputs
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
+        if start_date > end_date:
+            st.warning("Start date cannot be after end date.")
+            st.stop()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col2:
+        # Commentary for each indicator
+        commentary = {
+            "Interest Rate": "The Federal Funds Rate reflects U.S. monetary policy stance and impacts global markets.",
+            "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
+            "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
+            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy.",
+            "10Y Yield": "The 10-Year Treasury yield is a benchmark for global borrowing costs and risk sentiment.",
+            "2Y Yield": "The 2-Year Treasury yield reflects expectations for near-term Fed policy moves."
+        }
+
+        # Display commentary above chart
+        st.markdown(
+            f"""
+            <div style="
+                position: relative;
+                top: -20px;
+                margin-left: 30px;
+                font-size:22px;
+                font-family: 'Arial Bold';
+                font-weight:normal;
+                color:#333;
+            ">
+                {commentary.get(indicator, "")}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Filter data by selected date range
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
+                         (df['date'] <= pd.to_datetime(end_date))]
+
+        # Dynamic Titles
+        titles = {
+            "Interest Rate": "Bank of Japan Policy Rate",
+            "Inflation Rate": "CPI YoY (%)",
+            "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
+            "Unemployment Rate": "Unemployment Rate (%)",
+            "10Y Yield": "10-Year Treasury Yield (%)",
+            "2Y Yield": "2-Year Treasury Yield (%)"
+        }
+
+        # Detect if quarterly data
+        quarterly = (date_format == "quarterly")
+
+        # Plot chart with delta hover (same as FX tab)
+        fig = plot_chart(
+            df_filtered,
+            titles[indicator],
+            chart_type,
+            hover_style="delta",
+            delta_type=delta_type.lower(),
+            date_format="quarterly" if quarterly else date_format,
+            tickformat_override=tickformat_override,
+            show_markers=False
+        )
+
+        # For quarterly charts, show only Q4 labels
+        if quarterly:
+            tickvals = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date']
+            ticktext = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date'] \
+                .dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
+        # Display chart with clean modebar
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": True,
+                "displaylogo": False,
+                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
+            }
+        )
+
+        # -------- CSV Download --------
+        csv_data = df_filtered.to_csv(index=False)
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv_data,
+            file_name=f"USA_{indicator.replace(' ', '_')}_data.csv",
+            mime="text/csv"
+        )
        
+# -------- UK Tab --------
+if page == "UK":
+    col1, col2 = st.columns([1, 5])
+
+    with col1:
+        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+
+        # Dropdowns
+        indicator = st.selectbox("Select Indicator", [
+            "Interest Rate",
+            "Inflation Rate",
+            "GDP Growth Rate",
+            "Unemployment Rate",
+            "10Y Yield",
+            "2Y Yield"
+        ])
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+
+        # Toggle for delta type
+        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+
+        # Load data based on indicator
+        if indicator == "Interest Rate":
+            df = get_uk_interest_rate_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "Inflation Rate":
+            df = get_uk_cpi_yoy_data()
+            date_format = "monthly"
+            tickformat_override = None
+        elif indicator == "GDP Growth Rate":
+            df = get_uk_gdp_qoq_data()
+            date_format = "quarterly"
+            df['tick_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            tickformat_override = None
+        elif indicator == "Unemployment Rate":
+            df = get_uk_unemployment_rate_data()
+            date_format = "monthly"
+            tickformat_override = None
+        elif indicator == "10Y Yield":
+            df = get_uk_10yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "2Y Yield":
+            df = get_uk_2yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+
+        df = df.dropna()
+        if df.empty:
+            st.error("No data available.")
+            st.stop()
+
+        # -------- Time Frame Selector --------
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y", ""))
+            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
+        else:
+            default_start_date = earliest_date
+
+        # Date inputs
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
+        if start_date > end_date:
+            st.warning("Start date cannot be after end date.")
+            st.stop()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col2:
+        # Commentary for each indicator
+        commentary = {
+            "Interest Rate": "The Federal Funds Rate reflects U.S. monetary policy stance and impacts global markets.",
+            "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
+            "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
+            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy.",
+            "10Y Yield": "The 10-Year Treasury yield is a benchmark for global borrowing costs and risk sentiment.",
+            "2Y Yield": "The 2-Year Treasury yield reflects expectations for near-term Fed policy moves."
+        }
+
+        # Display commentary above chart
+        st.markdown(
+            f"""
+            <div style="
+                position: relative;
+                top: -20px;
+                margin-left: 30px;
+                font-size:22px;
+                font-family: 'Arial Bold';
+                font-weight:normal;
+                color:#333;
+            ">
+                {commentary.get(indicator, "")}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Filter data by selected date range
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
+                         (df['date'] <= pd.to_datetime(end_date))]
+
+        # Dynamic Titles
+        titles = {
+            "Interest Rate": "Bank of Japan Policy Rate",
+            "Inflation Rate": "CPI YoY (%)",
+            "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
+            "Unemployment Rate": "Unemployment Rate (%)",
+            "10Y Yield": "10-Year Treasury Yield (%)",
+            "2Y Yield": "2-Year Treasury Yield (%)"
+        }
+
+        # Detect if quarterly data
+        quarterly = (date_format == "quarterly")
+
+        # Plot chart with delta hover (same as FX tab)
+        fig = plot_chart(
+            df_filtered,
+            titles[indicator],
+            chart_type,
+            hover_style="delta",
+            delta_type=delta_type.lower(),
+            date_format="quarterly" if quarterly else date_format,
+            tickformat_override=tickformat_override,
+            show_markers=False
+        )
+
+        # For quarterly charts, show only Q4 labels
+        if quarterly:
+            tickvals = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date']
+            ticktext = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date'] \
+                .dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
+        # Display chart with clean modebar
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": True,
+                "displaylogo": False,
+                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
+            }
+        )
+
+        # -------- CSV Download --------
+        csv_data = df_filtered.to_csv(index=False)
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv_data,
+            file_name=f"USA_{indicator.replace(' ', '_')}_data.csv",
+            mime="text/csv"
+        )
+        
+# -------- EURO Tab --------
+if page == "EURO":
+    col1, col2 = st.columns([1, 5])
+
+    with col1:
+        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+
+        # Dropdowns
+        indicator = st.selectbox("Select Indicator", [
+            "Interest Rate",
+            "Inflation Rate",
+            "GDP Growth Rate",
+            "Unemployment Rate",
+            "10Y Yield",
+            "2Y Yield"
+        ])
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+
+        # Toggle for delta type
+        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+
+        # Load data based on indicator
+        if indicator == "Interest Rate":
+            df = get_euro_interest_rate_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "Inflation Rate":
+            df = get_euro_cpi_yoy_data()
+            date_format = "monthly"
+            tickformat_override = None
+        elif indicator == "GDP Growth Rate":
+            df = get_euro_gdp_qoq_data()
+            date_format = "quarterly"
+            df['tick_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            tickformat_override = None
+        elif indicator == "Unemployment Rate":
+            df = get_euro_unemployment_rate_data()
+            date_format = "monthly"
+            tickformat_override = None
+        elif indicator == "10Y Yield":
+            df = get_euro_10yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "2Y Yield":
+            df = get_euro_2yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+
+        df = df.dropna()
+        if df.empty:
+            st.error("No data available.")
+            st.stop()
+
+        # -------- Time Frame Selector --------
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y", ""))
+            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
+        else:
+            default_start_date = earliest_date
+
+        # Date inputs
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
+        if start_date > end_date:
+            st.warning("Start date cannot be after end date.")
+            st.stop()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col2:
+        # Commentary for each indicator
+        commentary = {
+            "Interest Rate": "The Federal Funds Rate reflects U.S. monetary policy stance and impacts global markets.",
+            "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
+            "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
+            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy.",
+            "10Y Yield": "The 10-Year Treasury yield is a benchmark for global borrowing costs and risk sentiment.",
+            "2Y Yield": "The 2-Year Treasury yield reflects expectations for near-term Fed policy moves."
+        }
+
+        # Display commentary above chart
+        st.markdown(
+            f"""
+            <div style="
+                position: relative;
+                top: -20px;
+                margin-left: 30px;
+                font-size:22px;
+                font-family: 'Arial Bold';
+                font-weight:normal;
+                color:#333;
+            ">
+                {commentary.get(indicator, "")}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Filter data by selected date range
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
+                         (df['date'] <= pd.to_datetime(end_date))]
+
+        # Dynamic Titles
+        titles = {
+            "Interest Rate": "Bank of Japan Policy Rate",
+            "Inflation Rate": "CPI YoY (%)",
+            "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
+            "Unemployment Rate": "Unemployment Rate (%)",
+            "10Y Yield": "10-Year Treasury Yield (%)",
+            "2Y Yield": "2-Year Treasury Yield (%)"
+        }
+
+        # Detect if quarterly data
+        quarterly = (date_format == "quarterly")
+
+        # Plot chart with delta hover (same as FX tab)
+        fig = plot_chart(
+            df_filtered,
+            titles[indicator],
+            chart_type,
+            hover_style="delta",
+            delta_type=delta_type.lower(),
+            date_format="quarterly" if quarterly else date_format,
+            tickformat_override=tickformat_override,
+            show_markers=False
+        )
+
+        # For quarterly charts, show only Q4 labels
+        if quarterly:
+            tickvals = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date']
+            ticktext = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date'] \
+                .dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
+        # Display chart with clean modebar
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": True,
+                "displaylogo": False,
+                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
+            }
+        )
+
+        # -------- CSV Download --------
+        csv_data = df_filtered.to_csv(index=False)
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv_data,
+            file_name=f"USA_{indicator.replace(' ', '_')}_data.csv",
+            mime="text/csv"
+        )
+        
+# -------- FX Rates Tab --------
+if page == "FX Rates":
+    
+    col1, col2 = st.columns([1, 5])
+
+    with col1:
+        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+
         # Select indicator and chart type
         indicator = st.selectbox("Select Indicator", [
             "EUR/USD", "GBP/USD", "USD/JPY", "EUR/GBP", "EUR/JPY", "GBP/JPY", "DXY"
         ])
         chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
+
+        # Toggle for delta type
+        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
 
         # Map indicator to Yahoo ticker and chart title
         fx_tickers = {
@@ -1274,19 +1958,16 @@ if page == "FX Rates":
         }
         ticker, title = fx_tickers[indicator]
 
-        # Load full FX data
+        # Load FX data
         df = get_fx_data_yahoo(ticker, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
         df = df.dropna()
-
         if df.empty:
             st.error("No data available.")
             st.stop()
 
-        # Get dynamic min/max dates
+        # Time frame selector
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-
-        # -------- Time Frame Selector --------
         timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
@@ -1297,23 +1978,92 @@ if page == "FX Rates":
         # Date inputs
         start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
         end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
-
-        # Validate dates
         if start_date > end_date:
             st.warning("Start date must be before end date.")
             st.stop()
 
-    with col2:
-        
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        # Filter data by user-selected date range
+    with col2:
+        # Commentary for each indicator
+        commentary = {
+            "EUR/USD": "The EUR/USD has seen recent gains due mainly to the expectation of the Fed cutting interest rates.",
+            "GBP/USD": "The GBP/USD has been influenced by UK economic data and Bank of England rate expectations.",
+            "USD/JPY": "The USD/JPY remains sensitive to changes in U.S. Treasury yields and risk sentiment.",
+            "EUR/GBP": "The EUR/GBP reflects diverging monetary policy outlooks between the ECB and BoE.",
+            "EUR/JPY": "The EUR/JPY is driven by ECB policy signals and broader risk appetite.",
+            "GBP/JPY": "The GBP/JPY has been volatile due to risk sentiment and differences in monetary policy.",
+            "DXY":     "The DXY index reflects overall USD strength, reacting strongly to Fed policy expectations."
+        }
+
+        # Display commentary above chart
+        st.markdown(
+            f"""
+            <div style="
+                position: relative;
+                top: -20px;
+                margin-left: 30px;
+                font-size:22px;
+                font-family: 'Arial Bold';
+                font-weight:normal;
+                color:#333;
+            ">
+                {commentary.get(indicator, "")}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Filter data by selected date range
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
                          (df['date'] <= pd.to_datetime(end_date))]
 
-        # Plot chart
-        st.plotly_chart(plot_chart(df_filtered, title, chart_type), use_container_width=True)
+        # Detect if quarterly data
+        quarterly = False
+        if df_filtered.shape[0] > 1:
+            avg_days = (df_filtered['date'].diff().dropna().dt.days.mean())
+            if avg_days >= 80:  # ~quarter
+                quarterly = True
 
-        
+        # Plot chart with Bloomberg-style delta hover, no markers
+        fig = plot_chart(
+            df_filtered,
+            title,
+            chart_type,
+            hover_style="delta",
+            delta_type=delta_type.lower(),
+            date_format="quarterly" if quarterly else "daily",
+            show_markers=False
+        )
+
+        # For quarterly charts, show only Q4 labels
+        if quarterly:
+            tickvals = df_filtered[df_filtered['date'].dt.quarter == 4]['date']
+            ticktext = df_filtered[df_filtered['date'].dt.quarter == 4].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
+        # Display chart with clean modebar
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": True,
+                "displaylogo": False,
+                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
+            }
+        )
+
+        # --------------------- CSV Download (original) ---------------------
+        csv_data = df_filtered.to_csv(index=False)
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv_data,
+            file_name=f"{indicator.replace('/', '-')}_data.csv",
+            mime="text/csv"
+        )
+
+
 
 if page == "Compare":
     col1, col2 = st.columns([1, 3])
