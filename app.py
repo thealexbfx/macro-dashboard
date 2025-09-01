@@ -39,10 +39,10 @@ def plot_chart(df, title, chart_type, height=550, date_format="daily",
     mode = 'lines+markers' if show_markers else 'lines'
     if chart_type == "Line":
         fig = px.line(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
-        fig.update_traces(line=dict(width=3, color=chart_color), mode=mode)
+        fig.update_traces(line=dict(width=2, color=chart_color), mode=mode)
     elif chart_type == "Step":
         fig = px.line(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
-        fig.update_traces(line_shape='hv', line=dict(width=3, color=chart_color), mode=mode)
+        fig.update_traces(line_shape='hv', line=dict(width=2, color=chart_color), mode=mode)
     elif chart_type == "Area":
         fig = px.area(df, x='date', y='value', title=title, labels={'date': '', 'value': ''}, height=height)
         fig.update_traces(line_color=chart_color, fillcolor='rgba(31,119,180,0.3)')
@@ -172,7 +172,6 @@ def plot_chart(df, title, chart_type, height=550, date_format="daily",
 
     return fig
 
-
 def get_japan_interest_rate_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "Japan_Interest_Rate.txt")
@@ -287,6 +286,66 @@ def get_japan_unemployment_rate_data():
 
     # Drop rows with invalid dates
     df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_japan_10yr_yield_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "Japan_10_Year_Yield.txt")
+        
+    # Read tab or whitespace-delimited file
+    df = pd.read_csv(file_path, delim_whitespace=True)
+
+    # Strip column names
+    df.columns = df.columns.str.strip()
+
+    # Rename for consistency
+    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
+
+    # Convert date to datetime
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+
+    # Drop invalid dates
+    df = df.dropna(subset=["date"])
+
+    # Ensure value is numeric
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    # Drop rows with missing values
+    df = df.dropna(subset=["value"])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_japan_2yr_yield_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "Japan_2_Year_Yield.txt")
+        
+    # Read tab or whitespace-delimited file
+    df = pd.read_csv(file_path, delim_whitespace=True)
+
+    # Strip column names
+    df.columns = df.columns.str.strip()
+
+    # Rename for consistency
+    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
+
+    # Convert date to datetime
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+
+    # Drop invalid dates
+    df = df.dropna(subset=["date"])
+
+    # Ensure value is numeric
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    # Drop rows with missing values
+    df = df.dropna(subset=["value"])
 
     # Sort by date
     df = df.sort_values("date").reset_index(drop=True)
@@ -413,6 +472,66 @@ def get_uk_unemployment_rate_data():
 
     return df
     
+def get_uk_10yr_yield_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "UK_10_Year_Yield.txt")
+        
+    # Read tab or whitespace-delimited file
+    df = pd.read_csv(file_path, delim_whitespace=True)
+
+    # Strip column names
+    df.columns = df.columns.str.strip()
+
+    # Rename for consistency
+    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
+
+    # Convert date to datetime
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+
+    # Drop invalid dates
+    df = df.dropna(subset=["date"])
+
+    # Ensure value is numeric
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    # Drop rows with missing values
+    df = df.dropna(subset=["value"])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_uk_2yr_yield_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "UK_2_Year_Yield.txt")
+        
+    # Read tab or whitespace-delimited file
+    df = pd.read_csv(file_path, delim_whitespace=True)
+
+    # Strip column names
+    df.columns = df.columns.str.strip()
+
+    # Rename for consistency
+    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
+
+    # Convert date to datetime
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+
+    # Drop invalid dates
+    df = df.dropna(subset=["date"])
+
+    # Ensure value is numeric
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    # Drop rows with missing values
+    df = df.dropna(subset=["value"])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
 def get_euro_interest_rate_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "EURO_Interest_Rate.txt")
@@ -527,6 +646,66 @@ def get_euro_unemployment_rate_data():
 
     # Drop rows with invalid dates
     df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+   
+def get_euro_10yr_yield_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "EURO_10_Year_Yield.txt")
+        
+    # Read tab or whitespace-delimited file
+    df = pd.read_csv(file_path, delim_whitespace=True)
+
+    # Strip column names
+    df.columns = df.columns.str.strip()
+
+    # Rename for consistency
+    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
+
+    # Convert date to datetime
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+
+    # Drop invalid dates
+    df = df.dropna(subset=["date"])
+
+    # Ensure value is numeric
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    # Drop rows with missing values
+    df = df.dropna(subset=["value"])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_euro_2yr_yield_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "EURO_2_Year_Yield.txt")
+        
+    # Read tab or whitespace-delimited file
+    df = pd.read_csv(file_path, delim_whitespace=True)
+
+    # Strip column names
+    df.columns = df.columns.str.strip()
+
+    # Rename for consistency
+    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
+
+    # Convert date to datetime
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+
+    # Drop invalid dates
+    df = df.dropna(subset=["date"])
+
+    # Ensure value is numeric
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    # Drop rows with missing values
+    df = df.dropna(subset=["value"])
 
     # Sort by date
     df = df.sort_values("date").reset_index(drop=True)
@@ -653,65 +832,71 @@ def get_usa_unemployment_rate_data():
 
     return df
 
-def get_usa_10yr_yield_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "USA_10_Year_Yield.txt")
-        
-    # Read tab or whitespace-delimited file
-    df = pd.read_csv(file_path, delim_whitespace=True)
+# ---------------------------
+# FRED API Setup
+# ---------------------------
+FRED_API_KEY = "3be1b836ee6f78badf0f0a5a4905ab73"   # <- put your key here once
 
-    # Strip column names
-    df.columns = df.columns.str.strip()
+# ---------------------------
+# Yield Data Functions
+# ---------------------------
 
-    # Rename for consistency
-    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
 
-    # Convert date to datetime
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+def get_usa_yield_data(series_id: str):
+    """Generic function to fetch US Treasury yields from FRED by series_id."""
+    url = "https://api.stlouisfed.org/fred/series/observations"
+    params = {
+        "series_id": series_id,
+        "api_key": FRED_API_KEY,
+        "file_type": "json",
+    }
+    r = requests.get(url, params=params)
+    r.raise_for_status()
+    data = r.json()
 
-    # Drop invalid dates
-    df = df.dropna(subset=["date"])
-
-    # Ensure value is numeric
+    df = pd.DataFrame(data["observations"])
+    df = df[["date", "value"]]
+    df["date"] = pd.to_datetime(df["date"])
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
-
-    # Drop rows with missing values
-    df = df.dropna(subset=["value"])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
+    df = df.dropna().sort_values("date").reset_index(drop=True)
     return df
+
+# ---------------------------
+# Specific US Treasury Yields
+# ---------------------------
+def get_usa_1mo_yield_data():
+    return get_usa_yield_data("DGS1MO")
+
+def get_usa_3mo_yield_data():
+    return get_usa_yield_data("DGS3MO")
+
+def get_usa_6mo_yield_data():
+    return get_usa_yield_data("DGS6MO")
+
+def get_usa_1yr_yield_data():
+    return get_usa_yield_data("DGS1")
 
 def get_usa_2yr_yield_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "USA_2_Year_Yield.txt")
-  
-    # Read tab or whitespace-delimited file
-    df = pd.read_csv(file_path, delim_whitespace=True)
+    return get_usa_yield_data("DGS2")
 
-    # Strip column names
-    df.columns = df.columns.str.strip()
+def get_usa_3yr_yield_data():
+    return get_usa_yield_data("DGS3")
 
-    # Rename for consistency
-    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
+def get_usa_5yr_yield_data():
+    return get_usa_yield_data("DGS5")
 
-    # Convert date to datetime
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+def get_usa_7yr_yield_data():
+    return get_usa_yield_data("DGS7")
 
-    # Drop invalid dates
-    df = df.dropna(subset=["date"])
+def get_usa_10yr_yield_data():
+    return get_usa_yield_data("DGS10")
 
-    # Ensure value is numeric
-    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+def get_usa_20yr_yield_data():
+    return get_usa_yield_data("DGS20")
 
-    # Drop rows with missing values
-    df = df.dropna(subset=["value"])
+def get_usa_30yr_yield_data():
+    return get_usa_yield_data("DGS30")
 
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
 
 def get_fx_data_yahoo(ticker="GBPUSD=X", start_date=None, end_date=None):
     # Download historical daily data from yfinance
@@ -735,6 +920,31 @@ def get_fx_data_yahoo(ticker="GBPUSD=X", start_date=None, end_date=None):
     df = df.sort_values('date').reset_index(drop=True)
     return df
 
+def prepare_df(df: pd.DataFrame, label: str) -> pd.DataFrame:
+    """Standardize DataFrame for Compare tab by ensuring 'Date' and 'Value_label'."""
+    df = df.copy()
+
+    # Detect date column
+    date_col = None
+    for candidate in ["Date", "date", "Quarter", "Time", "Datetime", "Index"]:
+        if candidate in df.columns:
+            date_col = candidate
+            break
+    if date_col is None:
+        raise ValueError(f"No date-like column found in dataset {label}")
+
+    # Detect numeric column (first non-date)
+    value_col = None
+    for col in df.columns:
+        if col != date_col and pd.api.types.is_numeric_dtype(df[col]):
+            value_col = col
+            break
+    if value_col is None:
+        raise ValueError(f"No numeric value column found in dataset {label}")
+
+    # Rename for Compare
+    df = df.rename(columns={date_col: "Date", value_col: f"Value_{label}"})
+    return df[["Date", f"Value_{label}"]]
 
 #####-----Streamlit App-----#####
 
@@ -918,10 +1128,27 @@ st.markdown("""
                 <a href="?page=EURO" target="_self">Euro Area</a>
             </div>
         </div>
-        <a href="?page=FX%20Rates" target="_self">FX Rates</a>
+        <div class="dropdown">
+            <button class="dropdown-btn">Asset Classes ▾</button>
+            <div class="dropdown-content">
+                <a href="?page=Equities" target="_self">Equities</a>
+                <a href="?page=Stocks" target="_self">Stocks</a>
+                <a href="?page=Commodities" target="_self">Commodities</a>
+                <a href="?page=Bonds" target="_self">Bonds</a>
+                <a href="?page=FX%20Rates" target="_self">FX Rates</a>
+                <a href="?page=Crypto" target="_self">Crypto</a>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropdown-btn">Yield Curve & Regimes ▾</button>
+            <div class="dropdown-content">
+                <a href="?page=Yield Curve" target="_self">Yield Curve</a>
+                <a href="?page=Curve Regimes" target="_self">Curve Regimes</a>
+            </div>
+        </div>
         <a href="?page=Compare" target="_self">Compare</a>
         <a href="?page=Calendar" target="_self">Calendar</a>
-        <a href="?page=Login" target="_self">Login</a>
+        <a href="?page=Analysis" target="_self">Analysis</a>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -1302,8 +1529,17 @@ if page == "USA":
             "Inflation Rate",
             "GDP Growth Rate",
             "Unemployment Rate",
+            "1M Yield",
+            "3M Yield",
+            "6M Yield",
+            "1Y Yield",
+            "2Y Yield",
+            "3Y Yield",
+            "5Y Yield",
+            "7Y Yield",
             "10Y Yield",
-            "2Y Yield"
+            "20Y Yield",
+            "30Y Yield"
         ])
         chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
 
@@ -1328,12 +1564,48 @@ if page == "USA":
             df = get_usa_unemployment_rate_data()
             date_format = "monthly"
             tickformat_override = None
-        elif indicator == "10Y Yield":
-            df = get_usa_10yr_yield_data()
+        elif indicator == "1M Yield":
+            df = get_usa_1mo_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "3M Yield":
+            df = get_usa_3mo_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "6M Yield":
+            df = get_usa_6mo_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "1Y Yield":
+            df = get_usa_1yr_yield_data()
             date_format = "daily"
             tickformat_override = "%b %Y"
         elif indicator == "2Y Yield":
             df = get_usa_2yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "3Y Yield":
+            df = get_usa_3yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "5Y Yield":
+            df = get_usa_5yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "7Y Yield":
+            df = get_usa_7yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "10Y Yield":
+            df = get_usa_10yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "20Y Yield":
+            df = get_usa_20yr_yield_data()
+            date_format = "daily"
+            tickformat_override = "%b %Y"
+        elif indicator == "30Y Yield":
+            df = get_usa_30yr_yield_data()
             date_format = "daily"
             tickformat_override = "%b %Y"
 
@@ -1370,8 +1642,17 @@ if page == "USA":
             "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
             "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
             "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy.",
+            "1M Yield": "The 1-Month Treasury yield is often used as a proxy for short-term funding costs.",
+            "3M Yield": "The 3-Month Treasury yield is closely tied to Fed policy expectations.",
+            "6M Yield": "The 6-Month Treasury yield reflects short-term funding conditions.",
+            "1Y Yield": "The 1-Year Treasury yield reflects near-term economic and policy expectations.",
+            "2Y Yield": "The 2-Year Treasury yield reflects expectations for near-term Fed policy moves.",
+            "3Y Yield": "The 3-Year Treasury yield balances short and medium-term interest rate expectations.",
+            "5Y Yield": "The 5-Year Treasury yield is influenced by both Fed policy and inflation expectations.",
+            "7Y Yield": "The 7-Year Treasury yield sits between medium- and long-term maturities, showing curve shape.",
             "10Y Yield": "The 10-Year Treasury yield is a benchmark for global borrowing costs and risk sentiment.",
-            "2Y Yield": "The 2-Year Treasury yield reflects expectations for near-term Fed policy moves."
+            "20Y Yield": "The 20-Year Treasury yield reflects long-term government borrowing costs.",
+            "30Y Yield": "The 30-Year Treasury yield is a key gauge of ultra-long-term inflation and growth expectations."
         }
 
         # Display commentary above chart
@@ -1402,14 +1683,23 @@ if page == "USA":
             "Inflation Rate": "CPI YoY (%)",
             "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
             "Unemployment Rate": "Unemployment Rate (%)",
+            "1M Yield": "1-Month Treasury Yield (%)",
+            "3M Yield": "3-Month Treasury Yield (%)",
+            "6M Yield": "6-Month Treasury Yield (%)",
+            "1Y Yield": "1-Year Treasury Yield (%)",
+            "2Y Yield": "2-Year Treasury Yield (%)",
+            "3Y Yield": "3-Year Treasury Yield (%)",
+            "5Y Yield": "5-Year Treasury Yield (%)",
+            "7Y Yield": "7-Year Treasury Yield (%)",
             "10Y Yield": "10-Year Treasury Yield (%)",
-            "2Y Yield": "2-Year Treasury Yield (%)"
+            "20Y Yield": "20-Year Treasury Yield (%)",
+            "30Y Yield": "30-Year Treasury Yield (%)"
         }
 
         # Detect if quarterly data
         quarterly = (date_format == "quarterly")
 
-        # Plot chart with delta hover (same as FX tab)
+        # Plot chart with delta hover
         fig = plot_chart(
             df_filtered,
             titles[indicator],
@@ -1448,6 +1738,7 @@ if page == "USA":
             file_name=f"USA_{indicator.replace(' ', '_')}_data.csv",
             mime="text/csv"
         )
+
 
 # -------- Japan Tab --------
 if page == "Japan":
@@ -1605,7 +1896,7 @@ if page == "Japan":
         st.download_button(
             label="📥 Download CSV",
             data=csv_data,
-            file_name=f"USA_{indicator.replace(' ', '_')}_data.csv",
+            file_name=f"Japan_{indicator.replace(' ', '_')}_data.csv",
             mime="text/csv"
         )
        
@@ -1765,7 +2056,7 @@ if page == "UK":
         st.download_button(
             label="📥 Download CSV",
             data=csv_data,
-            file_name=f"USA_{indicator.replace(' ', '_')}_data.csv",
+            file_name=f"UK_{indicator.replace(' ', '_')}_data.csv",
             mime="text/csv"
         )
         
@@ -1925,7 +2216,7 @@ if page == "EURO":
         st.download_button(
             label="📥 Download CSV",
             data=csv_data,
-            file_name=f"USA_{indicator.replace(' ', '_')}_data.csv",
+            file_name=f"Euro_{indicator.replace(' ', '_')}_data.csv",
             mime="text/csv"
         )
         
@@ -1941,7 +2232,7 @@ if page == "FX Rates":
         indicator = st.selectbox("Select Indicator", [
             "EUR/USD", "GBP/USD", "USD/JPY", "EUR/GBP", "EUR/JPY", "GBP/JPY", "DXY"
         ])
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
 
         # Toggle for delta type
         delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
@@ -1954,7 +2245,7 @@ if page == "FX Rates":
             "EUR/GBP": ("EURGBP=X", "EUR/GBP"),
             "EUR/JPY": ("EURJPY=X", "EUR/JPY"),
             "GBP/JPY": ("GBPJPY=X", "GBP/JPY"),
-            "DXY":     ("DX-Y.NYB", "DXY")
+            "DXY":     ("DX-Y.NYB", "DXY")    
         }
         ticker, title = fx_tickers[indicator]
 
@@ -2062,171 +2353,396 @@ if page == "FX Rates":
             file_name=f"{indicator.replace('/', '-')}_data.csv",
             mime="text/csv"
         )
+        
 
-
-
+        
+# ==============================
+# 📊 COMPARE TAB (Enhanced Hover + Delta Type + Bold Axis + Black Lines)
+# ==============================
 if page == "Compare":
-    col1, col2 = st.columns([1, 3])
+    col1, col2 = st.columns([1, 5])
 
     with col1:
-        st.header("📊 Compare Indicators")
+        # --------------------------
+        # Organize indicator options by group
+        # --------------------------
+        indicator_groups = {
+            "USA": {
+                "Interest Rate": "usa_rate",
+                "CPI YoY %": "usa_cpi",
+                "GDP QoQ %": "usa_gdp",
+                "Unemployment Rate": "usa_unemp"
+                
+            },
+            "UK": {
+                "Interest Rate": "uk_rate",
+                "CPI YoY %": "uk_cpi",
+                "GDP QoQ %": "uk_gdp",
+                "Unemployment Rate": "uk_unemp"
+                
+            },
+            "Japan": {
+                "Interest Rate": "jp_rate",
+                "CPI YoY %": "jp_cpi",
+                "GDP QoQ %": "jp_gdp",
+                "Unemployment Rate": "jp_unemp"
+                
+            },
+            "Euro": {
+                "Interest Rate": "eu_rate",
+                "CPI YoY %": "eu_cpi",
+                "GDP QoQ %": "eu_gdp",
+                "Unemployment Rate": "eu_unemp"
+                
+            },
 
-        indicator_options = {
-            # USA
-            "USA: Interest Rate": "FEDFUNDS",
-            "USA: Inflation Rate (YoY %)": "CPIAUCSL",
-            "USA: GDP Growth Rate": "A191RL1Q225SBEA",
-            "USA: Unemployment Rate": "UNRATE",
-            "USA: 10Y Yield": "DGS10",
-            "USA: 2Y Yield": "DGS2",
-            # Japan
-            "Japan: CPI YoY Change (%)": "JP_CPI",
-            "Japan: Unemployment Rate": "JP_UNEMPLOYMENT",
-            "Japan: Real GDP QoQ Growth": "JP_GDP",
-            "Japan: Interest Rate (Short-Term)": "IRSTCI01JPM156N",
-            "Japan: Interest Rate (Long-Term)": "IRLTLT01JPM156N",
-            # UK
-            "UK: BoE Base Rate (%)": "UK_BASE_RATE",
-            "UK: CPI Inflation Rate (YoY %)": "UK_CPI",
-            "UK: GDP Growth Rate (QoQ %)": "UK_GDP",
-            "UK: Unemployment Rate": "UK_UNEMPLOYMENT",
-            "UK: Interest Rate (Short-Term)": "IR3TIB01GBM156N",
-            "UK: Interest Rate (Long-Term)": "IRLTLT01GBM156N",
-            # Euro Area
-            "Euro: ECB Main Refinancing Rate": "EU_REF_RATE",
-            "Euro: HICP Annual Change": "EU_HICP",
-            "Euro: Unemployment Rate": "EU_UNEMPLOYMENT",
-            "Euro: GDP Quarterly Growth": "EU_GDP",
-            "Euro: Interest Rate (Short-Term)": "IR3TIB01EZM156N",
-            "Euro: Interest Rate (Long-Term)": "IRLTLT01EZM156N",
-            # FX
-            "FX: EUR/USD": "EURUSD=X",
-            "FX: GBP/USD": "GBPUSD=X",
-            "FX: USD/JPY": "USDJPY=X",
-            "FX: EUR/GBP": "EURGBP=X",
-            "FX: EUR/JPY": "EURJPY=X",
-            "FX: GBP/JPY": "GBPJPY=X",
-            "FX: DXY": "DX-Y.NYB"
+            "FX": {"EUR/USD": "eurusd", "GBP/USD": "gbpusd", "USD/JPY": "usdjpy", "DXY": "dxy"},
+            
+            "Equities": {
+                "S&P 500": "eq_sp500",
+                "NASDAQ": "eq_nasdaq",
+                "Dow Jones": "eq_dow",
+                "FTSE 100": "eq_ftse",
+                "Nikkei 225": "eq_nikkei",
+                "DAX": "eq_dax",
+                "MSCI Emerging Markets ETF": "eq_msci_em",
+                "VIX": "eq_vix"
+            },
+            "Stocks": {
+                "Apple": "st_aapl",
+                "Amazon": "st_amzn",
+                "Meta": "st_meta",
+                "Alphabet (Google)": "st_googl",
+                "Nvidia": "st_nvda",
+                "Microsoft": "st_msft",
+                "Tesla": "st_tsla"
+            },
+            "Commodities": {
+                "Gold": "cmd_gold",
+                "Silver": "cmd_silver",
+                "Crude Oil (WTI)": "cmd_wti",
+                "Brent Oil": "cmd_brent",
+                "Natural Gas": "cmd_ng",
+                "Wheat": "cmd_wheat",
+                "Copper": "cmd_copper",
+                "Corn": "cmd_corn",
+                "Soybeans": "cmd_soy"
+            },
+            "Bonds": {
+                # U.S. Treasuries
+                "US 1M Yield": "usa_1m",
+                "US 3M Yield": "usa_3m",
+                "US 6M Yield": "usa_6m",
+                "US 1Y Yield": "usa_1y",
+                "US 2Y Yield": "usa_2y",
+                "US 3Y Yield": "usa_3y",
+                "US 5Y Yield": "usa_5y",
+                "US 7Y Yield": "usa_7y",
+                "US 10Y Yield": "usa_10y",
+                "US 20Y Yield": "usa_20y",
+                "US 30Y Yield": "usa_30y",
+
+                # UK Gilts
+                "UK 2Y Gilt Yield": "uk_2y",
+                "UK 10Y Gilt Yield": "uk_10y",
+
+                # Japan JGBs
+                "Japan 2Y JGB Yield": "jp_2y",
+                "Japan 10Y JGB Yield": "jp_10y",
+
+                # Euro Area Bonds
+                "Euro 2Y Bond Yield": "eu_2y",
+                "Euro 10Y Bond Yield": "eu_10y"
+            },
+            "Crypto": {
+                "Bitcoin": "crypto_btc",
+                "Ethereum": "crypto_eth"
+            }
         }
+           
+        # --------------------------
+        # Indicator selection
+        # --------------------------
+        group1 = st.selectbox("Select Group for Indicator 1", list(indicator_groups.keys()), key="group1")
+        indicator1_label = st.selectbox("Select Indicator 1", list(indicator_groups[group1].keys()), key="indicator1")
+        indicator1_code = indicator_groups[group1][indicator1_label]
 
-        indicator1_label = st.selectbox("Select Indicator 1", list(indicator_options.keys()))
-        indicator2_label = st.selectbox("Select Indicator 2", list(indicator_options.keys()))
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar"])
+        group2 = st.selectbox("Select Group for Indicator 2", list(indicator_groups.keys()), key="group2")
+        indicator2_options = list(indicator_groups[group2].keys())
+        if group1 == group2:
+            indicator2_options = [opt for opt in indicator2_options if opt != indicator1_label]
+        indicator2_label = st.selectbox("Select Indicator 2", indicator2_options, key="indicator2")
+        indicator2_code = indicator_groups[group2][indicator2_label]
 
-        def load_indicator_data(label, code):
-            if code.startswith("JP_"):
-                if code == "JP_CPI":
-                    return get_japan_cpi_yoy_data()
-                elif code == "JP_UNEMPLOYMENT":
-                    return get_japan_unemployment_data()
-                elif code == "JP_GDP":
-                    df = get_japan_gdp_qoq_growth()
-                    return df.rename(columns={'gdp_qoq_growth': 'value'})
-            elif code.startswith("UK_"):
-                if code == "UK_BASE_RATE":
-                    return get_uk_base_rate_from_url().rename(columns={'Date': 'date', 'Bank Rate': 'value'})
-                elif code == "UK_CPI":
-                    df = get_uk_cpi_yoy()
-                    return df.rename(columns={'cpi_yoy': 'value'})
-                elif code == "UK_GDP":
-                    df = get_uk_gdp_qoq()
-                    return df.rename(columns={'gdp_qoq': 'value'})
-                elif code == "UK_UNEMPLOYMENT":
-                    df = get_uk_unemployment_rate()
-                    return df.rename(columns={'unemployment_rate': 'value'})
-            elif code.startswith("EU_"):
-                if code == "EU_REF_RATE":
-                    return get_ecb_refinancing_rate()
-                elif code == "EU_HICP":
-                    return get_euro_hicp_annual_gzip()
-                elif code == "EU_UNEMPLOYMENT":
-                    return get_euro_unemployment_gzip()
-                elif code == "EU_GDP":
-                    return get_gdp_quarterly_gzip()
-            elif code.endswith("=X") or code == "DX-Y.NYB":
-                return get_fx_data_yahoo(code, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
-            elif code == "CPIAUCSL":  # USA CPI → convert to YoY %
-                raw = fred.get_series(code)
-                df = pd.DataFrame(raw).reset_index()
-                df.columns = ['date', 'value']
-                df['value'] = (df['value'].pct_change(periods=12) * 100).round(2)
-                return df.dropna()
-            else:
-                return get_data(code)
+        # --------------------------
+        # Delta type selection
+        # --------------------------
+        delta_type_option = st.selectbox("Delta Type", ["Daily % Change", "Cumulative % Change"], index=1)
 
-        # Load + drop missing
-        df1 = load_indicator_data(indicator1_label, indicator_options[indicator1_label]).dropna()
-        df2 = load_indicator_data(indicator2_label, indicator_options[indicator2_label]).dropna()
+        # --------------------------
+        # Function loader
+        # --------------------------
+        def load_indicator_data(code):
+            # USA
+            if code == "usa_rate": return get_usa_interest_rate_data()
+            if code == "usa_cpi": return get_usa_cpi_yoy_data()
+            if code == "usa_gdp": return get_usa_gdp_qoq_data()
+            if code == "usa_unemp": return get_usa_unemployment_rate_data()
+            if code == "usa_1m": return get_usa_1mo_yield_data()
+            if code == "usa_3m": return get_usa_3mo_yield_data()
+            if code == "usa_6m": return get_usa_6mo_yield_data()
+            if code == "usa_1y": return get_usa_1yr_yield_data()
+            if code == "usa_2y": return get_usa_2yr_yield_data()
+            if code == "usa_3y": return get_usa_3yr_yield_data()
+            if code == "usa_5y": return get_usa_5yr_yield_data()
+            if code == "usa_7y": return get_usa_7yr_yield_data()
+            if code == "usa_10y": return get_usa_10yr_yield_data()
+            if code == "usa_20y": return get_usa_20yr_yield_data()
+            if code == "usa_30y": return get_usa_30yr_yield_data()
 
+            # UK
+            if code == "uk_rate": return get_uk_interest_rate_data()
+            if code == "uk_cpi": return get_uk_cpi_yoy_data()
+            if code == "uk_gdp": return get_uk_gdp_qoq_data()
+            if code == "uk_unemp": return get_uk_unemployment_rate_data()
+            if code == "uk_10y": return get_uk_10yr_yield_data()
+            if code == "uk_2y": return get_uk_2yr_yield_data()
+
+            # Japan
+            if code == "jp_rate": return get_japan_interest_rate_data()
+            if code == "jp_cpi": return get_japan_cpi_yoy_data()
+            if code == "jp_gdp": return get_japan_gdp_qoq_data()
+            if code == "jp_unemp": return get_japan_unemployment_rate_data()
+            if code == "jp_10y": return get_japan_10yr_yield_data()
+            if code == "jp_2y": return get_japan_2yr_yield_data()
+
+            # Euro
+            if code == "eu_rate": return get_euro_interest_rate_data()
+            if code == "eu_cpi": return get_euro_cpi_yoy_data()
+            if code == "eu_gdp": return get_euro_gdp_qoq_data()
+            if code == "eu_unemp": return get_euro_unemployment_rate_data()
+            if code == "eu_10y": return get_euro_10yr_yield_data()
+            if code == "eu_2y": return get_euro_2yr_yield_data()
+
+            # FX
+            if code == "eurusd": return get_fx_data_yahoo("EURUSD=X", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "gbpusd": return get_fx_data_yahoo("GBPUSD=X", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "usdjpy": return get_fx_data_yahoo("USDJPY=X", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "dxy": return get_fx_data_yahoo("DX-Y.NYB", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            
+            # Equities
+            if code == "eq_sp500": return get_fx_data_yahoo("^GSPC", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "eq_nasdaq": return get_fx_data_yahoo("^IXIC", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "eq_dow": return get_fx_data_yahoo("^DJI", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "eq_ftse": return get_fx_data_yahoo("^FTSE", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "eq_nikkei": return get_fx_data_yahoo("^N225", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "eq_dax": return get_fx_data_yahoo("^GDAXI", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "eq_msci_em": return get_fx_data_yahoo("EEM", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "eq_vix": return get_fx_data_yahoo("^VIX", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+
+            # Stocks
+            if code == "st_aapl": return get_fx_data_yahoo("AAPL", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "st_amzn": return get_fx_data_yahoo("AMZN", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "st_meta": return get_fx_data_yahoo("META", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "st_googl": return get_fx_data_yahoo("GOOGL", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "st_nvda": return get_fx_data_yahoo("NVDA", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "st_msft": return get_fx_data_yahoo("MSFT", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "st_tsla": return get_fx_data_yahoo("TSLA", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+
+            # Commodities
+            if code == "cmd_gold": return get_fx_data_yahoo("GC=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "cmd_silver": return get_fx_data_yahoo("SI=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "cmd_wti": return get_fx_data_yahoo("CL=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "cmd_brent": return get_fx_data_yahoo("BZ=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "cmd_ng": return get_fx_data_yahoo("NG=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "cmd_wheat": return get_fx_data_yahoo("ZW=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "cmd_copper": return get_fx_data_yahoo("HG=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "cmd_corn": return get_fx_data_yahoo("ZC=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "cmd_soy": return get_fx_data_yahoo("ZS=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            
+            # Crypto
+            if code == "crypto_btc": return get_fx_data_yahoo("BTC-USD", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            if code == "crypto_eth": return get_fx_data_yahoo("ETH-USD", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+
+
+            return pd.DataFrame()
+
+        # --------------------------
+        # Load & clean data
+        # --------------------------
+        df1 = load_indicator_data(indicator1_code).dropna()
+        df2 = load_indicator_data(indicator2_code).dropna()
+        df1 = df1.rename(columns={df1.columns[0]: "date", df1.columns[1]: "value"})
+        df2 = df2.rename(columns={df2.columns[0]: "date", df2.columns[1]: "value"})
+        df1['date'] = pd.to_datetime(df1['date'], errors='coerce')
+        df2['date'] = pd.to_datetime(df2['date'], errors='coerce')
+        df1 = df1.dropna(subset=['date'])
+        df2 = df2.dropna(subset=['date'])
+
+        # --------------------------
+        # Timeframe & date selection
+        # --------------------------
         df1_min, df1_max = df1['date'].min().date(), df1['date'].max().date()
         df2_min, df2_max = df2['date'].min().date(), df2['date'].max().date()
-
-        # New logic: End date = latest date of either indicator
         latest_date = max(df1_max, df2_max)
-
-        # Start date = latest_date - 1825 days (5 years) or earliest date whichever is later
         earliest_start = min(df1_min, df2_min)
-        default_start_date = max(earliest_start, latest_date - dt.timedelta(days=1825))
+
+        timeframe = st.selectbox("Select Timeframe", ["1Y", "3Y", "5Y", "10Y", "Max"], index=2)
+        if timeframe == "1Y": default_start_date = latest_date - dt.timedelta(days=365)
+        elif timeframe == "3Y": default_start_date = latest_date - dt.timedelta(days=365*3)
+        elif timeframe == "5Y": default_start_date = latest_date - dt.timedelta(days=365*5)
+        elif timeframe == "10Y": default_start_date = latest_date - dt.timedelta(days=365*10)
+        else: default_start_date = earliest_start
+        default_start_date = max(earliest_start, default_start_date)
 
         start_date = st.date_input("Start Date", default_start_date, min_value=earliest_start, max_value=latest_date)
         end_date = st.date_input("End Date", latest_date, min_value=earliest_start, max_value=latest_date)
-
         if start_date > end_date:
             st.warning("Start date cannot be after end date.")
             st.stop()
 
     with col2:
-        # Filter data to user date range
+        # --------------------------
+        # Filter by date
+        # --------------------------
         df1_filtered = df1[(df1['date'] >= pd.to_datetime(start_date)) & (df1['date'] <= pd.to_datetime(end_date))]
         df2_filtered = df2[(df2['date'] >= pd.to_datetime(start_date)) & (df2['date'] <= pd.to_datetime(end_date))]
-
         if df1_filtered.empty or df2_filtered.empty:
             st.warning("Not enough data for this date range.")
             st.stop()
 
-        # Get latest available value for each indicator (from filtered data)
         latest_val_1 = df1_filtered.iloc[-1]['value']
         latest_val_2 = df2_filtered.iloc[-1]['value']
+        def format_val(v): return f"{v:.4f}" if isinstance(v, float) else str(v)
+        title_str = (f"{group1}: {indicator1_label} (Latest: {format_val(latest_val_1)}) "
+                     f"vs {group2}: {indicator2_label} (Latest: {format_val(latest_val_2)})")
 
-        # Format values for display nicely (round 4 decimals if float)
-        def format_val(v):
-            return f"{v:.4f}" if isinstance(v, float) else str(v)
+        # --------------------------
+        # Detect quarterly/monthly/daily
+        # --------------------------
+        def is_quarterly(df):
+            if df.shape[0] > 1:
+                avg_days = df['date'].diff().dropna().dt.days.mean()
+                return avg_days >= 80
+            return False
+        quarterly = is_quarterly(df1_filtered) or is_quarterly(df2_filtered)
 
-        title_str = (f"{indicator1_label} (Latest: {format_val(latest_val_1)}) "
-                     f"vs {indicator2_label} (Latest: {format_val(latest_val_2)})")
+        def is_monthly(df):
+            if df.shape[0] > 1:
+                avg_days = df['date'].diff().dropna().dt.days.mean()
+                return 27 <= avg_days <= 32
+            return False
+        monthly = is_monthly(df1_filtered) or is_monthly(df2_filtered)
 
-        st.subheader(title_str)
-        st.caption(f"Date Range: {start_date.strftime('%d %B %Y')} → {end_date.strftime('%d %B %Y')}")
+        # --------------------------
+        # Detect if indicators are same type
+        # --------------------------
+        def same_type(ind1, ind2): return ind1.split()[1:] == ind2.split()[1:]
+        both_fx = (group1 == "FX") and (group2 == "FX")
+        unify_axis = False if both_fx else same_type(indicator1_label, indicator2_label)
 
+        # --------------------------
+        # Calculate delta safely
+        # --------------------------
+        import numpy as np
+        for df_ in [df1_filtered, df2_filtered]:
+            if delta_type_option == "Daily % Change":
+                df_['delta'] = df_['value'].pct_change() * 100
+            else:
+                df_['delta'] = np.where(df_['value'].iloc[0] == 0, 0, (df_['value'] / df_['value'].iloc[0] - 1) * 100)
+            df_['delta_str'] = df_['delta'].apply(lambda x: f"▲ {x:.2f}%" if x > 0 else (f"▼ {abs(x):.2f}%" if pd.notnull(x) and x < 0 else "— 0.00%"))
+            df_['delta_color'] = df_['delta'].apply(lambda x: "green" if x > 0 else ("red" if x < 0 else "gray"))
+
+        # --------------------------
+        # Prepare hover labels
+        # --------------------------
+        for df_ in [df1_filtered, df2_filtered]:
+            if quarterly:
+                df_['hover_label'] = df_['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            elif monthly:
+                df_['hover_label'] = df_['date'].dt.strftime("%B %Y")
+            else:
+                df_['hover_label'] = df_['date'].dt.strftime("%d %B %Y")
+
+        # --------------------------
+        # Dual-axis chart with hover
+        # --------------------------
         fig = go.Figure()
+        for idx, (df_, name, axis) in enumerate([
+            (df1_filtered, f"{group1}: {indicator1_label}", "y1"),
+            (df2_filtered, f"{group2}: {indicator2_label}", "y1" if unify_axis else "y2")
+        ]):
+            fig.add_trace(go.Scatter(
+                x=df_['date'],
+                y=df_['value'],
+                mode="lines",
+                name=name,
+                yaxis=axis,
+                customdata=df_[['hover_label', 'delta_str', 'delta_color']],
+                hovertemplate=(
+                    "<span style='color:black; font-size:16px'><b>%{customdata[0]}</b></span><br>"
+                    "<span style='color:black; font-size:16px'>%{y:.2f}</span><br>"
+                    "<span style='color:%{customdata[2]}; font-weight:bold; font-size:16px'>%{customdata[1]}</span>"
+                    "<extra></extra>"
+                )
+            ))
+        fig.update_layout(hoverlabel=dict(bgcolor="#F9F9F9"))
 
-        fig.add_trace(go.Scatter(
-            x=df1_filtered['date'],
-            y=df1_filtered['value'],
-            mode='lines',
-            name=indicator1_label,
-            yaxis="y1"
-        ))
+        # --------------------------
+        # Layout & y-axis scaling (bold black ticks + axis titles + x-axis line)
+        # --------------------------
+        axis_tickfont = dict(size=14, family="Arial Bold", color="black")  # bold black
+        axis_title_font = dict(size=16, family="Arial Bold", color="black")
 
-        fig.add_trace(go.Scatter(
-            x=df2_filtered['date'],
-            y=df2_filtered['value'],
-            mode='lines',
-            name=indicator2_label,
-            yaxis="y2"
-        ))
+        if unify_axis:
+            combined_min = min(df1_filtered['value'].min(), df2_filtered['value'].min())
+            combined_max = max(df1_filtered['value'].max(), df2_filtered['value'].max())
+            fig.update_layout(
+                title=title_str,
+                xaxis=dict(title="", tickfont=axis_tickfont, linecolor='black', linewidth=2, showline=True, title_font=axis_title_font),
+                yaxis=dict(title=" ".join(indicator1_label.split()[1:]), side="left",
+                           range=[combined_min, combined_max], tickfont=axis_tickfont, title_font=axis_title_font),
+                template="plotly_white",
+                font=dict(color="black"),
+                legend=dict(x=0.01, y=1.1, orientation="h"),
+                height=600
+            )
+        else:
+            fig.update_layout(
+                title=title_str,
+                xaxis=dict(title="", tickfont=axis_tickfont, linecolor='black', linewidth=2, showline=True, title_font=axis_title_font),
+                yaxis=dict(title=f"{group1}: {indicator1_label}", side="left", tickfont=axis_tickfont, title_font=axis_title_font),
+                yaxis2=dict(title=f"{group2}: {indicator2_label}", overlaying="y", side="right",
+                            showgrid=False, tickfont=axis_tickfont, title_font=axis_title_font),
+                template="plotly_white",
+                font=dict(color="black"),
+                legend=dict(x=0.01, y=1.1, orientation="h"),
+                height=600
+            )
 
-        fig.update_layout(
-            title=title_str,
-            xaxis=dict(title="Date"),
-            yaxis=dict(title=indicator1_label, side="left"),
-            yaxis2=dict(title=indicator2_label, overlaying="y", side="right", showgrid=False),
-            template="plotly_white",
-            legend=dict(x=0.01, y=1.1, orientation="h")
+        # --------------------------
+        # Quarterly tick formatting
+        # --------------------------
+        if quarterly:
+            q4_dates = df1_filtered.loc[df1_filtered['date'].dt.quarter == 4, 'date']
+            q4_dates = q4_dates.dt.to_period('Q').drop_duplicates().dt.to_timestamp()
+            if not q4_dates.empty:
+                ticktext = q4_dates.dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+                fig.update_xaxes(tickmode="array", tickvals=q4_dates, ticktext=ticktext)
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": True,
+                "displaylogo": False,
+                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
+            }
         )
 
-        st.plotly_chart(fig, use_container_width=True)
-        
+
+
 # -------- Economic Calendar Tab --------
 if page == "Calendar":
     import calendar
@@ -2338,18 +2854,999 @@ if page == "Calendar":
             for _, row in group.iterrows():
                 render_event_card(row)
  
+# -------- Equities Tab --------
+if page == "Equities":
+    
+    col1, col2 = st.columns([1, 5])
 
-if page == "Login":
-    authenticator.login(location='main', key="login_form")
+    with col1:
+        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
 
-    auth_status = st.session_state.get("authentication_status")
-    name = st.session_state.get("name")
-    username = st.session_state.get("username")
+        # Select indicator and chart type
+        indicator = st.selectbox("Select Indicator", [
+            "S&P 500", "NASDAQ", "Dow Jones", "FTSE 100", "Nikkei 225", "DAX", "MSCI Emerging Markets ETF", "VIX"
+        ])
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
 
-    if auth_status is False:
-        st.error("❌ Incorrect username or password")
-    elif auth_status is None:
-        st.warning("Please enter your username and password")
-    elif auth_status:
-        st.success(f"Welcome {name}!")
-        st.write("You are logged in.")
+        # Toggle for delta type
+        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+
+        # Map indicator to Yahoo ticker and chart title
+        equities_tickers = {
+            "S&P 500": ("^GSPC", "S&P 500"),
+            "NASDAQ": ("^IXIC", "NASDAQ"),
+            "Dow Jones": ("^DJI", "Dow Jones"),
+            "FTSE 100": ("^FTSE", "FTSE 100"),
+            "Nikkei 225": ("^N225", "Nikkei 225"),
+            "DAX": ("^GDAXI", "DAX"),
+            "MSCI Emerging Markets ETF":     ("EEM", "MSCI Emerging Markets ETF"),
+            "VIX": ("^VIX", "VIX")
+        }
+        ticker, title = equities_tickers[indicator]
+
+        # Load FX data
+        df = get_fx_data_yahoo(ticker, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
+        df = df.dropna()
+        if df.empty:
+            st.error("No data available.")
+            st.stop()
+
+        # Time frame selector
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y", ""))
+            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
+        else:
+            default_start_date = earliest_date
+
+        # Date inputs
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        if start_date > end_date:
+            st.warning("Start date must be before end date.")
+            st.stop()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col2:
+        # Commentary for each indicator
+        commentary = {
+            "EUR/USD": "The EUR/USD has seen recent gains due mainly to the expectation of the Fed cutting interest rates.",
+            "GBP/USD": "The GBP/USD has been influenced by UK economic data and Bank of England rate expectations.",
+            "USD/JPY": "The USD/JPY remains sensitive to changes in U.S. Treasury yields and risk sentiment.",
+            "EUR/GBP": "The EUR/GBP reflects diverging monetary policy outlooks between the ECB and BoE.",
+            "EUR/JPY": "The EUR/JPY is driven by ECB policy signals and broader risk appetite.",
+            "GBP/JPY": "The GBP/JPY has been volatile due to risk sentiment and differences in monetary policy.",
+            "DXY":     "The DXY index reflects overall USD strength, reacting strongly to Fed policy expectations."
+        }
+
+        # Display commentary above chart
+        st.markdown(
+            f"""
+            <div style="
+                position: relative;
+                top: -20px;
+                margin-left: 30px;
+                font-size:22px;
+                font-family: 'Arial Bold';
+                font-weight:normal;
+                color:#333;
+            ">
+                {commentary.get(indicator, "")}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Filter data by selected date range
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
+                         (df['date'] <= pd.to_datetime(end_date))]
+
+        # Detect if quarterly data
+        quarterly = False
+        if df_filtered.shape[0] > 1:
+            avg_days = (df_filtered['date'].diff().dropna().dt.days.mean())
+            if avg_days >= 80:  # ~quarter
+                quarterly = True
+
+        # Plot chart with Bloomberg-style delta hover, no markers
+        fig = plot_chart(
+            df_filtered,
+            title,
+            chart_type,
+            hover_style="delta",
+            delta_type=delta_type.lower(),
+            date_format="quarterly" if quarterly else "daily",
+            show_markers=False
+        )
+
+        # For quarterly charts, show only Q4 labels
+        if quarterly:
+            tickvals = df_filtered[df_filtered['date'].dt.quarter == 4]['date']
+            ticktext = df_filtered[df_filtered['date'].dt.quarter == 4].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
+        # Display chart with clean modebar
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": True,
+                "displaylogo": False,
+                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
+            }
+        )
+
+        # --------------------- CSV Download (original) ---------------------
+        csv_data = df_filtered.to_csv(index=False)
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv_data,
+            file_name=f"{indicator.replace('/', '-')}_data.csv",
+            mime="text/csv"
+        )
+        
+# -------- Stocks Tab --------
+if page == "Stocks":
+    
+    col1, col2 = st.columns([1, 5])
+
+    with col1:
+        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+
+        # Select indicator and chart type
+        indicator = st.selectbox("Select Indicator", [
+            "Apple", "Amazon", "Meta", "Alphabet (Google)", "Nvidia", "Microsoft", "Tesla"
+        ])
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+
+        # Toggle for delta type
+        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+
+        # Map indicator to Yahoo ticker and chart title
+        stock_tickers = {
+            "Apple": ("AAPL", "Apple"),
+            "Amazon": ("AMZN", "Amazon"),
+            "Meta": ("META", "Meta"),
+            "Alphabet (Google)": ("GOOGL", "Alphabet (Google)"),
+            "Nvidia": ("NVDA", "Nvidia"),
+            "Microsoft": ("MSFT", "Microsoft"),
+            "Tesla":     ("TSLA", "Tesla")    
+        }
+        ticker, title = stock_tickers[indicator]
+
+        # Load FX data
+        df = get_fx_data_yahoo(ticker, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
+        df = df.dropna()
+        if df.empty:
+            st.error("No data available.")
+            st.stop()
+
+        # Time frame selector
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y", ""))
+            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
+        else:
+            default_start_date = earliest_date
+
+        # Date inputs
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        if start_date > end_date:
+            st.warning("Start date must be before end date.")
+            st.stop()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col2:
+        # Commentary for each indicator
+        commentary = {
+            "EUR/USD": "The EUR/USD has seen recent gains due mainly to the expectation of the Fed cutting interest rates.",
+            "GBP/USD": "The GBP/USD has been influenced by UK economic data and Bank of England rate expectations.",
+            "USD/JPY": "The USD/JPY remains sensitive to changes in U.S. Treasury yields and risk sentiment.",
+            "EUR/GBP": "The EUR/GBP reflects diverging monetary policy outlooks between the ECB and BoE.",
+            "EUR/JPY": "The EUR/JPY is driven by ECB policy signals and broader risk appetite.",
+            "GBP/JPY": "The GBP/JPY has been volatile due to risk sentiment and differences in monetary policy.",
+            "DXY":     "The DXY index reflects overall USD strength, reacting strongly to Fed policy expectations."
+        }
+
+        # Display commentary above chart
+        st.markdown(
+            f"""
+            <div style="
+                position: relative;
+                top: -20px;
+                margin-left: 30px;
+                font-size:22px;
+                font-family: 'Arial Bold';
+                font-weight:normal;
+                color:#333;
+            ">
+                {commentary.get(indicator, "")}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Filter data by selected date range
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
+                         (df['date'] <= pd.to_datetime(end_date))]
+
+        # Detect if quarterly data
+        quarterly = False
+        if df_filtered.shape[0] > 1:
+            avg_days = (df_filtered['date'].diff().dropna().dt.days.mean())
+            if avg_days >= 80:  # ~quarter
+                quarterly = True
+
+        # Plot chart with Bloomberg-style delta hover, no markers
+        fig = plot_chart(
+            df_filtered,
+            title,
+            chart_type,
+            hover_style="delta",
+            delta_type=delta_type.lower(),
+            date_format="quarterly" if quarterly else "daily",
+            show_markers=False
+        )
+
+        # For quarterly charts, show only Q4 labels
+        if quarterly:
+            tickvals = df_filtered[df_filtered['date'].dt.quarter == 4]['date']
+            ticktext = df_filtered[df_filtered['date'].dt.quarter == 4].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
+        # Display chart with clean modebar
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": True,
+                "displaylogo": False,
+                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
+            }
+        )
+
+        # --------------------- CSV Download (original) ---------------------
+        csv_data = df_filtered.to_csv(index=False)
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv_data,
+            file_name=f"{indicator.replace('/', '-')}_data.csv",
+            mime="text/csv"
+        )
+        
+# -------- Commodities Tab --------
+if page == "Commodities":
+    
+    col1, col2 = st.columns([1, 5])
+
+    with col1:
+        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+
+        # Select indicator and chart type
+        indicator = st.selectbox("Select Indicator", [
+            "Gold", "Silver", "Crude Oil (WTI)", "Brent Oil", "Natural Gas", "Wheat", "Copper", "Corn", "Soybeans"
+        ])
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+
+        # Toggle for delta type
+        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+
+        # Map indicator to Yahoo ticker and chart title
+        commodities_tickers = {
+            "Gold": ("GC=F", "Gold"),
+            "Silver": ("SI=F", "Silver"),
+            "Crude Oil (WTI)": ("CL=F", "Crude Oil (WTI)"),
+            "Brent Oil": ("BZ=F", "Brent Oil"),
+            "Natural Gas": ("NG=F", "Natural Gas"),
+            "Wheat": ("ZW=F", "Wheat"),
+            "Copper":     ("HG=F", "Copper"),
+            "Corn":     ("ZC=F", "Corn"),
+            "Soybeans":     ("ZS=F", "Soybeans")
+        }
+        ticker, title = commodities_tickers[indicator]
+
+        # Load FX data
+        df = get_fx_data_yahoo(ticker, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
+        df = df.dropna()
+        if df.empty:
+            st.error("No data available.")
+            st.stop()
+
+        # Time frame selector
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y", ""))
+            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
+        else:
+            default_start_date = earliest_date
+
+        # Date inputs
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        if start_date > end_date:
+            st.warning("Start date must be before end date.")
+            st.stop()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col2:
+        # Commentary for each indicator
+        commentary = {
+            "EUR/USD": "The EUR/USD has seen recent gains due mainly to the expectation of the Fed cutting interest rates.",
+            "GBP/USD": "The GBP/USD has been influenced by UK economic data and Bank of England rate expectations.",
+            "USD/JPY": "The USD/JPY remains sensitive to changes in U.S. Treasury yields and risk sentiment.",
+            "EUR/GBP": "The EUR/GBP reflects diverging monetary policy outlooks between the ECB and BoE.",
+            "EUR/JPY": "The EUR/JPY is driven by ECB policy signals and broader risk appetite.",
+            "GBP/JPY": "The GBP/JPY has been volatile due to risk sentiment and differences in monetary policy.",
+            "DXY":     "The DXY index reflects overall USD strength, reacting strongly to Fed policy expectations."
+        }
+
+        # Display commentary above chart
+        st.markdown(
+            f"""
+            <div style="
+                position: relative;
+                top: -20px;
+                margin-left: 30px;
+                font-size:22px;
+                font-family: 'Arial Bold';
+                font-weight:normal;
+                color:#333;
+            ">
+                {commentary.get(indicator, "")}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Filter data by selected date range
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
+                         (df['date'] <= pd.to_datetime(end_date))]
+
+        # Detect if quarterly data
+        quarterly = False
+        if df_filtered.shape[0] > 1:
+            avg_days = (df_filtered['date'].diff().dropna().dt.days.mean())
+            if avg_days >= 80:  # ~quarter
+                quarterly = True
+
+        # Plot chart with Bloomberg-style delta hover, no markers
+        fig = plot_chart(
+            df_filtered,
+            title,
+            chart_type,
+            hover_style="delta",
+            delta_type=delta_type.lower(),
+            date_format="quarterly" if quarterly else "daily",
+            show_markers=False
+        )
+
+        # For quarterly charts, show only Q4 labels
+        if quarterly:
+            tickvals = df_filtered[df_filtered['date'].dt.quarter == 4]['date']
+            ticktext = df_filtered[df_filtered['date'].dt.quarter == 4].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
+        # Display chart with clean modebar
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": True,
+                "displaylogo": False,
+                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
+            }
+        )
+
+        # --------------------- CSV Download (original) ---------------------
+        csv_data = df_filtered.to_csv(index=False)
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv_data,
+            file_name=f"{indicator.replace('/', '-')}_data.csv",
+            mime="text/csv"
+        )
+        
+# -------- Bonds Tab --------
+if page == "Bonds":
+    
+    col1, col2 = st.columns([1, 5])
+
+    with col1:
+        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+
+        # Select indicator and chart type
+        indicator = st.selectbox("Select Indicator", [
+            "US 2Y", "US 10Y", "UK 2Y", "UK 10Y", "Japan 2Y", "Japan 10Y", "Euro 2Y", "Euro 10Y"
+        ])
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+
+        # Toggle for delta type
+        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+
+        # Map indicator to Yahoo ticker and chart title
+        bonds_data_funcs = {
+            "US 2Y": (get_usa_2yr_yield_data, "US 2-Year Treasury Yield"),
+            "US 10Y": (get_usa_10yr_yield_data, "US 10-Year Treasury Yield"),
+            "UK 2Y": (get_uk_2yr_yield_data, "UK 2-Year Gilt Yield"),
+            "UK 10Y": (get_uk_10yr_yield_data, "UK 10-Year Gilt Yield"),
+            "Japan 2Y": (get_japan_2yr_yield_data, "Japan 2-Year JGB Yield"),
+            "Japan 10Y": (get_japan_10yr_yield_data, "Japan 10-Year JGB Yield"),
+            "Euro 2Y": (get_euro_2yr_yield_data, "Euro 2-Year Yield"),
+            "Euro 10Y": (get_euro_10yr_yield_data, "Euro 10-Year Yield")
+        }
+        data_func, title = bonds_data_funcs[indicator]
+
+        # Load FX data
+        df = data_func()  # calls get_usa_2yr_yield_data, get_uk_10yr_yield_data, etc.
+        df = df.dropna()
+        if df.empty:
+            st.error("No data available.")
+            st.stop()
+
+        # Time frame selector
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y", ""))
+            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
+        else:
+            default_start_date = earliest_date
+
+        # Date inputs
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        if start_date > end_date:
+            st.warning("Start date must be before end date.")
+            st.stop()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col2:
+        # Commentary for each indicator
+        commentary = {
+            "EUR/USD": "The EUR/USD has seen recent gains due mainly to the expectation of the Fed cutting interest rates.",
+            "GBP/USD": "The GBP/USD has been influenced by UK economic data and Bank of England rate expectations.",
+            "USD/JPY": "The USD/JPY remains sensitive to changes in U.S. Treasury yields and risk sentiment.",
+            "EUR/GBP": "The EUR/GBP reflects diverging monetary policy outlooks between the ECB and BoE.",
+            "EUR/JPY": "The EUR/JPY is driven by ECB policy signals and broader risk appetite.",
+            "GBP/JPY": "The GBP/JPY has been volatile due to risk sentiment and differences in monetary policy.",
+            "DXY":     "The DXY index reflects overall USD strength, reacting strongly to Fed policy expectations."
+        }
+
+        # Display commentary above chart
+        st.markdown(
+            f"""
+            <div style="
+                position: relative;
+                top: -20px;
+                margin-left: 30px;
+                font-size:22px;
+                font-family: 'Arial Bold';
+                font-weight:normal;
+                color:#333;
+            ">
+                {commentary.get(indicator, "")}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Filter data by selected date range
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
+                         (df['date'] <= pd.to_datetime(end_date))]
+
+        # Detect if quarterly data
+        quarterly = False
+        if df_filtered.shape[0] > 1:
+            avg_days = (df_filtered['date'].diff().dropna().dt.days.mean())
+            if avg_days >= 80:  # ~quarter
+                quarterly = True
+
+        # Plot chart with Bloomberg-style delta hover, no markers
+        fig = plot_chart(
+            df_filtered,
+            title,
+            chart_type,
+            hover_style="delta",
+            delta_type=delta_type.lower(),
+            date_format="quarterly" if quarterly else "daily",
+            show_markers=False
+        )
+
+        # For quarterly charts, show only Q4 labels
+        if quarterly:
+            tickvals = df_filtered[df_filtered['date'].dt.quarter == 4]['date']
+            ticktext = df_filtered[df_filtered['date'].dt.quarter == 4].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
+        # Display chart with clean modebar
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": True,
+                "displaylogo": False,
+                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
+            }
+        )
+
+        # --------------------- CSV Download (original) ---------------------
+        csv_data = df_filtered.to_csv(index=False)
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv_data,
+            file_name=f"{indicator.replace('/', '-')}_data.csv",
+            mime="text/csv"
+        )
+     
+# -------- Crypto Tab --------
+if page == "Crypto":
+    
+    col1, col2 = st.columns([1, 5])
+
+    with col1:
+        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+
+        # Select indicator and chart type
+        indicator = st.selectbox("Select Indicator", [
+            "Bitcoin", "Ethereum"
+        ])
+        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+
+        # Toggle for delta type
+        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+
+        # Map indicator to Yahoo ticker and chart title
+        crypto_tickers = {
+            "Bitcoin": ("BTC-USD", "Bitcoin"),
+            "Ethereum": ("ETH-USD", "Ethereum"),
+   
+        }
+        ticker, title = crypto_tickers[indicator]
+
+        # Load FX data
+        df = get_fx_data_yahoo(ticker, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
+        df = df.dropna()
+        if df.empty:
+            st.error("No data available.")
+            st.stop()
+
+        # Time frame selector
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y", ""))
+            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
+        else:
+            default_start_date = earliest_date
+
+        # Date inputs
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        if start_date > end_date:
+            st.warning("Start date must be before end date.")
+            st.stop()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col2:
+        # Commentary for each indicator
+        commentary = {
+            "EUR/USD": "The EUR/USD has seen recent gains due mainly to the expectation of the Fed cutting interest rates.",
+            "GBP/USD": "The GBP/USD has been influenced by UK economic data and Bank of England rate expectations.",
+            "USD/JPY": "The USD/JPY remains sensitive to changes in U.S. Treasury yields and risk sentiment.",
+            "EUR/GBP": "The EUR/GBP reflects diverging monetary policy outlooks between the ECB and BoE.",
+            "EUR/JPY": "The EUR/JPY is driven by ECB policy signals and broader risk appetite.",
+            "GBP/JPY": "The GBP/JPY has been volatile due to risk sentiment and differences in monetary policy.",
+            "DXY":     "The DXY index reflects overall USD strength, reacting strongly to Fed policy expectations."
+        }
+
+        # Display commentary above chart
+        st.markdown(
+            f"""
+            <div style="
+                position: relative;
+                top: -20px;
+                margin-left: 30px;
+                font-size:22px;
+                font-family: 'Arial Bold';
+                font-weight:normal;
+                color:#333;
+            ">
+                {commentary.get(indicator, "")}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Filter data by selected date range
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
+                         (df['date'] <= pd.to_datetime(end_date))]
+
+        # Detect if quarterly data
+        quarterly = False
+        if df_filtered.shape[0] > 1:
+            avg_days = (df_filtered['date'].diff().dropna().dt.days.mean())
+            if avg_days >= 80:  # ~quarter
+                quarterly = True
+
+        # Plot chart with Bloomberg-style delta hover, no markers
+        fig = plot_chart(
+            df_filtered,
+            title,
+            chart_type,
+            hover_style="delta",
+            delta_type=delta_type.lower(),
+            date_format="quarterly" if quarterly else "daily",
+            show_markers=False
+        )
+
+        # For quarterly charts, show only Q4 labels
+        if quarterly:
+            tickvals = df_filtered[df_filtered['date'].dt.quarter == 4]['date']
+            ticktext = df_filtered[df_filtered['date'].dt.quarter == 4].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
+            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
+        # Display chart with clean modebar
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": True,
+                "displaylogo": False,
+                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
+            }
+        )
+
+        # --------------------- CSV Download (original) ---------------------
+        csv_data = df_filtered.to_csv(index=False)
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv_data,
+            file_name=f"{indicator.replace('/', '-')}_data.csv",
+            mime="text/csv"
+        )
+       
+# -------- Yield Curve Tab --------
+if page == "Yield Curve":
+
+    col1, col2 = st.columns([1, 5])
+
+    with col1:
+        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+
+        # Select country
+        country = st.selectbox("Select Country", ["US", "UK", "Japan", "Euro"])
+
+        # Delta type
+        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+
+        # Map country to all yield data functions
+        yield_funcs = {
+            "US": {
+                "1M": get_usa_1mo_yield_data,
+                "3M": get_usa_3mo_yield_data,
+                "6M": get_usa_6mo_yield_data,
+                "1Y": get_usa_1yr_yield_data,
+                "2Y": get_usa_2yr_yield_data,
+                "3Y": get_usa_3yr_yield_data,
+                "5Y": get_usa_5yr_yield_data,
+                "7Y": get_usa_7yr_yield_data,
+                "10Y": get_usa_10yr_yield_data,
+                "20Y": get_usa_20yr_yield_data,
+                "30Y": get_usa_30yr_yield_data
+            },
+            "UK": {
+                "2Y": get_uk_2yr_yield_data,
+                "10Y": get_uk_10yr_yield_data
+            },
+            "Japan": {
+                "2Y": get_japan_2yr_yield_data,
+                "10Y": get_japan_10yr_yield_data
+            },
+            "Euro": {
+                "2Y": get_euro_2yr_yield_data,
+                "10Y": get_euro_10yr_yield_data
+            }
+        }
+
+        # Sort maturities numerically for safe selection
+        def maturity_to_months(m):
+            if m.endswith("M"):
+                return int(m[:-1])
+            elif m.endswith("Y"):
+                return int(m[:-1]) * 12
+            return 0
+
+        maturities = sorted(list(yield_funcs[country].keys()), key=maturity_to_months)
+
+        # Default selections: Long=10Y, Short=2Y if available
+        default_long = "10Y" if "10Y" in maturities else maturities[-1]
+        default_short = "2Y" if "2Y" in maturities else maturities[0]
+
+        # Select short-term maturity first
+        maturity_short = st.selectbox("Short-term Maturity", maturities, index=maturities.index(default_short))
+
+        # Filter long-term options to be strictly larger than short-term
+        long_options = [m for m in maturities if maturity_to_months(m) > maturity_to_months(maturity_short)]
+        if not long_options:
+            long_options = [maturity_short]  # fallback
+        maturity_long = st.selectbox("Long-term Maturity", long_options, index=long_options.index(default_long) if default_long in long_options else 0)
+
+        # Load data
+        df_long = yield_funcs[country][maturity_long]().dropna().rename(columns={'value': f'yield_{maturity_long}'})
+        df_short = yield_funcs[country][maturity_short]().dropna().rename(columns={'value': f'yield_{maturity_short}'})
+
+        # Merge on date
+        df = pd.merge(df_long, df_short, on='date')
+        df['spread'] = df[f'yield_{maturity_long}'] - df[f'yield_{maturity_short}']
+
+        # Time frame selector
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y", ""))
+            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
+        else:
+            default_start_date = earliest_date
+
+        # Date inputs
+        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        if start_date > end_date:
+            st.warning("Start date must be before end date.")
+            st.stop()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col2:
+        # Commentary
+        st.markdown(
+            f"""
+            <div style="
+                position: relative;
+                top: -20px;
+                margin-left: 30px;
+                font-size:22px;
+                font-family: 'Arial Bold';
+                font-weight:normal;
+                color:#333;
+            ">
+                {country} {maturity_long}-{maturity_short} spread indicates yield curve shape and market expectations.
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Filter by selected date range
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
+                         (df['date'] <= pd.to_datetime(end_date))]
+
+        # Prepare DataFrame for plotting
+        df_plot = df_filtered[['date', 'spread']].rename(columns={'spread': 'value'})
+
+        # Plot the spread
+        fig = plot_chart(
+            df_plot,
+            title=f"{country} {maturity_long}-{maturity_short} Yield Spread",
+            chart_type="Line",
+            hover_style="delta",
+            delta_type=delta_type.lower(),
+            date_format="daily",
+            show_markers=False
+        )
+        
+        fig.add_hline(
+            y=0,
+            line=dict(color="black", width=3, dash="solid"),
+            annotation_text="0",
+            annotation_position="top left",
+            opacity=0.8
+        )
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True,
+            config={
+                "displayModeBar": True,
+                "displaylogo": False,
+                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
+            }
+        )
+
+        # CSV Download
+        csv_data = df_filtered.to_csv(index=False)
+        st.download_button(
+            label="📥 Download CSV",
+            data=csv_data,
+            file_name=f"{country}_{maturity_long}-{maturity_short}_spread.csv",
+            mime="text/csv"
+        )
+
+
+# -------- Regime Yield Curve Tab (All Maturities + Line Chart Only) --------
+if page == "Curve Regimes":
+
+    # Outer columns: left for controls + table, right for chart
+    outer_col1, outer_col2 = st.columns([3, 5])
+
+    with outer_col1:
+        # Select country
+        country = st.selectbox("Select Country", ["US", "UK", "Japan", "Euro"])
+
+        # Periods for delta table
+        period_offsets = {
+            "1M": pd.DateOffset(months=1),
+            "3M": pd.DateOffset(months=3),
+            "1Y": pd.DateOffset(years=1)
+        }
+
+        # Map country to all yield maturities
+        yield_funcs = {
+            "US": {
+                "1M": get_usa_1mo_yield_data,
+                "3M": get_usa_3mo_yield_data,
+                "1Y": get_usa_1yr_yield_data,
+                "2Y": get_usa_2yr_yield_data,
+                "3Y": get_usa_3yr_yield_data,
+                "5Y": get_usa_5yr_yield_data,
+                "7Y": get_usa_7yr_yield_data,
+                "10Y": get_usa_10yr_yield_data,
+                "20Y": get_usa_20yr_yield_data,
+                "30Y": get_usa_30yr_yield_data
+            },
+            "UK": {"2Y": get_uk_2yr_yield_data, "10Y": get_uk_10yr_yield_data},
+            "Japan": {"2Y": get_japan_2yr_yield_data, "10Y": get_japan_10yr_yield_data},
+            "Euro": {"2Y": get_euro_2yr_yield_data, "10Y": get_euro_10yr_yield_data}
+        }
+
+        # Load all maturities for the country
+        dfs = []
+        for mat, func in yield_funcs[country].items():
+            df_temp = func().dropna().rename(columns={'value': mat})
+            dfs.append(df_temp)
+        df = dfs[0]
+        for df_next in dfs[1:]:
+            df = pd.merge(df, df_next, on='date')
+
+        # Latest date
+        latest_date = df['date'].max()
+        df_now = df[df['date'] == latest_date].iloc[0]
+
+        # Build vertical delta table: maturities as rows, periods as columns
+        maturities = [m for m in df.columns if m != 'date']
+        table_data = {}
+        table_data["Now"] = [df_now[m] for m in maturities]
+
+        for label, offset in period_offsets.items():
+            ref_date = latest_date - offset
+            idx = (df['date'] - ref_date).abs().idxmin()
+            row = df.loc[idx]
+            table_data[label] = [df_now[m] - row[m] for m in maturities]
+
+        df_table = pd.DataFrame(table_data, index=maturities)
+        df_table.index.name = "Maturity"
+
+        # HTML table rendering with color coding, unbold cell values, centered
+        # HTML table rendering with color coding, unbold cell values, centered, first row & column highlighted
+        def render_html_table(df):
+            html = '<table style="border-collapse: collapse; width:100%;">'
+            # Header row
+            html += '<tr>'
+            html += f'<th style="font-weight:bold; color:black; border: 1px solid black; padding:4px; text-align:center; background-color:#F9F9F9;">Maturity</th>'
+            for col in df.columns:
+                html += f'<th style="font-weight:bold; color:black; border: 1px solid black; padding:4px; text-align:center; background-color:#F9F9F9;">{col}</th>'
+            html += '</tr>'
+            # Rows
+            for idx in df.index:
+                html += f'<tr>'
+                # First column (maturity)
+                html += f'<th style="font-weight:bold; color:black; border: 1px solid black; padding:4px; text-align:center; background-color:#F9F9F9;">{idx}</th>'
+                # Other columns
+                for col in df.columns:
+                    val = df.loc[idx, col]
+                    if col == "Now":
+                        color = "black"
+                    else:
+                        if val > 0:
+                            color = "green"
+                        elif val < 0:
+                            color = "red"
+                        else:
+                            color = "black"
+                    html += f'<td style="color:{color}; font-weight:normal; border: 1px solid black; padding:4px; text-align:center;">{val:+.2f}%</td>'
+                html += '</tr>'
+            html += '</table>'
+            return html
+
+        st.markdown(render_html_table(df_table), unsafe_allow_html=True)
+
+
+    with outer_col2:
+        # Regime calculation (short vs long 2Y vs 10Y)
+        if "2Y" in df.columns and "10Y" in df.columns:
+            ref_date_1m = latest_date - pd.DateOffset(months=1)
+            idx_1m = (df['date'] - ref_date_1m).abs().idxmin()
+            delta_2y = df_now['2Y'] - df.loc[idx_1m, '2Y']
+            delta_10y = df_now['10Y'] - df.loc[idx_1m, '10Y']
+
+            if delta_2y < 0 and delta_10y < 0:
+                regime = "Bull Flattener" if abs(delta_10y) > abs(delta_2y) else "Bull Steepener"
+            elif delta_2y > 0 and delta_10y > 0:
+                regime = "Bear Flattener" if abs(delta_2y) > abs(delta_10y) else "Bear Steepener"
+            elif delta_2y < 0 and delta_10y > 0:
+                regime = "Bull Steepener"
+            elif delta_2y > 0 and delta_10y < 0:
+                regime = "Bear Steepener"
+            else:
+                regime = "Indeterminate"
+        else:
+            regime = "N/A"
+        st.markdown(f"**Current Regime (Now vs 1M): {regime}**")
+
+        # -------- Line Chart (all maturities, historical periods) --------
+        df_plot_rows = []
+        for label, offset in {"Now": None, **period_offsets}.items():
+            if label == "Now":
+                row = df_now.copy()
+            else:
+                ref_date = latest_date - offset
+                idx = (df['date'] - ref_date).abs().idxmin()
+                row = df.loc[idx].copy()
+            row['Period'] = label
+            df_plot_rows.append(row)
+
+        df_plot = pd.DataFrame(df_plot_rows)
+        df_melt = df_plot.melt(id_vars="Period", value_vars=maturities,
+                               var_name="Maturity", value_name="Yield")
+
+        fig = go.Figure()
+        for period in df_plot['Period']:
+            temp = df_melt[df_melt['Period'] == period]
+            fig.add_trace(go.Scatter(
+                x=temp['Maturity'],
+                y=temp['Yield'],
+                mode="lines+markers",
+                name=period,
+                hovertemplate="<b>%{x}</b><br>Yield: %{y:.2f}%<extra></extra>"
+            ))
+
+        axis_tickfont = dict(size=14, family="Arial Bold", color="black")
+        axis_title_font = dict(size=16, family="Arial Bold", color="black")
+
+        fig.update_layout(
+            title=f"{country} Yield Curve (All Maturities)",
+            xaxis=dict(title="Maturity", tickfont=axis_tickfont, linecolor='black', linewidth=2, showline=True,
+                       title_font=axis_title_font),
+            yaxis=dict(title="Yield (%)", tickfont=axis_tickfont, title_font=axis_title_font,
+                       linecolor='black', linewidth=2, showline=True),
+            template="plotly_white",
+            font=dict(color="black"),
+            legend=dict(x=0.01, y=1.1, orientation="h"),
+            height=500,
+            hoverlabel=dict(bgcolor="#F9F9F9")
+        )
+
+        st.plotly_chart(fig, use_container_width=True,
+                        config={"displayModeBar": True, "displaylogo": False,
+                                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
+                                "modeBarButtonsToRemove": ["lasso2d", "select2d"]})

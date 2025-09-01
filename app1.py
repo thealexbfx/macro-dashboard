@@ -631,6 +631,59 @@ def get_fx_data_yahoo(ticker="GBPUSD=X", start_date=None, end_date=None):
 
     df = df.sort_values('date').reset_index(drop=True)
     return df
+    
+def load_series(series_type, country=None, indicator=None):
+    if series_type == "Country":
+        # Map each country+indicator to the appropriate function
+        if country == "USA":
+            return get_data(indicator).dropna()  # replace with your USA function
+        elif country == "Japan":
+            if indicator == "CPI YoY":
+                return get_japan_cpi_yoy()
+            elif indicator == "Unemployment":
+                return get_japan_unemployment_data()
+            elif indicator == "GDP QoQ":
+                return get_japan_gdp_qoq_growth()
+        elif country == "UK":
+            if indicator == "Base Rate":
+                df = get_uk_base_rate_from_url()
+                df = df.rename(columns={'Date': 'date', 'Bank Rate': 'value'})
+                return df
+            elif indicator == "CPI YoY":
+                return get_uk_cpi_yoy()
+            elif indicator == "GDP QoQ":
+                return get_uk_gdp_qoq()
+            elif indicator == "Unemployment":
+                return get_uk_unemployment_rate()
+        elif country == "Euro Area":
+            if indicator == "ECB Refi Rate":
+                return get_ecb_refinancing_rate()
+            elif indicator == "HICP YoY":
+                return get_euro_hicp_annual_gzip()
+            elif indicator == "Unemployment":
+                return get_euro_unemployment_gzip()
+            elif indicator == "GDP QoQ":
+                return get_gdp_quarterly_gzip()
+        else:
+            st.error(f"No loader defined for {country} - {indicator}")
+            return pd.DataFrame()
+    else:  # FX
+        fx_tickers = {
+            "EUR/USD": "EURUSD=X",
+            "GBP/USD": "GBPUSD=X",
+            "USD/JPY": "USDJPY=X",
+            "EUR/GBP": "EURGBP=X",
+            "EUR/JPY": "EURJPY=X",
+            "GBP/JPY": "GBPJPY=X",
+            "DXY": "DX-Y.NYB"
+        }
+        ticker = fx_tickers.get(indicator, None)
+        if ticker:
+            return get_fx_data_yahoo(ticker)
+        else:
+            st.error(f"No FX loader defined for {indicator}")
+            return pd.DataFrame()
+
 
 
 #####-----Streamlit App-----#####
