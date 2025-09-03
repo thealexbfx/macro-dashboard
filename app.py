@@ -831,6 +831,66 @@ def get_usa_unemployment_rate_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
+    
+def get_usa_core_cpi_yoy_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "USA_Core_CPI_YoY.txt")
+    
+    # Read using regex for 2+ spaces
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+
+    # Clean column names
+    df.columns = df.columns.str.strip()
+
+    # Rename columns for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
+
+    # Convert value to float
+    df['value'] = pd.to_numeric(df['value'], errors='coerce')
+
+    # Drop invalid rows
+    df = df.dropna(subset=['value'])
+
+    # Convert Month Year to datetime
+    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
+
+    # Drop rows with invalid dates
+    df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
+def get_usa_average_hourly_earnings_yoy_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "USA_Average_Hourly_Earnings_YoY.txt")
+    
+    # Read using regex for 2+ spaces
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+
+    # Clean column names
+    df.columns = df.columns.str.strip()
+
+    # Rename columns for consistency
+    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
+
+    # Convert value to float
+    df['value'] = pd.to_numeric(df['value'], errors='coerce')
+
+    # Drop invalid rows
+    df = df.dropna(subset=['value'])
+
+    # Convert Month Year to datetime
+    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
+
+    # Drop rows with invalid dates
+    df = df.dropna(subset=['date'])
+
+    # Sort by date
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
 
 # ---------------------------
 # FRED API Setup
@@ -1529,17 +1589,8 @@ if page == "USA":
             "Inflation Rate",
             "GDP Growth Rate",
             "Unemployment Rate",
-            "1M Yield",
-            "3M Yield",
-            "6M Yield",
-            "1Y Yield",
-            "2Y Yield",
-            "3Y Yield",
-            "5Y Yield",
-            "7Y Yield",
-            "10Y Yield",
-            "20Y Yield",
-            "30Y Yield"
+            "Core CPI YoY",
+            "Average Hourly Earnings YoY"
         ])
         chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
 
@@ -1564,51 +1615,16 @@ if page == "USA":
             df = get_usa_unemployment_rate_data()
             date_format = "monthly"
             tickformat_override = None
-        elif indicator == "1M Yield":
-            df = get_usa_1mo_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "3M Yield":
-            df = get_usa_3mo_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "6M Yield":
-            df = get_usa_6mo_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "1Y Yield":
-            df = get_usa_1yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "2Y Yield":
-            df = get_usa_2yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "3Y Yield":
-            df = get_usa_3yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "5Y Yield":
-            df = get_usa_5yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "7Y Yield":
-            df = get_usa_7yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "10Y Yield":
-            df = get_usa_10yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "20Y Yield":
-            df = get_usa_20yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "30Y Yield":
-            df = get_usa_30yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-
+        elif indicator == "Core CPI YoY":
+            df = get_usa_core_cpi_yoy_data()
+            date_format = "monthly"
+            tickformat_override = None
+        elif indicator == "Average Hourly Earnings YoY":
+            df = get_usa_average_hourly_earnings_yoy_data()
+            date_format = "monthly"
+            tickformat_override = None
+            
+            
         df = df.dropna()
         if df.empty:
             st.error("No data available.")
@@ -1641,18 +1657,7 @@ if page == "USA":
             "Interest Rate": "The Federal Funds Rate reflects U.S. monetary policy stance and impacts global markets.",
             "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
             "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
-            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy.",
-            "1M Yield": "The 1-Month Treasury yield is often used as a proxy for short-term funding costs.",
-            "3M Yield": "The 3-Month Treasury yield is closely tied to Fed policy expectations.",
-            "6M Yield": "The 6-Month Treasury yield reflects short-term funding conditions.",
-            "1Y Yield": "The 1-Year Treasury yield reflects near-term economic and policy expectations.",
-            "2Y Yield": "The 2-Year Treasury yield reflects expectations for near-term Fed policy moves.",
-            "3Y Yield": "The 3-Year Treasury yield balances short and medium-term interest rate expectations.",
-            "5Y Yield": "The 5-Year Treasury yield is influenced by both Fed policy and inflation expectations.",
-            "7Y Yield": "The 7-Year Treasury yield sits between medium- and long-term maturities, showing curve shape.",
-            "10Y Yield": "The 10-Year Treasury yield is a benchmark for global borrowing costs and risk sentiment.",
-            "20Y Yield": "The 20-Year Treasury yield reflects long-term government borrowing costs.",
-            "30Y Yield": "The 30-Year Treasury yield is a key gauge of ultra-long-term inflation and growth expectations."
+            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy."
         }
 
         # Display commentary above chart
@@ -1683,17 +1688,8 @@ if page == "USA":
             "Inflation Rate": "CPI YoY (%)",
             "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
             "Unemployment Rate": "Unemployment Rate (%)",
-            "1M Yield": "1-Month Treasury Yield (%)",
-            "3M Yield": "3-Month Treasury Yield (%)",
-            "6M Yield": "6-Month Treasury Yield (%)",
-            "1Y Yield": "1-Year Treasury Yield (%)",
-            "2Y Yield": "2-Year Treasury Yield (%)",
-            "3Y Yield": "3-Year Treasury Yield (%)",
-            "5Y Yield": "5-Year Treasury Yield (%)",
-            "7Y Yield": "7-Year Treasury Yield (%)",
-            "10Y Yield": "10-Year Treasury Yield (%)",
-            "20Y Yield": "20-Year Treasury Yield (%)",
-            "30Y Yield": "30-Year Treasury Yield (%)"
+            "Core CPI YoY": "Core CPI YoY (%)",
+            "Average Hourly Earnings YoY": "Average Hourly Earnings YoY (%)"
         }
 
         # Detect if quarterly data
@@ -1752,9 +1748,7 @@ if page == "Japan":
             "Interest Rate",
             "Inflation Rate",
             "GDP Growth Rate",
-            "Unemployment Rate",
-            "10Y Yield",
-            "2Y Yield"
+            "Unemployment Rate"
         ])
         chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
 
@@ -1779,14 +1773,6 @@ if page == "Japan":
             df = get_japan_unemployment_rate_data()
             date_format = "monthly"
             tickformat_override = None
-        elif indicator == "10Y Yield":
-            df = get_japan_10yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "2Y Yield":
-            df = get_japan_2yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
 
         df = df.dropna()
         if df.empty:
@@ -1820,9 +1806,7 @@ if page == "Japan":
             "Interest Rate": "The Federal Funds Rate reflects U.S. monetary policy stance and impacts global markets.",
             "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
             "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
-            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy.",
-            "10Y Yield": "The 10-Year Treasury yield is a benchmark for global borrowing costs and risk sentiment.",
-            "2Y Yield": "The 2-Year Treasury yield reflects expectations for near-term Fed policy moves."
+            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy."
         }
 
         # Display commentary above chart
@@ -1852,9 +1836,7 @@ if page == "Japan":
             "Interest Rate": "Bank of Japan Policy Rate",
             "Inflation Rate": "CPI YoY (%)",
             "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
-            "Unemployment Rate": "Unemployment Rate (%)",
-            "10Y Yield": "10-Year Treasury Yield (%)",
-            "2Y Yield": "2-Year Treasury Yield (%)"
+            "Unemployment Rate": "Unemployment Rate (%)"
         }
 
         # Detect if quarterly data
@@ -1912,9 +1894,7 @@ if page == "UK":
             "Interest Rate",
             "Inflation Rate",
             "GDP Growth Rate",
-            "Unemployment Rate",
-            "10Y Yield",
-            "2Y Yield"
+            "Unemployment Rate"
         ])
         chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
 
@@ -1939,14 +1919,6 @@ if page == "UK":
             df = get_uk_unemployment_rate_data()
             date_format = "monthly"
             tickformat_override = None
-        elif indicator == "10Y Yield":
-            df = get_uk_10yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "2Y Yield":
-            df = get_uk_2yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
 
         df = df.dropna()
         if df.empty:
@@ -1980,9 +1952,7 @@ if page == "UK":
             "Interest Rate": "The Federal Funds Rate reflects U.S. monetary policy stance and impacts global markets.",
             "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
             "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
-            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy.",
-            "10Y Yield": "The 10-Year Treasury yield is a benchmark for global borrowing costs and risk sentiment.",
-            "2Y Yield": "The 2-Year Treasury yield reflects expectations for near-term Fed policy moves."
+            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy."
         }
 
         # Display commentary above chart
@@ -2012,9 +1982,7 @@ if page == "UK":
             "Interest Rate": "Bank of Japan Policy Rate",
             "Inflation Rate": "CPI YoY (%)",
             "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
-            "Unemployment Rate": "Unemployment Rate (%)",
-            "10Y Yield": "10-Year Treasury Yield (%)",
-            "2Y Yield": "2-Year Treasury Yield (%)"
+            "Unemployment Rate": "Unemployment Rate (%)"
         }
 
         # Detect if quarterly data
@@ -2072,9 +2040,7 @@ if page == "EURO":
             "Interest Rate",
             "Inflation Rate",
             "GDP Growth Rate",
-            "Unemployment Rate",
-            "10Y Yield",
-            "2Y Yield"
+            "Unemployment Rate"
         ])
         chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
 
@@ -2099,14 +2065,6 @@ if page == "EURO":
             df = get_euro_unemployment_rate_data()
             date_format = "monthly"
             tickformat_override = None
-        elif indicator == "10Y Yield":
-            df = get_euro_10yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "2Y Yield":
-            df = get_euro_2yr_yield_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
 
         df = df.dropna()
         if df.empty:
@@ -2140,9 +2098,7 @@ if page == "EURO":
             "Interest Rate": "The Federal Funds Rate reflects U.S. monetary policy stance and impacts global markets.",
             "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
             "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
-            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy.",
-            "10Y Yield": "The 10-Year Treasury yield is a benchmark for global borrowing costs and risk sentiment.",
-            "2Y Yield": "The 2-Year Treasury yield reflects expectations for near-term Fed policy moves."
+            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy."
         }
 
         # Display commentary above chart
@@ -2172,9 +2128,7 @@ if page == "EURO":
             "Interest Rate": "Bank of Japan Policy Rate",
             "Inflation Rate": "CPI YoY (%)",
             "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
-            "Unemployment Rate": "Unemployment Rate (%)",
-            "10Y Yield": "10-Year Treasury Yield (%)",
-            "2Y Yield": "2-Year Treasury Yield (%)"
+            "Unemployment Rate": "Unemployment Rate (%)"
         }
 
         # Detect if quarterly data
@@ -2638,47 +2592,55 @@ if page == "Compare":
         # Detect if indicators are same type
         # --------------------------
         def same_type(ind1, ind2): return ind1.split()[1:] == ind2.split()[1:]
-        both_fx = (group1 == "FX") and (group2 == "FX")
-        unify_axis = False if both_fx else same_type(indicator1_label, indicator2_label)
+        same_group = group1 == group2
+        unify_axis = same_group and group1 not in ["FX", "Equities", "Stocks", "Commodities", "Crypto"]
+
+
+        import numpy as np
+        import pandas as pd
 
         # --------------------------
         # Calculate delta safely
         # --------------------------
-        import numpy as np
-        for df_ in [df1_filtered, df2_filtered]:
-            if delta_type_option == "Daily % Change":
+
+        if delta_type_option == "Daily % Change":
+            for df_ in [df1_filtered, df2_filtered]:
                 df_['delta'] = df_['value'].pct_change() * 100
-            else:
+                df_['delta_str'] = df_['delta'].apply(lambda x: f"▲ {x:.2f}%" if x > 0 else (f"▼ {abs(x):.2f}%" if pd.notnull(x) and x < 0 else "— 0.00%"))
+                df_['delta_color'] = df_['delta'].apply(lambda x: "green" if x > 0 else ("red" if x < 0 else "gray"))
+        elif delta_type_option == "Cumulative % Change":
+            for df_ in [df1_filtered, df2_filtered]:
                 df_['delta'] = np.where(df_['value'].iloc[0] == 0, 0, (df_['value'] / df_['value'].iloc[0] - 1) * 100)
-            df_['delta_str'] = df_['delta'].apply(lambda x: f"▲ {x:.2f}%" if x > 0 else (f"▼ {abs(x):.2f}%" if pd.notnull(x) and x < 0 else "— 0.00%"))
-            df_['delta_color'] = df_['delta'].apply(lambda x: "green" if x > 0 else ("red" if x < 0 else "gray"))
+                df_['delta_str'] = df_['delta'].apply(lambda x: f"▲ {x:.2f}%" if x > 0 else (f"▼ {abs(x):.2f}%" if pd.notnull(x) and x < 0 else "— 0.00%"))
+                df_['delta_color'] = df_['delta'].apply(lambda x: "green" if x > 0 else ("red" if x < 0 else "gray"))
 
         # --------------------------
-        # Prepare hover labels
+        # Hover label formatting
         # --------------------------
         for df_ in [df1_filtered, df2_filtered]:
-            if quarterly:
-                df_['hover_label'] = df_['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
-            elif monthly:
-                df_['hover_label'] = df_['date'].dt.strftime("%B %Y")
-            else:
-                df_['hover_label'] = df_['date'].dt.strftime("%d %B %Y")
+            if 'hover_label' not in df_:
+                df_['hover_label'] = df_['date'].dt.strftime("%d %b %Y")
 
         # --------------------------
-        # Dual-axis chart with hover
+        # Plotting
         # --------------------------
+        import plotly.graph_objects as go
+
         fig = go.Figure()
-        for idx, (df_, name, axis) in enumerate([
-            (df1_filtered, f"{group1}: {indicator1_label}", "y1"),
-            (df2_filtered, f"{group2}: {indicator2_label}", "y1" if unify_axis else "y2")
-        ]):
+
+        # Decide if dual-axis needed
+        same_group = group1 == group2
+        unify_axis = same_group and group1 not in ["FX", "Equities", "Stocks", "Commodities", "Crypto"]
+
+        # Plot traces
+        if delta_type_option == "Daily Delta Spread":
+            # Only one trace needed
             fig.add_trace(go.Scatter(
-                x=df_['date'],
-                y=df_['value'],
+                x=df1_filtered['date'],
+                y=df1_filtered['value'],
                 mode="lines",
-                name=name,
-                yaxis=axis,
-                customdata=df_[['hover_label', 'delta_str', 'delta_color']],
+                name=f"{group1}: {indicator1_label} - {group2}: {indicator2_label} (Spread)",
+                customdata=df1_filtered[['hover_label', 'delta_str', 'delta_color']],
                 hovertemplate=(
                     "<span style='color:black; font-size:16px'><b>%{customdata[0]}</b></span><br>"
                     "<span style='color:black; font-size:16px'>%{y:.2f}</span><br>"
@@ -2686,22 +2648,38 @@ if page == "Compare":
                     "<extra></extra>"
                 )
             ))
-        fig.update_layout(hoverlabel=dict(bgcolor="#F9F9F9"))
+        else:
+            # Two normal traces
+            for idx, (df_, name, axis) in enumerate([
+                (df1_filtered, f"{group1}: {indicator1_label}", "y1"),
+                (df2_filtered, f"{group2}: {indicator2_label}", "y1" if unify_axis else "y2")
+            ]):
+                fig.add_trace(go.Scatter(
+                    x=df_['date'],
+                    y=df_['value'],
+                    mode="lines",
+                    name=name,
+                    yaxis=axis,
+                    customdata=df_[['hover_label', 'delta_str', 'delta_color']],
+                    hovertemplate=(
+                        "<span style='color:black; font-size:16px'><b>%{customdata[0]}</b></span><br>"
+                        "<span style='color:black; font-size:16px'>%{y:.2f}</span><br>"
+                        "<span style='color:%{customdata[2]}; font-weight:bold; font-size:16px'>%{customdata[1]}</span>"
+                        "<extra></extra>"
+                    )
+                ))
 
         # --------------------------
-        # Layout & y-axis scaling (bold black ticks + axis titles + x-axis line)
+        # Layout
         # --------------------------
-        axis_tickfont = dict(size=14, family="Arial Bold", color="black")  # bold black
+        axis_tickfont = dict(size=14, family="Arial Bold", color="black")
         axis_title_font = dict(size=16, family="Arial Bold", color="black")
 
-        if unify_axis:
-            combined_min = min(df1_filtered['value'].min(), df2_filtered['value'].min())
-            combined_max = max(df1_filtered['value'].max(), df2_filtered['value'].max())
+        if unify_axis or delta_type_option == "Daily Delta Spread":
             fig.update_layout(
-                title=title_str,
+                title=f"{group1}: {indicator1_label} vs {group2}: {indicator2_label}",
                 xaxis=dict(title="", tickfont=axis_tickfont, linecolor='black', linewidth=2, showline=True, title_font=axis_title_font),
-                yaxis=dict(title=" ".join(indicator1_label.split()[1:]), side="left",
-                           range=[combined_min, combined_max], tickfont=axis_tickfont, title_font=axis_title_font),
+                yaxis=dict(title="Value / Spread", side="left", tickfont=axis_tickfont, title_font=axis_title_font),
                 template="plotly_white",
                 font=dict(color="black"),
                 legend=dict(x=0.01, y=1.1, orientation="h"),
@@ -2709,7 +2687,7 @@ if page == "Compare":
             )
         else:
             fig.update_layout(
-                title=title_str,
+                title=f"{group1}: {indicator1_label} vs {group2}: {indicator2_label}",
                 xaxis=dict(title="", tickfont=axis_tickfont, linecolor='black', linewidth=2, showline=True, title_font=axis_title_font),
                 yaxis=dict(title=f"{group1}: {indicator1_label}", side="left", tickfont=axis_tickfont, title_font=axis_title_font),
                 yaxis2=dict(title=f"{group2}: {indicator2_label}", overlaying="y", side="right",
@@ -2719,16 +2697,6 @@ if page == "Compare":
                 legend=dict(x=0.01, y=1.1, orientation="h"),
                 height=600
             )
-
-        # --------------------------
-        # Quarterly tick formatting
-        # --------------------------
-        if quarterly:
-            q4_dates = df1_filtered.loc[df1_filtered['date'].dt.quarter == 4, 'date']
-            q4_dates = q4_dates.dt.to_period('Q').drop_duplicates().dt.to_timestamp()
-            if not q4_dates.empty:
-                ticktext = q4_dates.dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
-                fig.update_xaxes(tickmode="array", tickvals=q4_dates, ticktext=ticktext)
 
         st.plotly_chart(
             fig,
@@ -2740,6 +2708,8 @@ if page == "Compare":
                 "modeBarButtonsToRemove": ["lasso2d", "select2d"]
             }
         )
+
+
 
 
 
@@ -3850,3 +3820,4 @@ if page == "Curve Regimes":
                         config={"displayModeBar": True, "displaylogo": False,
                                 "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
                                 "modeBarButtonsToRemove": ["lasso2d", "select2d"]})
+

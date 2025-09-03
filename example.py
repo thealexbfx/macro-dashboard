@@ -1,51 +1,53 @@
-import plotly.graph_objects as go
+import pandas as pd
+import os
+import re
 
-# Example yields
-maturities = ["2Y", "10Y"]
+import pandas as pd
+import os
 
-# Yields 1 month ago
-yields_past = [5.0, 5.5]
+def get_usa_core_cpi_yoy_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "USA_Core_CPI_YoY.txt")
+    
+    # Read file as single columndef get_usa_core_cpi_yoy_data():
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "USA_Core_CPI_YoY.txt")
 
-# Yields now
-yields_now = [4.0, 5.0]
+    # Try reading with whitespace separator
+    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python", header=0)
 
-# Spread for reference
-spread_past = yields_past[1] - yields_past[0]
-spread_now = yields_now[1] - yields_now[0]
+    # Debug: show first few rows and columns
+    print("Raw read:")
+    print(df.head())
+    print("Columns:", df.columns.tolist())
 
-fig = go.Figure()
+    # Clean column names
+    df.columns = df.columns.str.strip()
 
-# 1 month ago
-fig.add_trace(go.Scatter(
-    x=maturities, y=yields_past,
-    mode='lines+markers',
-    name='1 Month Ago',
-    line=dict(color='red', width=3)
-))
+    # Case 1: File has "Date" and "Rate" already
+    if "Date" in df.columns and "Rate" in df.columns:
+        df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
 
-# Now
-fig.add_trace(go.Scatter(
-    x=maturities, y=yields_now,
-    mode='lines+markers',
-    name='Now',
-    line=dict(color='blue', width=3)
-))
+    # Case 2: File only has one messy column
+    else:
+        col = df.columns[0]
+        df[col] = df[col].astype(str)  # ensure string for regex
+        df[["date", "value"]] = df[col].str.extract(r"(.+?)\s+([0-9]*\.?[0-9]+)$")
+        df.drop(columns=[col], inplace=True)
 
-# Add annotation for spread
-fig.add_annotation(x="10Y", y=yields_now[1],
-                   text=f"Spread Now: {spread_now:.2f}%",
-                   showarrow=True, arrowhead=2, ax=-50, ay=-40)
+    # Convert value to float
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
-fig.add_annotation(x="10Y", y=yields_past[1],
-                   text=f"Spread 1M Ago: {spread_past:.2f}%",
-                   showarrow=True, arrowhead=2, ax=-50, ay=40)
+    # Drop invalid rows
+    df = df.dropna(subset=["value", "date"])
 
-fig.update_layout(
-    title="Bull Steepener Example: 2Y Falls Faster than 10Y",
-    xaxis_title="Maturity",
-    yaxis_title="Yield (%)",
-    yaxis=dict(range=[3.5, 6]),
-    legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01)
-)
+    # Convert Month Year -> datetime
+    df["date"] = pd.to_datetime(df["date"], format="%B %Y", errors="coerce")
 
-fig.show()
+    # Drop rows with invalid dates
+    df = df.dropna(subset=["date"])
+
+    # Sort
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
