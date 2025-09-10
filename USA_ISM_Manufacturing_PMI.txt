@@ -1,4 +1,4 @@
-Date	Rate
+Date	 Rate
 February 2007     52.3
 March 2007     50.9
 April 2007     54.7

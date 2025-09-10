@@ -1,4 +1,4 @@
-Date	Rate
+Date	 Rate
 January 2007     0.1
 March 2007     0.7
 April 2007     -0.2

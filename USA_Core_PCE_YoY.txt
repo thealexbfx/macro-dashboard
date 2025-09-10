@@ -1,4 +1,4 @@
-Date	Rate
+Date	 Rate
 February 2007     2.4
 March 2007        2.3
 April 2007        2.1
@@ -215,9 +215,9 @@ October 2024      2.8
 November 2024     2.8
 December 2024     2.9
 January 2025      2.7
-February 2025     3.0
+February 2025     2.9
 March 2025        2.7
 April 2025        2.6
-May 2025          2.8
+May 2025          2.7
 June 2025         2.8
 July 2025         2.9

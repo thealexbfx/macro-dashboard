@@ -1,68 +1,248 @@
 import pandas as pd
+from io import StringIO
+from dateutil.relativedelta import relativedelta
 
-# Create the dataset as a list of tuples (Date, Rate)
-data = [
-("May 2007",3.9),("July 2007",3.9),("August 2007",3.9),("September 2007",4.1),
-("October 2007",3.8),("November 2007",3.8),("December 2007",3.7),("January 2008",3.7),
-("February 2008",3.7),("March 2008",3.1),("April 2008",2.8),("May 2008",3.0),
-("June 2008",2.7),("July 2008",3.0),("August 2008",3.3),("September 2008",3.2),
-("October 2008",3.3),("November 2008",3.6),("December 2008",3.6),("January 2009",3.7),
-("February 2009",3.4),("March 2009",3.3),("April 2009",3.4),("May 2009",2.9),
-("June 2009",2.8),("July 2009",2.7),("August 2009",2.4),("September 2009",2.5),
-("October 2009",2.5),("November 2009",2.2),("December 2009",1.9),("January 2010",2.0),
-("February 2010",2.1),("March 2010",1.8),("May 2010",1.9),("June 2010",1.8),
-("July 2010",1.8),("August 2010",1.8),("September 2010",1.8),("October 2010",2.0),
-("November 2010",1.7),("December 2010",2.0),("February 2011",1.9),("March 2011",1.9),
-("April 2011",1.9),("May 2011",2.0),("June 2011",2.1),("July 2011",2.3),
-("August 2011",2.0),("September 2011",1.9),("October 2011",2.0),("November 2011",2.0),
-("December 2011",2.0),("January 2012",1.7),("February 2012",1.8),("March 2012",2.1),
-("April 2012",2.1),("May 2012",1.8),("June 2012",2.0),("July 2012",1.7),
-("August 2012",1.8),("September 2012",1.9),("October 2012",1.6),("November 2012",1.9),
-("December 2012",2.2),("January 2013",2.2),("February 2013",2.1),("March 2013",1.9),
-("April 2013",2.1),("May 2013",2.1),("June 2013",2.1),("July 2013",2.0),
-("August 2013",2.3),("September 2013",2.1),("October 2013",2.2),("November 2013",2.2),
-("December 2013",1.9),("January 2014",2.0),("February 2014",2.3),("March 2014",2.1),
-("April 2014",2.0),("May 2014",2.1),("June 2014",2.1),("July 2014",2.1),
-("August 2014",2.2),("September 2014",2.0),("October 2014",2.0),("November 2014",2.1),
-("December 2014",1.9),("January 2015",2.1),("February 2015",1.9),("March 2015",2.2),
-("April 2015",2.3),("May 2015",2.3),("June 2015",2.1),("July 2015",2.2),
-("August 2015",2.2),("September 2015",2.3),("October 2015",2.5),("November 2015",2.4),
-("December 2015",2.5),("January 2016",2.5),("February 2016",2.3),("March 2016",2.4),
-("April 2016",2.6),("May 2016",2.4),("June 2016",2.6),("July 2016",2.7),
-("August 2016",2.5),("September 2016",2.6),("October 2016",2.8),("November 2016",2.6),
-("December 2016",2.7),("January 2017",2.5),("February 2017",2.7),("March 2017",2.6),
-("April 2017",2.5),("May 2017",2.5),("June 2017",2.5),("July 2017",2.6),
-("August 2017",2.6),("September 2017",2.8),("October 2017",2.3),("November 2017",2.5),
-("December 2017",2.7),("January 2018",2.8),("February 2018",2.6),("March 2018",2.8),
-("April 2018",2.8),("May 2018",2.9),("June 2018",2.9),("July 2018",2.8),
-("August 2018",3.2),("September 2018",3.1),("October 2018",3.3),("November 2018",3.4),
-("December 2018",3.5),("January 2019",3.3),("February 2019",3.6),("March 2019",3.4),
-("April 2019",3.3),("May 2019",3.3),("June 2019",3.4),("July 2019",3.4),
-("August 2019",3.4),("September 2019",3.1),("October 2019",3.1),("November 2019",3.3),
-("December 2019",3.0),("January 2020",3.0),("February 2020",3.1),("March 2020",3.5),
-("April 2020",8.1),("May 2020",6.6),("June 2020",5.1),("July 2020",4.9),
-("August 2020",4.8),("September 2020",4.8),("October 2020",4.7),("November 2020",4.6),
-("December 2020",5.4),("January 2021",5.2),("February 2021",5.4),("March 2021",4.5),
-("April 2021",0.6),("May 2021",2.3),("June 2021",4.0),("July 2021",4.3),
-("August 2021",4.4),("September 2021",4.9),("October 2021",5.4),("November 2021",5.4),
-("December 2021",5.0),("January 2022",5.7),("February 2022",5.3),("March 2022",5.9),
-("April 2022",5.7),("May 2022",5.6),("June 2022",5.4),("July 2022",5.5),
-("August 2022",5.4),("September 2022",5.1),("October 2022",5.0),("November 2022",5.1),
-("December 2022",4.9),("January 2023",4.5),("February 2023",4.7),("March 2023",4.6),
-("April 2023",4.6),("May 2023",4.4),("June 2023",4.6),("July 2023",4.6),
-("August 2023",4.5),("September 2023",4.4),("October 2023",4.2),("November 2023",4.1),
-("December 2023",4.1),("January 2024",4.3),("February 2024",4.2),("March 2024",4.2),
-("April 2024",4.0),("May 2024",4.1),("June 2024",3.9),("July 2024",3.6),
-("August 2024",4.0),("September 2024",3.9),("October 2024",4.1),("November 2024",4.2),
-("December 2024",4.0),("January 2025",3.9),("February 2025",3.9),("March 2025",3.8),
-("April 2025",3.9),("May 2025",3.8),("June 2025",3.8),("July 2025",3.9)
-]
+# Your raw data pasted as a text block
+data = """Date	 Rate
+January 2007     -61.18
+February 2007     -59.12
+March 2007     -58.44
+April 2007     -63.89
+May 2007     -58.5
+June 2007     -60.04
+July 2007     -58.14
+August 2007     -59.25
+September 2007     -57.59
+October 2007     -56.45
+November 2007     -57.82
+December 2007     -63.12
+January 2008     -58.76
+February 2008     -58.2
+March 2008     -62.32
+April 2008     -58.21
+May 2008     -63.7
+June 2008     -62.3
+July 2008     -60.9
+August 2008     -67.0
+September 2008     -62.4
+October 2008     -60.3
+November 2008     -60.9
+December 2008     -45.1
+January 2009     -44.0
+February 2009     -39.3
+March 2009     -28.8
+April 2009     -30.2
+May 2009     -30.5
+June 2009     -25.8
+July 2009     -27.2
+August 2009     -33.3
+September 2009     -31.7
+October 2009     -35.3
+November 2009     -35.0
+December 2009     -38.4
+January 2010     -39.4
+February 2010     -37.7
+March 2010     -41.5
+April 2010     -40.3
+May 2010     -41.5
+June 2010     -42.1
+July 2010     -47.3
+August 2010     -41.6
+September 2010     -45.6
+October 2010     -44.3
+November 2010     -40.7
+December 2010     -38.7
+January 2011     -41.7
+February 2011     -48.1
+March 2011     -44.8
+April 2011     -44.3
+May 2011     -42.7
+June 2011     -47.7
+July 2011     -49.9
+August 2011     -46.1
+September 2011     -45.1
+October 2011     -43.5
+November 2011     -45.5
+December 2011     -47.5
+January 2012     -49.5
+February 2012     -50.1
+March 2012     -42.8
+April 2012     -49.8
+May 2012     -46.8
+June 2012     -45.1
+July 2012     -42.9
+August 2012     -42.4
+September 2012     -44.0
+October 2012     -38.8
+November 2012     -41.5
+December 2012     -45.3
+January 2013     -36.3
+February 2013     -40.1
+March 2013     -41.0
+April 2013     -34.3
+May 2013     -38.5
+June 2013     -41.7
+July 2013     -34.4
+August 2013     -36.4
+September 2013     -36.6
+October 2013     -39.9
+November 2013     -36.3
+December 2013     -34.0
+January 2014     -33.6
+February 2014     -37.4
+March 2014     -40.1
+April 2014     -43.0
+May 2014     -43.8
+June 2014     -39.6
+July 2014     -38.9
+August 2014     -38.9
+September 2014     -37.0
+October 2014     -41.7
+November 2014     -41.1
+December 2014     -39.8
+January 2015     -42.8
+February 2015     -38.9
+March 2015     -33.9
+April 2015     -48.7
+May 2015     -39.8
+June 2015     -38.5
+July 2015     -42.4
+August 2015     -40.3
+September 2015     -44.2
+October 2015     -41.6
+November 2015     -40.9
+December 2015     -40.5
+January 2016     -41.0
+February 2016     -40.0
+March 2016     -43.3
+April 2016     -36.8
+May 2016     -38.0
+June 2016     -39.0
+July 2016     -41.7
+August 2016     -39.9
+September 2016     -40.1
+October 2016     -37.0
+November 2016     -38.6
+December 2016     -43.9
+January 2017     -40.9
+February 2017     -43.6
+March 2017     -39.8
+April 2017     -41.1
+May 2017     -44.2
+June 2017     -43.9
+July 2017     -42.6
+August 2017     -43.9
+September 2017     -41.4
+October 2017     -41.6
+November 2017     -42.8
+December 2017     -45.5
+January 2018     -46.5
+February 2018     -47.1
+March 2018     -48.8
+April 2018     -43.5
+May 2018     -46.1
+June 2018     -41.4
+July 2018     -44.8
+August 2018     -49.7
+September 2018     -49.6
+October 2018     -50.6
+November 2018     -52.5
+December 2018     -49.4
+January 2019     -55.2
+February 2019     -48.9
+March 2019     -47.6
+April 2019     -48.1
+May 2019     -49.6
+June 2019     -50.8
+July 2019     -48.6
+August 2019     -48.5
+September 2019     -48.8
+October 2019     -44.5
+November 2019     -41.3
+December 2019     -38.8
+January 2020     -43.9
+February 2020     -43.8
+March 2020     -40.9
+April 2020     -43.7
+May 2020     -53.1
+June 2020     -54.9
+July 2020     -49.4
+August 2020     -59.7
+September 2020     -62.1
+October 2020     -58.2
+November 2020     -61.1
+December 2020     -64.7
+January 2021     -62.0
+February 2021     -62.8
+March 2021     -66.4
+April 2021     -66.1
+May 2021     -66.5
+June 2021     -66.6
+July 2021     -71.5
+August 2021     -69.9
+September 2021     -73.2
+October 2021     -77.1
+November 2021     -66.9
+December 2021     -80.2
+January 2022     -80.8
+February 2022     -85.6
+March 2022     -87.1
+April 2022     -101.9
+May 2022     -85.4
+June 2022     -84.3
+July 2022     -81.2
+August 2022     -71.0
+September 2022     -68.5
+October 2022     -71.2
+November 2022     -75.3
+December 2022     -62.6
+January 2023     -70.8
+February 2023     -69.9
+March 2023     -70.5
+April 2023     -60.3
+May 2023     -72.8
+June 2023     -66.1
+July 2023     -64.8
+August 2023     -64.6
+September 2023     -59.6
+October 2023     -62.2
+November 2023     -64.3
+December 2023     -64.8
+January 2024     -64.9
+February 2024     -66.9
+March 2024     -69.3
+April 2024     -68.5
+May 2024     -75.9
+June 2024     -76.6
+July 2024     -74.2
+August 2024     -79.9
+September 2024     -71.4
+October 2024     -85.0
+November 2024     -73.7
+December 2024     -78.2
+January 2025     -98.1
+February 2025     -130.7
+March 2025     -123.2
+April 2025     -140.5
+May 2025     -60.3
+June 2025     -71.7
+July 2025     -59.1
+"""
 
-# Create DataFrame
-df = pd.DataFrame(data, columns=["Date", "Rate"])
+# Load into DataFrame
+df = pd.read_csv(StringIO(data), sep="\t")
 
-# Save as CSV
-csv_path = "/mnt/data/date_rate.csv"
-df.to_csv(csv_path, index=False)
+# Clean column names
+df.columns = df.columns.str.strip()
 
-csv_path
+# Convert to datetime
+df["Date"] = pd.to_datetime(df["Date"].str.strip(), format="%B %Y")
+
+# Shift one month back
+df["Date"] = df["Date"].apply(lambda d: d - relativedelta(months=1))
+
+# Format as "Month Year"
+df["Date"] = df["Date"].dt.strftime("%B %Y")
+
+# Print without index
+print(df.to_string(index=False))

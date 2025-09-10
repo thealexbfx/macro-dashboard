@@ -4,6 +4,7 @@ import plotly.express as px
 import datetime as dt
 import requests
 import io
+import numpy as np
 import csv
 from urllib.parse import urljoin
 from io import BytesIO
@@ -15,9 +16,109 @@ from dotenv import load_dotenv
 import os
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
+import calendar
+
+
+def analyze_series(df: pd.DataFrame, window: int = 12):
+    """
+    Compute statistical, trend, and regime metrics for a macro series.
+
+    Args:
+        df (pd.DataFrame): Must contain 'date' and 'value'.
+        window (int): Rolling window for slope/trend (default 12 for 1 year if monthly).
+
+    Returns:
+        dict: Dictionary of key metrics
+    """
+    if df.empty or "value" not in df.columns:
+        return {}
+
+    latest_value = df["value"].iloc[-1]
+    hist_mean = df["value"].mean()
+    hist_std = df["value"].std()
+    z_score = (latest_value - hist_mean) / hist_std if hist_std != 0 else np.nan
+    percentile = (df["value"] <= latest_value).mean() * 100  # percentile rank
+
+    # Rolling slope (trend)
+    if len(df) >= window:
+        y = df["value"].iloc[-window:]
+        x = np.arange(len(y))
+        slope = np.polyfit(x, y, 1)[0]  # slope of linear regression
+        rolling_vol = y.pct_change().rolling(window=window).std().iloc[-1] * 100  # % vol
+    else:
+        slope = np.nan
+        rolling_vol = np.nan
+
+    # YoY or MoM change (last period vs previous same period)
+    if len(df) > 1:
+        yoy_change = latest_value - df["value"].iloc[-2]
+    else:
+        yoy_change = np.nan
+
+    # Regime classification based on z-score
+    if abs(z_score) < 1:
+        regime = "Normal"
+    elif abs(z_score) < 2:
+        regime = "Elevated"
+    else:
+        regime = "Extreme"
+
+    return {
+        "latest_value": latest_value,
+        "hist_mean": hist_mean,
+        "hist_std": hist_std,
+        "z_score": z_score,
+        "percentile": percentile,
+        "trend_slope": slope,
+        "yoy_change": yoy_change,
+        "rolling_vol": rolling_vol,
+        "regime": regime,
+        "obs_count": len(df)
+    }
+
+def simulate_scenario(df: pd.DataFrame, shock_value: float, shock_type: str = "absolute", periods: int = 12):
+    """
+    Simulate a macro scenario by applying a shock to the last value of a series
+    and projecting it forward.
+
+    Args:
+        df (pd.DataFrame): Must contain 'date' and 'value' columns.
+        shock_value (float): Amount of shock (absolute or percent).
+        shock_type (str): "absolute" or "percent".
+        periods (int): Number of periods to project forward.
+
+    Returns:
+        pd.DataFrame: Projected series with dates extended.
+    """
+    if df.empty or "value" not in df.columns:
+        return pd.DataFrame(columns=["date", "value"])
+
+    last_value = df["value"].iloc[-1]
+
+    # Determine projected values
+    proj_values = []
+    for i in range(periods):
+        if shock_type == "absolute":
+            last_value = last_value + shock_value
+        elif shock_type == "percent":
+            last_value = last_value * (1 + shock_value / 100)
+        proj_values.append(last_value)
+
+    # Create projected dates
+    last_date = df["date"].iloc[-1]
+    # Determine frequency (monthly or quarterly)
+    if df["date"].diff().median().days >= 80:  # approx quarterly
+        freq = 'Q'
+    else:
+        freq = 'M'
+    proj_dates = pd.date_range(start=last_date + pd.offsets.MonthBegin(1), periods=periods, freq=freq)
+
+    df_proj = pd.DataFrame({"date": proj_dates, "value": proj_values})
+    return df_proj
+
 
 # -------- Helper Functions --------
-def plot_chart(df, title, chart_type, height=550, date_format="daily",
+def plot_chart(df, title, chart_type, height=450, date_format="daily",
                yaxis_suffix='', reference_lines=None, shaded_regions=None,
                tickformat_override=None, hover_style="delta", delta_type="cumulative", show_markers=False):
 
@@ -712,186 +813,122 @@ def get_euro_2yr_yield_data():
 
     return df
     
-def get_usa_interest_rate_data():
+# ---------------------------
+# Generic USA Data Loader
+# ---------------------------
+def load_usa_data(file_name: str, freq: str = "monthly", date_format: str = "%B %Y"):
+    """
+    Generic function to load USA macro data from text files.
+    
+    Args:
+        file_name (str): Name of the file inside project folder (e.g. 'USA_CPI_YoY.txt').
+        freq (str): Frequency of the data ('daily', 'monthly', 'quarterly').
+        date_format (str): Format to parse date column (default '%B %Y' for 'January 2008').
+    """
     base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "USA_Interest_Rate.txt")
+    file_path = os.path.join(base_dir, file_name)
 
-    # Use whitespace delimiter for space/tab-separated file
-    df = pd.read_csv(file_path, delim_whitespace=True)
+    # Detect delimiter type
+    if freq == "daily":
+        df = pd.read_csv(file_path, delim_whitespace=True)
+    else:
+        df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
 
-    # Strip column names to remove hidden spaces
+    # Clean column names
     df.columns = df.columns.str.strip()
 
-    # Rename for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
+    # Rename columns for consistency
+    if "Rate" in df.columns:
+        df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
+    else:
+        df.rename(columns={"Date": "date"}, inplace=True)
 
-    # Convert date column to datetime
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    # Convert value column to float if present
+    if "value" in df.columns:
+        df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
-    # Drop any rows where date could not be parsed
-    df = df.dropna(subset=['date'])
+    # Handle date parsing
+    if freq == "monthly":
+        df["date"] = pd.to_datetime(df["date"], format=date_format, errors="coerce")
+    elif freq == "quarterly":
+        def parse_quarter(q):
+            q = str(q).strip()
+            if "Q" not in q:
+                return pd.NaT
+            quarter, year = q.split()
+            month_map = {"Q1": 3, "Q2": 6, "Q3": 9, "Q4": 12}
+            month = month_map.get(quarter, 3)
+            return pd.Timestamp(year=int(year), month=month, day=1) + pd.offsets.MonthEnd(0)
+        df["date"] = df["date"].apply(parse_quarter)
+    else:  # daily
+        df["date"] = pd.to_datetime(df["date"], errors="coerce")
 
-    # Sort by date
+    # Drop invalid rows and sort
+    df = df.dropna(subset=["date"])
+    if "value" in df.columns:
+        df = df.dropna(subset=["value"])
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
+
+
+# ---------------------------
+# Indicator-Specific Wrappers
+# ---------------------------
+def get_usa_interest_rate_data():
+    return load_usa_data("USA_Interest_Rate.txt", freq="daily")
 
 def get_usa_cpi_yoy_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "USA_CPI_YoY.txt")
-    
-    # Read using regex for 2+ spaces
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
-
-    # Clean column names
-    df.columns = df.columns.str.strip()
-
-    # Rename columns for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert value to float
-    df['value'] = pd.to_numeric(df['value'], errors='coerce')
-
-    # Drop invalid rows
-    df = df.dropna(subset=['value'])
-
-    # Convert Month Year to datetime
-    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
-
-    # Drop rows with invalid dates
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
+    return load_usa_data("USA_CPI_YoY.txt", freq="monthly", date_format="%B %Y")
 
 def get_usa_gdp_qoq_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "USA_GDP_Growth_Rate_QoQ.txt")
-    
-    # Read the file (split on 2+ spaces, so "Q1 2008" stays together)
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+    return load_usa_data("USA_GDP_Growth_Rate_QoQ.txt", freq="quarterly")
 
-    # Clean up column names
-    df.columns = df.columns.str.strip()
-
-    # Rename for consistency
-    df.rename(columns={"Date": "quarter", "Rate": "value"}, inplace=True)
-
-    # Function to convert "Q1 2008" -> datetime (end of quarter)
-    def parse_quarter(q):
-        q = str(q).strip()
-        if "Q" not in q:
-            return pd.NaT
-        quarter, year = q.split()
-        month_map = {"Q1": 3, "Q2": 6, "Q3": 9, "Q4": 12}
-        month = month_map.get(quarter, 3)
-        return pd.Timestamp(year=int(year), month=month, day=1) + pd.offsets.MonthEnd(0)
-
-    df["date"] = df["quarter"].apply(parse_quarter)
-
-    # Keep only relevant columns
-    df = df[["date", "value"]]
-
-    # Convert value to numeric
-    df["value"] = pd.to_numeric(df["value"], errors="coerce")
-
-    # Drop invalid rows
-    df = df.dropna(subset=["date", "value"]).sort_values("date").reset_index(drop=True)
-
-    return df
-    
 def get_usa_unemployment_rate_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "USA_Unemployment_Rate.txt")
-    
-    # Read using regex for 2+ spaces
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+    return load_usa_data("USA_Unemployment_Rate.txt", freq="monthly", date_format="%B %Y")
 
-    # Clean column names
-    df.columns = df.columns.str.strip()
-
-    # Rename columns for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert value to float
-    df['value'] = pd.to_numeric(df['value'], errors='coerce')
-
-    # Drop invalid rows
-    df = df.dropna(subset=['value'])
-
-    # Convert Month Year to datetime
-    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
-
-    # Drop rows with invalid dates
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-    
 def get_usa_core_cpi_yoy_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "USA_Core_CPI_YoY.txt")
-    
-    # Read using regex for 2+ spaces
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+    return load_usa_data("USA_Core_CPI_YoY.txt", freq="monthly", date_format="%B %Y")
 
-    # Clean column names
-    df.columns = df.columns.str.strip()
-
-    # Rename columns for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert value to float
-    df['value'] = pd.to_numeric(df['value'], errors='coerce')
-
-    # Drop invalid rows
-    df = df.dropna(subset=['value'])
-
-    # Convert Month Year to datetime
-    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
-
-    # Drop rows with invalid dates
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-    
 def get_usa_average_hourly_earnings_yoy_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "USA_Average_Hourly_Earnings_YoY.txt")
+    return load_usa_data("USA_Average_Hourly_Earnings_YoY.txt", freq="monthly", date_format="%B %Y")
+
+def get_usa_core_pce_yoy_data():
+    return load_usa_data("USA_Core_PCE_YoY.txt", freq="monthly", date_format="%B %Y")
+
+def get_usa_core_ppi_yoy_data():
+    return load_usa_data("USA_Core_PPI_YoY.txt", freq="monthly", date_format="%B %Y")
+
+def get_usa_housing_starts_mom_data():
+    return load_usa_data("USA_Housing_Starts_MoM.txt", freq="monthly", date_format="%B %Y")
+
+def get_usa_ism_manufacturing_pmi_data():
+    return load_usa_data("USA_ISM_Manufacturing_PMI.txt", freq="monthly", date_format="%B %Y")
     
-    # Read using regex for 2+ spaces
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+def get_usa_ism_services_pmi_data():
+    return load_usa_data("USA_ISM_Services_PMI.txt", freq="monthly", date_format="%B %Y")
 
-    # Clean column names
-    df.columns = df.columns.str.strip()
+def get_usa_jolts_job_openings_data():
+    return load_usa_data("USA_JOLTS_Job_Openings.txt", freq="monthly", date_format="%B %Y")
 
-    # Rename columns for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert value to float
-    df['value'] = pd.to_numeric(df['value'], errors='coerce')
-
-    # Drop invalid rows
-    df = df.dropna(subset=['value'])
-
-    # Convert Month Year to datetime
-    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
-
-    # Drop rows with invalid dates
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
+def get_usa_michigan_consumer_sentiment_data():
+    return load_usa_data("USA_Michigan_Consumer_Sentiment_Index.txt", freq="monthly", date_format="%B %Y")
+    
+def get_usa_nfp_data():
+    return load_usa_data("USA_NFP.txt", freq="monthly", date_format="%B %Y")
+    
+def get_usa_pce_yoy_data():
+    return load_usa_data("USA_PCE_YoY.txt", freq="monthly", date_format="%B %Y")
+    
+def get_usa_ppi_yoy_data():
+    return load_usa_data("USA_PPI_YoY.txt", freq="monthly", date_format="%B %Y")    
+    
+def get_usa_retail_sales_mom_data():
+    return load_usa_data("USA_Retail_Sales_MoM.txt", freq="monthly", date_format="%B %Y")
+   
+def get_usa_trade_balance_data():
+    return load_usa_data("USA_Trade_Balance.txt", freq="monthly", date_format="%B %Y")
+    
 # ---------------------------
 # FRED API Setup
 # ---------------------------
@@ -1575,75 +1612,107 @@ if page == "Home":
             <p>&copy; 2025 thealexbfx. All rights reserved.</p>
         </div>
     """, unsafe_allow_html=True)
-    
+
 # -------- USA Tab --------
 if page == "USA":
-    col1, col2 = st.columns([1, 5])
+    col1, col2 = st.columns([1.5, 5])
 
     with col1:
         st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
 
-        # Dropdowns
-        indicator = st.selectbox("Select Indicator", [
-            "Interest Rate",
-            "Inflation Rate",
-            "GDP Growth Rate",
-            "Unemployment Rate",
-            "Core CPI YoY",
-            "Average Hourly Earnings YoY"
-        ])
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        # -------- Indicator Groups --------
+        indicator_groups = {
+            "Labor Market": [
+                "Unemployment Rate",
+                "Average Hourly Earnings YoY",
+                "Jolts Job Openings",
+                "Non Farm Payrolls"
+            ],
+            "Growth": [
+                "GDP Growth Rate",
+                "Retail Sales MoM",
+                "Housing Starts MoM",
+                "Trade Balance"
+            ],
+            "Inflation": [
+                "CPI YoY",
+                "Core CPI YoY",
+                "PCE YoY",
+                "Core PCE YoY",
+                "PPI YoY",
+                "Core PPI YoY"
+            ],
+            "Surveys": [
+                "ISM Manufacturing PMI",
+                "ISM Services PMI",
+                "Michigan Consumer Sentiment"
+            ],
+            "Monetary Policy": [
+                "Interest Rate"
+            ]
+        }
 
-        # Toggle for delta type
-        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+        # Category dropdown
+        category = st.selectbox("Select Category", list(indicator_groups.keys()))
 
-        # Load data based on indicator
-        if indicator == "Interest Rate":
-            df = get_usa_interest_rate_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "Inflation Rate":
-            df = get_usa_cpi_yoy_data()
-            date_format = "monthly"
-            tickformat_override = None
-        elif indicator == "GDP Growth Rate":
-            df = get_usa_gdp_qoq_data()
-            date_format = "quarterly"
-            df['tick_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
-            tickformat_override = None
-        elif indicator == "Unemployment Rate":
-            df = get_usa_unemployment_rate_data()
-            date_format = "monthly"
-            tickformat_override = None
-        elif indicator == "Core CPI YoY":
-            df = get_usa_core_cpi_yoy_data()
-            date_format = "monthly"
-            tickformat_override = None
-        elif indicator == "Average Hourly Earnings YoY":
-            df = get_usa_average_hourly_earnings_yoy_data()
-            date_format = "monthly"
-            tickformat_override = None
-            
-            
+        # Indicator dropdown based on category
+        indicator = st.selectbox("Select Indicator", indicator_groups[category])
+
+        # -------- Chart Type + Timeframe side by side --------
+        ct_col, tf_col = st.columns(2)
+        with ct_col:
+            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        with tf_col:
+            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        # Delta Type (allow turning it off)
+        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
+
+        # -------- Indicator Function Mapping --------
+        indicator_map = {
+            "Interest Rate": (get_usa_interest_rate_data, "daily", "%b %Y"),
+            "CPI YoY": (get_usa_cpi_yoy_data, "monthly", None),
+            "GDP Growth Rate": (get_usa_gdp_qoq_data, "quarterly", None),
+            "Unemployment Rate": (get_usa_unemployment_rate_data, "monthly", None),
+            "Core CPI YoY": (get_usa_core_cpi_yoy_data, "monthly", None),
+            "Average Hourly Earnings YoY": (get_usa_average_hourly_earnings_yoy_data, "monthly", None),
+            "Core PCE YoY": (get_usa_core_pce_yoy_data, "monthly", None),
+            "Core PPI YoY": (get_usa_core_ppi_yoy_data, "monthly", None),
+            "Housing Starts MoM": (get_usa_housing_starts_mom_data, "monthly", None),
+            "ISM Manufacturing PMI": (get_usa_ism_manufacturing_pmi_data, "monthly", None),
+            "ISM Services PMI": (get_usa_ism_services_pmi_data, "monthly", None),
+            "Jolts Job Openings": (get_usa_jolts_job_openings_data, "monthly", None),
+            "Michigan Consumer Sentiment": (get_usa_michigan_consumer_sentiment_data, "monthly", None),
+            "Non Farm Payrolls": (get_usa_nfp_data, "monthly", None),
+            "PCE YoY": (get_usa_pce_yoy_data, "monthly", None),
+            "PPI YoY": (get_usa_ppi_yoy_data, "monthly", None),
+            "Retail Sales MoM": (get_usa_retail_sales_mom_data, "monthly", None),
+            "Trade Balance": (get_usa_trade_balance_data, "monthly", None),
+        }
+
+        # Load data dynamically
+        func, date_format, tickformat_override = indicator_map[indicator]
+        df = func()
         df = df.dropna()
         if df.empty:
             st.error("No data available.")
             st.stop()
 
-        # -------- Time Frame Selector --------
+        # -------- Time Frame Logic --------
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
-
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
             default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
         else:
             default_start_date = earliest_date
 
-        # Date inputs
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        # -------- Start & End Dates side by side --------
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        with date_col2:
+            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
 
         if start_date > end_date:
             st.warning("Start date cannot be after end date.")
@@ -1652,22 +1721,99 @@ if page == "USA":
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        # Commentary for each indicator
+        # -------- Commentary --------
         commentary = {
-            "Interest Rate": "The Federal Funds Rate reflects U.S. monetary policy stance and impacts global markets.",
-            "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
-            "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
-            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy."
+            # Monetary Policy
+            "Interest Rate": (
+                "The Federal Funds Rate is the benchmark interest rate set by the Federal Reserve. "
+                "It directly influences short-term borrowing costs for banks, which affects mortgages, loans, and business investment. "
+                "Changes in the Fed’s rate are closely watched by global markets as signals of monetary tightening or easing."
+            ),
+
+            # Inflation
+            "CPI YoY": (
+                "The Consumer Price Index (CPI YoY) tracks the annual percentage change in the cost of a basket of goods and services. "
+                "It is a key measure of inflation and influences interest rate decisions, wages, and investment strategies."
+            ),
+            "Core CPI YoY": (
+                "Core CPI excludes volatile food and energy prices, providing a clearer view of underlying inflation trends. "
+                "Policymakers use it to assess persistent price pressures in the economy."
+            ),
+            "PCE YoY": (
+                "The Personal Consumption Expenditures Price Index (PCE YoY) measures the annual change in consumer prices based on actual spending patterns. "
+                "It is the Fed’s preferred inflation gauge, reflecting household consumption costs more accurately than CPI."
+            ),
+            "Core PCE YoY": (
+                "Core PCE excludes food and energy prices to highlight underlying inflation trends. "
+                "It is closely monitored by the Fed when making monetary policy decisions."
+            ),
+            "PPI YoY": (
+                "The Producer Price Index (PPI YoY) measures annual changes in prices received by producers of goods and services. "
+                "Rising producer prices can indicate future increases in consumer prices."
+            ),
+            "Core PPI YoY": (
+                "Core PPI excludes food and energy prices to focus on underlying producer price trends. "
+                "It helps identify inflationary pressures before they reach consumers."
+            ),
+
+            # Growth
+            "GDP Growth Rate": (
+                "The GDP Growth Rate measures the pace at which the U.S. economy is expanding or contracting. "
+                "It reflects trends in production, investment, government spending, and trade."
+            ),
+            "Retail Sales MoM": (
+                "Retail Sales MoM tracks monthly changes in consumer spending. "
+                "It is a key driver of economic growth, as consumer spending accounts for roughly two-thirds of U.S. GDP."
+            ),
+            "Housing Starts": (
+                "Housing Starts measure the number of new residential construction projects that have begun during the month, reported as a seasonally adjusted annual rate (SAAR) in millions. "
+                "It includes single-family homes and multi-unit buildings, providing insight into housing demand, construction employment, and overall economic momentum."
+            ),
+            "Trade Balance": (
+                "The U.S. Trade Balance shows the difference between exports and imports of goods and services. "
+                "A deficit occurs when imports exceed exports, and a surplus when exports exceed imports, reflecting global demand and competitiveness."
+            ),
+
+            # Labor Market
+            "Unemployment Rate": (
+                "The unemployment rate measures the percentage of the labor force that is actively seeking work but is jobless. "
+                "It is a primary indicator of labor market health, influencing consumer spending and economic policy."
+            ),
+            "Average Hourly Earnings YoY": (
+                "Average Hourly Earnings YoY tracks annual growth in workers’ wages. "
+                "Rising wages support consumer spending but may contribute to inflation if growth exceeds productivity."
+            ),
+            "Jolts Job Openings": (
+                "The JOLTS Job Openings report measures the number of unfilled positions across the economy. "
+                "High job openings relative to unemployed workers signal a tight labor market and potential upward pressure on wages."
+            ),
+            "Non Farm Payrolls": (
+                "Non-Farm Payrolls measure the monthly change in employment across most sectors, excluding farming. "
+                "It is closely watched as a timely indicator of labor market strength and economic activity."
+            ),
+
+            # Surveys
+            "ISM Manufacturing PMI": (
+                "The ISM Manufacturing PMI surveys purchasing managers in the manufacturing sector. "
+                "A reading above 50 signals expansion, while below 50 signals contraction, offering insight into economic trends."
+            ),
+            "ISM Services PMI": (
+                "The ISM Services PMI tracks activity in the services sector, the largest component of the U.S. economy. "
+                "Values above 50 indicate growth, and below 50 indicate contraction."
+            ),
+            "Michigan Consumer Sentiment": (
+                "The Michigan Consumer Sentiment Index measures household confidence in the economy, financial conditions, and expectations. "
+                "Shifts in sentiment can foreshadow changes in consumer spending and economic activity."
+            )
         }
 
-        # Display commentary above chart
         st.markdown(
             f"""
             <div style="
                 position: relative;
-                top: -20px;
+                top: -10px;
                 margin-left: 30px;
-                font-size:22px;
+                font-size:19px;
                 font-family: 'Arial Bold';
                 font-weight:normal;
                 color:#333;
@@ -1678,43 +1824,81 @@ if page == "USA":
             unsafe_allow_html=True
         )
 
-        # Filter data by selected date range
+        # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
 
-        # Dynamic Titles
+        # -------- Dynamic Titles --------
         titles = {
+            # Monetary Policy
             "Interest Rate": "Federal Funds Rate (%)",
-            "Inflation Rate": "CPI YoY (%)",
-            "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
+
+            # Inflation
+            "CPI YoY": "Consumer Price Index (CPI YoY, %)",
+            "Core CPI YoY": "Core Consumer Price Index (YoY, %)",
+            "PCE YoY": "Personal Consumption Expenditures (PCE YoY, %)",
+            "Core PCE YoY": "Core Personal Consumption Expenditures (YoY, %)",
+            "PPI YoY": "Producer Price Index (PPI YoY, %)",
+            "Core PPI YoY": "Core Producer Price Index (YoY, %)",
+
+            # Growth
+            "GDP Growth Rate": "GDP Growth Rate (%)",
+            "Retail Sales MoM": "Retail Sales (MoM, %)",
+            "Housing Starts": "Housing Starts (Millions)",
+            "Trade Balance": "Trade Balance (Billions USD)",
+
+            # Labor Market
             "Unemployment Rate": "Unemployment Rate (%)",
-            "Core CPI YoY": "Core CPI YoY (%)",
-            "Average Hourly Earnings YoY": "Average Hourly Earnings YoY (%)"
+            "Average Hourly Earnings YoY": "Average Hourly Earnings (YoY, %)",
+            "Jolts Job Openings": "Job Openings (JOLTS, Millions)",
+            "Non Farm Payrolls": "Non-Farm Payrolls (Change, Thousands)",
+
+            # Surveys
+            "ISM Manufacturing PMI": "ISM Manufacturing PMI (Index)",
+            "ISM Services PMI": "ISM Services PMI (Index)",
+            "Michigan Consumer Sentiment": "Michigan Consumer Sentiment (Index)"
         }
 
-        # Detect if quarterly data
+        # Detect quarterly data
         quarterly = (date_format == "quarterly")
 
-        # Plot chart with delta hover
+        # -------- Plot Chart --------
+        # Convert "Off" to None for plot_chart
+        delta_type_arg = None if delta_type == "Off" else delta_type.lower()
+
+        # If delta_type is Off, disable hover delta
+        hover_style = "delta" if delta_type_arg is not None else "none"
+
         fig = plot_chart(
             df_filtered,
             titles[indicator],
             chart_type,
-            hover_style="delta",
-            delta_type=delta_type.lower(),
+            hover_style=hover_style,   # conditional hover
+            delta_type=delta_type_arg,  # None if Off
             date_format="quarterly" if quarterly else date_format,
             tickformat_override=tickformat_override,
             show_markers=False
         )
 
-        # For quarterly charts, show only Q4 labels
+
+
+        # For quarterly, show only Q4 labels
         if quarterly:
             tickvals = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date']
             ticktext = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date'] \
                 .dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
             fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+            
+        fig.update_layout(
+            hoverlabel=dict(
+                font_size=13,       # optional
+                font_color="black", # change text color to black
+                font_family="Arial" # optional
+            )
+        )
+            
 
-        # Display chart with clean modebar
+        # -------- Display Chart --------
         st.plotly_chart(
             fig,
             use_container_width=True,
@@ -1735,64 +1919,68 @@ if page == "USA":
             mime="text/csv"
         )
 
-
 # -------- Japan Tab --------
 if page == "Japan":
-    col1, col2 = st.columns([1, 5])
+    col1, col2 = st.columns([1.5, 5])
 
     with col1:
         st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
 
-        # Dropdowns
-        indicator = st.selectbox("Select Indicator", [
-            "Interest Rate",
-            "Inflation Rate",
-            "GDP Growth Rate",
-            "Unemployment Rate"
-        ])
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        # -------- Indicator Groups --------
+        indicator_groups = {
+            "Labor Market": ["Unemployment Rate"],
+            "Growth": ["GDP Growth Rate"],
+            "Inflation": ["CPI YoY"],
+            "Monetary Policy": ["Interest Rate"]
+        }
 
-        # Toggle for delta type
-        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+        # Category dropdown
+        category = st.selectbox("Select Category", list(indicator_groups.keys()))
 
-        # Load data based on indicator
-        if indicator == "Interest Rate":
-            df = get_japan_interest_rate_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "Inflation Rate":
-            df = get_japan_cpi_yoy_data()
-            date_format = "monthly"
-            tickformat_override = None
-        elif indicator == "GDP Growth Rate":
-            df = get_japan_gdp_qoq_data()
-            date_format = "quarterly"
-            df['tick_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
-            tickformat_override = None
-        elif indicator == "Unemployment Rate":
-            df = get_japan_unemployment_rate_data()
-            date_format = "monthly"
-            tickformat_override = None
+        # Indicator dropdown based on category
+        indicator = st.selectbox("Select Indicator", indicator_groups[category])
 
+        # -------- Chart Type + Timeframe side by side --------
+        ct_col, tf_col = st.columns(2)
+        with ct_col:
+            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        with tf_col:
+            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        # Delta Type (allow turning it off)
+        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
+
+        # -------- Indicator Function Mapping --------
+        indicator_map = {
+            "Interest Rate": (get_japan_interest_rate_data, "daily", "%b %Y"),
+            "CPI YoY": (get_japan_cpi_yoy_data, "monthly", None),
+            "GDP Growth Rate": (get_japan_gdp_qoq_data, "quarterly", None),
+            "Unemployment Rate": (get_japan_unemployment_rate_data, "monthly", None)
+        }
+
+        # Load data dynamically
+        func, date_format, tickformat_override = indicator_map[indicator]
+        df = func()
         df = df.dropna()
         if df.empty:
             st.error("No data available.")
             st.stop()
 
-        # -------- Time Frame Selector --------
+        # -------- Time Frame Logic --------
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
-
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
             default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
         else:
             default_start_date = earliest_date
 
-        # Date inputs
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        # -------- Start & End Dates side by side --------
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        with date_col2:
+            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
 
         if start_date > end_date:
             st.warning("Start date cannot be after end date.")
@@ -1801,22 +1989,42 @@ if page == "Japan":
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        # Commentary for each indicator
+        # -------- Commentary --------
         commentary = {
-            "Interest Rate": "The Federal Funds Rate reflects U.S. monetary policy stance and impacts global markets.",
-            "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
-            "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
-            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy."
+            # Monetary Policy
+            "Interest Rate": (
+                "The Bank of Japan (BoJ) policy rate is the benchmark interest rate set by the BoJ. "
+                "It directly influences short-term borrowing costs for banks, which affects mortgages, loans, and business investment. "
+                "Changes in the BoJ’s rate are closely watched by global markets as signals of monetary tightening or easing."
+            ),
+
+            # Inflation
+            "CPI YoY": (
+                "The Consumer Price Index (CPI YoY) tracks the annual percentage change in the cost of a basket of goods and services in Japan. "
+                "It is a key measure of inflation and influences BoJ interest rate decisions, wages, and investment strategies."
+            ),
+
+            # Growth
+            "GDP Growth Rate": (
+                "The GDP Growth Rate measures the pace at which the Japanese economy is expanding or contracting. "
+                "It reflects trends in production, investment, government spending, and trade."
+            ),
+
+            # Labor Market
+            "Unemployment Rate": (
+                "The unemployment rate measures the percentage of the labor force that is actively seeking work but is jobless. "
+                "It is a primary indicator of labor market health, influencing consumer spending and economic policy."
+            )
         }
 
-        # Display commentary above chart
+
         st.markdown(
             f"""
             <div style="
                 position: relative;
-                top: -20px;
+                top: -10px;
                 margin-left: 30px;
-                font-size:22px;
+                font-size:19px;
                 font-family: 'Arial Bold';
                 font-weight:normal;
                 color:#333;
@@ -1827,41 +2035,51 @@ if page == "Japan":
             unsafe_allow_html=True
         )
 
-        # Filter data by selected date range
+        # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
 
-        # Dynamic Titles
+        # -------- Dynamic Titles --------
         titles = {
-            "Interest Rate": "Bank of Japan Policy Rate",
-            "Inflation Rate": "CPI YoY (%)",
-            "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
+            "Interest Rate": "Bank of Japan Policy Rate (%)",
+            "CPI YoY": "Consumer Price Index (YoY, %)",
+            "GDP Growth Rate": "GDP Growth Rate (QoQ Annualized %)",
             "Unemployment Rate": "Unemployment Rate (%)"
         }
 
-        # Detect if quarterly data
+        # Detect quarterly data
         quarterly = (date_format == "quarterly")
 
-        # Plot chart with delta hover (same as FX tab)
+        # -------- Plot Chart --------
+        delta_type_arg = None if delta_type == "Off" else delta_type.lower()
+        hover_style = "delta" if delta_type_arg is not None else "none"
+
         fig = plot_chart(
             df_filtered,
             titles[indicator],
             chart_type,
-            hover_style="delta",
-            delta_type=delta_type.lower(),
+            hover_style=hover_style,
+            delta_type=delta_type_arg,
             date_format="quarterly" if quarterly else date_format,
             tickformat_override=tickformat_override,
             show_markers=False
         )
 
-        # For quarterly charts, show only Q4 labels
         if quarterly:
             tickvals = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date']
             ticktext = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date'] \
                 .dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
             fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
 
-        # Display chart with clean modebar
+        fig.update_layout(
+            hoverlabel=dict(
+                font_size=13,
+                font_color="black",
+                font_family="Arial"
+            )
+        )
+
+        # -------- Display Chart --------
         st.plotly_chart(
             fig,
             use_container_width=True,
@@ -1881,64 +2099,70 @@ if page == "Japan":
             file_name=f"Japan_{indicator.replace(' ', '_')}_data.csv",
             mime="text/csv"
         )
+
        
 # -------- UK Tab --------
 if page == "UK":
-    col1, col2 = st.columns([1, 5])
+    col1, col2 = st.columns([1.5, 5])
 
     with col1:
         st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
 
-        # Dropdowns
-        indicator = st.selectbox("Select Indicator", [
-            "Interest Rate",
-            "Inflation Rate",
-            "GDP Growth Rate",
-            "Unemployment Rate"
-        ])
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        # -------- Indicator Groups --------
+        indicator_groups = {
+            "Labor Market": ["Unemployment Rate"],
+            "Growth": ["GDP Growth Rate"],
+            "Inflation": ["CPI YoY"],
+            "Monetary Policy": ["Interest Rate"]
+        }
 
-        # Toggle for delta type
-        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+        # Category dropdown
+        category = st.selectbox("Select Category", list(indicator_groups.keys()))
 
-        # Load data based on indicator
-        if indicator == "Interest Rate":
-            df = get_uk_interest_rate_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "Inflation Rate":
-            df = get_uk_cpi_yoy_data()
-            date_format = "monthly"
-            tickformat_override = None
-        elif indicator == "GDP Growth Rate":
-            df = get_uk_gdp_qoq_data()
-            date_format = "quarterly"
-            df['tick_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
-            tickformat_override = None
-        elif indicator == "Unemployment Rate":
-            df = get_uk_unemployment_rate_data()
-            date_format = "monthly"
-            tickformat_override = None
+        # Indicator dropdown based on category
+        indicator = st.selectbox("Select Indicator", indicator_groups[category])
 
+        # -------- Chart Type + Timeframe side by side --------
+        ct_col, tf_col = st.columns(2)
+        with ct_col:
+            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        with tf_col:
+            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        # Delta Type (allow turning it off)
+        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
+
+        # -------- Indicator Function Mapping --------
+        indicator_map = {
+            "Interest Rate": (get_uk_interest_rate_data, "daily", "%b %Y"),
+            "CPI YoY": (get_uk_cpi_yoy_data, "monthly", None),
+            "GDP Growth Rate": (get_uk_gdp_qoq_data, "quarterly", None),
+            "Unemployment Rate": (get_uk_unemployment_rate_data, "monthly", None)
+        }
+
+        # Load data dynamically
+        func, date_format, tickformat_override = indicator_map[indicator]
+        df = func()
         df = df.dropna()
         if df.empty:
             st.error("No data available.")
             st.stop()
 
-        # -------- Time Frame Selector --------
+        # -------- Time Frame Logic --------
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
-
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
             default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
         else:
             default_start_date = earliest_date
 
-        # Date inputs
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        # -------- Start & End Dates side by side --------
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        with date_col2:
+            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
 
         if start_date > end_date:
             st.warning("Start date cannot be after end date.")
@@ -1947,22 +2171,42 @@ if page == "UK":
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        # Commentary for each indicator
+        # -------- Commentary --------
         commentary = {
-            "Interest Rate": "The Federal Funds Rate reflects U.S. monetary policy stance and impacts global markets.",
-            "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
-            "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
-            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy."
+            # Monetary Policy
+            "Interest Rate": (
+                "The Bank of England (BoE) policy rate is the benchmark interest rate set by the BoE. "
+                "It directly affects short-term borrowing costs for banks, which in turn influence mortgages, loans, and business investment. "
+                "Changes in the BoE rate are closely monitored by global markets as signals of monetary tightening or easing."
+            ),
+
+            # Inflation
+            "CPI YoY": (
+                "The Consumer Price Index (CPI YoY) measures the annual percentage change in the cost of a typical basket of goods and services in the UK. "
+                "It is a key gauge of inflation and informs BoE interest rate decisions, wage adjustments, and investment strategies."
+            ),
+
+            # Growth
+            "GDP Growth Rate": (
+                "The GDP Growth Rate captures the pace at which the UK economy is expanding or contracting. "
+                "It reflects trends in consumption, investment, government spending, and trade, providing insight into overall economic health."
+            ),
+
+            # Labor Market
+            "Unemployment Rate": (
+                "The unemployment rate measures the percentage of the UK labor force that is actively seeking work but is currently jobless. "
+                "It is a primary indicator of labor market conditions and has implications for consumer spending and economic policy."
+            )
         }
 
-        # Display commentary above chart
+
         st.markdown(
             f"""
             <div style="
                 position: relative;
-                top: -20px;
+                top: -10px;
                 margin-left: 30px;
-                font-size:22px;
+                font-size:19px;
                 font-family: 'Arial Bold';
                 font-weight:normal;
                 color:#333;
@@ -1973,41 +2217,51 @@ if page == "UK":
             unsafe_allow_html=True
         )
 
-        # Filter data by selected date range
+        # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
 
-        # Dynamic Titles
+        # -------- Dynamic Titles --------
         titles = {
-            "Interest Rate": "Bank of Japan Policy Rate",
-            "Inflation Rate": "CPI YoY (%)",
-            "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
+            "Interest Rate": "Bank of England Policy Rate (%)",
+            "CPI YoY": "Consumer Price Index (YoY, %)",
+            "GDP Growth Rate": "GDP Growth Rate (QoQ Annualized %)",
             "Unemployment Rate": "Unemployment Rate (%)"
         }
 
-        # Detect if quarterly data
+        # Detect quarterly data
         quarterly = (date_format == "quarterly")
 
-        # Plot chart with delta hover (same as FX tab)
+        # -------- Plot Chart --------
+        delta_type_arg = None if delta_type == "Off" else delta_type.lower()
+        hover_style = "delta" if delta_type_arg is not None else "none"
+
         fig = plot_chart(
             df_filtered,
             titles[indicator],
             chart_type,
-            hover_style="delta",
-            delta_type=delta_type.lower(),
+            hover_style=hover_style,
+            delta_type=delta_type_arg,
             date_format="quarterly" if quarterly else date_format,
             tickformat_override=tickformat_override,
             show_markers=False
         )
 
-        # For quarterly charts, show only Q4 labels
         if quarterly:
             tickvals = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date']
             ticktext = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date'] \
                 .dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
             fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
 
-        # Display chart with clean modebar
+        fig.update_layout(
+            hoverlabel=dict(
+                font_size=13,
+                font_color="black",
+                font_family="Arial"
+            )
+        )
+
+        # -------- Display Chart --------
         st.plotly_chart(
             fig,
             use_container_width=True,
@@ -2027,64 +2281,70 @@ if page == "UK":
             file_name=f"UK_{indicator.replace(' ', '_')}_data.csv",
             mime="text/csv"
         )
+
         
 # -------- EURO Tab --------
 if page == "EURO":
-    col1, col2 = st.columns([1, 5])
+    col1, col2 = st.columns([1.5, 5])
 
     with col1:
         st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
 
-        # Dropdowns
-        indicator = st.selectbox("Select Indicator", [
-            "Interest Rate",
-            "Inflation Rate",
-            "GDP Growth Rate",
-            "Unemployment Rate"
-        ])
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        # -------- Indicator Groups --------
+        indicator_groups = {
+            "Labor Market": ["Unemployment Rate"],
+            "Growth": ["GDP Growth Rate"],
+            "Inflation": ["CPI YoY"],
+            "Monetary Policy": ["Interest Rate"]
+        }
 
-        # Toggle for delta type
-        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+        # Category dropdown
+        category = st.selectbox("Select Category", list(indicator_groups.keys()))
 
-        # Load data based on indicator
-        if indicator == "Interest Rate":
-            df = get_euro_interest_rate_data()
-            date_format = "daily"
-            tickformat_override = "%b %Y"
-        elif indicator == "Inflation Rate":
-            df = get_euro_cpi_yoy_data()
-            date_format = "monthly"
-            tickformat_override = None
-        elif indicator == "GDP Growth Rate":
-            df = get_euro_gdp_qoq_data()
-            date_format = "quarterly"
-            df['tick_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
-            tickformat_override = None
-        elif indicator == "Unemployment Rate":
-            df = get_euro_unemployment_rate_data()
-            date_format = "monthly"
-            tickformat_override = None
+        # Indicator dropdown based on category
+        indicator = st.selectbox("Select Indicator", indicator_groups[category])
 
+        # -------- Chart Type + Timeframe side by side --------
+        ct_col, tf_col = st.columns(2)
+        with ct_col:
+            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        with tf_col:
+            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        # Delta Type (allow turning it off)
+        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
+
+        # -------- Indicator Function Mapping --------
+        indicator_map = {
+            "Interest Rate": (get_euro_interest_rate_data, "daily", "%b %Y"),
+            "CPI YoY": (get_euro_cpi_yoy_data, "monthly", None),
+            "GDP Growth Rate": (get_euro_gdp_qoq_data, "quarterly", None),
+            "Unemployment Rate": (get_euro_unemployment_rate_data, "monthly", None)
+        }
+
+        # Load data dynamically
+        func, date_format, tickformat_override = indicator_map[indicator]
+        df = func()
         df = df.dropna()
         if df.empty:
             st.error("No data available.")
             st.stop()
 
-        # -------- Time Frame Selector --------
+        # -------- Time Frame Logic --------
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
-
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
             default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
         else:
             default_start_date = earliest_date
 
-        # Date inputs
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        # -------- Start & End Dates side by side --------
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        with date_col2:
+            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
 
         if start_date > end_date:
             st.warning("Start date cannot be after end date.")
@@ -2093,22 +2353,41 @@ if page == "EURO":
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        # Commentary for each indicator
+        # -------- Commentary --------
         commentary = {
-            "Interest Rate": "The Federal Funds Rate reflects U.S. monetary policy stance and impacts global markets.",
-            "Inflation Rate": "The CPI YoY measures U.S. inflation and influences Fed interest rate decisions.",
-            "GDP Growth Rate": "Real GDP growth captures the pace of U.S. economic expansion or contraction.",
-            "Unemployment Rate": "The unemployment rate is a key measure of labor market health in the U.S. economy."
+            # Monetary Policy
+            "Interest Rate": (
+                "The European Central Bank (ECB) policy rate is the benchmark interest rate set by the ECB. "
+                "It directly affects short-term borrowing costs for banks, which influences loans, mortgages, and business investment across the Eurozone. "
+                "Changes in the ECB rate are closely watched by global markets as signals of monetary tightening or easing."
+            ),
+
+            # Inflation
+            "CPI YoY": (
+                "The Consumer Price Index (CPI YoY) tracks the annual percentage change in the cost of a representative basket of goods and services in the Euro area. "
+                "It is a primary measure of inflation and informs ECB monetary policy, wage negotiations, and investment strategies."
+            ),
+
+            # Growth
+            "GDP Growth Rate": (
+                "The GDP Growth Rate measures how fast the Eurozone economy is expanding or contracting. "
+                "It reflects trends in consumption, investment, government spending, and trade among member countries."
+            ),
+
+            # Labor Market
+            "Unemployment Rate": (
+                "The unemployment rate represents the percentage of the labor force in the Eurozone actively seeking work but currently without a job. "
+                "It is a key indicator of labor market health, affecting consumer spending, social policies, and economic planning."
+            )
         }
 
-        # Display commentary above chart
         st.markdown(
             f"""
             <div style="
                 position: relative;
-                top: -20px;
+                top: -10px;
                 margin-left: 30px;
-                font-size:22px;
+                font-size:19px;
                 font-family: 'Arial Bold';
                 font-weight:normal;
                 color:#333;
@@ -2119,41 +2398,51 @@ if page == "EURO":
             unsafe_allow_html=True
         )
 
-        # Filter data by selected date range
+        # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
 
-        # Dynamic Titles
+        # -------- Dynamic Titles --------
         titles = {
-            "Interest Rate": "Bank of Japan Policy Rate",
-            "Inflation Rate": "CPI YoY (%)",
-            "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized %)",
+            "Interest Rate": "ECB Policy Rate (%)",
+            "CPI YoY": "Consumer Price Index (YoY, %)",
+            "GDP Growth Rate": "GDP Growth Rate (QoQ Annualized %)",
             "Unemployment Rate": "Unemployment Rate (%)"
         }
 
-        # Detect if quarterly data
+        # Detect quarterly data
         quarterly = (date_format == "quarterly")
 
-        # Plot chart with delta hover (same as FX tab)
+        # -------- Plot Chart --------
+        delta_type_arg = None if delta_type == "Off" else delta_type.lower()
+        hover_style = "delta" if delta_type_arg is not None else "none"
+
         fig = plot_chart(
             df_filtered,
             titles[indicator],
             chart_type,
-            hover_style="delta",
-            delta_type=delta_type.lower(),
+            hover_style=hover_style,
+            delta_type=delta_type_arg,
             date_format="quarterly" if quarterly else date_format,
             tickformat_override=tickformat_override,
             show_markers=False
         )
 
-        # For quarterly charts, show only Q4 labels
         if quarterly:
             tickvals = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date']
             ticktext = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date'] \
                 .dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
             fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
 
-        # Display chart with clean modebar
+        fig.update_layout(
+            hoverlabel=dict(
+                font_size=13,
+                font_color="black",
+                font_family="Arial"
+            )
+        )
+
+        # -------- Display Chart --------
         st.plotly_chart(
             fig,
             use_container_width=True,
@@ -2173,35 +2462,60 @@ if page == "EURO":
             file_name=f"Euro_{indicator.replace(' ', '_')}_data.csv",
             mime="text/csv"
         )
+
         
 # -------- FX Rates Tab --------
 if page == "FX Rates":
-    
-    col1, col2 = st.columns([1, 5])
+
+    col1, col2 = st.columns([1.5, 5])
 
     with col1:
         st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
 
-        # Select indicator and chart type
-        indicator = st.selectbox("Select Indicator", [
-            "EUR/USD", "GBP/USD", "USD/JPY", "EUR/GBP", "EUR/JPY", "GBP/JPY", "DXY"
-        ])
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
-
-        # Toggle for delta type
-        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
-
-        # Map indicator to Yahoo ticker and chart title
-        fx_tickers = {
-            "EUR/USD": ("EURUSD=X", "EUR/USD"),
-            "GBP/USD": ("GBPUSD=X", "GBP/USD"),
-            "USD/JPY": ("USDJPY=X", "USD/JPY"),
-            "EUR/GBP": ("EURGBP=X", "EUR/GBP"),
-            "EUR/JPY": ("EURJPY=X", "EUR/JPY"),
-            "GBP/JPY": ("GBPJPY=X", "GBP/JPY"),
-            "DXY":     ("DX-Y.NYB", "DXY")    
+        # -------- Indicator Groups (Major vs Minor FX) --------
+        indicator_groups = {
+            "Major Pairs": ["EUR/USD", "GBP/USD", "USD/JPY", "DXY"],
+            "Cross Pairs": ["EUR/GBP", "EUR/JPY", "GBP/JPY"]
         }
-        ticker, title = fx_tickers[indicator]
+
+        # Category dropdown
+        category = st.selectbox("Select Category", list(indicator_groups.keys()))
+
+        # Indicator dropdown based on category
+        indicator = st.selectbox("Select Currency Pair", indicator_groups[category])
+
+        # -------- Chart Type + Timeframe side by side --------
+        ct_col, tf_col = st.columns(2)
+        with ct_col:
+            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        with tf_col:
+            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        # Delta Type (allow turning it off)
+        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
+
+        # -------- FX Mapping --------
+        fx_tickers = {
+            "EUR/USD": "EURUSD=X",
+            "GBP/USD": "GBPUSD=X",
+            "USD/JPY": "USDJPY=X",
+            "EUR/GBP": "EURGBP=X",
+            "EUR/JPY": "EURJPY=X",
+            "GBP/JPY": "GBPJPY=X",
+            "DXY": "DX-Y.NYB"
+        }
+        title_map = {
+            "EUR/USD": "EUR/USD",
+            "GBP/USD": "GBP/USD",
+            "USD/JPY": "USD/JPY",
+            "EUR/GBP": "EUR/GBP",
+            "EUR/JPY": "EUR/JPY",
+            "GBP/JPY": "GBP/JPY",
+            "DXY": "DXY"
+        }
+
+        ticker = fx_tickers[indicator]
+        title = title_map[indicator]
 
         # Load FX data
         df = get_fx_data_yahoo(ticker, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
@@ -2210,48 +2524,79 @@ if page == "FX Rates":
             st.error("No data available.")
             st.stop()
 
-        # Time frame selector
+        # -------- Time Frame Logic --------
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
             default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
         else:
             default_start_date = earliest_date
 
-        # Date inputs
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        # Start & End Dates side by side
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        with date_col2:
+            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
         if start_date > end_date:
-            st.warning("Start date must be before end date.")
+            st.warning("Start date cannot be after end date.")
             st.stop()
 
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        # Commentary for each indicator
+        # -------- Commentary --------
         commentary = {
-            "EUR/USD": "The EUR/USD has seen recent gains due mainly to the expectation of the Fed cutting interest rates.",
-            "GBP/USD": "The GBP/USD has been influenced by UK economic data and Bank of England rate expectations.",
-            "USD/JPY": "The USD/JPY remains sensitive to changes in U.S. Treasury yields and risk sentiment.",
-            "EUR/GBP": "The EUR/GBP reflects diverging monetary policy outlooks between the ECB and BoE.",
-            "EUR/JPY": "The EUR/JPY is driven by ECB policy signals and broader risk appetite.",
-            "GBP/JPY": "The GBP/JPY has been volatile due to risk sentiment and differences in monetary policy.",
-            "DXY":     "The DXY index reflects overall USD strength, reacting strongly to Fed policy expectations."
+            # Major FX Pairs
+            "EUR/USD": (
+                "The EUR/USD currency pair reflects the relative economic performance, interest rate expectations, and monetary policy outlooks of the Eurozone versus the U.S. "
+                "Movements are influenced by ECB and Federal Reserve decisions, economic data releases, and global risk sentiment."
+            ),
+
+            "GBP/USD": (
+                "The GBP/USD pair is influenced by UK economic indicators, Bank of England policy decisions, and U.S. economic conditions. "
+                "It often reacts to interest rate differentials, inflation data, and political developments in both regions."
+            ),
+
+            "USD/JPY": (
+                "The USD/JPY pair is sensitive to U.S. Treasury yields, Bank of Japan policy, and global risk sentiment. "
+                "It is often used as a proxy for risk appetite, with the yen typically strengthening in periods of market uncertainty."
+            ),
+
+            "EUR/GBP": (
+                "The EUR/GBP reflects diverging economic conditions and monetary policy outlooks between the Eurozone and the UK. "
+                "It is influenced by interest rate expectations, trade developments, and relative growth trends."
+            ),
+
+            "EUR/JPY": (
+                "The EUR/JPY pair is driven by differences in ECB and BoJ monetary policy, as well as global risk appetite. "
+                "It tends to rise when the euro strengthens or global risk sentiment improves, and fall during market uncertainty."
+            ),
+
+            "GBP/JPY": (
+                "The GBP/JPY is highly sensitive to global risk sentiment and monetary policy differences between the UK and Japan. "
+                "It is often used as a barometer for risk-on or risk-off market conditions."
+            ),
+
+            "DXY": (
+                "The DXY (U.S. Dollar Index) measures the overall strength of the USD against a basket of major currencies. "
+                "It reacts to U.S. interest rate expectations, economic data, geopolitical developments, and global risk sentiment."
+            )
         }
 
-        # Display commentary above chart
+
         st.markdown(
             f"""
             <div style="
                 position: relative;
-                top: -20px;
+                top: -10px;
                 margin-left: 30px;
-                font-size:22px;
+                font-size:19px;
                 font-family: 'Arial Bold';
                 font-weight:normal;
-                color:#333;
+                color:#333';
             ">
                 {commentary.get(indicator, "")}
             </div>
@@ -2259,35 +2604,45 @@ if page == "FX Rates":
             unsafe_allow_html=True
         )
 
-        # Filter data by selected date range
-        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
+        # Filter by selected dates
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
 
-        # Detect if quarterly data
+        # Detect quarterly data
         quarterly = False
         if df_filtered.shape[0] > 1:
             avg_days = (df_filtered['date'].diff().dropna().dt.days.mean())
-            if avg_days >= 80:  # ~quarter
+            if avg_days >= 80:
                 quarterly = True
 
-        # Plot chart with Bloomberg-style delta hover, no markers
+        # Plot chart
+        delta_type_arg = None if delta_type == "Off" else delta_type.lower()
+        hover_style = "delta" if delta_type_arg is not None else "none"
+
         fig = plot_chart(
             df_filtered,
             title,
             chart_type,
-            hover_style="delta",
-            delta_type=delta_type.lower(),
+            hover_style=hover_style,
+            delta_type=delta_type_arg,
             date_format="quarterly" if quarterly else "daily",
             show_markers=False
         )
 
-        # For quarterly charts, show only Q4 labels
         if quarterly:
             tickvals = df_filtered[df_filtered['date'].dt.quarter == 4]['date']
             ticktext = df_filtered[df_filtered['date'].dt.quarter == 4].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
             fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
 
-        # Display chart with clean modebar
+        fig.update_layout(
+            hoverlabel=dict(
+                font_size=13,
+                font_color="black",
+                font_family="Arial"
+            )
+        )
+
+        # -------- Display Chart --------
         st.plotly_chart(
             fig,
             use_container_width=True,
@@ -2299,7 +2654,7 @@ if page == "FX Rates":
             }
         )
 
-        # --------------------- CSV Download (original) ---------------------
+        # -------- CSV Download --------
         csv_data = df_filtered.to_csv(index=False)
         st.download_button(
             label="📥 Download CSV",
@@ -2307,9 +2662,8 @@ if page == "FX Rates":
             file_name=f"{indicator.replace('/', '-')}_data.csv",
             mime="text/csv"
         )
-        
 
-        
+
 # ==============================
 # 📊 COMPARE TAB (Enhanced Hover + Delta Type + Bold Axis + Black Lines)
 # ==============================
@@ -2596,9 +2950,6 @@ if page == "Compare":
         unify_axis = same_group and group1 not in ["FX", "Equities", "Stocks", "Commodities", "Crypto"]
 
 
-        import numpy as np
-        import pandas as pd
-
         # --------------------------
         # Calculate delta safely
         # --------------------------
@@ -2624,7 +2975,7 @@ if page == "Compare":
         # --------------------------
         # Plotting
         # --------------------------
-        import plotly.graph_objects as go
+        
 
         fig = go.Figure()
 
@@ -2710,12 +3061,8 @@ if page == "Compare":
         )
 
 
-
-
-
 # -------- Economic Calendar Tab --------
 if page == "Calendar":
-    import calendar
 
     st.header("📅 Economic Calendar")
 
@@ -2826,22 +3173,36 @@ if page == "Calendar":
  
 # -------- Equities Tab --------
 if page == "Equities":
-    
-    col1, col2 = st.columns([1, 5])
+    col1, col2 = st.columns([1.5, 5])
 
     with col1:
         st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
 
-        # Select indicator and chart type
-        indicator = st.selectbox("Select Indicator", [
-            "S&P 500", "NASDAQ", "Dow Jones", "FTSE 100", "Nikkei 225", "DAX", "MSCI Emerging Markets ETF", "VIX"
-        ])
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        # -------- Indicator Groups --------
+        indicator_groups = {
+            "US": ["S&P 500", "NASDAQ", "Dow Jones", "VIX"],
+            "Europe": ["FTSE 100", "DAX"],
+            "Asia": ["Nikkei 225"],
+            "ETFs": ["MSCI Emerging Markets ETF"]
+        }
 
-        # Toggle for delta type
-        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+        # Category dropdown
+        category = st.selectbox("Select Category", list(indicator_groups.keys()))
 
-        # Map indicator to Yahoo ticker and chart title
+        # Indicator dropdown based on category
+        indicator = st.selectbox("Select Indicator", indicator_groups[category])
+
+        # -------- Chart Type + Timeframe side by side --------
+        ct_col, tf_col = st.columns(2)
+        with ct_col:
+            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        with tf_col:
+            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        # Delta Type (allow turning it off)
+        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
+
+        # -------- Indicator Mapping --------
         equities_tickers = {
             "S&P 500": ("^GSPC", "S&P 500"),
             "NASDAQ": ("^IXIC", "NASDAQ"),
@@ -2849,31 +3210,33 @@ if page == "Equities":
             "FTSE 100": ("^FTSE", "FTSE 100"),
             "Nikkei 225": ("^N225", "Nikkei 225"),
             "DAX": ("^GDAXI", "DAX"),
-            "MSCI Emerging Markets ETF":     ("EEM", "MSCI Emerging Markets ETF"),
+            "MSCI Emerging Markets ETF": ("EEM", "MSCI Emerging Markets ETF"),
             "VIX": ("^VIX", "VIX")
         }
         ticker, title = equities_tickers[indicator]
 
-        # Load FX data
+        # Load data
         df = get_fx_data_yahoo(ticker, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
         df = df.dropna()
         if df.empty:
             st.error("No data available.")
             st.stop()
 
-        # Time frame selector
+        # -------- Time Frame Logic --------
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
             default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
         else:
             default_start_date = earliest_date
 
-        # Date inputs
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        # -------- Start & End Dates side by side --------
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        with date_col2:
+            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
         if start_date > end_date:
             st.warning("Start date must be before end date.")
             st.stop()
@@ -2881,25 +3244,62 @@ if page == "Equities":
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        # Commentary for each indicator
+        # -------- Commentary --------
         commentary = {
-            "EUR/USD": "The EUR/USD has seen recent gains due mainly to the expectation of the Fed cutting interest rates.",
-            "GBP/USD": "The GBP/USD has been influenced by UK economic data and Bank of England rate expectations.",
-            "USD/JPY": "The USD/JPY remains sensitive to changes in U.S. Treasury yields and risk sentiment.",
-            "EUR/GBP": "The EUR/GBP reflects diverging monetary policy outlooks between the ECB and BoE.",
-            "EUR/JPY": "The EUR/JPY is driven by ECB policy signals and broader risk appetite.",
-            "GBP/JPY": "The GBP/JPY has been volatile due to risk sentiment and differences in monetary policy.",
-            "DXY":     "The DXY index reflects overall USD strength, reacting strongly to Fed policy expectations."
+            # U.S. Equities
+            "S&P 500": (
+                "The S&P 500 tracks the performance of 500 large-cap U.S. companies across various sectors. "
+                "It is a key benchmark for the overall health of the U.S. equity market and is widely used for portfolio performance comparison."
+            ),
+
+            "NASDAQ": (
+                "The NASDAQ Composite is a tech-heavy index representing stocks listed on the NASDAQ exchange. "
+                "It is sensitive to technology sector trends, innovation cycles, and growth-oriented investor sentiment."
+            ),
+
+            "Dow Jones": (
+                "The Dow Jones Industrial Average tracks 30 large U.S. industrial and blue-chip companies. "
+                "It is often used as a barometer of U.S. corporate and economic performance, particularly for established firms."
+            ),
+
+            # UK Equities
+            "FTSE 100": (
+                "The FTSE 100 represents the 100 largest UK companies by market capitalization. "
+                "It provides insight into the performance of the UK’s blue-chip sector and is influenced by domestic economic data and global market trends."
+            ),
+
+            # Japan & Europe Equities
+            "Nikkei 225": (
+                "The Nikkei 225 tracks 225 leading Japanese companies listed on the Tokyo Stock Exchange. "
+                "It reflects Japan’s equity market performance and is influenced by domestic economic conditions, corporate earnings, and global trade."
+            ),
+
+            "DAX": (
+                "The DAX tracks 40 major German companies listed on the Frankfurt Stock Exchange. "
+                "It serves as a key indicator of German corporate and economic health and is sensitive to Eurozone economic developments."
+            ),
+
+            # Emerging Markets
+            "MSCI Emerging Markets ETF": (
+                "This ETF tracks equities in emerging market countries, providing broad exposure to developing economies. "
+                "Performance is influenced by global growth trends, commodity prices, and investor risk appetite."
+            ),
+
+            # Volatility
+            "VIX": (
+                "The VIX, or Volatility Index, measures the market’s expectations of near-term volatility in the S&P 500. "
+                "It is often referred to as the 'fear gauge,' rising during periods of uncertainty or market stress."
+            )
         }
 
-        # Display commentary above chart
+
         st.markdown(
             f"""
             <div style="
                 position: relative;
-                top: -20px;
+                top: -10px;
                 margin-left: 30px;
-                font-size:22px;
+                font-size:19px;
                 font-family: 'Arial Bold';
                 font-weight:normal;
                 color:#333;
@@ -2910,35 +3310,45 @@ if page == "Equities":
             unsafe_allow_html=True
         )
 
-        # Filter data by selected date range
-        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
+        # -------- Filter Data by Date --------
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
 
-        # Detect if quarterly data
+        # Detect quarterly data
         quarterly = False
         if df_filtered.shape[0] > 1:
             avg_days = (df_filtered['date'].diff().dropna().dt.days.mean())
             if avg_days >= 80:  # ~quarter
                 quarterly = True
 
-        # Plot chart with Bloomberg-style delta hover, no markers
+        # -------- Plot Chart --------
+        delta_type_arg = None if delta_type == "Off" else delta_type.lower()
+        hover_style = "delta" if delta_type_arg is not None else "none"
+
         fig = plot_chart(
             df_filtered,
             title,
             chart_type,
-            hover_style="delta",
-            delta_type=delta_type.lower(),
+            hover_style=hover_style,
+            delta_type=delta_type_arg,
             date_format="quarterly" if quarterly else "daily",
             show_markers=False
         )
 
-        # For quarterly charts, show only Q4 labels
         if quarterly:
             tickvals = df_filtered[df_filtered['date'].dt.quarter == 4]['date']
             ticktext = df_filtered[df_filtered['date'].dt.quarter == 4].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
             fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
 
-        # Display chart with clean modebar
+        fig.update_layout(
+            hoverlabel=dict(
+                font_size=13,
+                font_color="black",
+                font_family="Arial"
+            )
+        )
+
+        # -------- Display Chart --------
         st.plotly_chart(
             fig,
             use_container_width=True,
@@ -2950,7 +3360,7 @@ if page == "Equities":
             }
         )
 
-        # --------------------- CSV Download (original) ---------------------
+        # -------- CSV Download --------
         csv_data = df_filtered.to_csv(index=False)
         st.download_button(
             label="📥 Download CSV",
@@ -2958,6 +3368,7 @@ if page == "Equities":
             file_name=f"{indicator.replace('/', '-')}_data.csv",
             mime="text/csv"
         )
+
         
 # -------- Stocks Tab --------
 if page == "Stocks":
@@ -2998,7 +3409,7 @@ if page == "Stocks":
         # Time frame selector
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+        timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
             default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
@@ -3017,13 +3428,40 @@ if page == "Stocks":
     with col2:
         # Commentary for each indicator
         commentary = {
-            "EUR/USD": "The EUR/USD has seen recent gains due mainly to the expectation of the Fed cutting interest rates.",
-            "GBP/USD": "The GBP/USD has been influenced by UK economic data and Bank of England rate expectations.",
-            "USD/JPY": "The USD/JPY remains sensitive to changes in U.S. Treasury yields and risk sentiment.",
-            "EUR/GBP": "The EUR/GBP reflects diverging monetary policy outlooks between the ECB and BoE.",
-            "EUR/JPY": "The EUR/JPY is driven by ECB policy signals and broader risk appetite.",
-            "GBP/JPY": "The GBP/JPY has been volatile due to risk sentiment and differences in monetary policy.",
-            "DXY":     "The DXY index reflects overall USD strength, reacting strongly to Fed policy expectations."
+            "Apple": (
+                "Apple Inc. is a leading technology company known for its consumer electronics, software, and services, including the iPhone, Mac, and App Store. "
+                "Its stock performance is influenced by product launches, innovation cycles, global consumer demand, and supply chain dynamics."
+            ),
+
+            "Amazon": (
+                "Amazon.com Inc. is a global e-commerce and cloud computing leader. "
+                "Its equity is sensitive to online retail trends, Amazon Web Services growth, consumer spending, and regulatory developments."
+            ),
+
+            "Meta": (
+                "Meta Platforms Inc. (formerly Facebook) operates leading social media platforms, including Facebook, Instagram, and WhatsApp. "
+                "Its performance is driven by advertising revenue, user engagement metrics, and developments in virtual/augmented reality."
+            ),
+
+            "Alphabet (Google)": (
+                "Alphabet Inc., the parent company of Google, dominates global online search, digital advertising, and cloud computing. "
+                "Its stock reacts to ad revenue trends, regulatory scrutiny, innovation in AI and cloud services, and overall internet usage growth."
+            ),
+
+            "Nvidia": (
+                "Nvidia Corporation specializes in graphics processing units (GPUs) and AI computing technologies. "
+                "Its stock is highly influenced by demand in gaming, AI, data centers, and broader semiconductor industry trends."
+            ),
+
+            "Microsoft": (
+                "Microsoft Corporation is a leading technology company offering software, cloud computing, and hardware products. "
+                "Key drivers include Windows and Office adoption, Azure cloud growth, enterprise demand, and AI integration."
+            ),
+
+            "Tesla": (
+                "Tesla Inc. is a leading electric vehicle and clean energy company. "
+                "Its stock performance is influenced by EV production and deliveries, technological innovation, regulatory incentives, and global adoption of sustainable energy solutions."
+            )
         }
 
         # Display commentary above chart
@@ -3095,81 +3533,140 @@ if page == "Stocks":
         
 # -------- Commodities Tab --------
 if page == "Commodities":
-    
-    col1, col2 = st.columns([1, 5])
+    col1, col2 = st.columns([1.5, 5])
 
     with col1:
         st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
 
-        # Select indicator and chart type
-        indicator = st.selectbox("Select Indicator", [
-            "Gold", "Silver", "Crude Oil (WTI)", "Brent Oil", "Natural Gas", "Wheat", "Copper", "Corn", "Soybeans"
-        ])
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
-
-        # Toggle for delta type
-        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
-
-        # Map indicator to Yahoo ticker and chart title
-        commodities_tickers = {
-            "Gold": ("GC=F", "Gold"),
-            "Silver": ("SI=F", "Silver"),
-            "Crude Oil (WTI)": ("CL=F", "Crude Oil (WTI)"),
-            "Brent Oil": ("BZ=F", "Brent Oil"),
-            "Natural Gas": ("NG=F", "Natural Gas"),
-            "Wheat": ("ZW=F", "Wheat"),
-            "Copper":     ("HG=F", "Copper"),
-            "Corn":     ("ZC=F", "Corn"),
-            "Soybeans":     ("ZS=F", "Soybeans")
+        # -------- Indicator Groups --------
+        indicator_groups = {
+            "Energy": ["Crude Oil", "Natural Gas", "Brent Oil"],
+            "Metals": ["Gold", "Silver", "Copper"],
+            "Agriculture": ["Wheat", "Corn", "Soybeans"]
         }
-        ticker, title = commodities_tickers[indicator]
 
-        # Load FX data
-        df = get_fx_data_yahoo(ticker, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
+        # Category dropdown
+        category = st.selectbox("Select Category", list(indicator_groups.keys()))
+
+        # Indicator dropdown based on category
+        indicator = st.selectbox("Select Indicator", indicator_groups[category])
+
+        # -------- Chart Type + Timeframe side by side --------
+        ct_col, tf_col = st.columns(2)
+        with ct_col:
+            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        with tf_col:
+            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        # Delta Type (allow turning it off)
+        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
+
+        # -------- Indicator Function Mapping --------
+      
+        indicator_map = {
+            "Crude Oil": (lambda: get_fx_data_yahoo("CL=F"), "daily", None),
+            "Natural Gas": (lambda: get_fx_data_yahoo("NG=F"), "daily", None),
+            "Brent Oil": (lambda: get_fx_data_yahoo("BZ=F"), "daily", None),
+            "Gold": (lambda: get_fx_data_yahoo("GC=F"), "daily", None),
+            "Silver": (lambda: get_fx_data_yahoo("SI=F"), "daily", None),
+            "Copper": (lambda: get_fx_data_yahoo("HG=F"), "daily", None),
+            "Wheat": (lambda: get_fx_data_yahoo("ZW=F"), "daily", None),
+            "Corn": (lambda: get_fx_data_yahoo("ZC=F"), "daily", None),
+            "Soybeans": (lambda: get_fx_data_yahoo("ZS=F"), "daily", None)
+        }
+
+
+        # Load data dynamically
+        func, date_format, tickformat_override = indicator_map[indicator]
+        df = func()
         df = df.dropna()
         if df.empty:
             st.error("No data available.")
             st.stop()
 
-        # Time frame selector
+        # -------- Time Frame Logic --------
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
             default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
         else:
             default_start_date = earliest_date
 
-        # Date inputs
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        # -------- Start & End Dates side by side --------
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        with date_col2:
+            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
         if start_date > end_date:
-            st.warning("Start date must be before end date.")
+            st.warning("Start date cannot be after end date.")
             st.stop()
 
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        # Commentary for each indicator
+        # -------- Commentary --------
         commentary = {
-            "EUR/USD": "The EUR/USD has seen recent gains due mainly to the expectation of the Fed cutting interest rates.",
-            "GBP/USD": "The GBP/USD has been influenced by UK economic data and Bank of England rate expectations.",
-            "USD/JPY": "The USD/JPY remains sensitive to changes in U.S. Treasury yields and risk sentiment.",
-            "EUR/GBP": "The EUR/GBP reflects diverging monetary policy outlooks between the ECB and BoE.",
-            "EUR/JPY": "The EUR/JPY is driven by ECB policy signals and broader risk appetite.",
-            "GBP/JPY": "The GBP/JPY has been volatile due to risk sentiment and differences in monetary policy.",
-            "DXY":     "The DXY index reflects overall USD strength, reacting strongly to Fed policy expectations."
+            # Energy Commodities
+            "Crude Oil": (
+                "Crude oil prices reflect global supply and demand dynamics, OPEC production decisions, and geopolitical risks. "
+                "They are influenced by global economic growth, inventory levels, and disruptions in major producing regions."
+            ),
+
+            "Natural Gas": (
+                "Natural gas prices are sensitive to weather patterns, seasonal heating/cooling demand, storage levels, and energy consumption trends. "
+                "They are also influenced by pipeline infrastructure, liquefied natural gas (LNG) exports, and policy regulations."
+            ),
+
+            "Brent Oil": (
+                "Brent crude oil is a major international benchmark, reflecting global oil market trends. "
+                "It is influenced by production in Europe, Africa, and the Middle East, as well as global demand forecasts."
+            ),
+
+            # Precious Metals
+            "Gold": (
+                "Gold is a safe-haven asset that reacts to inflation expectations, USD strength, interest rates, and geopolitical uncertainty. "
+                "It is widely used for portfolio hedging and wealth preservation."
+            ),
+
+            "Silver": (
+                "Silver serves both as an industrial metal and a store of value. "
+                "Its price is influenced by industrial demand, investor sentiment, and monetary policy conditions."
+            ),
+
+            # Industrial Metals
+            "Copper": (
+                "Copper is a key industrial metal whose price reflects global manufacturing activity and economic growth. "
+                "It is sensitive to construction, infrastructure demand, and supply disruptions in major producing countries."
+            ),
+
+            # Agricultural Commodities
+            "Wheat": (
+                "Wheat prices respond to global crop yields, weather conditions, planting and harvesting cycles, and international demand. "
+                "They are also affected by export policies and geopolitical events impacting major wheat-producing countries."
+            ),
+
+            "Corn": (
+                "Corn prices are influenced by planting and harvest cycles, ethanol production demand, livestock feed requirements, and weather conditions. "
+                "Global trade policies and U.S. crop reports play a key role in price fluctuations."
+            ),
+
+            "Soybeans": (
+                "Soybean prices track agricultural supply, global consumption, and trade policies. "
+                "They are impacted by crop yields, weather events, biofuel demand, and geopolitical developments affecting major exporters."
+            )
         }
 
-        # Display commentary above chart
+
         st.markdown(
             f"""
             <div style="
                 position: relative;
-                top: -20px;
+                top: -10px;
                 margin-left: 30px;
-                font-size:22px;
+                font-size:19px;
                 font-family: 'Arial Bold';
                 font-weight:normal;
                 color:#333;
@@ -3180,35 +3677,46 @@ if page == "Commodities":
             unsafe_allow_html=True
         )
 
-        # Filter data by selected date range
-        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
+        # -------- Filter Data by Date --------
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
 
-        # Detect if quarterly data
+        # Detect if quarterly data (rare for commodities)
         quarterly = False
         if df_filtered.shape[0] > 1:
             avg_days = (df_filtered['date'].diff().dropna().dt.days.mean())
-            if avg_days >= 80:  # ~quarter
+            if avg_days >= 80:
                 quarterly = True
 
-        # Plot chart with Bloomberg-style delta hover, no markers
+        # -------- Plot Chart --------
+        delta_type_arg = None if delta_type == "Off" else delta_type.lower()
+        hover_style = "delta" if delta_type_arg is not None else "none"
+
         fig = plot_chart(
             df_filtered,
-            title,
+            indicator,
             chart_type,
-            hover_style="delta",
-            delta_type=delta_type.lower(),
-            date_format="quarterly" if quarterly else "daily",
+            hover_style=hover_style,
+            delta_type=delta_type_arg,
+            date_format="quarterly" if quarterly else date_format,
+            tickformat_override=tickformat_override,
             show_markers=False
         )
 
-        # For quarterly charts, show only Q4 labels
         if quarterly:
             tickvals = df_filtered[df_filtered['date'].dt.quarter == 4]['date']
             ticktext = df_filtered[df_filtered['date'].dt.quarter == 4].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
             fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
 
-        # Display chart with clean modebar
+        fig.update_layout(
+            hoverlabel=dict(
+                font_size=13,
+                font_color="black",
+                font_family="Arial"
+            )
+        )
+
+        # -------- Display Chart --------
         st.plotly_chart(
             fig,
             use_container_width=True,
@@ -3220,34 +3728,49 @@ if page == "Commodities":
             }
         )
 
-        # --------------------- CSV Download (original) ---------------------
+        # -------- CSV Download --------
         csv_data = df_filtered.to_csv(index=False)
         st.download_button(
             label="📥 Download CSV",
             data=csv_data,
-            file_name=f"{indicator.replace('/', '-')}_data.csv",
+            file_name=f"Commodities_{indicator.replace(' ', '_')}_data.csv",
             mime="text/csv"
         )
+
         
 # -------- Bonds Tab --------
 if page == "Bonds":
-    
-    col1, col2 = st.columns([1, 5])
+    col1, col2 = st.columns([1.5, 5])
 
     with col1:
         st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
 
-        # Select indicator and chart type
-        indicator = st.selectbox("Select Indicator", [
-            "US 2Y", "US 10Y", "UK 2Y", "UK 10Y", "Japan 2Y", "Japan 10Y", "Euro 2Y", "Euro 10Y"
-        ])
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        # -------- Bond Categories --------
+        bond_groups = {
+            "US Treasuries": ["US 2Y", "US 10Y"],
+            "UK Gilts": ["UK 2Y", "UK 10Y"],
+            "Japan JGBs": ["Japan 2Y", "Japan 10Y"],
+            "Euro Bonds": ["Euro 2Y", "Euro 10Y"]
+        }
 
-        # Toggle for delta type
-        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+        # Category dropdown
+        category = st.selectbox("Select Country/Group", list(bond_groups.keys()))
 
-        # Map indicator to Yahoo ticker and chart title
-        bonds_data_funcs = {
+        # Indicator dropdown based on category
+        indicator = st.selectbox("Select Bond", bond_groups[category])
+
+        # -------- Chart Type + Time Frame side by side --------
+        ct_col, tf_col = st.columns(2)
+        with ct_col:
+            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        with tf_col:
+            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        # Delta Type (allow turning it off)
+        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
+
+        # -------- Bond Indicator Mapping --------
+        bond_map = {
             "US 2Y": (get_usa_2yr_yield_data, "US 2-Year Treasury Yield"),
             "US 10Y": (get_usa_10yr_yield_data, "US 10-Year Treasury Yield"),
             "UK 2Y": (get_uk_2yr_yield_data, "UK 2-Year Gilt Yield"),
@@ -3257,28 +3780,32 @@ if page == "Bonds":
             "Euro 2Y": (get_euro_2yr_yield_data, "Euro 2-Year Yield"),
             "Euro 10Y": (get_euro_10yr_yield_data, "Euro 10-Year Yield")
         }
-        data_func, title = bonds_data_funcs[indicator]
 
-        # Load FX data
-        df = data_func()  # calls get_usa_2yr_yield_data, get_uk_10yr_yield_data, etc.
+        data_func, title = bond_map[indicator]
+
+        # Load bond data
+        df = data_func()
         df = df.dropna()
         if df.empty:
             st.error("No data available.")
             st.stop()
 
-        # Time frame selector
+        # -------- Time Frame Logic --------
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
             default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
         else:
             default_start_date = earliest_date
 
-        # Date inputs
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        # -------- Start & End Dates side by side --------
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        with date_col2:
+            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
         if start_date > end_date:
             st.warning("Start date must be before end date.")
             st.stop()
@@ -3286,25 +3813,61 @@ if page == "Bonds":
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        # Commentary for each indicator
+        # -------- Commentary --------
         commentary = {
-            "EUR/USD": "The EUR/USD has seen recent gains due mainly to the expectation of the Fed cutting interest rates.",
-            "GBP/USD": "The GBP/USD has been influenced by UK economic data and Bank of England rate expectations.",
-            "USD/JPY": "The USD/JPY remains sensitive to changes in U.S. Treasury yields and risk sentiment.",
-            "EUR/GBP": "The EUR/GBP reflects diverging monetary policy outlooks between the ECB and BoE.",
-            "EUR/JPY": "The EUR/JPY is driven by ECB policy signals and broader risk appetite.",
-            "GBP/JPY": "The GBP/JPY has been volatile due to risk sentiment and differences in monetary policy.",
-            "DXY":     "The DXY index reflects overall USD strength, reacting strongly to Fed policy expectations."
+            # U.S. Treasuries
+            "US 2Y": (
+                "The US 2-Year Treasury yield reflects short-term interest rate expectations and Federal Reserve policy guidance. "
+                "It is highly sensitive to Fed rate changes, inflation data, and economic forecasts, serving as a barometer for near-term monetary policy."
+            ),
+
+            "US 10Y": (
+                "The US 10-Year Treasury yield signals long-term growth and inflation expectations in the U.S. economy. "
+                "It is influenced by economic data, Federal Reserve policy, and investor sentiment regarding future inflation and fiscal policy."
+            ),
+
+            # UK Gilts
+            "UK 2Y": (
+                "The UK 2-Year Gilt yield responds primarily to Bank of England policy guidance and short-term rate expectations. "
+                "It reflects market sentiment on near-term monetary policy and economic conditions in the UK."
+            ),
+
+            "UK 10Y": (
+                "The UK 10-Year Gilt yield indicates long-term expectations for inflation, growth, and fiscal stability. "
+                "It is influenced by government borrowing, economic data, and Bank of England policy signals."
+            ),
+
+            # Japan Government Bonds
+            "Japan 2Y": (
+                "The Japan 2-Year JGB yield tracks short-term expectations for Bank of Japan policy. "
+                "It is closely tied to BoJ rate guidance, domestic economic conditions, and market sentiment."
+            ),
+
+            "Japan 10Y": (
+                "The Japan 10-Year JGB yield reflects long-term growth and inflation expectations in Japan. "
+                "It is influenced by BoJ policy, government debt issuance, and global economic trends."
+            ),
+
+            # Eurozone Bonds
+            "Euro 2Y": (
+                "The Euro 2-Year government bond yield reflects ECB policy signals and short-term interest rate expectations across the Eurozone. "
+                "It is sensitive to ECB guidance, inflation data, and economic activity."
+            ),
+
+            "Euro 10Y": (
+                "The Euro 10-Year government bond yield signals long-term growth and inflation expectations in the Eurozone. "
+                "It is influenced by fiscal policies, ECB strategy, and investor demand for euro-denominated debt."
+            )
         }
 
-        # Display commentary above chart
+
         st.markdown(
             f"""
             <div style="
                 position: relative;
-                top: -20px;
+                top: -10px;
                 margin-left: 30px;
-                font-size:22px;
+                font-size:19px;
                 font-family: 'Arial Bold';
                 font-weight:normal;
                 color:#333;
@@ -3315,35 +3878,45 @@ if page == "Bonds":
             unsafe_allow_html=True
         )
 
-        # Filter data by selected date range
-        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
+        # -------- Filter Data by Date --------
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
 
-        # Detect if quarterly data
+        # Detect quarterly data
         quarterly = False
         if df_filtered.shape[0] > 1:
-            avg_days = (df_filtered['date'].diff().dropna().dt.days.mean())
+            avg_days = df_filtered['date'].diff().dropna().dt.days.mean()
             if avg_days >= 80:  # ~quarter
                 quarterly = True
 
-        # Plot chart with Bloomberg-style delta hover, no markers
+        # -------- Plot Chart --------
+        delta_type_arg = None if delta_type == "Off" else delta_type.lower()
+        hover_style = "delta" if delta_type_arg is not None else "none"
+
         fig = plot_chart(
             df_filtered,
             title,
             chart_type,
-            hover_style="delta",
-            delta_type=delta_type.lower(),
+            hover_style=hover_style,
+            delta_type=delta_type_arg,
             date_format="quarterly" if quarterly else "daily",
             show_markers=False
         )
 
-        # For quarterly charts, show only Q4 labels
         if quarterly:
             tickvals = df_filtered[df_filtered['date'].dt.quarter == 4]['date']
             ticktext = df_filtered[df_filtered['date'].dt.quarter == 4].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
             fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
 
-        # Display chart with clean modebar
+        fig.update_layout(
+            hoverlabel=dict(
+                font_size=13,
+                font_color="black",
+                font_family="Arial"
+            )
+        )
+
+        # -------- Display Chart --------
         st.plotly_chart(
             fig,
             use_container_width=True,
@@ -3355,86 +3928,102 @@ if page == "Bonds":
             }
         )
 
-        # --------------------- CSV Download (original) ---------------------
+        # -------- CSV Download --------
         csv_data = df_filtered.to_csv(index=False)
         st.download_button(
             label="📥 Download CSV",
             data=csv_data,
-            file_name=f"{indicator.replace('/', '-')}_data.csv",
+            file_name=f"Bonds_{indicator.replace(' ', '_')}_data.csv",
             mime="text/csv"
         )
+
      
 # -------- Crypto Tab --------
 if page == "Crypto":
-    
-    col1, col2 = st.columns([1, 5])
+    col1, col2 = st.columns([1.5, 5])
 
     with col1:
         st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
 
-        # Select indicator and chart type
-        indicator = st.selectbox("Select Indicator", [
-            "Bitcoin", "Ethereum"
-        ])
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
-
-        # Toggle for delta type
-        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
-
-        # Map indicator to Yahoo ticker and chart title
-        crypto_tickers = {
-            "Bitcoin": ("BTC-USD", "Bitcoin"),
-            "Ethereum": ("ETH-USD", "Ethereum"),
-   
+        # -------- Indicator Groups --------
+        indicator_groups = {
+            "Major Coins": ["Bitcoin", "Ethereum"]
         }
-        ticker, title = crypto_tickers[indicator]
 
-        # Load FX data
-        df = get_fx_data_yahoo(ticker, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
+        # Category dropdown
+        category = st.selectbox("Select Category", list(indicator_groups.keys()))
+
+        # Indicator dropdown based on category
+        indicator = st.selectbox("Select Indicator", indicator_groups[category])
+
+        # -------- Chart Type + Timeframe side by side --------
+        ct_col, tf_col = st.columns(2)
+        with ct_col:
+            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        with tf_col:
+            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+
+        # Delta Type (allow turning it off)
+        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
+
+        # -------- Indicator Function Mapping --------
+        crypto_map = {
+            "Bitcoin": ("BTC-USD", "Bitcoin"),
+            "Ethereum": ("ETH-USD", "Ethereum")
+        }
+        ticker, title = crypto_map[indicator]
+
+        # Load crypto data
+        df = get_fx_data_yahoo(ticker, start_date=dt.date(2010, 1, 1), end_date=dt.date.today())
         df = df.dropna()
         if df.empty:
             st.error("No data available.")
             st.stop()
 
-        # Time frame selector
+        # -------- Time Frame Logic --------
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
             default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
         else:
             default_start_date = earliest_date
 
-        # Date inputs
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        # -------- Start & End Dates side by side --------
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        with date_col2:
+            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
         if start_date > end_date:
-            st.warning("Start date must be before end date.")
+            st.warning("Start date cannot be after end date.")
             st.stop()
 
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        # Commentary for each indicator
+        # -------- Commentary --------
         commentary = {
-            "EUR/USD": "The EUR/USD has seen recent gains due mainly to the expectation of the Fed cutting interest rates.",
-            "GBP/USD": "The GBP/USD has been influenced by UK economic data and Bank of England rate expectations.",
-            "USD/JPY": "The USD/JPY remains sensitive to changes in U.S. Treasury yields and risk sentiment.",
-            "EUR/GBP": "The EUR/GBP reflects diverging monetary policy outlooks between the ECB and BoE.",
-            "EUR/JPY": "The EUR/JPY is driven by ECB policy signals and broader risk appetite.",
-            "GBP/JPY": "The GBP/JPY has been volatile due to risk sentiment and differences in monetary policy.",
-            "DXY":     "The DXY index reflects overall USD strength, reacting strongly to Fed policy expectations."
+            "Bitcoin": (
+                "Bitcoin is the largest cryptocurrency by market capitalization and is often considered 'digital gold.' "
+                "Its price is influenced by investor sentiment, adoption trends, regulatory developments, macroeconomic conditions, and supply-demand dynamics of its fixed supply."
+            ),
+
+            "Ethereum": (
+                "Ethereum is the leading smart contract platform, enabling decentralized applications (dApps), decentralized finance (DeFi), and NFTs. "
+                "Its value is driven by network activity, adoption of dApps, technological upgrades, gas fees, and overall crypto market sentiment."
+            )
         }
 
-        # Display commentary above chart
+
         st.markdown(
             f"""
             <div style="
                 position: relative;
-                top: -20px;
+                top: -10px;
                 margin-left: 30px;
-                font-size:22px;
+                font-size:19px;
                 font-family: 'Arial Bold';
                 font-weight:normal;
                 color:#333;
@@ -3445,35 +4034,28 @@ if page == "Crypto":
             unsafe_allow_html=True
         )
 
-        # Filter data by selected date range
-        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
+        # -------- Filter Data by Date --------
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
 
-        # Detect if quarterly data
+        # Detect if quarterly data (optional for crypto, usually daily)
         quarterly = False
-        if df_filtered.shape[0] > 1:
-            avg_days = (df_filtered['date'].diff().dropna().dt.days.mean())
-            if avg_days >= 80:  # ~quarter
-                quarterly = True
 
-        # Plot chart with Bloomberg-style delta hover, no markers
+        # -------- Plot Chart --------
+        delta_type_arg = None if delta_type == "Off" else delta_type.lower()
+        hover_style = "delta" if delta_type_arg is not None else "none"
+
         fig = plot_chart(
             df_filtered,
             title,
             chart_type,
-            hover_style="delta",
-            delta_type=delta_type.lower(),
-            date_format="quarterly" if quarterly else "daily",
+            hover_style=hover_style,
+            delta_type=delta_type_arg,
+            date_format="daily",
             show_markers=False
         )
 
-        # For quarterly charts, show only Q4 labels
-        if quarterly:
-            tickvals = df_filtered[df_filtered['date'].dt.quarter == 4]['date']
-            ticktext = df_filtered[df_filtered['date'].dt.quarter == 4].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
-            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
-
-        # Display chart with clean modebar
+        # Display chart
         st.plotly_chart(
             fig,
             use_container_width=True,
@@ -3485,145 +4067,134 @@ if page == "Crypto":
             }
         )
 
-        # --------------------- CSV Download (original) ---------------------
+        # -------- CSV Download --------
         csv_data = df_filtered.to_csv(index=False)
         st.download_button(
             label="📥 Download CSV",
             data=csv_data,
-            file_name=f"{indicator.replace('/', '-')}_data.csv",
+            file_name=f"{indicator.replace(' ', '_')}_data.csv",
             mime="text/csv"
         )
+
        
 # -------- Yield Curve Tab --------
 if page == "Yield Curve":
 
-    col1, col2 = st.columns([1, 5])
+    col1, col2 = st.columns([1.5, 5])
 
     with col1:
         st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
 
-        # Select country
+        # -------- Country Selection --------
         country = st.selectbox("Select Country", ["US", "UK", "Japan", "Euro"])
 
-        # Delta type
-        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+        # -------- Chart Type + Timeframe side by side --------
+        ct_col, tf_col = st.columns(2)
+        with ct_col:
+            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+        with tf_col:
+            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
 
-        # Map country to all yield data functions
+        # -------- Delta Type --------
+        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
+
+        # -------- Maturity Functions --------
         yield_funcs = {
-            "US": {
-                "1M": get_usa_1mo_yield_data,
-                "3M": get_usa_3mo_yield_data,
-                "6M": get_usa_6mo_yield_data,
-                "1Y": get_usa_1yr_yield_data,
-                "2Y": get_usa_2yr_yield_data,
-                "3Y": get_usa_3yr_yield_data,
-                "5Y": get_usa_5yr_yield_data,
-                "7Y": get_usa_7yr_yield_data,
-                "10Y": get_usa_10yr_yield_data,
-                "20Y": get_usa_20yr_yield_data,
-                "30Y": get_usa_30yr_yield_data
-            },
-            "UK": {
-                "2Y": get_uk_2yr_yield_data,
-                "10Y": get_uk_10yr_yield_data
-            },
-            "Japan": {
-                "2Y": get_japan_2yr_yield_data,
-                "10Y": get_japan_10yr_yield_data
-            },
-            "Euro": {
-                "2Y": get_euro_2yr_yield_data,
-                "10Y": get_euro_10yr_yield_data
-            }
+            "US": {"1M": get_usa_1mo_yield_data, "3M": get_usa_3mo_yield_data, "6M": get_usa_6mo_yield_data,
+                   "1Y": get_usa_1yr_yield_data, "2Y": get_usa_2yr_yield_data, "3Y": get_usa_3yr_yield_data,
+                   "5Y": get_usa_5yr_yield_data, "7Y": get_usa_7yr_yield_data, "10Y": get_usa_10yr_yield_data,
+                   "20Y": get_usa_20yr_yield_data, "30Y": get_usa_30yr_yield_data},
+            "UK": {"2Y": get_uk_2yr_yield_data, "10Y": get_uk_10yr_yield_data},
+            "Japan": {"2Y": get_japan_2yr_yield_data, "10Y": get_japan_10yr_yield_data},
+            "Euro": {"2Y": get_euro_2yr_yield_data, "10Y": get_euro_10yr_yield_data}
         }
 
-        # Sort maturities numerically for safe selection
+        # Sort maturities numerically
         def maturity_to_months(m):
-            if m.endswith("M"):
-                return int(m[:-1])
-            elif m.endswith("Y"):
-                return int(m[:-1]) * 12
-            return 0
+            return int(m[:-1]) * 12 if m.endswith("Y") else int(m[:-1])
 
         maturities = sorted(list(yield_funcs[country].keys()), key=maturity_to_months)
 
-        # Default selections: Long=10Y, Short=2Y if available
+        # Default selections
         default_long = "10Y" if "10Y" in maturities else maturities[-1]
         default_short = "2Y" if "2Y" in maturities else maturities[0]
 
-        # Select short-term maturity first
-        maturity_short = st.selectbox("Short-term Maturity", maturities, index=maturities.index(default_short))
+        maturity_short = st.selectbox("Short-term Maturity", maturities,
+                                      index=maturities.index(default_short))
 
-        # Filter long-term options to be strictly larger than short-term
         long_options = [m for m in maturities if maturity_to_months(m) > maturity_to_months(maturity_short)]
         if not long_options:
-            long_options = [maturity_short]  # fallback
-        maturity_long = st.selectbox("Long-term Maturity", long_options, index=long_options.index(default_long) if default_long in long_options else 0)
+            long_options = [maturity_short]
+        maturity_long = st.selectbox("Long-term Maturity", long_options,
+                                     index=long_options.index(default_long) if default_long in long_options else 0)
 
-        # Load data
+        # -------- Load Data --------
         df_long = yield_funcs[country][maturity_long]().dropna().rename(columns={'value': f'yield_{maturity_long}'})
         df_short = yield_funcs[country][maturity_short]().dropna().rename(columns={'value': f'yield_{maturity_short}'})
-
-        # Merge on date
         df = pd.merge(df_long, df_short, on='date')
         df['spread'] = df[f'yield_{maturity_long}'] - df[f'yield_{maturity_short}']
 
-        # Time frame selector
+        # -------- Time Frame Logic --------
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        timeframe = st.selectbox("**Time Frame**", ["1Y", "3Y", "5Y", "10Y", "MAX"])
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
             default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
         else:
             default_start_date = earliest_date
 
-        # Date inputs
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        # -------- Start & End Dates side by side --------
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        with date_col2:
+            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
         if start_date > end_date:
-            st.warning("Start date must be before end date.")
+            st.warning("Start date cannot be after end date.")
             st.stop()
 
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        # Commentary
+        # -------- Commentary --------
+        commentary = f"{country} {maturity_long}-{maturity_short} spread indicates yield curve shape and market expectations."
         st.markdown(
             f"""
             <div style="
                 position: relative;
-                top: -20px;
+                top: -10px;
                 margin-left: 30px;
-                font-size:22px;
+                font-size:19px;
                 font-family: 'Arial Bold';
                 font-weight:normal;
                 color:#333;
             ">
-                {country} {maturity_long}-{maturity_short} spread indicates yield curve shape and market expectations.
+                {commentary}
             </div>
             """,
             unsafe_allow_html=True
         )
 
-        # Filter by selected date range
+        # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
-
-        # Prepare DataFrame for plotting
         df_plot = df_filtered[['date', 'spread']].rename(columns={'spread': 'value'})
 
-        # Plot the spread
+        # -------- Plot Chart --------
+        delta_type_arg = None if delta_type == "Off" else delta_type.lower()
+        hover_style = "delta" if delta_type_arg else "none"
+
         fig = plot_chart(
             df_plot,
             title=f"{country} {maturity_long}-{maturity_short} Yield Spread",
-            chart_type="Line",
-            hover_style="delta",
-            delta_type=delta_type.lower(),
+            chart_type=chart_type,
+            hover_style=hover_style,
+            delta_type=delta_type_arg,
             date_format="daily",
             show_markers=False
         )
-        
+
         fig.add_hline(
             y=0,
             line=dict(color="black", width=3, dash="solid"),
@@ -3632,6 +4203,11 @@ if page == "Yield Curve":
             opacity=0.8
         )
 
+        fig.update_layout(
+            hoverlabel=dict(font_size=13, font_color="black", font_family="Arial")
+        )
+
+        # -------- Display Chart --------
         st.plotly_chart(
             fig,
             use_container_width=True,
@@ -3643,7 +4219,7 @@ if page == "Yield Curve":
             }
         )
 
-        # CSV Download
+        # -------- CSV Download --------
         csv_data = df_filtered.to_csv(index=False)
         st.download_button(
             label="📥 Download CSV",
@@ -3651,6 +4227,7 @@ if page == "Yield Curve":
             file_name=f"{country}_{maturity_long}-{maturity_short}_spread.csv",
             mime="text/csv"
         )
+
 
 
 # -------- Regime Yield Curve Tab (All Maturities + Line Chart Only) --------
@@ -3821,3 +4398,123 @@ if page == "Curve Regimes":
                                 "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
                                 "modeBarButtonsToRemove": ["lasso2d", "select2d"]})
 
+
+
+# -------- Analysis Tab --------
+if page == "Analysis":
+    st.title("📊 Macro Indicator Analysis")
+    st.markdown("Select an indicator to view statistical context (z-scores, percentiles, trends) and run scenario simulations.")
+
+    # --- Indicator Selection ---
+    indicator_map = {
+        "Interest Rate": get_usa_interest_rate_data,
+        "CPI YoY": get_usa_cpi_yoy_data,
+        "Core CPI YoY": get_usa_core_cpi_yoy_data,
+        "PCE YoY": get_usa_pce_yoy_data,
+        "Core PCE YoY": get_usa_core_pce_yoy_data,
+        "PPI YoY": get_usa_ppi_yoy_data,
+        "Core PPI YoY": get_usa_core_ppi_yoy_data,
+        "GDP Growth Rate": get_usa_gdp_qoq_data,
+        "Unemployment Rate": get_usa_unemployment_rate_data,
+        "Non Farm Payrolls": get_usa_nfp_data,
+        "Average Hourly Earnings YoY": get_usa_average_hourly_earnings_yoy_data,
+        "Retail Sales MoM": get_usa_retail_sales_mom_data,
+        "Housing Starts MoM": get_usa_housing_starts_mom_data,
+        "JOLTS Job Openings": get_usa_jolts_job_openings_data,
+        "ISM Manufacturing PMI": get_usa_ism_manufacturing_pmi_data,
+        "ISM Services PMI": get_usa_ism_services_pmi_data,
+        "Michigan Consumer Sentiment": get_usa_michigan_consumer_sentiment_data,
+        "Trade Balance": get_usa_trade_balance_data,
+    }
+
+    indicator = st.selectbox("Select Indicator", list(indicator_map.keys()))
+    df = indicator_map[indicator]()
+    df = df.dropna()
+    if df.empty:
+        st.error("No data available.")
+        st.stop()
+
+    # --- Analyze Historical Series ---
+    metrics = analyze_series(df)
+
+    st.subheader("Statistical Context")
+    st.write(f"Latest Value: **{metrics['latest_value']:.2f}**")
+    st.write(f"Historical Mean (since 2007): **{metrics['hist_mean']:.2f}**")
+    st.write(f"Standard Deviation: **{metrics['hist_std']:.2f}**")
+    st.write(f"Z-Score: **{metrics['z_score']:.2f}**")
+    st.write(f"Percentile Rank: **{metrics['percentile']:.1f}%**")
+    st.write(f"12-Period Trend Slope: **{metrics['trend_slope']:.4f}**")
+    st.caption(f"Based on {metrics['obs_count']} observations since {df['date'].min().date()}")
+
+    # --- Scenario Simulation ---
+    st.subheader("Scenario Simulation")
+    shock_type = st.radio("Shock Type", ["absolute", "percent"])
+    shock_value = st.number_input("Shock Value", value=1.0)
+    horizon = st.number_input("Projection Periods", min_value=1, max_value=36, value=12)
+
+    df_scenario = simulate_scenario(df, shock_value, shock_type, horizon)
+    st.line_chart(df_scenario.set_index("date")["value"])
+    st.write(f"Scenario applied to **{indicator}**: {shock_value} ({shock_type}) over {horizon} periods.")
+
+    # --- Optional: Compare historical vs scenario ---
+    st.subheader("Historical vs Scenario Comparison")
+    df_compare = df_scenario.copy()
+    df_compare["Series"] = ["Historical"] * len(df) + ["Scenario"] * (len(df_scenario) - len(df))
+    st.line_chart(df_compare.pivot(index="date", columns="Series", values="value"))
+
+# -------- Helper Functions --------
+def analyze_series(df: pd.DataFrame, window: int = 12):
+    if df.empty or "value" not in df.columns:
+        return {}
+
+    latest_value = df["value"].iloc[-1]
+    hist_mean = df["value"].mean()
+    hist_std = df["value"].std()
+    z_score = (latest_value - hist_mean) / hist_std if hist_std != 0 else np.nan
+    percentile = (df["value"] <= latest_value).mean() * 100
+
+    if len(df) >= window:
+        y = df["value"].iloc[-window:]
+        x = np.arange(len(y))
+        slope = np.polyfit(x, y, 1)[0]
+    else:
+        slope = np.nan
+
+    return {
+        "latest_value": latest_value,
+        "hist_mean": hist_mean,
+        "hist_std": hist_std,
+        "z_score": z_score,
+        "percentile": percentile,
+        "trend_slope": slope,
+        "obs_count": len(df)
+    }
+
+def simulate_scenario(df: pd.DataFrame, shock_value: float, shock_type: str = "absolute", periods: int = 12):
+    df_proj = df.copy()
+    last_value = df["value"].iloc[-1]
+
+    if shock_type == "absolute":
+        new_value = last_value + shock_value
+    elif shock_type == "percent":
+        new_value = last_value * (1 + shock_value / 100)
+    else:
+        raise ValueError("shock_type must be 'absolute' or 'percent'")
+
+    slope = 0
+    if len(df) >= 12:
+        y = df["value"].iloc[-12:]
+        x = np.arange(len(y))
+        slope = np.polyfit(x, y, 1)[0]
+
+    last_date = df["date"].iloc[-1]
+    future_dates = pd.date_range(start=last_date + pd.offsets.MonthBegin(1), periods=periods, freq='M')
+
+    proj_values = []
+    for i in range(periods):
+        val = new_value + slope * i
+        proj_values.append(val)
+
+    df_future = pd.DataFrame({"date": future_dates, "value": proj_values})
+    df_combined = pd.concat([df_proj, df_future], ignore_index=True)
+    return df_combined
