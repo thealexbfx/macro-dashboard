@@ -1563,44 +1563,58 @@ if page == "Home":
             <h2>🔍 What You Can Explore</h2>
             <div class="grid">
                 <div class="feature-box">
-                    <h3>📈 FX Rates</h3>
-                    <p>Live tracking of major currency pairs and the DXY index. Analyze trends and turning points across daily data.</p>
+                    <h3>🌍 Countries</h3>
+                    <p>Dive into economic data for the USA, Japan, UK, and Euro Area — interest rates, GDP, inflation, jobs, and more.</p>
                 </div>
                 <div class="feature-box">
-                    <h3>📊 Macroeconomic Indicators</h3>
-                    <p>From interest rates and inflation to GDP growth and unemployment — all organized by country, all in one place.</p>
+                    <h3>💹 Asset Classes</h3>
+                    <p>Track Equities, Bonds, Commodities, FX Rates, and Crypto — all in one place, with charts and comparisons.</p>
                 </div>
                 <div class="feature-box">
-                    <h3>⚖️ Cross-Compare</h3>
-                    <p>Want to compare U.S. CPI vs EUR/USD? 10Y yields vs GDP? Use the 'Compare' tab to overlay any indicators with dual axes.</p>
+                    <h3>📈 Yield Curve & Regimes</h3>
+                    <p>Visualize yield curves across countries, spot steepening/inverting regimes, and analyze market signals.</p>
                 </div>
                 <div class="feature-box">
-                    <h3>🧠 Built for Analysts</h3>
-                    <p>This isn't a toy. It's for traders, researchers, and macro enthusiasts who want clean data, fast insights, and real flexibility.</p>
+                    <h3>⚖️ Compare</h3>
+                    <p>Overlay any two indicators (e.g., U.S. CPI vs EUR/USD, 10Y yields vs GDP) with dual axes for deeper analysis.</p>
+                </div>
+                <div class="feature-box">
+                    <h3>📅 Calendar</h3>
+                    <p>Stay on top of daily global economic events — with impact levels clearly highlighted.</p>
+                </div>
+                <div class="feature-box">
+                    <h3>🧠 Analysis</h3>
+                    <p>Scenario simulations and commentary tools help you generate insights like an analyst, not just a chart watcher.</p>
                 </div>
             </div>
         </div>
 
+
         <div class="section">
             <h2>🚀 How to Use This Dashboard</h2>
             <ul>
-                <li><b>Select a country or FX tab</b> in the top bar to explore economic indicators</li>
-                <li><b>Choose your chart type</b> (Line, Area, Bar)</li>
-                <li><b>Adjust the date range</b> as needed — everything updates instantly</li>
-                <li><b>Use 'Compare'</b> to overlay different indicators on one chart with dual y-axes</li>
+                <li><b>Navigate using the top bar</b> — choose a <b>Country</b> (USA, Japan, UK, Euro Area) or an <b>Asset Class</b> (Equities, Bonds, Commodities, FX, Crypto).</li>
+                <li><b>Explore Yield Curves & Regimes</b> to analyze steepening, flattening, and inversion cycles across markets.</li>
+                <li><b>Use Compare</b> to overlay any two indicators with dual y-axes for deeper macro insights.</li>
+                <li><b>Check the Calendar</b> daily for upcoming economic events, sorted by impact level.</li>
+                <li><b>Dive into Analysis</b> for scenario simulations and commentary to support your trading or research ideas.</li>
+                <li><b>Adjust chart types and timeframes</b> as needed — everything updates instantly and interactively.</li>
             </ul>
         </div>
+
 
         <div class="section">
             <h2>📡 Data Sources</h2>
             <ul>
-                <li><b>USA:</b> Federal Reserve (FRED API)</li>
-                <li><b>Japan:</b> e-Stat Japan Government Portal</li>
-                <li><b>UK:</b> Bank of England, ONS</li>
-                <li><b>Euro Area:</b> ECB, Eurostat</li>
-                <li><b>FX:</b> Yahoo Finance</li>
+                <li><b>Asset Classes (Equities, Bonds, Commodities, FX, Crypto):</b> Yahoo Finance</li>
+                <li><b>U.S. Yield Curve Data:</b> Federal Reserve Economic Data (FRED)</li>
+                <li><b>Economic Indicators (USA, Japan, UK, Euro Area):</b> FXStreet + manually maintained datasets (updated daily)</li>
             </ul>
+            <p style="font-size:0.9rem; color:#555; margin-top:0.5rem;">
+                <i>Note: All data is updated daily. Some indicators are manually curated for accuracy and completeness.</i>
+            </p>
         </div>
+
 
         <div class="footer">
             <p>Built by <b>thealexbfx</b> • All data updates daily</p>
