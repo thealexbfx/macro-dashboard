@@ -4415,7 +4415,7 @@ if page == "Curve Regimes":
 
 
 # -------- Analysis Tab --------
-if page == "Analysis":
+### if page == "Analysis":
     st.title("📊 Macro Indicator Analysis")
     st.markdown("Select an indicator to view statistical context (z-scores, percentiles, trends) and run scenario simulations.")
 
