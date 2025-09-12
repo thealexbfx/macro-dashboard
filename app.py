@@ -1245,7 +1245,6 @@ st.markdown("""
         </div>
         <a href="?page=Compare" target="_self">Compare</a>
         <a href="?page=Calendar" target="_self">Calendar</a>
-        <a href="?page=Analysis" target="_self">Analysis</a>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -2692,9 +2691,22 @@ if page == "Compare":
             "USA": {
                 "Interest Rate": "usa_rate",
                 "CPI YoY %": "usa_cpi",
+                "Core CPI YoY": "usa_core_cpi",
                 "GDP QoQ %": "usa_gdp",
-                "Unemployment Rate": "usa_unemp"
-                
+                "Unemployment Rate": "usa_unemp",
+                "Average Hourly Earnings YoY": "usa_ahe",
+                "Core PCE YoY": "usa_core_pce",
+                "Core PPI YoY": "usa_core_ppi",
+                "Housing Starts MoM": "usa_housing",
+                "ISM Manufacturing PMI": "usa_ism_manu",
+                "ISM Services PMI": "usa_ism_serv",
+                "JOLTS Job Openings": "usa_jolts",
+                "Michigan Consumer Sentiment": "usa_michigan",
+                "Non Farm Payrolls": "usa_nfp",
+                "PCE YoY": "usa_pce",
+                "PPI YoY": "usa_ppi",
+                "Retail Sales MoM": "usa_retail",
+                "Trade Balance": "usa_trade"
             },
             "UK": {
                 "Interest Rate": "uk_rate",
@@ -2808,8 +2820,24 @@ if page == "Compare":
             # USA
             if code == "usa_rate": return get_usa_interest_rate_data()
             if code == "usa_cpi": return get_usa_cpi_yoy_data()
+            if code == "usa_core_cpi": return get_usa_core_cpi_yoy_data()
             if code == "usa_gdp": return get_usa_gdp_qoq_data()
             if code == "usa_unemp": return get_usa_unemployment_rate_data()
+            if code == "usa_ahe": return get_usa_average_hourly_earnings_yoy_data()
+            if code == "usa_core_pce": return get_usa_core_pce_yoy_data()
+            if code == "usa_core_ppi": return get_usa_core_ppi_yoy_data()
+            if code == "usa_housing": return get_usa_housing_starts_mom_data()
+            if code == "usa_ism_manu": return get_usa_ism_manufacturing_pmi_data()
+            if code == "usa_ism_serv": return get_usa_ism_services_pmi_data()
+            if code == "usa_jolts": return get_usa_jolts_job_openings_data()
+            if code == "usa_michigan": return get_usa_michigan_consumer_sentiment_data()
+            if code == "usa_nfp": return get_usa_nfp_data()
+            if code == "usa_pce": return get_usa_pce_yoy_data()
+            if code == "usa_ppi": return get_usa_ppi_yoy_data()
+            if code == "usa_retail": return get_usa_retail_sales_mom_data()
+            if code == "usa_trade": return get_usa_trade_balance_data()
+
+            # Yields
             if code == "usa_1m": return get_usa_1mo_yield_data()
             if code == "usa_3m": return get_usa_3mo_yield_data()
             if code == "usa_6m": return get_usa_6mo_yield_data()
@@ -2821,6 +2849,7 @@ if page == "Compare":
             if code == "usa_10y": return get_usa_10yr_yield_data()
             if code == "usa_20y": return get_usa_20yr_yield_data()
             if code == "usa_30y": return get_usa_30yr_yield_data()
+
 
             # UK
             if code == "uk_rate": return get_uk_interest_rate_data()
@@ -4532,3 +4561,93 @@ def simulate_scenario(df: pd.DataFrame, shock_value: float, shock_type: str = "a
     df_future = pd.DataFrame({"date": future_dates, "value": proj_values})
     df_combined = pd.concat([df_proj, df_future], ignore_index=True)
     return df_combined
+
+# -------- USA SAHM Rule Page --------
+##if page == "Recession Signals":
+    st.title("🇺🇸 USA – SAHM Recession Indicator")
+    st.markdown(
+        "The SAHM Rule triggers when the 3-month moving average of the unemployment rate rises **0.5% above its 12-month low**. "
+        "It has historically signaled every U.S. recession since 1970 with almost no false positives."
+    )
+
+    # Load data
+    def load_sahm_data():
+        df = get_usa_unemployment_rate_data()
+        df = df.sort_values("date")
+        df['date'] = pd.to_datetime(df['date'])
+
+        # 3-month rolling average
+        df['unemp_3m_avg'] = df['value'].rolling(3).mean()
+
+        # 12-month rolling minimum
+        df['sahm_trigger'] = df['unemp_3m_avg'] - df['unemp_3m_avg'].rolling(12).min()
+
+        # Flag >0.5%
+        df['recession_flag'] = df['sahm_trigger'] >= 0.5
+
+        df = df.dropna(subset=['sahm_trigger'])
+        return df
+
+    df = load_sahm_data()
+
+    # Timeframe selection
+    earliest_date = df['date'].min().date()
+    latest_date = df['date'].max().date()
+    start_date = st.date_input("Start Date", earliest_date, min_value=earliest_date, max_value=latest_date)
+    end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
+    if start_date > end_date:
+        st.warning("Start date cannot be after end date.")
+        st.stop()
+
+    df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
+
+    # Plotting
+    fig = go.Figure()
+
+    # SAHM Trigger line
+    fig.add_trace(go.Scatter(
+        x=df_filtered['date'],
+        y=df_filtered['sahm_trigger'],
+        mode='lines',
+        line=dict(color='blue', width=3),
+        name='SAHM Trigger (%)',
+        hovertemplate="%{x|%b %Y}: %{y:.2f}%<extra></extra>"
+    ))
+
+    # Shaded recession flag areas
+    for i, row in df_filtered.iterrows():
+        if row['recession_flag']:
+            fig.add_vrect(
+                x0=row['date'], x1=row['date'] + pd.Timedelta(days=30),
+                fillcolor="red", opacity=0.3, line_width=0
+            )
+
+    fig.update_layout(
+        title="SAHM Rule Indicator – US Recession Signal",
+        xaxis_title="Date",
+        yaxis_title="SAHM Trigger (%)",
+        template="plotly_white",
+        height=600,
+        font=dict(family="Arial", size=14)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Latest value summary
+    latest_sahm = df_filtered.iloc[-1]['sahm_trigger']
+    latest_flag = df_filtered.iloc[-1]['recession_flag']
+    st.markdown(f"**Latest SAHM Trigger:** {latest_sahm:.2f}%")
+    if latest_flag:
+        st.markdown("<span style='color:red; font-weight:bold;'>Recession signal active!</span>", unsafe_allow_html=True)
+    else:
+        st.markdown("<span style='color:green; font-weight:bold;'>No recession signal.</span>", unsafe_allow_html=True)
+
+    # CSV Download
+    csv_data = df_filtered.to_csv(index=False)
+    st.download_button(
+        label="📥 Download CSV",
+        data=csv_data,
+        file_name=f"USA_SAHM_Rule_{start_date}_{end_date}.csv",
+        mime="text/csv"
+    )
