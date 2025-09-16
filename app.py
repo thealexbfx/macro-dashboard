@@ -272,7 +272,8 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
                 )
 
     return fig
-
+    
+@st.cache_data
 def get_japan_interest_rate_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "Japan_Interest_Rate.txt")
@@ -296,7 +297,8 @@ def get_japan_interest_rate_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_japan_cpi_yoy_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "Japan_CPI_YoY.txt")
@@ -327,6 +329,7 @@ def get_japan_cpi_yoy_data():
 
     return df
     
+@st.cache_data    
 def get_japan_gdp_qoq_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "Japan_GDP_Growth_Rate_QoQ.txt")
@@ -363,6 +366,7 @@ def get_japan_gdp_qoq_data():
 
     return df
     
+@st.cache_data    
 def get_japan_unemployment_rate_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "Japan_Unemployment_Rate.txt")
@@ -392,7 +396,8 @@ def get_japan_unemployment_rate_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_japan_10yr_yield_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "Japan_10_Year_Yield.txt")
@@ -422,7 +427,8 @@ def get_japan_10yr_yield_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_japan_2yr_yield_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "Japan_2_Year_Yield.txt")
@@ -453,6 +459,7 @@ def get_japan_2yr_yield_data():
 
     return df
 
+@st.cache_data
 def get_uk_interest_rate_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "UK_Interest_Rate.txt")
@@ -476,7 +483,8 @@ def get_uk_interest_rate_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_uk_cpi_yoy_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "UK_CPI_YoY.txt")
@@ -506,7 +514,8 @@ def get_uk_cpi_yoy_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_uk_gdp_qoq_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "UK_GDP_Growth_Rate_QoQ.txt")
@@ -542,7 +551,8 @@ def get_uk_gdp_qoq_data():
     df = df.dropna(subset=["date", "value"]).sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_uk_unemployment_rate_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "UK_Unemployment_Rate.txt")
@@ -572,7 +582,8 @@ def get_uk_unemployment_rate_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_uk_10yr_yield_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "UK_10_Year_Yield.txt")
@@ -602,7 +613,8 @@ def get_uk_10yr_yield_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_uk_2yr_yield_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "UK_2_Year_Yield.txt")
@@ -632,7 +644,8 @@ def get_uk_2yr_yield_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_euro_interest_rate_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "EURO_Interest_Rate.txt")
@@ -656,7 +669,8 @@ def get_euro_interest_rate_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_euro_cpi_yoy_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "EURO_CPI_YoY.txt")
@@ -686,7 +700,8 @@ def get_euro_cpi_yoy_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_euro_gdp_qoq_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "EURO_GDP_Growth_Rate_QoQ.txt")
@@ -722,7 +737,8 @@ def get_euro_gdp_qoq_data():
     df = df.dropna(subset=["date", "value"]).sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_euro_unemployment_rate_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "EURO_Unemployment_Rate.txt")
@@ -752,7 +768,8 @@ def get_euro_unemployment_rate_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-   
+
+@st.cache_data   
 def get_euro_10yr_yield_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "EURO_10_Year_Yield.txt")
@@ -782,7 +799,8 @@ def get_euro_10yr_yield_data():
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-    
+
+@st.cache_data    
 def get_euro_2yr_yield_data():
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "EURO_2_Year_Yield.txt")
@@ -816,6 +834,7 @@ def get_euro_2yr_yield_data():
 # ---------------------------
 # Generic USA Data Loader
 # ---------------------------
+@st.cache_data
 def load_usa_data(file_name: str, freq: str = "monthly", date_format: str = "%B %Y"):
     """
     Generic function to load USA macro data from text files.
@@ -875,57 +894,58 @@ def load_usa_data(file_name: str, freq: str = "monthly", date_format: str = "%B 
 # ---------------------------
 # Indicator-Specific Wrappers
 # ---------------------------
+@st.cache_data
 def get_usa_interest_rate_data():
     return load_usa_data("USA_Interest_Rate.txt", freq="daily")
-
+@st.cache_data
 def get_usa_cpi_yoy_data():
     return load_usa_data("USA_CPI_YoY.txt", freq="monthly", date_format="%B %Y")
-
+@st.cache_data
 def get_usa_gdp_qoq_data():
     return load_usa_data("USA_GDP_Growth_Rate_QoQ.txt", freq="quarterly")
-
+@st.cache_data
 def get_usa_unemployment_rate_data():
     return load_usa_data("USA_Unemployment_Rate.txt", freq="monthly", date_format="%B %Y")
-
+@st.cache_data
 def get_usa_core_cpi_yoy_data():
     return load_usa_data("USA_Core_CPI_YoY.txt", freq="monthly", date_format="%B %Y")
-
+@st.cache_data
 def get_usa_average_hourly_earnings_yoy_data():
     return load_usa_data("USA_Average_Hourly_Earnings_YoY.txt", freq="monthly", date_format="%B %Y")
-
+@st.cache_data
 def get_usa_core_pce_yoy_data():
     return load_usa_data("USA_Core_PCE_YoY.txt", freq="monthly", date_format="%B %Y")
-
+@st.cache_data
 def get_usa_core_ppi_yoy_data():
     return load_usa_data("USA_Core_PPI_YoY.txt", freq="monthly", date_format="%B %Y")
-
+@st.cache_data
 def get_usa_housing_starts_mom_data():
     return load_usa_data("USA_Housing_Starts_MoM.txt", freq="monthly", date_format="%B %Y")
-
+@st.cache_data
 def get_usa_ism_manufacturing_pmi_data():
     return load_usa_data("USA_ISM_Manufacturing_PMI.txt", freq="monthly", date_format="%B %Y")
-    
+@st.cache_data    
 def get_usa_ism_services_pmi_data():
     return load_usa_data("USA_ISM_Services_PMI.txt", freq="monthly", date_format="%B %Y")
-
+@st.cache_data
 def get_usa_jolts_job_openings_data():
     return load_usa_data("USA_JOLTS_Job_Openings.txt", freq="monthly", date_format="%B %Y")
-
+@st.cache_data
 def get_usa_michigan_consumer_sentiment_data():
     return load_usa_data("USA_Michigan_Consumer_Sentiment_Index.txt", freq="monthly", date_format="%B %Y")
-    
+@st.cache_data    
 def get_usa_nfp_data():
     return load_usa_data("USA_NFP.txt", freq="monthly", date_format="%B %Y")
-    
+@st.cache_data    
 def get_usa_pce_yoy_data():
     return load_usa_data("USA_PCE_YoY.txt", freq="monthly", date_format="%B %Y")
-    
+@st.cache_data    
 def get_usa_ppi_yoy_data():
     return load_usa_data("USA_PPI_YoY.txt", freq="monthly", date_format="%B %Y")    
-    
+@st.cache_data   
 def get_usa_retail_sales_mom_data():
     return load_usa_data("USA_Retail_Sales_MoM.txt", freq="monthly", date_format="%B %Y")
-   
+@st.cache_data   
 def get_usa_trade_balance_data():
     return load_usa_data("USA_Trade_Balance.txt", freq="monthly", date_format="%B %Y")
     
@@ -938,7 +958,7 @@ FRED_API_KEY = "3be1b836ee6f78badf0f0a5a4905ab73"   # <- put your key here once
 # Yield Data Functions
 # ---------------------------
 
-
+@st.cache_data
 def get_usa_yield_data(series_id: str):
     """Generic function to fetch US Treasury yields from FRED by series_id."""
     url = "https://api.stlouisfed.org/fred/series/observations"
@@ -961,40 +981,41 @@ def get_usa_yield_data(series_id: str):
 # ---------------------------
 # Specific US Treasury Yields
 # ---------------------------
+@st.cache_data
 def get_usa_1mo_yield_data():
     return get_usa_yield_data("DGS1MO")
-
+@st.cache_data
 def get_usa_3mo_yield_data():
     return get_usa_yield_data("DGS3MO")
-
+@st.cache_data
 def get_usa_6mo_yield_data():
     return get_usa_yield_data("DGS6MO")
-
+@st.cache_data
 def get_usa_1yr_yield_data():
     return get_usa_yield_data("DGS1")
-
+@st.cache_data
 def get_usa_2yr_yield_data():
     return get_usa_yield_data("DGS2")
-
+@st.cache_data
 def get_usa_3yr_yield_data():
     return get_usa_yield_data("DGS3")
-
+@st.cache_data
 def get_usa_5yr_yield_data():
     return get_usa_yield_data("DGS5")
-
+@st.cache_data
 def get_usa_7yr_yield_data():
     return get_usa_yield_data("DGS7")
-
+@st.cache_data
 def get_usa_10yr_yield_data():
     return get_usa_yield_data("DGS10")
-
+@st.cache_data
 def get_usa_20yr_yield_data():
     return get_usa_yield_data("DGS20")
-
+@st.cache_data
 def get_usa_30yr_yield_data():
     return get_usa_yield_data("DGS30")
 
-
+@st.cache_data
 def get_fx_data_yahoo(ticker="GBPUSD=X", start_date=None, end_date=None):
     # Download historical daily data from yfinance
     data = yf.download(ticker, start=start_date, end=end_date, interval="1d", auto_adjust=False)
@@ -1016,7 +1037,8 @@ def get_fx_data_yahoo(ticker="GBPUSD=X", start_date=None, end_date=None):
 
     df = df.sort_values('date').reset_index(drop=True)
     return df
-
+    
+@st.cache_data
 def prepare_df(df: pd.DataFrame, label: str) -> pd.DataFrame:
     """Standardize DataFrame for Compare tab by ensuring 'Date' and 'Value_label'."""
     df = df.copy()
@@ -1245,6 +1267,7 @@ st.markdown("""
         </div>
         <a href="?page=Compare" target="_self">Compare</a>
         <a href="?page=Calendar" target="_self">Calendar</a>
+        <a href="?page=Cycle" target="_self">Cycle</a>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -4442,3 +4465,138 @@ if page == "Curve Regimes":
                                 "modeBarButtonsToRemove": ["lasso2d", "select2d"]})
 
 
+# -------- Economic Cycle Tab --------
+if page == "Cycle":
+    st.header("🌍 Global Economic Cycle Positioning")
+    st.write("""
+    This page shows where major economies (USA, UK, Euro Area, Japan) sit in the business cycle 
+    based on growth, inflation, unemployment, and policy data — mapped into the **macro seasons** 
+    (Spring, Summer, Fall, Winter) described by Jay Medrow.
+    """)
+
+    # ---- Helper: classify cycle ----
+    def classify_cycle(gdp_df, cpi_df, unemployment_df, rate_df):
+        gdp = analyze_series(gdp_df)
+        cpi = analyze_series(cpi_df)
+        unemp = analyze_series(unemployment_df)
+        rate = analyze_series(rate_df)
+
+        gdp_trend = gdp.get("trend_slope", 0)
+        inflation = cpi.get("latest_value", 0)
+        unemp_val = unemp.get("latest_value", 0)
+
+        # --- Macro Seasonal Rules ---
+        if gdp_trend > 0 and inflation <= 3:
+            return "Spring"   # Growth improving, inflation low/sideways
+        elif gdp_trend > 0 and inflation > 3:
+            return "Summer"   # Growth strong, inflation rising
+        elif gdp_trend < 0 and inflation > 3:
+            return "Fall"     # Growth weak, inflation sticky/stagflation
+        else:
+            return "Winter"   # Growth weak, inflation falling
+
+    # ---- Get positions for each country ----
+    positions = {}
+    positions["USA"] = classify_cycle(get_usa_gdp_qoq_data(), get_usa_cpi_yoy_data(),
+                                      get_usa_unemployment_rate_data(), get_usa_interest_rate_data())
+    positions["UK"] = classify_cycle(get_uk_gdp_qoq_data(), get_uk_cpi_yoy_data(),
+                                     get_uk_unemployment_rate_data(), get_uk_interest_rate_data())
+    positions["Euro Area"] = classify_cycle(get_euro_gdp_qoq_data(), get_euro_cpi_yoy_data(),
+                                            get_euro_unemployment_rate_data(), get_euro_interest_rate_data())
+    positions["Japan"] = classify_cycle(get_japan_gdp_qoq_data(), get_japan_cpi_yoy_data(),
+                                        get_japan_unemployment_rate_data(), get_japan_interest_rate_data())
+
+    # ---- Show table ----
+    cycle_df = pd.DataFrame({
+        "Country": list(positions.keys()),
+        "Macro Season": list(positions.values())
+    })
+    st.subheader("📋 Current Classification")
+    st.table(cycle_df)
+
+    # ---- Wave-style cycle chart ----
+    def build_cycle_wave(pos_dict):
+        import numpy as np
+
+        # Base sine wave (one cycle)
+        x = np.linspace(0, 2 * np.pi, 400)
+        y = np.sin(x)
+
+        fig = go.Figure()
+
+        # ---- Background Seasons ----
+        seasons = [
+            {"name": "Spring", "x0": 0, "x1": np.pi/2, "color": "rgba(144,238,144,0.15)"},   # light green
+            {"name": "Summer", "x0": np.pi/2, "x1": np.pi, "color": "rgba(255,215,0,0.15)"}, # gold
+            {"name": "Fall", "x0": np.pi, "x1": 3*np.pi/2, "color": "rgba(255,140,0,0.15)"}, # orange
+            {"name": "Winter", "x0": 3*np.pi/2, "x1": 2*np.pi, "color": "rgba(135,206,250,0.15)"} # light blue
+        ]
+
+        for s in seasons:
+            fig.add_vrect(
+                x0=s["x0"], x1=s["x1"], fillcolor=s["color"], opacity=0.3,
+                line_width=0, annotation_text=s["name"], annotation_position="top"
+            )
+
+        # ---- Business Cycle Wave ----
+        fig.add_trace(go.Scatter(x=x, y=y, mode="lines",
+                                 line=dict(color="black", width=3),
+                                 name="Business Cycle"))
+
+        # ---- Map phases to positions ----
+        mapping = {
+            "Spring": np.pi/4,      # mid Spring
+            "Summer": 3*np.pi/4,    # Summer top
+            "Fall": 5*np.pi/4,      # Fall
+            "Winter": 7*np.pi/4     # Winter bottom
+        }
+
+        # ---- Plot countries (avoid overlapping labels) ----
+        phase_counts = {}
+        for country, phase in pos_dict.items():
+            xpos = mapping.get(phase, 0)
+            ypos = np.sin(xpos)
+
+            # Count how many countries already in this phase
+            phase_counts[phase] = phase_counts.get(phase, 0) + 1
+            count = phase_counts[phase]
+
+            # Alternate label positions if multiple countries
+            text_pos = "top center" if count % 2 == 1 else "bottom center"
+
+            fig.add_trace(go.Scatter(
+                x=[xpos], y=[ypos],
+                mode="markers+text",
+                text=[country],
+                textposition=text_pos,
+                marker=dict(size=16, symbol="circle", color="red"),
+                name=country
+            ))
+
+        # ---- Layout ----
+        fig.update_layout(
+            title=dict(
+                text="🌍 Jay Medrow - Macro Investing<br><span style='font-size:16px;'>Market Seasons & Business Cycle</span>",
+                x=0.5, xanchor="center"
+            ),
+            xaxis=dict(
+                title="Economic Cycle (Seasons)",
+                tickvals=[0, np.pi/2, np.pi, 3*np.pi/2, 2*np.pi],
+                ticktext=["Start", "Spring", "Summer", "Fall", "Winter"],
+                showline=True, linewidth=2, linecolor="black", mirror=True
+            ),
+            yaxis=dict(
+                title="Economic Activity",
+                showline=True, linewidth=2, linecolor="black", mirror=True,
+                range=[-1.5, 1.5]
+            ),
+            height=550,
+            margin=dict(l=40, r=40, t=80, b=40),
+            showlegend=False
+        )
+
+        return fig
+
+    st.subheader("📊 Cycle Visualization")
+    fig = build_cycle_wave(positions)
+    st.plotly_chart(fig, use_container_width=True)
