@@ -4471,7 +4471,7 @@ if page == "Cycle":
     st.write("""
     This page shows where major economies (USA, UK, Euro Area, Japan) sit in the business cycle 
     based on growth, inflation, unemployment, and policy data — mapped into the **macro seasons** 
-    (Spring, Summer, Fall, Winter) described by Jay Medrow.
+    (Spring, Summer, Fall, Winter).
     """)
 
     # ---- Helper: classify cycle ----
@@ -4576,7 +4576,7 @@ if page == "Cycle":
         # ---- Layout ----
         fig.update_layout(
             title=dict(
-                text="🌍 Jay Medrow - Macro Investing<br><span style='font-size:16px;'>Market Seasons & Business Cycle</span>",
+                text="🌍 Macro Investing<br><span style='font-size:16px;'>Market Seasons & Business Cycle</span>",
                 x=0.5, xanchor="center"
             ),
             xaxis=dict(
