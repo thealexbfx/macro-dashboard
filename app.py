@@ -4465,57 +4465,95 @@ if page == "Curve Regimes":
                                 "modeBarButtonsToRemove": ["lasso2d", "select2d"]})
 
 
-# -------- Economic Cycle Tab --------
+# -------- USA Economic Cycle Tab --------
 if page == "Cycle":
-    st.header("🌍 Global Economic Cycle Positioning")
+    st.header("🇺🇸 US Economic Cycle Positioning")
     st.write("""
-    This page shows where major economies (USA, UK, Euro Area, Japan) sit in the business cycle 
-    based on growth, inflation, unemployment, and policy data — mapped into the **macro seasons** 
-    (Spring, Summer, Fall, Winter).
+    This page shows where the US economy sits in the business cycle 
+    based on growth, inflation, labor market, and financial indicators — 
+    mapped into the **macro seasons** (Spring, Summer, Fall, Winter).
     """)
 
-    # ---- Helper: classify cycle ----
-    def classify_cycle(gdp_df, cpi_df, unemployment_df, rate_df):
-        gdp = analyze_series(gdp_df)
-        cpi = analyze_series(cpi_df)
-        unemp = analyze_series(unemployment_df)
-        rate = analyze_series(rate_df)
+    # ---- Helper: analyze a series ----
+    def analyze_series(df, window=4):
+        if df is None or df.empty:
+            return {"latest_value": None, "trend_slope": None}
 
-        gdp_trend = gdp.get("trend_slope", 0)
-        inflation = cpi.get("latest_value", 0)
-        unemp_val = unemp.get("latest_value", 0)
+        df = df.dropna(subset=["value"])
+        latest_value = df["value"].iloc[-1]
 
-        # --- Macro Seasonal Rules ---
-        if gdp_trend > 0 and inflation <= 3:
-            return "Spring"   # Growth improving, inflation low/sideways
-        elif gdp_trend > 0 and inflation > 3:
-            return "Summer"   # Growth strong, inflation rising
-        elif gdp_trend < 0 and inflation > 3:
-            return "Fall"     # Growth weak, inflation sticky/stagflation
+        if len(df) >= window:
+            recent = df.tail(window)
+            x = np.arange(len(recent))
+            slope = np.polyfit(x, recent["value"], 1)[0]
         else:
-            return "Winter"   # Growth weak, inflation falling
+            slope = 0
 
-    # ---- Get positions for each country ----
-    positions = {}
-    positions["USA"] = classify_cycle(get_usa_gdp_qoq_data(), get_usa_cpi_yoy_data(),
-                                      get_usa_unemployment_rate_data(), get_usa_interest_rate_data())
-    positions["UK"] = classify_cycle(get_uk_gdp_qoq_data(), get_uk_cpi_yoy_data(),
-                                     get_uk_unemployment_rate_data(), get_uk_interest_rate_data())
-    positions["Euro Area"] = classify_cycle(get_euro_gdp_qoq_data(), get_euro_cpi_yoy_data(),
-                                            get_euro_unemployment_rate_data(), get_euro_interest_rate_data())
-    positions["Japan"] = classify_cycle(get_japan_gdp_qoq_data(), get_japan_cpi_yoy_data(),
-                                        get_japan_unemployment_rate_data(), get_japan_interest_rate_data())
+        return {"latest_value": latest_value, "trend_slope": slope}
 
-    # ---- Show table ----
-    cycle_df = pd.DataFrame({
-        "Country": list(positions.keys()),
-        "Macro Season": list(positions.values())
-    })
+    # ---- USA Cycle Classifier (score system) ----
+    def classify_usa_cycle():
+        # Core indicators
+        gdp = analyze_series(get_usa_gdp_qoq_data())
+        cpi = analyze_series(get_usa_cpi_yoy_data())
+        unemp = analyze_series(get_usa_unemployment_rate_data())
+        nfp = analyze_series(get_usa_nfp_data())
+        pmi = analyze_series(get_usa_ism_manufacturing_pmi_data())
+        yield2 = analyze_series(get_usa_2yr_yield_data())
+        yield10 = analyze_series(get_usa_10yr_yield_data())
+
+        # Extract values
+        gdp_trend = gdp["trend_slope"]
+        inflation = cpi["latest_value"]
+        unemp_val = unemp["latest_value"]
+        nfp_val = nfp["latest_value"]
+        pmi_val = pmi["latest_value"]
+        yc_spread = (yield10["latest_value"] - yield2["latest_value"]) if yield10["latest_value"] and yield2["latest_value"] else 0
+
+        # ---- Scoring ----
+        score = 0
+
+        # Growth
+        if gdp_trend and gdp_trend > 0: score += 1
+        else: score -= 1
+
+        # Inflation
+        if inflation and inflation > 3: score += 1   # overheating
+        elif inflation and inflation < 2: score -= 1 # disinflation
+
+        # Unemployment
+        if unemp_val and unemp_val < 5: score += 1
+        else: score -= 1
+
+        # Jobs (NFP)
+        if nfp_val and nfp_val > 100: score += 1
+        elif nfp_val and nfp_val < 0: score -= 1
+
+        # PMI
+        if pmi_val and pmi_val >= 50: score += 1
+        else: score -= 1
+
+        # Yield curve
+        if yc_spread and yc_spread < 0: score -= 1
+        else: score += 1
+
+        # ---- Map score to season ----
+        if score >= 3:
+            return "Summer"   # strong growth, inflation pressure
+        elif 1 <= score < 3:
+            return "Spring"   # recovery/expansion
+        elif -1 <= score < 1:
+            return "Fall"     # late cycle, stagflation risk
+        else:
+            return "Winter"   # contraction/recession
+
+    # ---- Get US Position ----
+    usa_position = classify_usa_cycle()
     st.subheader("📋 Current Classification")
-    st.table(cycle_df)
+    st.metric("USA Macro Season", usa_position)
 
     # ---- Wave-style cycle chart ----
-    def build_cycle_wave(pos_dict):
+    def build_cycle_wave(phase):
         import numpy as np
 
         # Base sine wave (one cycle)
@@ -4526,10 +4564,10 @@ if page == "Cycle":
 
         # ---- Background Seasons ----
         seasons = [
-            {"name": "Spring", "x0": 0, "x1": np.pi/2, "color": "rgba(144,238,144,0.15)"},   # light green
-            {"name": "Summer", "x0": np.pi/2, "x1": np.pi, "color": "rgba(255,215,0,0.15)"}, # gold
-            {"name": "Fall", "x0": np.pi, "x1": 3*np.pi/2, "color": "rgba(255,140,0,0.15)"}, # orange
-            {"name": "Winter", "x0": 3*np.pi/2, "x1": 2*np.pi, "color": "rgba(135,206,250,0.15)"} # light blue
+            {"name": "Spring", "x0": 0, "x1": np.pi/2, "color": "rgba(144,238,144,0.15)"},
+            {"name": "Summer", "x0": np.pi/2, "x1": np.pi, "color": "rgba(255,215,0,0.15)"},
+            {"name": "Fall", "x0": np.pi, "x1": 3*np.pi/2, "color": "rgba(255,140,0,0.15)"},
+            {"name": "Winter", "x0": 3*np.pi/2, "x1": 2*np.pi, "color": "rgba(135,206,250,0.15)"}
         ]
 
         for s in seasons:
@@ -4543,60 +4581,47 @@ if page == "Cycle":
                                  line=dict(color="black", width=3),
                                  name="Business Cycle"))
 
-        # ---- Map phases to positions ----
+        # ---- Map phase to position ----
         mapping = {
-            "Spring": np.pi/4,      # mid Spring
-            "Summer": 3*np.pi/4,    # Summer top
-            "Fall": 5*np.pi/4,      # Fall
-            "Winter": 7*np.pi/4     # Winter bottom
+            "Spring": np.pi/4,
+            "Summer": 3*np.pi/4,
+            "Fall": 5*np.pi/4,
+            "Winter": 7*np.pi/4
         }
 
-        # ---- Plot countries (avoid overlapping labels) ----
-        phase_counts = {}
-        for country, phase in pos_dict.items():
-            xpos = mapping.get(phase, 0)
-            ypos = np.sin(xpos)
+        xpos = mapping.get(phase, 0)
+        ypos = np.sin(xpos)
 
-            # Count how many countries already in this phase
-            phase_counts[phase] = phase_counts.get(phase, 0) + 1
-            count = phase_counts[phase]
+        fig.add_trace(go.Scatter(
+            x=[xpos], y=[ypos],
+            mode="markers+text",
+            text=["USA"],
+            textposition="top center",
+            marker=dict(size=18, symbol="circle", color="red"),
+            name="USA"
+        ))
 
-            # Alternate label positions if multiple countries
-            text_pos = "top center" if count % 2 == 1 else "bottom center"
-
-            fig.add_trace(go.Scatter(
-                x=[xpos], y=[ypos],
-                mode="markers+text",
-                text=[country],
-                textposition=text_pos,
-                marker=dict(size=16, symbol="circle", color="red"),
-                name=country
-            ))
-
-        # ---- Layout ----
         fig.update_layout(
             title=dict(
-                text="🌍 Macro Investing<br><span style='font-size:16px;'>Market Seasons & Business Cycle</span>",
+                text="🇺🇸 US Business Cycle",
                 x=0.5, xanchor="center"
             ),
             xaxis=dict(
-                title="Economic Cycle (Seasons)",
                 tickvals=[0, np.pi/2, np.pi, 3*np.pi/2, 2*np.pi],
                 ticktext=["Start", "Spring", "Summer", "Fall", "Winter"],
                 showline=True, linewidth=2, linecolor="black", mirror=True
             ),
             yaxis=dict(
-                title="Economic Activity",
                 showline=True, linewidth=2, linecolor="black", mirror=True,
                 range=[-1.5, 1.5]
             ),
-            height=550,
-            margin=dict(l=40, r=40, t=80, b=40),
+            height=500,
+            margin=dict(l=40, r=40, t=60, b=40),
             showlegend=False
         )
 
         return fig
 
     st.subheader("📊 Cycle Visualization")
-    fig = build_cycle_wave(positions)
+    fig = build_cycle_wave(usa_position)
     st.plotly_chart(fig, use_container_width=True)

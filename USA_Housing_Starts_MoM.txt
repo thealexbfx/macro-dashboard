@@ -1,4 +1,4 @@
-Date	 Rate
+Date     Rate
 January 2007     1.408
 February 2007     1.525
 March 2007     1.518
