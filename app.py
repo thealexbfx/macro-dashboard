@@ -1801,7 +1801,7 @@ if page == "USA":
                 "Retail Sales MoM tracks monthly changes in consumer spending. "
                 "It is a key driver of economic growth, as consumer spending accounts for roughly two-thirds of U.S. GDP."
             ),
-            "Housing Starts": (
+            "Housing Starts MoM": (
                 "Housing Starts measure the number of new residential construction projects that have begun during the month, reported as a seasonally adjusted annual rate (SAAR) in millions. "
                 "It includes single-family homes and multi-unit buildings, providing insight into housing demand, construction employment, and overall economic momentum."
             ),
@@ -1880,7 +1880,7 @@ if page == "USA":
             # Growth
             "GDP Growth Rate": "GDP Growth Rate (%)",
             "Retail Sales MoM": "Retail Sales (MoM, %)",
-            "Housing Starts": "Housing Starts (Millions)",
+            "Housing Starts MoM": "Housing Starts (Millions)",
             "Trade Balance": "Trade Balance (Billions USD)",
 
             # Labor Market
