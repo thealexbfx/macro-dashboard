@@ -217,5 +217,6 @@ March 2025   52.2
 April 2025   52.2
 May 2025     60.7
 June 2025    71.7
-July 2025    58.2
+July 2025    61.7
 August 2025  58.2
+September 2025 55.1
