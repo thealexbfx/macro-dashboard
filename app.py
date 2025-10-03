@@ -18,235 +18,103 @@ import plotly.graph_objects as go
 import streamlit.components.v1 as components
 import calendar
 
-def load_indicator_data(code):
-            # USA
-            if code == "usa_rate": return get_usa_interest_rate_data()
-            if code == "usa_cpi": return get_usa_cpi_yoy_data()
-            if code == "usa_core_cpi": return get_usa_core_cpi_yoy_data()
-            if code == "usa_gdp": return get_usa_gdp_qoq_data()
-            if code == "usa_unemp": return get_usa_unemployment_rate_data()
-            if code == "usa_ahe": return get_usa_average_hourly_earnings_yoy_data()
-            if code == "usa_core_pce": return get_usa_core_pce_yoy_data()
-            if code == "usa_core_ppi": return get_usa_core_ppi_yoy_data()
-            if code == "usa_housing": return get_usa_housing_starts_mom_data()
-            if code == "usa_ism_manu": return get_usa_ism_manufacturing_pmi_data()
-            if code == "usa_ism_serv": return get_usa_ism_services_pmi_data()
-            if code == "usa_jolts": return get_usa_jolts_job_openings_data()
-            if code == "usa_michigan": return get_usa_michigan_consumer_sentiment_data()
-            if code == "usa_nfp": return get_usa_nfp_data()
-            if code == "usa_pce": return get_usa_pce_yoy_data()
-            if code == "usa_ppi": return get_usa_ppi_yoy_data()
-            if code == "usa_retail": return get_usa_retail_sales_mom_data()
-            if code == "usa_trade": return get_usa_trade_balance_data()
 
-            # Yields
-            if code == "usa_1m": return get_usa_1mo_yield_data()
-            if code == "usa_3m": return get_usa_3mo_yield_data()
-            if code == "usa_6m": return get_usa_6mo_yield_data()
-            if code == "usa_1y": return get_usa_1yr_yield_data()
-            if code == "usa_2y": return get_usa_2yr_yield_data()
-            if code == "usa_3y": return get_usa_3yr_yield_data()
-            if code == "usa_5y": return get_usa_5yr_yield_data()
-            if code == "usa_7y": return get_usa_7yr_yield_data()
-            if code == "usa_10y": return get_usa_10yr_yield_data()
-            if code == "usa_20y": return get_usa_20yr_yield_data()
-            if code == "usa_30y": return get_usa_30yr_yield_data()
-
-
-            # UK
-            if code == "uk_rate": return get_uk_interest_rate_data()
-            if code == "uk_cpi": return get_uk_cpi_yoy_data()
-            if code == "uk_gdp": return get_uk_gdp_qoq_data()
-            if code == "uk_unemp": return get_uk_unemployment_rate_data()
-            if code == "uk_10y": return get_uk_10yr_yield_data()
-            if code == "uk_2y": return get_uk_2yr_yield_data()
-
-            # Japan
-            if code == "jp_rate": return get_japan_interest_rate_data()
-            if code == "jp_cpi": return get_japan_cpi_yoy_data()
-            if code == "jp_gdp": return get_japan_gdp_qoq_data()
-            if code == "jp_unemp": return get_japan_unemployment_rate_data()
-            if code == "jp_10y": return get_japan_10yr_yield_data()
-            if code == "jp_2y": return get_japan_2yr_yield_data()
-
-            # Euro
-            if code == "eu_rate": return get_euro_interest_rate_data()
-            if code == "eu_cpi": return get_euro_cpi_yoy_data()
-            if code == "eu_gdp": return get_euro_gdp_qoq_data()
-            if code == "eu_unemp": return get_euro_unemployment_rate_data()
-            if code == "eu_10y": return get_euro_10yr_yield_data()
-            if code == "eu_2y": return get_euro_2yr_yield_data()
-
-            # FX
-            if code == "eurusd": return get_fx_data_yahoo("EURUSD=X", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "gbpusd": return get_fx_data_yahoo("GBPUSD=X", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "usdjpy": return get_fx_data_yahoo("USDJPY=X", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "dxy": return get_fx_data_yahoo("DX-Y.NYB", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            
-            # Equities
-            if code == "eq_sp500": return get_fx_data_yahoo("^GSPC", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_nasdaq": return get_fx_data_yahoo("^IXIC", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_dow": return get_fx_data_yahoo("^DJI", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_ftse": return get_fx_data_yahoo("^FTSE", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_nikkei": return get_fx_data_yahoo("^N225", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_dax": return get_fx_data_yahoo("^GDAXI", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_msci_em": return get_fx_data_yahoo("EEM", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_vix": return get_fx_data_yahoo("^VIX", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-
-            # Stocks
-            if code == "st_aapl": return get_fx_data_yahoo("AAPL", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "st_amzn": return get_fx_data_yahoo("AMZN", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "st_meta": return get_fx_data_yahoo("META", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "st_googl": return get_fx_data_yahoo("GOOGL", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "st_nvda": return get_fx_data_yahoo("NVDA", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "st_msft": return get_fx_data_yahoo("MSFT", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "st_tsla": return get_fx_data_yahoo("TSLA", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-
-            # Commodities
-            if code == "cmd_gold": return get_fx_data_yahoo("GC=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_silver": return get_fx_data_yahoo("SI=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_wti": return get_fx_data_yahoo("CL=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_brent": return get_fx_data_yahoo("BZ=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_ng": return get_fx_data_yahoo("NG=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_wheat": return get_fx_data_yahoo("ZW=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_copper": return get_fx_data_yahoo("HG=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_corn": return get_fx_data_yahoo("ZC=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_soy": return get_fx_data_yahoo("ZS=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            
-            # Crypto
-            if code == "crypto_btc": return get_fx_data_yahoo("BTC-USD", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "crypto_eth": return get_fx_data_yahoo("ETH-USD", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-
-
-            return pd.DataFrame()
-
-indicator_groups = {
-            "USA": {
-                "Interest Rate": "usa_rate",
-                "CPI YoY %": "usa_cpi",
-                "Core CPI YoY": "usa_core_cpi",
-                "GDP QoQ %": "usa_gdp",
-                "Unemployment Rate": "usa_unemp",
-                "Average Hourly Earnings YoY": "usa_ahe",
-                "Core PCE YoY": "usa_core_pce",
-                "Core PPI YoY": "usa_core_ppi",
-                "Housing Starts MoM": "usa_housing",
-                "ISM Manufacturing PMI": "usa_ism_manu",
-                "ISM Services PMI": "usa_ism_serv",
-                "JOLTS Job Openings": "usa_jolts",
-                "Michigan Consumer Sentiment": "usa_michigan",
-                "Non Farm Payrolls": "usa_nfp",
-                "PCE YoY": "usa_pce",
-                "PPI YoY": "usa_ppi",
-                "Retail Sales MoM": "usa_retail",
-                "Trade Balance": "usa_trade"
-            },
-            "UK": {
-                "Interest Rate": "uk_rate",
-                "CPI YoY %": "uk_cpi",
-                "GDP QoQ %": "uk_gdp",
-                "Unemployment Rate": "uk_unemp"
-                
-            },
-            "Japan": {
-                "Interest Rate": "jp_rate",
-                "CPI YoY %": "jp_cpi",
-                "GDP QoQ %": "jp_gdp",
-                "Unemployment Rate": "jp_unemp"
-                
-            },
-            "Euro": {
-                "Interest Rate": "eu_rate",
-                "CPI YoY %": "eu_cpi",
-                "GDP QoQ %": "eu_gdp",
-                "Unemployment Rate": "eu_unemp"
-                
-            },
-
-            "FX": {"EUR/USD": "eurusd", "GBP/USD": "gbpusd", "USD/JPY": "usdjpy", "DXY": "dxy"},
-            
-            "Equities": {
-                "S&P 500": "eq_sp500",
-                "NASDAQ": "eq_nasdaq",
-                "Dow Jones": "eq_dow",
-                "FTSE 100": "eq_ftse",
-                "Nikkei 225": "eq_nikkei",
-                "DAX": "eq_dax",
-                "MSCI Emerging Markets ETF": "eq_msci_em",
-                "VIX": "eq_vix"
-            },
-            "Stocks": {
-                "Apple": "st_aapl",
-                "Amazon": "st_amzn",
-                "Meta": "st_meta",
-                "Alphabet (Google)": "st_googl",
-                "Nvidia": "st_nvda",
-                "Microsoft": "st_msft",
-                "Tesla": "st_tsla"
-            },
-            "Commodities": {
-                "Gold": "cmd_gold",
-                "Silver": "cmd_silver",
-                "Crude Oil (WTI)": "cmd_wti",
-                "Brent Oil": "cmd_brent",
-                "Natural Gas": "cmd_ng",
-                "Wheat": "cmd_wheat",
-                "Copper": "cmd_copper",
-                "Corn": "cmd_corn",
-                "Soybeans": "cmd_soy"
-            },
-            "Bonds": {
-                # U.S. Treasuries
-                "US 1M Yield": "usa_1m",
-                "US 3M Yield": "usa_3m",
-                "US 6M Yield": "usa_6m",
-                "US 1Y Yield": "usa_1y",
-                "US 2Y Yield": "usa_2y",
-                "US 3Y Yield": "usa_3y",
-                "US 5Y Yield": "usa_5y",
-                "US 7Y Yield": "usa_7y",
-                "US 10Y Yield": "usa_10y",
-                "US 20Y Yield": "usa_20y",
-                "US 30Y Yield": "usa_30y",
-
-                # UK Gilts
-                "UK 2Y Gilt Yield": "uk_2y",
-                "UK 10Y Gilt Yield": "uk_10y",
-
-                # Japan JGBs
-                "Japan 2Y JGB Yield": "jp_2y",
-                "Japan 10Y JGB Yield": "jp_10y",
-
-                # Euro Area Bonds
-                "Euro 2Y Bond Yield": "eu_2y",
-                "Euro 10Y Bond Yield": "eu_10y"
-            },
-            "Crypto": {
-                "Bitcoin": "crypto_btc",
-                "Ethereum": "crypto_eth"
-            }
-        }
-
-
-def monte_carlo_sim(initial_value, mean, std_dev, periods=12, sims=1000):
+def analyze_series(df: pd.DataFrame, window: int = 12):
     """
-    Monte Carlo simulation for a macroeconomic variable.
-    
-    initial_value: starting point (e.g., current GDP)
-    mean: expected growth per period (decimal, e.g., 0.02 for 2%)
-    std_dev: volatility per period (decimal)
-    periods: number of periods to simulate (e.g., months or quarters)
-    sims: number of simulation runs
-    """
-    results = np.zeros((periods, sims))
-    for s in range(sims):
-        values = [initial_value]
-        for t in range(1, periods):
-            shock = np.random.normal(mean, std_dev)
-            values.append(values[-1] * (1 + shock))
-        results[:, s] = values
-    return pd.DataFrame(results)
+    Compute statistical, trend, and regime metrics for a macro series.
 
+    Args:
+        df (pd.DataFrame): Must contain 'date' and 'value'.
+        window (int): Rolling window for slope/trend (default 12 for 1 year if monthly).
+
+    Returns:
+        dict: Dictionary of key metrics
+    """
+    if df.empty or "value" not in df.columns:
+        return {}
+
+    latest_value = df["value"].iloc[-1]
+    hist_mean = df["value"].mean()
+    hist_std = df["value"].std()
+    z_score = (latest_value - hist_mean) / hist_std if hist_std != 0 else np.nan
+    percentile = (df["value"] <= latest_value).mean() * 100  # percentile rank
+
+    # Rolling slope (trend)
+    if len(df) >= window:
+        y = df["value"].iloc[-window:]
+        x = np.arange(len(y))
+        slope = np.polyfit(x, y, 1)[0]  # slope of linear regression
+        rolling_vol = y.pct_change().rolling(window=window).std().iloc[-1] * 100  # % vol
+    else:
+        slope = np.nan
+        rolling_vol = np.nan
+
+    # YoY or MoM change (last period vs previous same period)
+    if len(df) > 1:
+        yoy_change = latest_value - df["value"].iloc[-2]
+    else:
+        yoy_change = np.nan
+
+    # Regime classification based on z-score
+    if abs(z_score) < 1:
+        regime = "Normal"
+    elif abs(z_score) < 2:
+        regime = "Elevated"
+    else:
+        regime = "Extreme"
+
+    return {
+        "latest_value": latest_value,
+        "hist_mean": hist_mean,
+        "hist_std": hist_std,
+        "z_score": z_score,
+        "percentile": percentile,
+        "trend_slope": slope,
+        "yoy_change": yoy_change,
+        "rolling_vol": rolling_vol,
+        "regime": regime,
+        "obs_count": len(df)
+    }
+
+def simulate_scenario(df: pd.DataFrame, shock_value: float, shock_type: str = "absolute", periods: int = 12):
+    """
+    Simulate a macro scenario by applying a shock to the last value of a series
+    and projecting it forward.
+
+    Args:
+        df (pd.DataFrame): Must contain 'date' and 'value' columns.
+        shock_value (float): Amount of shock (absolute or percent).
+        shock_type (str): "absolute" or "percent".
+        periods (int): Number of periods to project forward.
+
+    Returns:
+        pd.DataFrame: Projected series with dates extended.
+    """
+    if df.empty or "value" not in df.columns:
+        return pd.DataFrame(columns=["date", "value"])
+
+    last_value = df["value"].iloc[-1]
+
+    # Determine projected values
+    proj_values = []
+    for i in range(periods):
+        if shock_type == "absolute":
+            last_value = last_value + shock_value
+        elif shock_type == "percent":
+            last_value = last_value * (1 + shock_value / 100)
+        proj_values.append(last_value)
+
+    # Create projected dates
+    last_date = df["date"].iloc[-1]
+    # Determine frequency (monthly or quarterly)
+    if df["date"].diff().median().days >= 80:  # approx quarterly
+        freq = 'Q'
+    else:
+        freq = 'M'
+    proj_dates = pd.date_range(start=last_date + pd.offsets.MonthBegin(1), periods=periods, freq=freq)
+
+    df_proj = pd.DataFrame({"date": proj_dates, "value": proj_values})
+    return df_proj
 
 
 # -------- Helper Functions --------
@@ -1400,7 +1268,6 @@ st.markdown("""
         <a href="?page=Compare" target="_self">Compare</a>
         <a href="?page=Calendar" target="_self">Calendar</a>
         <a href="?page=Cycle" target="_self">Cycle</a>
-        <a href="?page=WhatIf" target="_self">WhatIf</a>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -4758,156 +4625,3 @@ if page == "Cycle":
     st.subheader("📊 Cycle Visualization")
     fig = build_cycle_wave(usa_position)
     st.plotly_chart(fig, use_container_width=True)
-
-
-if page == "WhatIf":
-    st.set_page_config(page_title="Monte Carlo Simulation", layout="wide")
-    st.title("📈 Monte Carlo Simulation for Macro Indicators")
-    
-    st.markdown("""
-    This tool simulates **possible future paths** of a macroeconomic or financial indicator
-    based on historical behavior, expected growth, and volatility.  
-    The **fan chart** shows the range of likely outcomes over your chosen period.
-    """)
-
-    # --------------------------
-    # Select indicator
-    # --------------------------
-    all_groups = list(indicator_groups.keys())
-    group = st.selectbox("Select Indicator Group", all_groups)
-    indicator_label = st.selectbox("Select Indicator", list(indicator_groups[group].keys()))
-    indicator_code = indicator_groups[group][indicator_label]
-
-    # --------------------------
-    # Load & clean data
-    # --------------------------
-    df = load_indicator_data(indicator_code).dropna()
-    df = df.rename(columns={df.columns[0]: "date", df.columns[1]: "value"})
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
-    df = df.dropna(subset=['date'])
-
-    if df.empty:
-        st.warning("No data available for this indicator.")
-        st.stop()
-
-    # --------------------------
-    # Historical delta & defaults
-    # --------------------------
-    df['delta'] = df['value'].pct_change()
-    mean_default = df['delta'].mean()
-    std_default = df['delta'].std()
-
-    # --------------------------
-    # Time Unit Selection
-    # --------------------------
-    time_unit = st.selectbox(
-        "Select Time Unit for Simulation",
-        ["Daily", "Monthly", "Quarterly"],
-        help="Choose the period length for each simulation step. This scales growth and volatility automatically."
-    )
-
-    # --------------------------
-    # Simulation Parameters
-    # --------------------------
-    st.subheader("Simulation Parameters")
-    col1, col2 = st.columns(2)
-    with col1:
-        periods = st.slider("Number of periods to simulate", min_value=4, max_value=40, value=12)
-        sims = st.slider("Number of simulations", min_value=100, max_value=5000, value=1000)
-    with col2:
-        mean_input = st.number_input(
-            "Expected growth per period (%)",
-            value=float(mean_default*100),
-            help="Average growth per period based on historical trend or your assumption."
-        )
-        std_input = st.number_input(
-            "Volatility per period (%)",
-            value=float(std_default*100),
-            help="Standard deviation per period based on historical variation."
-        )
-
-    # --------------------------
-    # Scale mean & volatility by time unit
-    # --------------------------
-    if time_unit == "Daily":
-        period_factor = 1
-    elif time_unit == "Monthly":
-        period_factor = 21  # ~21 trading days per month
-    elif time_unit == "Quarterly":
-        period_factor = 63  # ~63 trading days per quarter
-
-    mean_scaled = mean_input / 100 / period_factor
-    std_scaled = std_input / 100 / np.sqrt(period_factor)
-
-    # --------------------------
-    # Run Monte Carlo Simulation
-    # --------------------------
-    df_mc = monte_carlo_sim(
-        df['value'].iloc[-1],
-        mean_scaled,
-        std_scaled,
-        periods=periods,
-        sims=sims
-    )
-
-    # --------------------------
-    # Prepare Fan Chart
-    # --------------------------
-    periods_index = np.arange(1, periods+1)
-
-    fig = go.Figure()
-
-    # Shaded area: 5th to 95th percentile
-    fig.add_trace(go.Scatter(
-        x=periods_index,
-        y=df_mc.quantile(0.95, axis=1),
-        line=dict(width=0),
-        showlegend=False
-    ))
-    fig.add_trace(go.Scatter(
-        x=periods_index,
-        y=df_mc.quantile(0.05, axis=1),
-        fill='tonexty',
-        fillcolor='rgba(0, 123, 255, 0.2)',
-        line=dict(width=0),
-        name='5th-95th Percentile'
-    ))
-
-    # Average path
-    fig.add_trace(go.Scatter(
-        x=periods_index,
-        y=df_mc.mean(axis=1),
-        mode="lines",
-        line=dict(color='blue', width=3),
-        name="Average Path"
-    ))
-
-    # Overlay historical data
-    fig.add_trace(go.Scatter(
-        x=np.arange(-len(df), 0, 1),
-        y=df['value'].values,
-        mode="lines",
-        line=dict(color='black', width=2, dash='dash'),
-        name="Historical"
-    ))
-
-    # Layout styling
-    fig.update_layout(
-        title=f"Monte Carlo Simulation for {indicator_label} ({time_unit} periods)",
-        xaxis_title=f"Periods ({time_unit})",
-        yaxis_title="Value",
-        template="plotly_white",
-        font=dict(family="Arial", size=14, color="black"),
-        height=600,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        hovermode="x unified"
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.markdown("""
-    **Legend:**  
-    - **Dashed black line**: Historical data  
-    - **Blue line**: Average simulated path  
-    - **Shaded area**: 5th-95th percentile of simulations (likely range)  
-    """)
