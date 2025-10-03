@@ -4478,85 +4478,140 @@ if page == "Cycle":
     def analyze_series(df, window=4):
         if df is None or df.empty:
             return {"latest_value": None, "trend_slope": None}
-
         df = df.dropna(subset=["value"])
         latest_value = df["value"].iloc[-1]
-
         if len(df) >= window:
             recent = df.tail(window)
             x = np.arange(len(recent))
             slope = np.polyfit(x, recent["value"], 1)[0]
         else:
             slope = 0
-
         return {"latest_value": latest_value, "trend_slope": slope}
 
-    # ---- USA Cycle Classifier (score system) ----
+    # ---- USA Cycle Classifier (hedge-fund style) ----
     def classify_usa_cycle():
-        # Core indicators
-        gdp = analyze_series(get_usa_gdp_qoq_data())
-        cpi = analyze_series(get_usa_cpi_yoy_data())
-        unemp = analyze_series(get_usa_unemployment_rate_data())
-        nfp = analyze_series(get_usa_nfp_data())
-        pmi = analyze_series(get_usa_ism_manufacturing_pmi_data())
-        yield2 = analyze_series(get_usa_2yr_yield_data())
-        yield10 = analyze_series(get_usa_10yr_yield_data())
+        # --- Get data ---
+        gdp_df = get_usa_gdp_qoq_data()
+        cpi_df = get_usa_cpi_yoy_data()
+        unemp_df = get_usa_unemployment_rate_data()
+        nfp_df = get_usa_nfp_data()
+        pmi_df = get_usa_ism_manufacturing_pmi_data()
+        yield2_df = get_usa_2yr_yield_data()
+        yield10_df = get_usa_10yr_yield_data()
 
-        # Extract values
-        gdp_trend = gdp["trend_slope"]
-        inflation = cpi["latest_value"]
+        gdp = analyze_series(gdp_df)
+        cpi = analyze_series(cpi_df)
+        unemp = analyze_series(unemp_df)
+        nfp = analyze_series(nfp_df)
+        pmi = analyze_series(pmi_df)
+        yield2 = analyze_series(yield2_df)
+        yield10 = analyze_series(yield10_df)
+
+        # --- Extract values ---
+        gdp_vals = gdp_df.tail(4)["value"] if gdp_df is not None else []
+        gdp_change = gdp_vals.iloc[-1] - gdp_vals.iloc[0] if len(gdp_vals) == 4 else None
+        cpi_slope = cpi["trend_slope"]
+        cpi_val = cpi["latest_value"]
         unemp_val = unemp["latest_value"]
-        nfp_val = nfp["latest_value"]
+        nfp_avg = nfp_df.tail(4)["value"].mean() if nfp_df is not None and len(nfp_df) >= 4 else None
         pmi_val = pmi["latest_value"]
-        yc_spread = (yield10["latest_value"] - yield2["latest_value"]) if yield10["latest_value"] and yield2["latest_value"] else 0
+        pmi_slope = pmi["trend_slope"]
+        yc_spread = (yield10["latest_value"] - yield2["latest_value"]) if yield10["latest_value"] and yield2["latest_value"] else None
 
-        # ---- Scoring ----
+        # --- Scoring ---
         score = 0
+        details = {}
 
-        # Growth
-        if gdp_trend and gdp_trend > 0: score += 1
-        else: score -= 1
+        # GDP
+        if gdp_change and gdp_change > 0:
+            score += 1; details["GDP Trend"] = ("Improving", +1)
+        else:
+            score -= 1; details["GDP Trend"] = ("Weakening", -1)
 
-        # Inflation
-        if inflation and inflation > 3: score += 1   # overheating
-        elif inflation and inflation < 2: score -= 1 # disinflation
+        # CPI
+        if cpi_slope and cpi_slope > 0:
+            score += 1; details["CPI Trend"] = ("Rising", +1)
+        elif cpi_slope and cpi_slope < 0:
+            score -= 1; details["CPI Trend"] = ("Falling", -1)
+        else:
+            details["CPI Trend"] = ("Flat", 0)
+
+        if cpi_val and cpi_val > 4:
+            score += 1; details["CPI Level"] = (f"{cpi_val:.1f}% (High)", +1)
+        elif cpi_val and cpi_val < 1.5:
+            score -= 1; details["CPI Level"] = (f"{cpi_val:.1f}% (Low)", -1)
+        else:
+            details["CPI Level"] = (f"{cpi_val:.1f}%", 0)
 
         # Unemployment
-        if unemp_val and unemp_val < 5: score += 1
-        else: score -= 1
+        if unemp_val and unemp_val < 5:
+            score += 1; details["Unemployment"] = (f"{unemp_val:.1f}% (Tight)", +1)
+        elif unemp_val and unemp_val > 5.5:
+            score -= 1; details["Unemployment"] = (f"{unemp_val:.1f}% (Loose)", -1)
+        else:
+            details["Unemployment"] = (f"{unemp_val:.1f}%", 0)
 
-        # Jobs (NFP)
-        if nfp_val and nfp_val > 100: score += 1
-        elif nfp_val and nfp_val < 0: score -= 1
+        # NFP (average momentum)
+        if nfp_avg:
+            if nfp_avg > 200:
+                score += 1; details["NFP Avg"] = (f"{nfp_avg:.0f}k (Strong)", +1)
+            elif nfp_avg < 50:
+                score -= 1; details["NFP Avg"] = (f"{nfp_avg:.0f}k (Weak)", -1)
+            else:
+                details["NFP Avg"] = (f"{nfp_avg:.0f}k", 0)
 
         # PMI
-        if pmi_val and pmi_val >= 50: score += 1
-        else: score -= 1
+        if pmi_val and pmi_val >= 55:
+            score += 1; details["PMI"] = (f"{pmi_val:.1f} (Strong)", +1)
+        elif pmi_val and pmi_val < 50:
+            score -= 1; details["PMI"] = (f"{pmi_val:.1f} (Weak)", -1)
+        else:
+            details["PMI"] = (f"{pmi_val:.1f}", 0)
+
+        if pmi_slope and pmi_slope > 0:
+            score += 0.5; details["PMI Trend"] = ("Improving", +0.5)
+        elif pmi_slope and pmi_slope < 0:
+            score -= 0.5; details["PMI Trend"] = ("Falling", -0.5)
+        else:
+            details["PMI Trend"] = ("Flat", 0)
 
         # Yield curve
-        if yc_spread and yc_spread < 0: score -= 1
-        else: score += 1
+        if yc_spread is not None:
+            if yc_spread < 0:
+                score -= 1; details["Yield Curve"] = (f"{yc_spread:.2f} (Inverted)", -1)
+            elif yc_spread > 1:
+                score += 1; details["Yield Curve"] = (f"{yc_spread:.2f} (Steep)", +1)
+            else:
+                details["Yield Curve"] = (f"{yc_spread:.2f}", 0)
 
-        # ---- Map score to season ----
+        # --- Map score to season ---
         if score >= 3:
-            return "Summer"   # strong growth, inflation pressure
+            season = "Summer"
         elif 1 <= score < 3:
-            return "Spring"   # recovery/expansion
+            season = "Spring"
         elif -1 <= score < 1:
-            return "Fall"     # late cycle, stagflation risk
+            season = "Fall"
         else:
-            return "Winter"   # contraction/recession
+            season = "Winter"
+
+        return season, details, score
 
     # ---- Get US Position ----
-    usa_position = classify_usa_cycle()
+    usa_position, details, total_score = classify_usa_cycle()
     st.subheader("📋 Current Classification")
     st.metric("USA Macro Season", usa_position)
+
+    # ---- Debug Panel ----
+    st.subheader("🛠 Debug: Indicator Inputs & Scores")
+    debug_table = []
+    for k, (val, scr) in details.items():
+        debug_table.append([k, val, scr])
+    debug_table.append(["TOTAL", "", total_score])
+    st.table(pd.DataFrame(debug_table, columns=["Indicator", "Value", "Score"]))
 
     # ---- Wave-style cycle chart ----
     def build_cycle_wave(phase):
         import numpy as np
-
-        # Base sine wave (one cycle)
         x = np.linspace(0, 2 * np.pi, 400)
         y = np.sin(x)
 
@@ -4581,14 +4636,7 @@ if page == "Cycle":
                                  line=dict(color="black", width=3),
                                  name="Business Cycle"))
 
-        # ---- Map phase to position ----
-        mapping = {
-            "Spring": np.pi/4,
-            "Summer": 3*np.pi/4,
-            "Fall": 5*np.pi/4,
-            "Winter": 7*np.pi/4
-        }
-
+        mapping = {"Spring": np.pi/4, "Summer": 3*np.pi/4, "Fall": 5*np.pi/4, "Winter": 7*np.pi/4}
         xpos = mapping.get(phase, 0)
         ypos = np.sin(xpos)
 
@@ -4602,24 +4650,17 @@ if page == "Cycle":
         ))
 
         fig.update_layout(
-            title=dict(
-                text="🇺🇸 US Business Cycle",
-                x=0.5, xanchor="center"
-            ),
+            title=dict(text="🇺🇸 US Business Cycle", x=0.5, xanchor="center"),
             xaxis=dict(
                 tickvals=[0, np.pi/2, np.pi, 3*np.pi/2, 2*np.pi],
                 ticktext=["Start", "Spring", "Summer", "Fall", "Winter"],
                 showline=True, linewidth=2, linecolor="black", mirror=True
             ),
-            yaxis=dict(
-                showline=True, linewidth=2, linecolor="black", mirror=True,
-                range=[-1.5, 1.5]
-            ),
+            yaxis=dict(showline=True, linewidth=2, linecolor="black", mirror=True, range=[-1.5, 1.5]),
             height=500,
             margin=dict(l=40, r=40, t=60, b=40),
             showlegend=False
         )
-
         return fig
 
     st.subheader("📊 Cycle Visualization")
