@@ -1756,7 +1756,24 @@ if page == "USA":
     col1, col2 = st.columns([1.5, 5])
 
     with col1:
-        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+        # ---------- Centered Page Title ----------
+        st.markdown(f"""
+            <div style="
+                position: absolute;
+                top: 0px;  /* keeps it at the top of col1 */
+                width: 100%;
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
+                color: #111;
+                z-index: 10;
+            ">
+                {page}
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
 
         # -------- Indicator Groups --------
         indicator_groups = {
@@ -1961,10 +1978,72 @@ if page == "USA":
             """,
             unsafe_allow_html=True
         )
-
+        
         # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
+        
+        import numpy as np
+        from scipy.stats import linregress
+
+        # ======== Summary Stats ========
+
+        n_obs = len(df_filtered)
+        mean_val = df_filtered['value'].mean()
+        latest_val = df_filtered['value'].iloc[-1]
+        min_val = df_filtered['value'].min()
+        max_val = df_filtered['value'].max()
+        start_val = df_filtered['value'].iloc[0]
+        change_since_start = latest_val - start_val
+
+        # Relative position (0–100%)
+        position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+
+        # Trend (using regression slope)
+        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
+        if slope > 0:
+            trend = "🔺 Upward"
+        elif slope < 0:
+            trend = "🔻 Downward"
+        else:
+            trend = "⏸ Flat"
+
+        # Volatility (range as % of mean)
+        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+
+        # ======== Display (Minimal Modern Summary Bar) ========
+
+        summary_html = f"""
+        <div style="
+            background-color:#f9f9f9;
+            border:1px solid #dcdcdc;
+            border-radius:12px;
+            padding:10px 18px;
+            text-align:center;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            font-size:13px;
+            color:#111;
+            font-weight:500;
+            margin-top:5px;
+            margin-bottom:18px;
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:18px;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
+        ">
+            <div>Data Points: <b>{n_obs}</b></div>
+            <div>Mean: <b>{mean_val:.2f}</b></div>
+            <div>Latest: <b>{latest_val:.2f}</b></div>
+            <div>Change: <b style='color:{'#06b606' if change_since_start>0 else '#e63946' if change_since_start<0 else '#333'};'>{change_since_start:+.2f}</b></div>
+            <div>Trend: <b>{trend}</b></div>
+            <div>Position: <b>{position_pct:.0f}% ({'High' if position_pct>70 else 'Low' if position_pct<30 else 'Mid'})</b></div>
+            <div>Volatility: <b>{volatility:.1f}%</b></div>
+        </div>
+        """
+
+        st.markdown(summary_html, unsafe_allow_html=True)
+                         
 
         # -------- Dynamic Titles --------
         titles = {
@@ -2047,22 +2126,99 @@ if page == "USA":
                 "modeBarButtonsToRemove": ["lasso2d", "select2d"]
             }
         )
+        
+# -------- Full-width Indicator Alert Panel --------
+def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
+    """
+    Display a full-width alert panel for the selected indicator
+    """
+    # Determine status
+    if position_pct >= 90 and slope > 0:
+        status = "Extreme High"
+        color = "#e63946"  # Red
+        emoji = "🚨"
+        message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
+    elif position_pct <= 10 and slope < 0:
+        status = "Extreme Low"
+        color = "#1d3557"  # Dark blue
+        emoji = "⚠️"
+        message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
+    elif position_pct >= 70:
+        status = "High"
+        color = "#f77f00"  # Orange
+        emoji = "🔺"
+        message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
+    elif position_pct <= 30:
+        status = "Low"
+        color = "#2a9d8f"  # Teal
+        emoji = "🔻"
+        message = f"{indicator_name} is below normal levels. Could indicate caution."
+    else:
+        status = "Normal"
+        color = "#06b606"  # Green
+        emoji = "✅"
+        message = f"{indicator_name} is within normal historical range."
 
-        # -------- CSV Download --------
-        csv_data = df_filtered.to_csv(index=False)
-        st.download_button(
-            label="📥 Download CSV",
-            data=csv_data,
-            file_name=f"USA_{indicator.replace(' ', '_')}_data.csv",
-            mime="text/csv"
-        )
+    # HTML panel
+    alert_html = f"""
+    <div style="
+        width: 100%;
+        background-color:{color}1A;  /* light transparent background */
+        border-left: 6px solid {color};
+        border-radius: 8px;
+        padding: 18px 24px;
+        margin-top: 18px;
+        margin-bottom: 24px;
+        font-family:'Inter','Segoe UI','Arial',sans-serif;
+        box-shadow:0 2px 6px rgba(0,0,0,0.05);
+    ">
+        <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
+            {emoji} {indicator_name}: {status}
+        </div>
+        <div style="font-size:14px; line-height:1.5; color:#111;">
+            Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+        </div>
+        <div style="margin-top:6px; font-size:14px; color:#333;">
+            {message}
+        </div>
+    </div>
+    """
+    st.markdown(alert_html, unsafe_allow_html=True)
+
+# -------- Call it after plotting chart --------
+display_indicator_alert(
+    latest_val=latest_val,
+    mean_val=mean_val,
+    position_pct=position_pct,
+    slope=slope,
+    volatility=volatility,
+    indicator_name=indicator
+)
+
 
 # -------- Japan Tab --------
 if page == "Japan":
     col1, col2 = st.columns([1.5, 5])
 
     with col1:
-        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+        # ---------- Centered Page Title ----------
+        st.markdown(f"""
+            <div style="
+                position: absolute;
+                top: 0px;  /* keeps it at the top of col1 */
+                width: 100%;
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
+                color: #111;
+                z-index: 10;
+            ">
+                {page}
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
 
         # -------- Indicator Groups --------
         indicator_groups = {
@@ -2176,6 +2332,67 @@ if page == "Japan":
         # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
+        
+        import numpy as np
+        from scipy.stats import linregress
+
+        # ======== Summary Stats ========
+
+        n_obs = len(df_filtered)
+        mean_val = df_filtered['value'].mean()
+        latest_val = df_filtered['value'].iloc[-1]
+        min_val = df_filtered['value'].min()
+        max_val = df_filtered['value'].max()
+        start_val = df_filtered['value'].iloc[0]
+        change_since_start = latest_val - start_val
+
+        # Relative position (0–100%)
+        position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+
+        # Trend (using regression slope)
+        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
+        if slope > 0:
+            trend = "🔺 Upward"
+        elif slope < 0:
+            trend = "🔻 Downward"
+        else:
+            trend = "⏸ Flat"
+
+        # Volatility (range as % of mean)
+        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+
+        # ======== Display (Minimal Modern Summary Bar) ========
+
+        summary_html = f"""
+        <div style="
+            background-color:#f9f9f9;
+            border:1px solid #dcdcdc;
+            border-radius:12px;
+            padding:10px 18px;
+            text-align:center;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            font-size:13px;
+            color:#111;
+            font-weight:500;
+            margin-top:5px;
+            margin-bottom:18px;
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:18px;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
+        ">
+            <div>Data Points: <b>{n_obs}</b></div>
+            <div>Mean: <b>{mean_val:.2f}</b></div>
+            <div>Latest: <b>{latest_val:.2f}</b></div>
+            <div>Change: <b style='color:{'#06b606' if change_since_start>0 else '#e63946' if change_since_start<0 else '#333'};'>{change_since_start:+.2f}</b></div>
+            <div>Trend: <b>{trend}</b></div>
+            <div>Position: <b>{position_pct:.0f}% ({'High' if position_pct>70 else 'Low' if position_pct<30 else 'Mid'})</b></div>
+            <div>Volatility: <b>{volatility:.1f}%</b></div>
+        </div>
+        """
+
+        st.markdown(summary_html, unsafe_allow_html=True)
 
         # -------- Dynamic Titles --------
         titles = {
@@ -2244,7 +2461,24 @@ if page == "UK":
     col1, col2 = st.columns([1.5, 5])
 
     with col1:
-        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+        # ---------- Centered Page Title ----------
+        st.markdown(f"""
+            <div style="
+                position: absolute;
+                top: 0px;  /* keeps it at the top of col1 */
+                width: 100%;
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
+                color: #111;
+                z-index: 10;
+            ">
+                {page}
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
 
         # -------- Indicator Groups --------
         indicator_groups = {
@@ -2358,6 +2592,67 @@ if page == "UK":
         # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
+        
+        import numpy as np
+        from scipy.stats import linregress
+
+        # ======== Summary Stats ========
+
+        n_obs = len(df_filtered)
+        mean_val = df_filtered['value'].mean()
+        latest_val = df_filtered['value'].iloc[-1]
+        min_val = df_filtered['value'].min()
+        max_val = df_filtered['value'].max()
+        start_val = df_filtered['value'].iloc[0]
+        change_since_start = latest_val - start_val
+
+        # Relative position (0–100%)
+        position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+
+        # Trend (using regression slope)
+        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
+        if slope > 0:
+            trend = "🔺 Upward"
+        elif slope < 0:
+            trend = "🔻 Downward"
+        else:
+            trend = "⏸ Flat"
+
+        # Volatility (range as % of mean)
+        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+
+        # ======== Display (Minimal Modern Summary Bar) ========
+
+        summary_html = f"""
+        <div style="
+            background-color:#f9f9f9;
+            border:1px solid #dcdcdc;
+            border-radius:12px;
+            padding:10px 18px;
+            text-align:center;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            font-size:13px;
+            color:#111;
+            font-weight:500;
+            margin-top:5px;
+            margin-bottom:18px;
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:18px;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
+        ">
+            <div>Data Points: <b>{n_obs}</b></div>
+            <div>Mean: <b>{mean_val:.2f}</b></div>
+            <div>Latest: <b>{latest_val:.2f}</b></div>
+            <div>Change: <b style='color:{'#06b606' if change_since_start>0 else '#e63946' if change_since_start<0 else '#333'};'>{change_since_start:+.2f}</b></div>
+            <div>Trend: <b>{trend}</b></div>
+            <div>Position: <b>{position_pct:.0f}% ({'High' if position_pct>70 else 'Low' if position_pct<30 else 'Mid'})</b></div>
+            <div>Volatility: <b>{volatility:.1f}%</b></div>
+        </div>
+        """
+
+        st.markdown(summary_html, unsafe_allow_html=True)
 
         # -------- Dynamic Titles --------
         titles = {
@@ -2426,7 +2721,24 @@ if page == "EURO":
     col1, col2 = st.columns([1.5, 5])
 
     with col1:
-        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+        # ---------- Centered Page Title ----------
+        st.markdown(f"""
+            <div style="
+                position: absolute;
+                top: 0px;  /* keeps it at the top of col1 */
+                width: 100%;
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
+                color: #111;
+                z-index: 10;
+            ">
+                {page}
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
 
         # -------- Indicator Groups --------
         indicator_groups = {
@@ -2539,6 +2851,67 @@ if page == "EURO":
         # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
+        
+        import numpy as np
+        from scipy.stats import linregress
+
+        # ======== Summary Stats ========
+
+        n_obs = len(df_filtered)
+        mean_val = df_filtered['value'].mean()
+        latest_val = df_filtered['value'].iloc[-1]
+        min_val = df_filtered['value'].min()
+        max_val = df_filtered['value'].max()
+        start_val = df_filtered['value'].iloc[0]
+        change_since_start = latest_val - start_val
+
+        # Relative position (0–100%)
+        position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+
+        # Trend (using regression slope)
+        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
+        if slope > 0:
+            trend = "🔺 Upward"
+        elif slope < 0:
+            trend = "🔻 Downward"
+        else:
+            trend = "⏸ Flat"
+
+        # Volatility (range as % of mean)
+        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+
+        # ======== Display (Minimal Modern Summary Bar) ========
+
+        summary_html = f"""
+        <div style="
+            background-color:#f9f9f9;
+            border:1px solid #dcdcdc;
+            border-radius:12px;
+            padding:10px 18px;
+            text-align:center;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            font-size:13px;
+            color:#111;
+            font-weight:500;
+            margin-top:5px;
+            margin-bottom:18px;
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:18px;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
+        ">
+            <div>Data Points: <b>{n_obs}</b></div>
+            <div>Mean: <b>{mean_val:.2f}</b></div>
+            <div>Latest: <b>{latest_val:.2f}</b></div>
+            <div>Change: <b style='color:{'#06b606' if change_since_start>0 else '#e63946' if change_since_start<0 else '#333'};'>{change_since_start:+.2f}</b></div>
+            <div>Trend: <b>{trend}</b></div>
+            <div>Position: <b>{position_pct:.0f}% ({'High' if position_pct>70 else 'Low' if position_pct<30 else 'Mid'})</b></div>
+            <div>Volatility: <b>{volatility:.1f}%</b></div>
+        </div>
+        """
+
+        st.markdown(summary_html, unsafe_allow_html=True)
 
         # -------- Dynamic Titles --------
         titles = {
@@ -2608,7 +2981,24 @@ if page == "FX Rates":
     col1, col2 = st.columns([1.5, 5])
 
     with col1:
-        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+        # ---------- Centered Page Title ----------
+        st.markdown(f"""
+            <div style="
+                position: absolute;
+                top: 0px;  /* keeps it at the top of col1 */
+                width: 100%;
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
+                color: #111;
+                z-index: 10;
+            ">
+                {page}
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
 
         # -------- Indicator Groups (Major vs Minor FX) --------
         indicator_groups = {
@@ -2742,9 +3132,70 @@ if page == "FX Rates":
             unsafe_allow_html=True
         )
 
-        # Filter by selected dates
+        # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
+        
+        import numpy as np
+        from scipy.stats import linregress
+
+        # ======== Summary Stats ========
+
+        n_obs = len(df_filtered)
+        mean_val = df_filtered['value'].mean()
+        latest_val = df_filtered['value'].iloc[-1]
+        min_val = df_filtered['value'].min()
+        max_val = df_filtered['value'].max()
+        start_val = df_filtered['value'].iloc[0]
+        change_since_start = latest_val - start_val
+
+        # Relative position (0–100%)
+        position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+
+        # Trend (using regression slope)
+        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
+        if slope > 0:
+            trend = "🔺 Upward"
+        elif slope < 0:
+            trend = "🔻 Downward"
+        else:
+            trend = "⏸ Flat"
+
+        # Volatility (range as % of mean)
+        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+
+        # ======== Display (Minimal Modern Summary Bar) ========
+
+        summary_html = f"""
+        <div style="
+            background-color:#f9f9f9;
+            border:1px solid #dcdcdc;
+            border-radius:12px;
+            padding:10px 18px;
+            text-align:center;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            font-size:13px;
+            color:#111;
+            font-weight:500;
+            margin-top:5px;
+            margin-bottom:18px;
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:18px;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
+        ">
+            <div>Data Points: <b>{n_obs}</b></div>
+            <div>Mean: <b>{mean_val:.2f}</b></div>
+            <div>Latest: <b>{latest_val:.2f}</b></div>
+            <div>Change: <b style='color:{'#06b606' if change_since_start>0 else '#e63946' if change_since_start<0 else '#333'};'>{change_since_start:+.2f}</b></div>
+            <div>Trend: <b>{trend}</b></div>
+            <div>Position: <b>{position_pct:.0f}% ({'High' if position_pct>70 else 'Low' if position_pct<30 else 'Mid'})</b></div>
+            <div>Volatility: <b>{volatility:.1f}%</b></div>
+        </div>
+        """
+
+        st.markdown(summary_html, unsafe_allow_html=True)
 
         # Detect quarterly data
         quarterly = False
@@ -3344,7 +3795,24 @@ if page == "Equities":
     col1, col2 = st.columns([1.5, 5])
 
     with col1:
-        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+        # ---------- Centered Page Title ----------
+        st.markdown(f"""
+            <div style="
+                position: absolute;
+                top: 0px;  /* keeps it at the top of col1 */
+                width: 100%;
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
+                color: #111;
+                z-index: 10;
+            ">
+                {page}
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
 
         # -------- Indicator Groups --------
         indicator_groups = {
@@ -3481,6 +3949,67 @@ if page == "Equities":
         # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
+        
+        import numpy as np
+        from scipy.stats import linregress
+
+        # ======== Summary Stats ========
+
+        n_obs = len(df_filtered)
+        mean_val = df_filtered['value'].mean()
+        latest_val = df_filtered['value'].iloc[-1]
+        min_val = df_filtered['value'].min()
+        max_val = df_filtered['value'].max()
+        start_val = df_filtered['value'].iloc[0]
+        change_since_start = latest_val - start_val
+
+        # Relative position (0–100%)
+        position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+
+        # Trend (using regression slope)
+        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
+        if slope > 0:
+            trend = "🔺 Upward"
+        elif slope < 0:
+            trend = "🔻 Downward"
+        else:
+            trend = "⏸ Flat"
+
+        # Volatility (range as % of mean)
+        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+
+        # ======== Display (Minimal Modern Summary Bar) ========
+
+        summary_html = f"""
+        <div style="
+            background-color:#f9f9f9;
+            border:1px solid #dcdcdc;
+            border-radius:12px;
+            padding:10px 18px;
+            text-align:center;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            font-size:13px;
+            color:#111;
+            font-weight:500;
+            margin-top:5px;
+            margin-bottom:18px;
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:18px;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
+        ">
+            <div>Data Points: <b>{n_obs}</b></div>
+            <div>Mean: <b>{mean_val:.2f}</b></div>
+            <div>Latest: <b>{latest_val:.2f}</b></div>
+            <div>Change: <b style='color:{'#06b606' if change_since_start>0 else '#e63946' if change_since_start<0 else '#333'};'>{change_since_start:+.2f}</b></div>
+            <div>Trend: <b>{trend}</b></div>
+            <div>Position: <b>{position_pct:.0f}% ({'High' if position_pct>70 else 'Low' if position_pct<30 else 'Mid'})</b></div>
+            <div>Volatility: <b>{volatility:.1f}%</b></div>
+        </div>
+        """
+
+        st.markdown(summary_html, unsafe_allow_html=True)
 
         # Detect quarterly data
         quarterly = False
@@ -3544,7 +4073,24 @@ if page == "Stocks":
     col1, col2 = st.columns([1, 5])
 
     with col1:
-        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+        # ---------- Centered Page Title ----------
+        st.markdown(f"""
+            <div style="
+                position: absolute;
+                top: 0px;  /* keeps it at the top of col1 */
+                width: 100%;
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
+                color: #111;
+                z-index: 10;
+            ">
+                {page}
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
 
         # Select indicator and chart type
         indicator = st.selectbox("Select Indicator", [
@@ -3650,9 +4196,70 @@ if page == "Stocks":
             unsafe_allow_html=True
         )
 
-        # Filter data by selected date range
-        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) & 
+        # -------- Filter Data by Date --------
+        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
+        
+        import numpy as np
+        from scipy.stats import linregress
+
+        # ======== Summary Stats ========
+
+        n_obs = len(df_filtered)
+        mean_val = df_filtered['value'].mean()
+        latest_val = df_filtered['value'].iloc[-1]
+        min_val = df_filtered['value'].min()
+        max_val = df_filtered['value'].max()
+        start_val = df_filtered['value'].iloc[0]
+        change_since_start = latest_val - start_val
+
+        # Relative position (0–100%)
+        position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+
+        # Trend (using regression slope)
+        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
+        if slope > 0:
+            trend = "🔺 Upward"
+        elif slope < 0:
+            trend = "🔻 Downward"
+        else:
+            trend = "⏸ Flat"
+
+        # Volatility (range as % of mean)
+        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+
+        # ======== Display (Minimal Modern Summary Bar) ========
+
+        summary_html = f"""
+        <div style="
+            background-color:#f9f9f9;
+            border:1px solid #dcdcdc;
+            border-radius:12px;
+            padding:10px 18px;
+            text-align:center;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            font-size:13px;
+            color:#111;
+            font-weight:500;
+            margin-top:5px;
+            margin-bottom:18px;
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:18px;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
+        ">
+            <div>Data Points: <b>{n_obs}</b></div>
+            <div>Mean: <b>{mean_val:.2f}</b></div>
+            <div>Latest: <b>{latest_val:.2f}</b></div>
+            <div>Change: <b style='color:{'#06b606' if change_since_start>0 else '#e63946' if change_since_start<0 else '#333'};'>{change_since_start:+.2f}</b></div>
+            <div>Trend: <b>{trend}</b></div>
+            <div>Position: <b>{position_pct:.0f}% ({'High' if position_pct>70 else 'Low' if position_pct<30 else 'Mid'})</b></div>
+            <div>Volatility: <b>{volatility:.1f}%</b></div>
+        </div>
+        """
+
+        st.markdown(summary_html, unsafe_allow_html=True)
 
         # Detect if quarterly data
         quarterly = False
@@ -3704,7 +4311,24 @@ if page == "Commodities":
     col1, col2 = st.columns([1.5, 5])
 
     with col1:
-        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+        # ---------- Centered Page Title ----------
+        st.markdown(f"""
+            <div style="
+                position: absolute;
+                top: 0px;  /* keeps it at the top of col1 */
+                width: 100%;
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
+                color: #111;
+                z-index: 10;
+            ">
+                {page}
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
 
         # -------- Indicator Groups --------
         indicator_groups = {
@@ -3848,6 +4472,67 @@ if page == "Commodities":
         # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
+        
+        import numpy as np
+        from scipy.stats import linregress
+
+        # ======== Summary Stats ========
+
+        n_obs = len(df_filtered)
+        mean_val = df_filtered['value'].mean()
+        latest_val = df_filtered['value'].iloc[-1]
+        min_val = df_filtered['value'].min()
+        max_val = df_filtered['value'].max()
+        start_val = df_filtered['value'].iloc[0]
+        change_since_start = latest_val - start_val
+
+        # Relative position (0–100%)
+        position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+
+        # Trend (using regression slope)
+        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
+        if slope > 0:
+            trend = "🔺 Upward"
+        elif slope < 0:
+            trend = "🔻 Downward"
+        else:
+            trend = "⏸ Flat"
+
+        # Volatility (range as % of mean)
+        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+
+        # ======== Display (Minimal Modern Summary Bar) ========
+
+        summary_html = f"""
+        <div style="
+            background-color:#f9f9f9;
+            border:1px solid #dcdcdc;
+            border-radius:12px;
+            padding:10px 18px;
+            text-align:center;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            font-size:13px;
+            color:#111;
+            font-weight:500;
+            margin-top:5px;
+            margin-bottom:18px;
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:18px;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
+        ">
+            <div>Data Points: <b>{n_obs}</b></div>
+            <div>Mean: <b>{mean_val:.2f}</b></div>
+            <div>Latest: <b>{latest_val:.2f}</b></div>
+            <div>Change: <b style='color:{'#06b606' if change_since_start>0 else '#e63946' if change_since_start<0 else '#333'};'>{change_since_start:+.2f}</b></div>
+            <div>Trend: <b>{trend}</b></div>
+            <div>Position: <b>{position_pct:.0f}% ({'High' if position_pct>70 else 'Low' if position_pct<30 else 'Mid'})</b></div>
+            <div>Volatility: <b>{volatility:.1f}%</b></div>
+        </div>
+        """
+
+        st.markdown(summary_html, unsafe_allow_html=True)
 
         # Detect if quarterly data (rare for commodities)
         quarterly = False
@@ -3911,7 +4596,24 @@ if page == "Bonds":
     col1, col2 = st.columns([1.5, 5])
 
     with col1:
-        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+        # ---------- Centered Page Title ----------
+        st.markdown(f"""
+            <div style="
+                position: absolute;
+                top: 0px;  /* keeps it at the top of col1 */
+                width: 100%;
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
+                color: #111;
+                z-index: 10;
+            ">
+                {page}
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
 
         # -------- Bond Categories --------
         bond_groups = {
@@ -4049,6 +4751,67 @@ if page == "Bonds":
         # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
+        
+        import numpy as np
+        from scipy.stats import linregress
+
+        # ======== Summary Stats ========
+
+        n_obs = len(df_filtered)
+        mean_val = df_filtered['value'].mean()
+        latest_val = df_filtered['value'].iloc[-1]
+        min_val = df_filtered['value'].min()
+        max_val = df_filtered['value'].max()
+        start_val = df_filtered['value'].iloc[0]
+        change_since_start = latest_val - start_val
+
+        # Relative position (0–100%)
+        position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+
+        # Trend (using regression slope)
+        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
+        if slope > 0:
+            trend = "🔺 Upward"
+        elif slope < 0:
+            trend = "🔻 Downward"
+        else:
+            trend = "⏸ Flat"
+
+        # Volatility (range as % of mean)
+        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+
+        # ======== Display (Minimal Modern Summary Bar) ========
+
+        summary_html = f"""
+        <div style="
+            background-color:#f9f9f9;
+            border:1px solid #dcdcdc;
+            border-radius:12px;
+            padding:10px 18px;
+            text-align:center;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            font-size:13px;
+            color:#111;
+            font-weight:500;
+            margin-top:5px;
+            margin-bottom:18px;
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:18px;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
+        ">
+            <div>Data Points: <b>{n_obs}</b></div>
+            <div>Mean: <b>{mean_val:.2f}</b></div>
+            <div>Latest: <b>{latest_val:.2f}</b></div>
+            <div>Change: <b style='color:{'#06b606' if change_since_start>0 else '#e63946' if change_since_start<0 else '#333'};'>{change_since_start:+.2f}</b></div>
+            <div>Trend: <b>{trend}</b></div>
+            <div>Position: <b>{position_pct:.0f}% ({'High' if position_pct>70 else 'Low' if position_pct<30 else 'Mid'})</b></div>
+            <div>Volatility: <b>{volatility:.1f}%</b></div>
+        </div>
+        """
+
+        st.markdown(summary_html, unsafe_allow_html=True)
 
         # Detect quarterly data
         quarterly = False
@@ -4111,7 +4874,24 @@ if page == "Crypto":
     col1, col2 = st.columns([1.5, 5])
 
     with col1:
-        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+        # ---------- Centered Page Title ----------
+        st.markdown(f"""
+            <div style="
+                position: absolute;
+                top: 0px;  /* keeps it at the top of col1 */
+                width: 100%;
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
+                color: #111;
+                z-index: 10;
+            ">
+                {page}
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
 
         # -------- Indicator Groups --------
         indicator_groups = {
@@ -4205,6 +4985,67 @@ if page == "Crypto":
         # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
+        
+        import numpy as np
+        from scipy.stats import linregress
+
+        # ======== Summary Stats ========
+
+        n_obs = len(df_filtered)
+        mean_val = df_filtered['value'].mean()
+        latest_val = df_filtered['value'].iloc[-1]
+        min_val = df_filtered['value'].min()
+        max_val = df_filtered['value'].max()
+        start_val = df_filtered['value'].iloc[0]
+        change_since_start = latest_val - start_val
+
+        # Relative position (0–100%)
+        position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+
+        # Trend (using regression slope)
+        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
+        if slope > 0:
+            trend = "🔺 Upward"
+        elif slope < 0:
+            trend = "🔻 Downward"
+        else:
+            trend = "⏸ Flat"
+
+        # Volatility (range as % of mean)
+        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+
+        # ======== Display (Minimal Modern Summary Bar) ========
+
+        summary_html = f"""
+        <div style="
+            background-color:#f9f9f9;
+            border:1px solid #dcdcdc;
+            border-radius:12px;
+            padding:10px 18px;
+            text-align:center;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            font-size:13px;
+            color:#111;
+            font-weight:500;
+            margin-top:5px;
+            margin-bottom:18px;
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:18px;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
+        ">
+            <div>Data Points: <b>{n_obs}</b></div>
+            <div>Mean: <b>{mean_val:.2f}</b></div>
+            <div>Latest: <b>{latest_val:.2f}</b></div>
+            <div>Change: <b style='color:{'#06b606' if change_since_start>0 else '#e63946' if change_since_start<0 else '#333'};'>{change_since_start:+.2f}</b></div>
+            <div>Trend: <b>{trend}</b></div>
+            <div>Position: <b>{position_pct:.0f}% ({'High' if position_pct>70 else 'Low' if position_pct<30 else 'Mid'})</b></div>
+            <div>Volatility: <b>{volatility:.1f}%</b></div>
+        </div>
+        """
+
+        st.markdown(summary_html, unsafe_allow_html=True)
 
         # Detect if quarterly data (optional for crypto, usually daily)
         quarterly = False
@@ -4251,7 +5092,24 @@ if page == "Yield Curve":
     col1, col2 = st.columns([1.5, 5])
 
     with col1:
-        st.markdown("<div style='margin-top:-40px;'>", unsafe_allow_html=True)
+        # ---------- Centered Page Title ----------
+        st.markdown(f"""
+            <div style="
+                position: absolute;
+                top: 0px;  /* keeps it at the top of col1 */
+                width: 100%;
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
+                color: #111;
+                z-index: 10;
+            ">
+                {page}
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
 
         # -------- Country Selection --------
         country = st.selectbox("Select Country", ["US", "UK", "Japan", "Euro"])
@@ -4347,6 +5205,67 @@ if page == "Yield Curve":
         # -------- Filter Data by Date --------
         df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
                          (df['date'] <= pd.to_datetime(end_date))]
+        
+        import numpy as np
+        from scipy.stats import linregress
+
+        # ======== Summary Stats ========
+
+        n_obs = len(df_filtered)
+        mean_val = df_filtered['value'].mean()
+        latest_val = df_filtered['value'].iloc[-1]
+        min_val = df_filtered['value'].min()
+        max_val = df_filtered['value'].max()
+        start_val = df_filtered['value'].iloc[0]
+        change_since_start = latest_val - start_val
+
+        # Relative position (0–100%)
+        position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+
+        # Trend (using regression slope)
+        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
+        if slope > 0:
+            trend = "🔺 Upward"
+        elif slope < 0:
+            trend = "🔻 Downward"
+        else:
+            trend = "⏸ Flat"
+
+        # Volatility (range as % of mean)
+        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+
+        # ======== Display (Minimal Modern Summary Bar) ========
+
+        summary_html = f"""
+        <div style="
+            background-color:#f9f9f9;
+            border:1px solid #dcdcdc;
+            border-radius:12px;
+            padding:10px 18px;
+            text-align:center;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            font-size:13px;
+            color:#111;
+            font-weight:500;
+            margin-top:5px;
+            margin-bottom:18px;
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:18px;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
+        ">
+            <div>Data Points: <b>{n_obs}</b></div>
+            <div>Mean: <b>{mean_val:.2f}</b></div>
+            <div>Latest: <b>{latest_val:.2f}</b></div>
+            <div>Change: <b style='color:{'#06b606' if change_since_start>0 else '#e63946' if change_since_start<0 else '#333'};'>{change_since_start:+.2f}</b></div>
+            <div>Trend: <b>{trend}</b></div>
+            <div>Position: <b>{position_pct:.0f}% ({'High' if position_pct>70 else 'Low' if position_pct<30 else 'Mid'})</b></div>
+            <div>Volatility: <b>{volatility:.1f}%</b></div>
+        </div>
+        """
+
+        st.markdown(summary_html, unsafe_allow_html=True)
         df_plot = df_filtered[['date', 'spread']].rename(columns={'spread': 'value'})
 
         # -------- Plot Chart --------
