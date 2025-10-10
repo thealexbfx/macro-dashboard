@@ -2113,7 +2113,16 @@ if page == "USA":
                 font_family="Arial" # optional
             )
         )
-            
+        
+        # -------- Fix Crowded X-Axis for Fed Funds Rate --------
+        if indicator == "Interest Rate":
+            max_ticks = 8  # show ~8 evenly spaced date labels
+            if len(df_filtered) > max_ticks:
+                step = max(1, len(df_filtered) // max_ticks)
+                tickvals = df_filtered['date'].iloc[::step]
+                ticktext = [d.strftime('%b %Y') for d in tickvals]
+                fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
 
         # -------- Display Chart --------
         st.plotly_chart(
@@ -4297,14 +4306,74 @@ if page == "Equities":
             }
         )
 
-        # -------- CSV Download --------
-        csv_data = df_filtered.to_csv(index=False)
-        st.download_button(
-            label="📥 Download CSV",
-            data=csv_data,
-            file_name=f"{indicator.replace('/', '-')}_data.csv",
-            mime="text/csv"
+                # -------- Full-width Indicator Alert Panel --------
+        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
+            """
+            Display a full-width alert panel for the selected indicator
+            """
+            # Determine status
+            if position_pct >= 90 and slope > 0:
+                status = "Extreme High"
+                color = "#e63946"  # Red
+                emoji = "🚨"
+                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
+            elif position_pct <= 10 and slope < 0:
+                status = "Extreme Low"
+                color = "#1d3557"  # Dark blue
+                emoji = "⚠️"
+                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
+            elif position_pct >= 70:
+                status = "High"
+                color = "#f77f00"  # Orange
+                emoji = "🔺"
+                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
+            elif position_pct <= 30:
+                status = "Low"
+                color = "#2a9d8f"  # Teal
+                emoji = "🔻"
+                message = f"{indicator_name} is below normal levels. Could indicate caution."
+            else:
+                status = "Normal"
+                color = "#06b606"  # Green
+                emoji = "✅"
+                message = f"{indicator_name} is within normal historical range."
+
+            # HTML panel
+            alert_html = f"""
+            <div style="
+                width: 100%;
+                background-color:{color}1A;  /* light transparent background */
+                border-left: 6px solid {color};
+                border-radius: 8px;
+                padding: 18px 24px;
+                margin-top: 18px;
+                margin-bottom: 24px;
+                font-family:'Inter','Segoe UI','Arial',sans-serif;
+                box-shadow:0 2px 6px rgba(0,0,0,0.05);
+            ">
+                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
+                    {emoji} {indicator_name}: {status}
+                </div>
+                <div style="font-size:14px; line-height:1.5; color:#111;">
+                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+                </div>
+                <div style="margin-top:6px; font-size:14px; color:#333;">
+                    {message}
+                </div>
+            </div>
+            """
+            st.markdown(alert_html, unsafe_allow_html=True)
+
+        # -------- Call it after plotting chart --------
+        display_indicator_alert(
+            latest_val=latest_val,
+            mean_val=mean_val,
+            position_pct=position_pct,
+            slope=slope,
+            volatility=volatility,
+            indicator_name=indicator
         )
+        
 
         
 # -------- Stocks Tab --------
@@ -4656,21 +4725,20 @@ if page == "Commodities":
         # -------- Indicator Function Mapping --------
       
         indicator_map = {
-            "Crude Oil": (lambda: get_fx_data_yahoo("CL=F"), "daily", None),
-            "Natural Gas": (lambda: get_fx_data_yahoo("NG=F"), "daily", None),
-            "Brent Oil": (lambda: get_fx_data_yahoo("BZ=F"), "daily", None),
-            "Gold": (lambda: get_fx_data_yahoo("GC=F"), "daily", None),
-            "Silver": (lambda: get_fx_data_yahoo("SI=F"), "daily", None),
-            "Copper": (lambda: get_fx_data_yahoo("HG=F"), "daily", None),
-            "Wheat": (lambda: get_fx_data_yahoo("ZW=F"), "daily", None),
-            "Corn": (lambda: get_fx_data_yahoo("ZC=F"), "daily", None),
-            "Soybeans": (lambda: get_fx_data_yahoo("ZS=F"), "daily", None)
+            "Crude Oil": ("CL=F", "daily", None),
+            "Natural Gas": ("NG=F", "daily", None),
+            "Brent Oil": ("BZ=F", "daily", None),
+            "Gold": ("GC=F", "daily", None),
+            "Silver": ("SI=F", "daily", None),
+            "Copper": ("HG=F", "daily", None),
+            "Wheat": ("ZW=F", "daily", None),
+            "Corn": ("ZC=F", "daily", None),
+            "Soybeans": ("ZS=F", "daily", None)
         }
 
+        ticker, date_format, tickformat_override = indicator_map[indicator]
+        df = get_fx_data_yahoo(ticker, start_date=dt.date(2010, 1, 1), end_date=dt.date.today())
 
-        # Load data dynamically
-        func, date_format, tickformat_override = indicator_map[indicator]
-        df = func()
         df = df.dropna()
         if df.empty:
             st.error("No data available.")
@@ -5692,18 +5760,19 @@ if page == "Yield Curve":
         # ======== Summary Stats ========
 
         n_obs = len(df_filtered)
-        mean_val = df_filtered['value'].mean()
-        latest_val = df_filtered['value'].iloc[-1]
-        min_val = df_filtered['value'].min()
-        max_val = df_filtered['value'].max()
-        start_val = df_filtered['value'].iloc[0]
+        mean_val = df_filtered['spread'].mean()
+        latest_val = df_filtered['spread'].iloc[-1]
+        min_val = df_filtered['spread'].min()
+        max_val = df_filtered['spread'].max()
+        start_val = df_filtered['spread'].iloc[0]
         change_since_start = latest_val - start_val
+
 
         # Relative position (0–100%)
         position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
 
         # Trend (using regression slope)
-        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
+        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['spread'])
         if slope > 0:
             trend = "🔺 Upward"
         elif slope < 0:
@@ -5851,7 +5920,7 @@ if page == "Yield Curve":
             position_pct=position_pct,
             slope=slope,
             volatility=volatility,
-            indicator_name=indicator
+            indicator_name=f"{country} {maturity_long}-{maturity_short} Yield Spread"
         )
 
 
