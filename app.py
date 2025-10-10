@@ -2446,14 +2446,74 @@ if page == "Japan":
             }
         )
 
-        # -------- CSV Download --------
-        csv_data = df_filtered.to_csv(index=False)
-        st.download_button(
-            label="📥 Download CSV",
-            data=csv_data,
-            file_name=f"Japan_{indicator.replace(' ', '_')}_data.csv",
-            mime="text/csv"
+                # -------- Full-width Indicator Alert Panel --------
+        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
+            """
+            Display a full-width alert panel for the selected indicator
+            """
+            # Determine status
+            if position_pct >= 90 and slope > 0:
+                status = "Extreme High"
+                color = "#e63946"  # Red
+                emoji = "🚨"
+                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
+            elif position_pct <= 10 and slope < 0:
+                status = "Extreme Low"
+                color = "#1d3557"  # Dark blue
+                emoji = "⚠️"
+                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
+            elif position_pct >= 70:
+                status = "High"
+                color = "#f77f00"  # Orange
+                emoji = "🔺"
+                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
+            elif position_pct <= 30:
+                status = "Low"
+                color = "#2a9d8f"  # Teal
+                emoji = "🔻"
+                message = f"{indicator_name} is below normal levels. Could indicate caution."
+            else:
+                status = "Normal"
+                color = "#06b606"  # Green
+                emoji = "✅"
+                message = f"{indicator_name} is within normal historical range."
+
+            # HTML panel
+            alert_html = f"""
+            <div style="
+                width: 100%;
+                background-color:{color}1A;  /* light transparent background */
+                border-left: 6px solid {color};
+                border-radius: 8px;
+                padding: 18px 24px;
+                margin-top: 18px;
+                margin-bottom: 24px;
+                font-family:'Inter','Segoe UI','Arial',sans-serif;
+                box-shadow:0 2px 6px rgba(0,0,0,0.05);
+            ">
+                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
+                    {emoji} {indicator_name}: {status}
+                </div>
+                <div style="font-size:14px; line-height:1.5; color:#111;">
+                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+                </div>
+                <div style="margin-top:6px; font-size:14px; color:#333;">
+                    {message}
+                </div>
+            </div>
+            """
+            st.markdown(alert_html, unsafe_allow_html=True)
+
+        # -------- Call it after plotting chart --------
+        display_indicator_alert(
+            latest_val=latest_val,
+            mean_val=mean_val,
+            position_pct=position_pct,
+            slope=slope,
+            volatility=volatility,
+            indicator_name=indicator
         )
+
 
        
 # -------- UK Tab --------
@@ -2706,14 +2766,74 @@ if page == "UK":
             }
         )
 
-        # -------- CSV Download --------
-        csv_data = df_filtered.to_csv(index=False)
-        st.download_button(
-            label="📥 Download CSV",
-            data=csv_data,
-            file_name=f"UK_{indicator.replace(' ', '_')}_data.csv",
-            mime="text/csv"
+                # -------- Full-width Indicator Alert Panel --------
+        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
+            """
+            Display a full-width alert panel for the selected indicator
+            """
+            # Determine status
+            if position_pct >= 90 and slope > 0:
+                status = "Extreme High"
+                color = "#e63946"  # Red
+                emoji = "🚨"
+                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
+            elif position_pct <= 10 and slope < 0:
+                status = "Extreme Low"
+                color = "#1d3557"  # Dark blue
+                emoji = "⚠️"
+                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
+            elif position_pct >= 70:
+                status = "High"
+                color = "#f77f00"  # Orange
+                emoji = "🔺"
+                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
+            elif position_pct <= 30:
+                status = "Low"
+                color = "#2a9d8f"  # Teal
+                emoji = "🔻"
+                message = f"{indicator_name} is below normal levels. Could indicate caution."
+            else:
+                status = "Normal"
+                color = "#06b606"  # Green
+                emoji = "✅"
+                message = f"{indicator_name} is within normal historical range."
+
+            # HTML panel
+            alert_html = f"""
+            <div style="
+                width: 100%;
+                background-color:{color}1A;  /* light transparent background */
+                border-left: 6px solid {color};
+                border-radius: 8px;
+                padding: 18px 24px;
+                margin-top: 18px;
+                margin-bottom: 24px;
+                font-family:'Inter','Segoe UI','Arial',sans-serif;
+                box-shadow:0 2px 6px rgba(0,0,0,0.05);
+            ">
+                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
+                    {emoji} {indicator_name}: {status}
+                </div>
+                <div style="font-size:14px; line-height:1.5; color:#111;">
+                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+                </div>
+                <div style="margin-top:6px; font-size:14px; color:#333;">
+                    {message}
+                </div>
+            </div>
+            """
+            st.markdown(alert_html, unsafe_allow_html=True)
+
+        # -------- Call it after plotting chart --------
+        display_indicator_alert(
+            latest_val=latest_val,
+            mean_val=mean_val,
+            position_pct=position_pct,
+            slope=slope,
+            volatility=volatility,
+            indicator_name=indicator
         )
+
 
         
 # -------- EURO Tab --------
@@ -2965,14 +3085,74 @@ if page == "EURO":
             }
         )
 
-        # -------- CSV Download --------
-        csv_data = df_filtered.to_csv(index=False)
-        st.download_button(
-            label="📥 Download CSV",
-            data=csv_data,
-            file_name=f"Euro_{indicator.replace(' ', '_')}_data.csv",
-            mime="text/csv"
+                # -------- Full-width Indicator Alert Panel --------
+        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
+            """
+            Display a full-width alert panel for the selected indicator
+            """
+            # Determine status
+            if position_pct >= 90 and slope > 0:
+                status = "Extreme High"
+                color = "#e63946"  # Red
+                emoji = "🚨"
+                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
+            elif position_pct <= 10 and slope < 0:
+                status = "Extreme Low"
+                color = "#1d3557"  # Dark blue
+                emoji = "⚠️"
+                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
+            elif position_pct >= 70:
+                status = "High"
+                color = "#f77f00"  # Orange
+                emoji = "🔺"
+                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
+            elif position_pct <= 30:
+                status = "Low"
+                color = "#2a9d8f"  # Teal
+                emoji = "🔻"
+                message = f"{indicator_name} is below normal levels. Could indicate caution."
+            else:
+                status = "Normal"
+                color = "#06b606"  # Green
+                emoji = "✅"
+                message = f"{indicator_name} is within normal historical range."
+
+            # HTML panel
+            alert_html = f"""
+            <div style="
+                width: 100%;
+                background-color:{color}1A;  /* light transparent background */
+                border-left: 6px solid {color};
+                border-radius: 8px;
+                padding: 18px 24px;
+                margin-top: 18px;
+                margin-bottom: 24px;
+                font-family:'Inter','Segoe UI','Arial',sans-serif;
+                box-shadow:0 2px 6px rgba(0,0,0,0.05);
+            ">
+                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
+                    {emoji} {indicator_name}: {status}
+                </div>
+                <div style="font-size:14px; line-height:1.5; color:#111;">
+                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+                </div>
+                <div style="margin-top:6px; font-size:14px; color:#333;">
+                    {message}
+                </div>
+            </div>
+            """
+            st.markdown(alert_html, unsafe_allow_html=True)
+
+        # -------- Call it after plotting chart --------
+        display_indicator_alert(
+            latest_val=latest_val,
+            mean_val=mean_val,
+            position_pct=position_pct,
+            slope=slope,
+            volatility=volatility,
+            indicator_name=indicator
         )
+
 
         
 # -------- FX Rates Tab --------
@@ -3243,14 +3423,74 @@ if page == "FX Rates":
             }
         )
 
-        # -------- CSV Download --------
-        csv_data = df_filtered.to_csv(index=False)
-        st.download_button(
-            label="📥 Download CSV",
-            data=csv_data,
-            file_name=f"{indicator.replace('/', '-')}_data.csv",
-            mime="text/csv"
+                # -------- Full-width Indicator Alert Panel --------
+        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
+            """
+            Display a full-width alert panel for the selected indicator
+            """
+            # Determine status
+            if position_pct >= 90 and slope > 0:
+                status = "Extreme High"
+                color = "#e63946"  # Red
+                emoji = "🚨"
+                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
+            elif position_pct <= 10 and slope < 0:
+                status = "Extreme Low"
+                color = "#1d3557"  # Dark blue
+                emoji = "⚠️"
+                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
+            elif position_pct >= 70:
+                status = "High"
+                color = "#f77f00"  # Orange
+                emoji = "🔺"
+                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
+            elif position_pct <= 30:
+                status = "Low"
+                color = "#2a9d8f"  # Teal
+                emoji = "🔻"
+                message = f"{indicator_name} is below normal levels. Could indicate caution."
+            else:
+                status = "Normal"
+                color = "#06b606"  # Green
+                emoji = "✅"
+                message = f"{indicator_name} is within normal historical range."
+
+            # HTML panel
+            alert_html = f"""
+            <div style="
+                width: 100%;
+                background-color:{color}1A;  /* light transparent background */
+                border-left: 6px solid {color};
+                border-radius: 8px;
+                padding: 18px 24px;
+                margin-top: 18px;
+                margin-bottom: 24px;
+                font-family:'Inter','Segoe UI','Arial',sans-serif;
+                box-shadow:0 2px 6px rgba(0,0,0,0.05);
+            ">
+                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
+                    {emoji} {indicator_name}: {status}
+                </div>
+                <div style="font-size:14px; line-height:1.5; color:#111;">
+                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+                </div>
+                <div style="margin-top:6px; font-size:14px; color:#333;">
+                    {message}
+                </div>
+            </div>
+            """
+            st.markdown(alert_html, unsafe_allow_html=True)
+
+        # -------- Call it after plotting chart --------
+        display_indicator_alert(
+            latest_val=latest_val,
+            mean_val=mean_val,
+            position_pct=position_pct,
+            slope=slope,
+            volatility=volatility,
+            indicator_name=indicator
         )
+
 
 
 # ==============================
@@ -4297,14 +4537,74 @@ if page == "Stocks":
             }
         )
 
-        # --------------------- CSV Download (original) ---------------------
-        csv_data = df_filtered.to_csv(index=False)
-        st.download_button(
-            label="📥 Download CSV",
-            data=csv_data,
-            file_name=f"{indicator.replace('/', '-')}_data.csv",
-            mime="text/csv"
+                # -------- Full-width Indicator Alert Panel --------
+        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
+            """
+            Display a full-width alert panel for the selected indicator
+            """
+            # Determine status
+            if position_pct >= 90 and slope > 0:
+                status = "Extreme High"
+                color = "#e63946"  # Red
+                emoji = "🚨"
+                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
+            elif position_pct <= 10 and slope < 0:
+                status = "Extreme Low"
+                color = "#1d3557"  # Dark blue
+                emoji = "⚠️"
+                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
+            elif position_pct >= 70:
+                status = "High"
+                color = "#f77f00"  # Orange
+                emoji = "🔺"
+                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
+            elif position_pct <= 30:
+                status = "Low"
+                color = "#2a9d8f"  # Teal
+                emoji = "🔻"
+                message = f"{indicator_name} is below normal levels. Could indicate caution."
+            else:
+                status = "Normal"
+                color = "#06b606"  # Green
+                emoji = "✅"
+                message = f"{indicator_name} is within normal historical range."
+
+            # HTML panel
+            alert_html = f"""
+            <div style="
+                width: 100%;
+                background-color:{color}1A;  /* light transparent background */
+                border-left: 6px solid {color};
+                border-radius: 8px;
+                padding: 18px 24px;
+                margin-top: 18px;
+                margin-bottom: 24px;
+                font-family:'Inter','Segoe UI','Arial',sans-serif;
+                box-shadow:0 2px 6px rgba(0,0,0,0.05);
+            ">
+                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
+                    {emoji} {indicator_name}: {status}
+                </div>
+                <div style="font-size:14px; line-height:1.5; color:#111;">
+                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+                </div>
+                <div style="margin-top:6px; font-size:14px; color:#333;">
+                    {message}
+                </div>
+            </div>
+            """
+            st.markdown(alert_html, unsafe_allow_html=True)
+
+        # -------- Call it after plotting chart --------
+        display_indicator_alert(
+            latest_val=latest_val,
+            mean_val=mean_val,
+            position_pct=position_pct,
+            slope=slope,
+            volatility=volatility,
+            indicator_name=indicator
         )
+
         
 # -------- Commodities Tab --------
 if page == "Commodities":
@@ -4581,14 +4881,74 @@ if page == "Commodities":
             }
         )
 
-        # -------- CSV Download --------
-        csv_data = df_filtered.to_csv(index=False)
-        st.download_button(
-            label="📥 Download CSV",
-            data=csv_data,
-            file_name=f"Commodities_{indicator.replace(' ', '_')}_data.csv",
-            mime="text/csv"
+                # -------- Full-width Indicator Alert Panel --------
+        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
+            """
+            Display a full-width alert panel for the selected indicator
+            """
+            # Determine status
+            if position_pct >= 90 and slope > 0:
+                status = "Extreme High"
+                color = "#e63946"  # Red
+                emoji = "🚨"
+                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
+            elif position_pct <= 10 and slope < 0:
+                status = "Extreme Low"
+                color = "#1d3557"  # Dark blue
+                emoji = "⚠️"
+                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
+            elif position_pct >= 70:
+                status = "High"
+                color = "#f77f00"  # Orange
+                emoji = "🔺"
+                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
+            elif position_pct <= 30:
+                status = "Low"
+                color = "#2a9d8f"  # Teal
+                emoji = "🔻"
+                message = f"{indicator_name} is below normal levels. Could indicate caution."
+            else:
+                status = "Normal"
+                color = "#06b606"  # Green
+                emoji = "✅"
+                message = f"{indicator_name} is within normal historical range."
+
+            # HTML panel
+            alert_html = f"""
+            <div style="
+                width: 100%;
+                background-color:{color}1A;  /* light transparent background */
+                border-left: 6px solid {color};
+                border-radius: 8px;
+                padding: 18px 24px;
+                margin-top: 18px;
+                margin-bottom: 24px;
+                font-family:'Inter','Segoe UI','Arial',sans-serif;
+                box-shadow:0 2px 6px rgba(0,0,0,0.05);
+            ">
+                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
+                    {emoji} {indicator_name}: {status}
+                </div>
+                <div style="font-size:14px; line-height:1.5; color:#111;">
+                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+                </div>
+                <div style="margin-top:6px; font-size:14px; color:#333;">
+                    {message}
+                </div>
+            </div>
+            """
+            st.markdown(alert_html, unsafe_allow_html=True)
+
+        # -------- Call it after plotting chart --------
+        display_indicator_alert(
+            latest_val=latest_val,
+            mean_val=mean_val,
+            position_pct=position_pct,
+            slope=slope,
+            volatility=volatility,
+            indicator_name=indicator
         )
+
 
         
 # -------- Bonds Tab --------
@@ -4859,14 +5219,74 @@ if page == "Bonds":
             }
         )
 
-        # -------- CSV Download --------
-        csv_data = df_filtered.to_csv(index=False)
-        st.download_button(
-            label="📥 Download CSV",
-            data=csv_data,
-            file_name=f"Bonds_{indicator.replace(' ', '_')}_data.csv",
-            mime="text/csv"
+                # -------- Full-width Indicator Alert Panel --------
+        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
+            """
+            Display a full-width alert panel for the selected indicator
+            """
+            # Determine status
+            if position_pct >= 90 and slope > 0:
+                status = "Extreme High"
+                color = "#e63946"  # Red
+                emoji = "🚨"
+                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
+            elif position_pct <= 10 and slope < 0:
+                status = "Extreme Low"
+                color = "#1d3557"  # Dark blue
+                emoji = "⚠️"
+                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
+            elif position_pct >= 70:
+                status = "High"
+                color = "#f77f00"  # Orange
+                emoji = "🔺"
+                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
+            elif position_pct <= 30:
+                status = "Low"
+                color = "#2a9d8f"  # Teal
+                emoji = "🔻"
+                message = f"{indicator_name} is below normal levels. Could indicate caution."
+            else:
+                status = "Normal"
+                color = "#06b606"  # Green
+                emoji = "✅"
+                message = f"{indicator_name} is within normal historical range."
+
+            # HTML panel
+            alert_html = f"""
+            <div style="
+                width: 100%;
+                background-color:{color}1A;  /* light transparent background */
+                border-left: 6px solid {color};
+                border-radius: 8px;
+                padding: 18px 24px;
+                margin-top: 18px;
+                margin-bottom: 24px;
+                font-family:'Inter','Segoe UI','Arial',sans-serif;
+                box-shadow:0 2px 6px rgba(0,0,0,0.05);
+            ">
+                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
+                    {emoji} {indicator_name}: {status}
+                </div>
+                <div style="font-size:14px; line-height:1.5; color:#111;">
+                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+                </div>
+                <div style="margin-top:6px; font-size:14px; color:#333;">
+                    {message}
+                </div>
+            </div>
+            """
+            st.markdown(alert_html, unsafe_allow_html=True)
+
+        # -------- Call it after plotting chart --------
+        display_indicator_alert(
+            latest_val=latest_val,
+            mean_val=mean_val,
+            position_pct=position_pct,
+            slope=slope,
+            volatility=volatility,
+            indicator_name=indicator
         )
+
 
      
 # -------- Crypto Tab --------
@@ -5076,14 +5496,74 @@ if page == "Crypto":
             }
         )
 
-        # -------- CSV Download --------
-        csv_data = df_filtered.to_csv(index=False)
-        st.download_button(
-            label="📥 Download CSV",
-            data=csv_data,
-            file_name=f"{indicator.replace(' ', '_')}_data.csv",
-            mime="text/csv"
+                # -------- Full-width Indicator Alert Panel --------
+        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
+            """
+            Display a full-width alert panel for the selected indicator
+            """
+            # Determine status
+            if position_pct >= 90 and slope > 0:
+                status = "Extreme High"
+                color = "#e63946"  # Red
+                emoji = "🚨"
+                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
+            elif position_pct <= 10 and slope < 0:
+                status = "Extreme Low"
+                color = "#1d3557"  # Dark blue
+                emoji = "⚠️"
+                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
+            elif position_pct >= 70:
+                status = "High"
+                color = "#f77f00"  # Orange
+                emoji = "🔺"
+                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
+            elif position_pct <= 30:
+                status = "Low"
+                color = "#2a9d8f"  # Teal
+                emoji = "🔻"
+                message = f"{indicator_name} is below normal levels. Could indicate caution."
+            else:
+                status = "Normal"
+                color = "#06b606"  # Green
+                emoji = "✅"
+                message = f"{indicator_name} is within normal historical range."
+
+            # HTML panel
+            alert_html = f"""
+            <div style="
+                width: 100%;
+                background-color:{color}1A;  /* light transparent background */
+                border-left: 6px solid {color};
+                border-radius: 8px;
+                padding: 18px 24px;
+                margin-top: 18px;
+                margin-bottom: 24px;
+                font-family:'Inter','Segoe UI','Arial',sans-serif;
+                box-shadow:0 2px 6px rgba(0,0,0,0.05);
+            ">
+                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
+                    {emoji} {indicator_name}: {status}
+                </div>
+                <div style="font-size:14px; line-height:1.5; color:#111;">
+                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+                </div>
+                <div style="margin-top:6px; font-size:14px; color:#333;">
+                    {message}
+                </div>
+            </div>
+            """
+            st.markdown(alert_html, unsafe_allow_html=True)
+
+        # -------- Call it after plotting chart --------
+        display_indicator_alert(
+            latest_val=latest_val,
+            mean_val=mean_val,
+            position_pct=position_pct,
+            slope=slope,
+            volatility=volatility,
+            indicator_name=indicator
         )
+
 
        
 # -------- Yield Curve Tab --------
@@ -5306,14 +5786,74 @@ if page == "Yield Curve":
             }
         )
 
-        # -------- CSV Download --------
-        csv_data = df_filtered.to_csv(index=False)
-        st.download_button(
-            label="📥 Download CSV",
-            data=csv_data,
-            file_name=f"{country}_{maturity_long}-{maturity_short}_spread.csv",
-            mime="text/csv"
+                # -------- Full-width Indicator Alert Panel --------
+        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
+            """
+            Display a full-width alert panel for the selected indicator
+            """
+            # Determine status
+            if position_pct >= 90 and slope > 0:
+                status = "Extreme High"
+                color = "#e63946"  # Red
+                emoji = "🚨"
+                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
+            elif position_pct <= 10 and slope < 0:
+                status = "Extreme Low"
+                color = "#1d3557"  # Dark blue
+                emoji = "⚠️"
+                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
+            elif position_pct >= 70:
+                status = "High"
+                color = "#f77f00"  # Orange
+                emoji = "🔺"
+                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
+            elif position_pct <= 30:
+                status = "Low"
+                color = "#2a9d8f"  # Teal
+                emoji = "🔻"
+                message = f"{indicator_name} is below normal levels. Could indicate caution."
+            else:
+                status = "Normal"
+                color = "#06b606"  # Green
+                emoji = "✅"
+                message = f"{indicator_name} is within normal historical range."
+
+            # HTML panel
+            alert_html = f"""
+            <div style="
+                width: 100%;
+                background-color:{color}1A;  /* light transparent background */
+                border-left: 6px solid {color};
+                border-radius: 8px;
+                padding: 18px 24px;
+                margin-top: 18px;
+                margin-bottom: 24px;
+                font-family:'Inter','Segoe UI','Arial',sans-serif;
+                box-shadow:0 2px 6px rgba(0,0,0,0.05);
+            ">
+                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
+                    {emoji} {indicator_name}: {status}
+                </div>
+                <div style="font-size:14px; line-height:1.5; color:#111;">
+                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+                </div>
+                <div style="margin-top:6px; font-size:14px; color:#333;">
+                    {message}
+                </div>
+            </div>
+            """
+            st.markdown(alert_html, unsafe_allow_html=True)
+
+        # -------- Call it after plotting chart --------
+        display_indicator_alert(
+            latest_val=latest_val,
+            mean_val=mean_val,
+            position_pct=position_pct,
+            slope=slope,
+            volatility=volatility,
+            indicator_name=indicator
         )
+
 
 
 
