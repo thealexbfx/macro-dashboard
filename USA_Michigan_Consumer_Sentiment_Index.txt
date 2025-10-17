@@ -1,4 +1,4 @@
-Date	 Rate
+Date         Rate
 May 2007     88.3
 June 2007    90.4
 July 2007    85.3
@@ -220,3 +220,5 @@ June 2025    71.7
 July 2025    61.7
 August 2025  58.2
 September 2025 55.1
+October 2025 55.0
+

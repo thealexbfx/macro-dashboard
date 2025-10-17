@@ -2203,8 +2203,8 @@ if page == "USA":
             volatility=volatility,
             indicator_name=indicator
         )
-
-
+        
+        
 # -------- Japan Tab --------
 if page == "Japan":
     col1, col2 = st.columns([1.5, 5])
@@ -2522,7 +2522,6 @@ if page == "Japan":
             volatility=volatility,
             indicator_name=indicator
         )
-
 
        
 # -------- UK Tab --------
@@ -2843,8 +2842,7 @@ if page == "UK":
             indicator_name=indicator
         )
 
-
-        
+              
 # -------- EURO Tab --------
 if page == "EURO":
     col1, col2 = st.columns([1.5, 5])
@@ -3162,8 +3160,7 @@ if page == "EURO":
             indicator_name=indicator
         )
 
-
-        
+                
 # -------- FX Rates Tab --------
 if page == "FX Rates":
 
@@ -3499,9 +3496,8 @@ if page == "FX Rates":
             volatility=volatility,
             indicator_name=indicator
         )
-
-
-
+        
+        
 # ==============================
 # 📊 COMPARE TAB (Enhanced Hover + Delta Type + Bold Axis + Black Lines)
 # ==============================
@@ -4375,6 +4371,7 @@ if page == "Equities":
         )
         
 
+
         
 # -------- Stocks Tab --------
 if page == "Stocks":
@@ -4494,8 +4491,8 @@ if page == "Stocks":
                 position: relative;
                 top: -20px;
                 margin-left: 30px;
-                font-size:22px;
-                font-family: 'Arial Bold';
+                font-size:19px;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
                 font-weight:normal;
                 color:#333;
             ">
@@ -4673,6 +4670,141 @@ if page == "Stocks":
             volatility=volatility,
             indicator_name=indicator
         )
+
+        # ==============================
+        # 🧠 Stock Market Macro Summary (LLM-enhanced)
+        # ==============================
+
+        import streamlit as st
+        import pandas as pd
+        import numpy as np
+        import datetime as dt
+        from scipy.stats import linregress
+        import openai  # pip install openai
+
+        # ✅ Set your OpenAI API key in Streamlit secrets or environment variable
+        # e.g., in .streamlit/secrets.toml -> [openai] api_key="sk-XXXX"
+        openai.api_key = st.secrets["openai"]["api_key"]
+
+        # ---- Streamlit Section Header ----
+        st.markdown("### Stock Market Summary")
+
+        @st.cache_data(ttl=3600)
+        def get_stock_data(ticker: str):
+            """Wrapper for your existing get_fx_data_yahoo function."""
+            # Replace this with your actual data loader
+            df = get_fx_data_yahoo(ticker, start_date=dt.date(2018, 1, 1), end_date=dt.date.today())
+            return df.dropna()
+
+        @st.cache_data(ttl=1800)
+        def analyze_stocks():
+            """Compute normalized position and slope-based trend for major tickers."""
+            stock_tickers = {
+                "Apple": "AAPL",
+                "Amazon": "AMZN",
+                "Meta": "META",
+                "Alphabet": "GOOGL",
+                "Nvidia": "NVDA",
+                "Microsoft": "MSFT",
+                "Tesla": "TSLA"
+            }
+
+            results = {}
+            for name, ticker in stock_tickers.items():
+                try:
+                    df = get_stock_data(ticker)
+                    if len(df) < 12:
+                        continue
+                    df_3y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=3))]
+                    latest = df_3y["value"].iloc[-1]
+                    min_val, max_val = df_3y["value"].min(), df_3y["value"].max()
+                    slope, _, _, _, _ = linregress(range(len(df_3y)), df_3y["value"])
+                    pos = (latest - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    results[name] = {"latest": latest, "pos": pos, "trend": trend}
+                except Exception as e:
+                    st.warning(f"⚠️ Could not process {name}: {e}")
+            return results
+
+        from openai import OpenAI
+        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+
+        def generate_llm_summary(results: dict):
+            if not results:
+                return "No data available to summarize."
+
+            context_text = "\n".join(
+                [f"{name}: latest={data['latest']:.2f}, trend={data['trend']}, position={data['pos']:.1f}%"
+                 for name, data in results.items()]
+            )
+
+            prompt = f"""
+            You are a senior macro-financial strategist writing a concise, data-driven **condition of stocks summary**.
+            You are given the latest 3-year data snapshot for several major stocks.
+
+            Here are the data points:
+            {context_text}
+
+            Write one short paragraph (5–7 sentences) summarizing the **overall condition of stocks** based on these numbers.
+
+            Guidelines:
+            - Focus on patterns and contrasts across the stocks — e.g., which are leading, lagging, or showing extreme positions.
+            - Do NOT add information not in the data.
+            - Use a neutral, analytical tone (no adjectives like “impressive” or “strong”), but use clear concise english.
+            - Output only one paragraph.
+            - Keep it natural and varied in structure — not repetitive, like a normal person is saying it.
+            - Mention the key data points selectively to illustrate your points.
+            """
+
+
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
+                    messages=[{"role": "user", "content": prompt}],
+                    max_completion_tokens=250,
+                    temperature=0
+                )
+
+                summary_text = response.choices[0].message.content.strip()
+                if not summary_text:
+                    summary_text = "⚠️ LLM returned an empty response."
+
+            except Exception as e:
+                summary_text = f"⚠️ LLM generation failed: {e}"
+
+            return summary_text
+
+        # ---- Cached LLM Summary Function ----
+        @st.cache_data
+        def generate_llm_summary_cached(results: dict):
+            return generate_llm_summary(results)
+
+
+        # ---- Run analysis ----
+        if "stock_macro_summary" not in st.session_state:
+            with st.spinner("Generating summary..."):
+                results = analyze_stocks()
+                # ✅ use the cached version here
+                st.session_state.stock_macro_summary = generate_llm_summary_cached(results)
+
+        # Use cached summary
+        stock_macro_summary = st.session_state.stock_macro_summary
+
+        # ---- Display Narrative Card ----
+        st.markdown(f"""
+        <div style="
+            background-color:#f8f9fa;
+            border-left:6px solid #4a4e69;
+            border-radius:10px;
+            padding:18px 24px;
+            margin-top:10px;
+            font-size:15px;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            line-height:1.6;
+        ">
+        {stock_macro_summary}
+        </div>
+        """, unsafe_allow_html=True)
 
         
 # -------- Commodities Tab --------
@@ -6095,205 +6227,381 @@ if page == "Curve Regimes":
                                 "modeBarButtonsToRemove": ["lasso2d", "select2d"]})
 
 
-# -------- USA Economic Cycle Tab --------
+# -------- USA Economic Cycle Tab (Professional Upgrade) --------
 if page == "Cycle":
-    st.header("🇺🇸 US Economic Cycle Positioning")
-    st.write("""
-    This page shows where the US economy sits in the business cycle 
-    based on growth, inflation, labor market, and financial indicators — 
-    mapped into the **macro seasons** (Spring, Summer, Fall, Winter).
-    """)
+    # --- Centered Header + Black Text ---
+    st.markdown("""
+    <div style="text-align:center; font-size:30px; font-weight:700; color:#000000; margin-bottom:20px;">
+        US Economic Cycle
+    </div>
+    """, unsafe_allow_html=True)
 
-    # ---- Helper: analyze a series ----
+    st.markdown("""
+    <div style="color:#000000; font-size:16px; line-height:1.6; text-align:justify;">
+        The <b>US Economic Cycle</b> assesses the current phase of the US economy using real-time data.  
+        It aggregates key indicators across <b>growth (GDP, PMI)</b>, <b>inflation (CPI level & trend)</b>, 
+        <b>labor markets (unemployment, NFP)</b>, and <b>financial conditions (yield curve)</b>, assigning each 
+        a positive or negative score based on its level and trend.
+        <br><br>
+        • <b>Spring (Recovery):</b> Early rebound with improving growth and labor conditions; inflation remains contained. (+1.0 to +2.9)<br>
+        • <b>Summer (Expansion):</b> Broad economic strength; output, employment, and demand are robust, often with rising inflation. (≥ +3.0)<br>
+        • <b>Fall (Slowdown):</b> Growth momentum slows, hiring softens, inflation remains elevated; policy conditions may ease. (−1.0 to +0.9)<br>
+        • <b>Winter (Contraction):</b> Economic activity contracts; unemployment rises, inflation moderates, and risk sentiment weakens. (≤ −1.1)
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
+    
+    from openai import OpenAI
+    client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+
+
+    # ---- Helper: Analyze a series ----
     def analyze_series(df, window=4):
         if df is None or df.empty:
-            return {"latest_value": None, "trend_slope": None}
+            return {"latest_value": None, "trend_slope": 0}
         df = df.dropna(subset=["value"])
         latest_value = df["value"].iloc[-1]
+        slope = 0
         if len(df) >= window:
             recent = df.tail(window)
-            x = np.arange(len(recent))
-            slope = np.polyfit(x, recent["value"], 1)[0]
-        else:
-            slope = 0
+            slope = np.polyfit(np.arange(len(recent)), recent["value"], 1)[0]
         return {"latest_value": latest_value, "trend_slope": slope}
 
-    # ---- USA Cycle Classifier (hedge-fund style) ----
+    # ---- USA Cycle Classifier ----
     def classify_usa_cycle():
-        # --- Get data ---
-        gdp_df = get_usa_gdp_qoq_data()
-        cpi_df = get_usa_cpi_yoy_data()
-        unemp_df = get_usa_unemployment_rate_data()
-        nfp_df = get_usa_nfp_data()
-        pmi_df = get_usa_ism_manufacturing_pmi_data()
-        yield2_df = get_usa_2yr_yield_data()
-        yield10_df = get_usa_10yr_yield_data()
+        # --- Load data ---
+        gdp = analyze_series(get_usa_gdp_qoq_data())
+        cpi = analyze_series(get_usa_cpi_yoy_data())
+        unemp = analyze_series(get_usa_unemployment_rate_data())
+        nfp = analyze_series(get_usa_nfp_data())
+        pmi = analyze_series(get_usa_ism_manufacturing_pmi_data())
+        yc_2y = analyze_series(get_usa_2yr_yield_data())
+        yc_10y = analyze_series(get_usa_10yr_yield_data())
 
-        gdp = analyze_series(gdp_df)
-        cpi = analyze_series(cpi_df)
-        unemp = analyze_series(unemp_df)
-        nfp = analyze_series(nfp_df)
-        pmi = analyze_series(pmi_df)
-        yield2 = analyze_series(yield2_df)
-        yield10 = analyze_series(yield10_df)
-
-        # --- Extract values ---
-        gdp_vals = gdp_df.tail(4)["value"] if gdp_df is not None else []
-        gdp_change = gdp_vals.iloc[-1] - gdp_vals.iloc[0] if len(gdp_vals) == 4 else None
-        cpi_slope = cpi["trend_slope"]
+        # --- Compute derived metrics ---
+        gdp_change = get_usa_gdp_qoq_data().tail(4)["value"].diff().sum()
         cpi_val = cpi["latest_value"]
+        cpi_slope = cpi["trend_slope"]
         unemp_val = unemp["latest_value"]
-        nfp_avg = nfp_df.tail(4)["value"].mean() if nfp_df is not None and len(nfp_df) >= 4 else None
+        unemp_slope = unemp["trend_slope"]
+        nfp_avg = get_usa_nfp_data().tail(4)["value"].mean()
         pmi_val = pmi["latest_value"]
         pmi_slope = pmi["trend_slope"]
-        yc_spread = (yield10["latest_value"] - yield2["latest_value"]) if yield10["latest_value"] and yield2["latest_value"] else None
+        yc_spread = yc_10y["latest_value"] - yc_2y["latest_value"] if yc_10y["latest_value"] and yc_2y["latest_value"] else None
 
-        # --- Scoring ---
-        score = 0
-        details = {}
+        # --- Scoring & details ---
+        details, scores = {}, {}
 
         # GDP
-        if gdp_change and gdp_change > 0:
-            score += 1; details["GDP Trend"] = ("Improving", +1)
-        else:
-            score -= 1; details["GDP Trend"] = ("Weakening", -1)
+        scores["GDP Trend"] = 1 if gdp_change > 0 else -1
+        details["GDP Trend"] = ("Improving" if scores["GDP Trend"] > 0 else "Weakening", scores["GDP Trend"])
 
-        # CPI
-        if cpi_slope and cpi_slope > 0:
-            score += 1; details["CPI Trend"] = ("Rising", +1)
-        elif cpi_slope and cpi_slope < 0:
-            score -= 1; details["CPI Trend"] = ("Falling", -1)
-        else:
-            details["CPI Trend"] = ("Flat", 0)
+        # CPI Level & Trend
+        scores["CPI Level"] = 1 if cpi_val > 4 else -1 if cpi_val < 1.5 else 0
+        details["CPI Level"] = (f"{cpi_val:.1f}%" + (" (High)" if scores["CPI Level"] > 0 else " (Low)" if scores["CPI Level"] < 0 else ""), scores["CPI Level"])
+        scores["CPI Trend"] = 1 if cpi_slope > 0 else -1 if cpi_slope < 0 else 0
+        details["CPI Trend"] = ("Rising" if scores["CPI Trend"] > 0 else "Falling" if scores["CPI Trend"] < 0 else "Flat", scores["CPI Trend"])
 
-        if cpi_val and cpi_val > 4:
-            score += 1; details["CPI Level"] = (f"{cpi_val:.1f}% (High)", +1)
-        elif cpi_val and cpi_val < 1.5:
-            score -= 1; details["CPI Level"] = (f"{cpi_val:.1f}% (Low)", -1)
-        else:
-            details["CPI Level"] = (f"{cpi_val:.1f}%", 0)
-
-        # Unemployment
-        if unemp_val and unemp_val < 5:
-            score += 1; details["Unemployment"] = (f"{unemp_val:.1f}% (Tight)", +1)
-        elif unemp_val and unemp_val > 5.5:
-            score -= 1; details["Unemployment"] = (f"{unemp_val:.1f}% (Loose)", -1)
-        else:
-            details["Unemployment"] = (f"{unemp_val:.1f}%", 0)
-
-        # NFP (average momentum)
-        if nfp_avg:
-            if nfp_avg > 200:
-                score += 1; details["NFP Avg"] = (f"{nfp_avg:.0f}k (Strong)", +1)
-            elif nfp_avg < 50:
-                score -= 1; details["NFP Avg"] = (f"{nfp_avg:.0f}k (Weak)", -1)
+        # Labor
+        if unemp_val:
+            if unemp_slope > 0.02:
+                scores["Unemployment"] = -1
+                details["Unemployment"] = (f"{unemp_val:.1f}% (Rising)", -1)
+            elif unemp_val < 4 and unemp_slope <= 0:
+                scores["Unemployment"] = 1
+                details["Unemployment"] = (f"{unemp_val:.1f}% (Stable)", 1)
             else:
-                details["NFP Avg"] = (f"{nfp_avg:.0f}k", 0)
+                scores["Unemployment"] = 0
+                details["Unemployment"] = (f"{unemp_val:.1f}% (Neutral)", 0)
+        scores["NFP Avg"] = 1 if nfp_avg > 200 else -1 if nfp_avg < 50 else 0
+        details["NFP Avg"] = (f"{nfp_avg:.0f}k" + (" (Strong)" if scores["NFP Avg"] > 0 else " (Weak)" if scores["NFP Avg"] < 0 else ""), scores["NFP Avg"])
 
         # PMI
-        if pmi_val and pmi_val >= 55:
-            score += 1; details["PMI"] = (f"{pmi_val:.1f} (Strong)", +1)
-        elif pmi_val and pmi_val < 50:
-            score -= 1; details["PMI"] = (f"{pmi_val:.1f} (Weak)", -1)
-        else:
-            details["PMI"] = (f"{pmi_val:.1f}", 0)
+        scores["PMI"] = 1 if pmi_val >= 55 else -1 if pmi_val < 50 else 0
+        details["PMI"] = (f"{pmi_val:.1f}" + (" (Strong)" if scores["PMI"] > 0 else " (Weak)" if scores["PMI"] < 0 else ""), scores["PMI"])
+        scores["PMI Trend"] = 0.5 if pmi_slope > 0 else -0.5 if pmi_slope < 0 else 0
+        details["PMI Trend"] = ("Improving" if pmi_slope > 0 else "Falling" if pmi_slope < 0 else "Flat", scores["PMI Trend"])
 
-        if pmi_slope and pmi_slope > 0:
-            score += 0.5; details["PMI Trend"] = ("Improving", +0.5)
-        elif pmi_slope and pmi_slope < 0:
-            score -= 0.5; details["PMI Trend"] = ("Falling", -0.5)
-        else:
-            details["PMI Trend"] = ("Flat", 0)
-
-        # Yield curve
+        # Yield Curve
         if yc_spread is not None:
-            if yc_spread < 0:
-                score -= 1; details["Yield Curve"] = (f"{yc_spread:.2f} (Inverted)", -1)
-            elif yc_spread > 1:
-                score += 1; details["Yield Curve"] = (f"{yc_spread:.2f} (Steep)", +1)
-            else:
-                details["Yield Curve"] = (f"{yc_spread:.2f}", 0)
+            scores["Yield Curve"] = -1 if yc_spread < 0 else 1 if yc_spread > 1 else 0
+            details["Yield Curve"] = (f"{yc_spread:.2f}" + (" (Inverted)" if scores["Yield Curve"] < 0 else " (Steep)" if scores["Yield Curve"] > 0 else ""), scores["Yield Curve"])
 
-        # --- Map score to season ---
-        if score >= 3:
-            season = "Summer"
-        elif 1 <= score < 3:
-            season = "Spring"
-        elif -1 <= score < 1:
-            season = "Fall"
-        else:
-            season = "Winter"
+        # --- Weighted total ---
+        weights = {"growth": 1.2, "inflation": 1.0, "labor": 1.3, "financials": 0.8}
+        weighted_total = (
+            (scores.get("GDP Trend", 0) + scores.get("PMI", 0) + scores.get("PMI Trend", 0)) * weights["growth"] +
+            (scores.get("CPI Trend", 0) + scores.get("CPI Level", 0)) * weights["inflation"] +
+            (scores.get("Unemployment", 0) + scores.get("NFP Avg", 0)) * weights["labor"] +
+            scores.get("Yield Curve", 0) * weights["financials"]
+        )
 
-        return season, details, score
+        # --- Classify macro season ---
+        def classify_macro_season(score):
+            if score <= -1.5: return "❄️ Winter (Recession)"
+            elif -1.5 < score <= -0.5: return "Fall (Slowdown)"
+            elif -0.5 < score <= 0.5: return "Late Fall (Weak Momentum)"
+            elif 0.5 < score <= 1.5: return "Early Spring (Fragile Recovery)"
+            elif 1.5 < score <= 2.5: return "Late Spring (Broad Recovery)"
+            elif 2.5 < score <= 3.5: return "Early Summer (Expansion)"
+            else: return "Late Summer (Peak Growth)"
 
-    # ---- Get US Position ----
+        season = classify_macro_season(weighted_total)
+        return season, details, round(weighted_total, 2)
+
+    # ---- Get current USA position ----
+    # ---- Get current USA position ----
     usa_position, details, total_score = classify_usa_cycle()
-    st.subheader("📋 Current Classification")
-    st.metric("USA Macro Season", usa_position)
 
-    # ---- Debug Panel ----
-    st.subheader("🛠 Debug: Indicator Inputs & Scores")
-    debug_table = []
-    for k, (val, scr) in details.items():
-        debug_table.append([k, val, scr])
-    debug_table.append(["TOTAL", "", total_score])
-    st.table(pd.DataFrame(debug_table, columns=["Indicator", "Value", "Score"]))
+    st.markdown(f"""
+    <div style="text-align:center; margin-bottom:30px;">
+        <div style="font-size:22px; font-weight:550; color:#000000;">
+            USA Macro Season = {usa_position}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # ---- Wave-style cycle chart ----
+
+    # ---- Professional HTML Table ----
+    def render_cycle_html_table(details, total_score):
+        html = '<table style="border-collapse: collapse; width:100%; font-family: Arial;">'
+        # Header
+        html += '<tr>'
+        for h in ["Indicator", "Value", "Score"]:
+            html += f'<th style="font-weight:bold; border:1px solid black; padding:6px; text-align:center; background-color:#d9d9d9;">{h}</th>'
+        html += '</tr>'
+        
+        # Rows
+        for k, (val, scr) in details.items():
+            # Determine color
+            if scr > 0:
+                color = "#b6f0c3"  # green
+            elif scr < 0:
+                color = "#f7b6b6"  # red
+            else:
+                color = "#f0f0f0"  # gray
+            
+            html += '<tr>'
+            html += f'<td style="font-weight:bold; border:1px solid black; padding:6px; text-align:center; background-color:#F0F0F0;">{k}</td>'
+            html += f'<td style="border:1px solid black; padding:6px; text-align:center; background-color:{color};">{val}</td>'
+            html += f'<td style="border:1px solid black; padding:6px; text-align:center; background-color:{color};">{scr:+.2f}</td>'
+            html += '</tr>'
+        
+        # Total row
+        if total_score > 0:
+            total_color = "#b6f0c3"
+        elif total_score < 0:
+            total_color = "#f7b6b6"
+        else:
+            total_color = "#f0f0f0"
+        
+        html += '<tr>'
+        html += f'<td colspan="2" style="font-weight:bold; border:1px solid black; padding:6px; text-align:center; background-color:#d9d9d9;">TOTAL</td>'
+        html += f'<td style="font-weight:bold; border:1px solid black; padding:6px; text-align:center; background-color:{total_color};">{total_score:+.2f}</td>'
+        html += '</tr>'
+        
+        html += '</table>'
+        return html
+
+    # Display table
+    st.markdown(render_cycle_html_table(details, total_score), unsafe_allow_html=True)
+    st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
+
+
+ 
+    # ---- Wave-style Cycle Chart ----
     def build_cycle_wave(phase):
         import numpy as np
+        import plotly.graph_objects as go
+
+        # Base sine wave
         x = np.linspace(0, 2 * np.pi, 400)
         y = np.sin(x)
 
+        # --- Figure ---
         fig = go.Figure()
 
-        # ---- Background Seasons ----
+        # --- Season background bands ---
         seasons = [
-            {"name": "Spring", "x0": 0, "x1": np.pi/2, "color": "rgba(144,238,144,0.15)"},
-            {"name": "Summer", "x0": np.pi/2, "x1": np.pi, "color": "rgba(255,215,0,0.15)"},
-            {"name": "Fall", "x0": np.pi, "x1": 3*np.pi/2, "color": "rgba(255,140,0,0.15)"},
-            {"name": "Winter", "x0": 3*np.pi/2, "x1": 2*np.pi, "color": "rgba(135,206,250,0.15)"}
+            {"name": "Spring", "x0": 0, "x1": np.pi/2, "color": "rgba(144,238,144,0.18)"},
+            {"name": "Summer", "x0": np.pi/2, "x1": np.pi, "color": "rgba(255,215,0,0.18)"},
+            {"name": "Fall",   "x0": np.pi, "x1": 3*np.pi/2, "color": "rgba(255,165,0,0.15)"},
+            {"name": "Winter", "x0": 3*np.pi/2, "x1": 2*np.pi, "color": "rgba(173,216,230,0.18)"}
         ]
 
+        # Draw season backgrounds + text + vertical dotted lines
         for s in seasons:
             fig.add_vrect(
-                x0=s["x0"], x1=s["x1"], fillcolor=s["color"], opacity=0.3,
-                line_width=0, annotation_text=s["name"], annotation_position="top"
+                x0=s["x0"], x1=s["x1"],
+                fillcolor=s["color"], opacity=0.5, line_width=0
+            )
+            # Add centered bold season text
+            fig.add_annotation(
+                x=(s["x0"] + s["x1"]) / 2,
+                y=1.25,
+                text=f"<b>{s['name']}</b>",
+                showarrow=False,
+                font=dict(size=16, color="rgba(0,0,0,0.65)")
             )
 
-        # ---- Business Cycle Wave ----
-        fig.add_trace(go.Scatter(x=x, y=y, mode="lines",
-                                 line=dict(color="black", width=3),
-                                 name="Business Cycle"))
+            # Add vertical dotted divider line (except before first season)
+            if s["x0"] != 0:
+                fig.add_shape(
+                    type="line",
+                    x0=s["x0"], x1=s["x0"],
+                    y0=-1.2, y1=1.2,
+                    line=dict(color="black", width=0.5, dash="dot")
+                )
 
-        mapping = {"Spring": np.pi/4, "Summer": 3*np.pi/4, "Fall": 5*np.pi/4, "Winter": 7*np.pi/4}
+        # --- Add dotted horizontal 0-line manually ---
+        fig.add_shape(
+            type="line",
+            x0=0, x1=2*np.pi,
+            y0=0, y1=0,
+            line=dict(color="black", width=1)
+        )
+
+        # --- Wave line (thinner) ---
+        fig.add_trace(go.Scatter(
+            x=x, y=y,
+            mode="lines",
+            line=dict(color="black", width=2),
+            hoverinfo="none"
+        ))
+
+        # --- Phase position marker ---
+        mapping = {
+            "Early Spring (Fragile Recovery)": np.pi/4,
+            "Late Spring (Broad Recovery)": np.pi/3,
+            "Early Summer (Expansion)": 3*np.pi/4,
+            "Late Summer (Peak Growth)": np.pi,
+            "Fall (Slowdown)": 5*np.pi/4,
+            "Late Fall (Weak Momentum)": 3*np.pi/2 - 0.4,
+            "Winter (Recession)": 7*np.pi/4
+        }
         xpos = mapping.get(phase, 0)
         ypos = np.sin(xpos)
 
         fig.add_trace(go.Scatter(
             x=[xpos], y=[ypos],
             mode="markers+text",
-            text=["USA"],
+            text=["<b>USA</b>"],
             textposition="top center",
-            marker=dict(size=18, symbol="circle", color="red"),
-            name="USA"
+            textfont=dict(color="black", size=14),
+            marker=dict(
+                size=18,
+                color="red",
+                line=dict(color="black", width=2),
+                symbol="circle"
+            ),
+            hoverinfo="none"
         ))
 
+        # --- Layout styling ---
         fig.update_layout(
-            title=dict(text="🇺🇸 US Business Cycle", x=0.5, xanchor="center"),
-            xaxis=dict(
-                tickvals=[0, np.pi/2, np.pi, 3*np.pi/2, 2*np.pi],
-                ticktext=["Start", "Spring", "Summer", "Fall", "Winter"],
-                showline=True, linewidth=2, linecolor="black", mirror=True
+            title=dict(
+                text="<b>US Economic Cycle</b>",
+                x=0.5, xanchor="center", font=dict(size=20)
             ),
-            yaxis=dict(showline=True, linewidth=2, linecolor="black", mirror=True, range=[-1.5, 1.5]),
+            xaxis=dict(
+                visible=False,
+                showline=True,
+                linewidth=3,
+                linecolor="black",
+                mirror=True
+            ),
+            yaxis=dict(
+                visible=False,
+                showline=True,
+                linewidth=3,
+                linecolor="black",
+                mirror=True
+            ),
+            plot_bgcolor="white",
+            paper_bgcolor="white",
             height=500,
             margin=dict(l=40, r=40, t=60, b=40),
             showlegend=False
         )
+
+        # --- Border around chart ---
+        fig.add_shape(
+            type="rect",
+            x0=0, x1=2*np.pi,
+            y0=-1.5, y1=1.5,
+            line=dict(color="black", width=3)
+        )
+
         return fig
 
-    st.subheader("📊 Cycle Visualization")
-    fig = build_cycle_wave(usa_position)
-    st.plotly_chart(fig, use_container_width=True)
+
+    st.plotly_chart(build_cycle_wave(usa_position), use_container_width=True)
+    
+    # ----------- Macro Cycle Summary (AI-Generated) -----------
+
+    st.markdown("### US Economic Cycle Summary")
+
+    # Prepare structured data context for LLM
+    cycle_data_summary = "\n".join(
+        [f"{indicator}: value={val[0]}, score={val[1]:+.1f}" for indicator, val in details.items()]
+    )
+
+
+    prompt = f"""
+    You are a senior macroeconomic strategist writing a concise professional summary of the **U.S. economic cycle** 
+    based on the following indicators and scores.
+
+    Indicators (Level, Trend, Score):
+    {cycle_data_summary}
+
+    The overall cycle score is {total_score:.1f}, classified as **{usa_position}**.
+
+    Write one paragraph (5–7 sentences) describing the current macroeconomic environment of the U.S., 
+    interpreting the data holistically.
+
+    Guidelines:
+    - Keep it analytical and neutral — like an economist briefing a portfolio manager.
+    - Summarize the growth, inflation, labor, and financial conditions implied by the data.
+    - Avoid adjectives like “strong” or “weak” unless implied by score/trend.
+    - Mention the current phase ({usa_position}) naturally.
+    - Use professional, natural English (no lists or bullet points).
+    - Output a single paragraph, no headings.
+    """
+
+    @st.cache_data(ttl=3600)
+    def generate_cycle_summary():
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                max_completion_tokens=250,
+                temperature=0.2
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            return f"⚠️ LLM generation failed: {e}"
+
+    # Generate and display
+    with st.spinner("Generating cycle summary..."):
+        cycle_summary_text = generate_cycle_summary()
+
+    st.markdown(f"""
+    <div style="
+        background-color:#f8f9fa;
+        border-left:6px solid #1d3557;
+        border-radius:10px;
+        padding:18px 24px;
+        margin-top:10px;
+        font-size:15px;
+        font-family:'Inter','Segoe UI','Arial',sans-serif;
+        line-height:1.6;
+        color:#111;
+    ">
+    {cycle_summary_text}
+    </div>
+    """, unsafe_allow_html=True)
+
+    
+    
 

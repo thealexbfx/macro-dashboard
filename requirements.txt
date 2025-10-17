@@ -9,4 +9,5 @@ python-dotenv
 xlrd
 streamlit-option-menu
 scikit-learn
+openai
 
