@@ -4370,7 +4370,141 @@ if page == "Equities":
             indicator_name=indicator
         )
         
+        # ==============================
+        # 🧠 Equities Market Macro Summary (LLM-enhanced)
+        # ==============================
 
+        import streamlit as st
+        import pandas as pd
+        import numpy as np
+        import datetime as dt
+        from scipy.stats import linregress
+        import openai  # pip install openai
+
+        # ✅ Set your OpenAI API key in Streamlit secrets or environment variable
+        # e.g., in .streamlit/secrets.toml -> [openai] api_key="sk-XXXX"
+        openai.api_key = st.secrets["openai"]["api_key"]
+
+        # ---- Streamlit Section Header ----
+        st.markdown("### Equities Market Summary")
+
+        @st.cache_data(ttl=3600)
+        def get_equities_data(ticker: str):
+            """Wrapper for your existing get_fx_data_yahoo function."""
+            # Replace this with your actual data loader
+            df = get_fx_data_yahoo(ticker, start_date=dt.date(2018, 1, 1), end_date=dt.date.today())
+            return df.dropna()
+
+        @st.cache_data(ttl=1800)
+        def analyze_equities():
+            """Compute normalized position and slope-based trend for major tickers."""
+            equities_tickers = {
+                "S&P 500": ("^GSPC"),
+                "NASDAQ": ("^IXIC"),
+                "Dow Jones": ("^DJI"),
+                "FTSE 100": ("^FTSE"),
+                "Nikkei 225": ("^N225"),
+                "DAX": ("^GDAXI"),
+                "MSCI Emerging Markets ETF": ("EEM"),
+                "VIX": ("^VIX")
+            }
+
+            results = {}
+            for name, ticker in equities_tickers.items():
+                try:
+                    df = get_equities_data(ticker)
+                    if len(df) < 12:
+                        continue
+                    df_3y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=3))]
+                    latest = df_3y["value"].iloc[-1]
+                    min_val, max_val = df_3y["value"].min(), df_3y["value"].max()
+                    slope, _, _, _, _ = linregress(range(len(df_3y)), df_3y["value"])
+                    pos = (latest - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    results[name] = {"latest": latest, "pos": pos, "trend": trend}
+                except Exception as e:
+                    st.warning(f"⚠️ Could not process {name}: {e}")
+            return results
+        
+        from openai import OpenAI
+        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+
+        def generate_llm_summary(results: dict):
+            if not results:
+                return "No data available to summarize."
+
+            context_text = "\n".join(
+                [f"{name}: latest={data['latest']:.2f}, trend={data['trend']}, position={data['pos']:.1f}%"
+                 for name, data in results.items()]
+            )
+
+            prompt = f"""
+            You are a senior macro-financial strategist writing a concise, data-driven **condition of equities summary**.
+            You are given the latest 3-year data snapshot for several major equities.
+
+            Here are the data points:
+            {context_text}
+
+            Write one short paragraph (5–7 sentences) summarizing the **overall condition of stocks** based on these numbers.
+
+            Guidelines:
+            - Focus on patterns and contrasts across the equities — e.g., which are leading, lagging, or showing extreme positions.
+            - Do NOT add information not in the data.
+            - Use a neutral, analytical tone (no adjectives like “impressive” or “strong”), but use clear concise english.
+            - Output only one paragraph.
+            - Keep it natural and varied in structure — not repetitive, like a normal person is saying it.
+            - Mention the key data points selectively to illustrate your points.
+            """
+
+
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
+                    messages=[{"role": "user", "content": prompt}],
+                    max_completion_tokens=250,
+                    temperature=0
+                )
+
+                summary_text = response.choices[0].message.content.strip()
+                if not summary_text:
+                    summary_text = "⚠️ LLM returned an empty response."
+
+            except Exception as e:
+                summary_text = f"⚠️ LLM generation failed: {e}"
+
+            return summary_text
+
+        # ---- Cached LLM Summary Function ----
+        @st.cache_data
+        def generate_llm_summary_cached(results: dict):
+            return generate_llm_summary(results)
+
+
+        # ---- Run analysis ----
+        if "equities_macro_summary" not in st.session_state:
+            with st.spinner("Generating summary..."):
+                results = analyze_equities()
+                # ✅ use the cached version here
+                st.session_state.equities_macro_summary = generate_llm_summary_cached(results)
+
+        # Use cached summary
+        equities_macro_summary = st.session_state.equities_macro_summary
+
+        # ---- Display Narrative Card ----
+        st.markdown(f"""
+        <div style="
+            background-color:#f8f9fa;
+            border-left:6px solid #4a4e69;
+            border-radius:10px;
+            padding:18px 24px;
+            margin-top:10px;
+            font-size:15px;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            line-height:1.6;
+        ">
+        {equities_macro_summary}
+        </div>
+        """, unsafe_allow_html=True)
 
         
 # -------- Stocks Tab --------
