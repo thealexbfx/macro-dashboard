@@ -1,4 +1,4 @@
-Date         Rate
+DateRate
 May 2007     88.3
 June 2007    90.4
 July 2007    85.3

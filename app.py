@@ -3497,6 +3497,143 @@ if page == "FX Rates":
             indicator_name=indicator
         )
         
+        # ==============================
+        # 🧠 FX Market Macro Summary (LLM-enhanced)
+        # ==============================
+
+        import streamlit as st
+        import pandas as pd
+        import numpy as np
+        import datetime as dt
+        from scipy.stats import linregress
+        import openai  # pip install openai
+
+        # ✅ Set your OpenAI API key in Streamlit secrets or environment variable
+        # e.g., in .streamlit/secrets.toml -> [openai] api_key="sk-XXXX"
+        openai.api_key = st.secrets["openai"]["api_key"]
+
+        # ---- Streamlit Section Header ----
+        st.markdown("### FX Market Summary")
+
+        @st.cache_data(ttl=3600)
+        def get_fx_data(ticker: str):
+            """Wrapper for your existing get_fx_data_yahoo function."""
+            # Replace this with your actual data loader
+            df = get_fx_data_yahoo(ticker, start_date=dt.date(2018, 1, 1), end_date=dt.date.today())
+            return df.dropna()
+
+        @st.cache_data(ttl=1800)
+        def analyze_fx():
+            """Compute normalized position and slope-based trend for major tickers."""
+            fx_tickers = {
+                "EUR/USD": "EURUSD=X",
+                "GBP/USD": "GBPUSD=X",
+                "USD/JPY": "USDJPY=X",
+                "EUR/GBP": "EURGBP=X",
+                "EUR/JPY": "EURJPY=X",
+                "GBP/JPY": "GBPJPY=X",
+                "DXY": "DX-Y.NYB"
+            }
+
+            results = {}
+            for name, ticker in fx_tickers.items():
+                try:
+                    df = get_fx_data(ticker)
+                    if len(df) < 12:
+                        continue
+                    df_3y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=3))]
+                    latest = df_3y["value"].iloc[-1]
+                    min_val, max_val = df_3y["value"].min(), df_3y["value"].max()
+                    slope, _, _, _, _ = linregress(range(len(df_3y)), df_3y["value"])
+                    pos = (latest - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    results[name] = {"latest": latest, "pos": pos, "trend": trend}
+                except Exception as e:
+                    st.warning(f"⚠️ Could not process {name}: {e}")
+            return results
+        
+        from openai import OpenAI
+        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+
+        def generate_llm_summary(results: dict):
+            if not results:
+                return "No data available to summarize."
+
+            context_text = "\n".join(
+                [f"{name}: latest={data['latest']:.2f}, trend={data['trend']}, position={data['pos']:.1f}%"
+                 for name, data in results.items()]
+            )
+
+            prompt = f"""
+            You are a senior macro-financial strategist writing a concise, data-driven **condition of fx summary**.
+            You are given the latest 3-year data snapshot for several major fx.
+
+            Here are the data points:
+            {context_text}
+
+            Write one short paragraph (5–7 sentences) summarizing the **overall condition of fx** based on these numbers.
+
+            Guidelines:
+            - Focus on patterns and contrasts across the fx — e.g., which are leading, lagging, or showing extreme positions.
+            - Do NOT add information not in the data.
+            - Use a neutral, analytical tone (no adjectives like “impressive” or “strong”), but use clear concise english.
+            - Output only one paragraph.
+            - Keep it natural and varied in structure — not repetitive, like a normal person is saying it.
+            - Mention the key data points selectively to illustrate your points.
+            """
+
+
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
+                    messages=[{"role": "user", "content": prompt}],
+                    max_completion_tokens=250,
+                    temperature=0
+                )
+
+                summary_text = response.choices[0].message.content.strip()
+                if not summary_text:
+                    summary_text = "⚠️ LLM returned an empty response."
+
+            except Exception as e:
+                summary_text = f"⚠️ LLM generation failed: {e}"
+
+            return summary_text
+
+        # ---- Cached LLM Summary Function ----
+        @st.cache_data
+        def generate_llm_summary_cached(results: dict):
+            return generate_llm_summary(results)
+
+
+        # ---- Run analysis ----
+        if "fx_macro_summary" not in st.session_state:
+            with st.spinner("Generating summary..."):
+                results = analyze_fx()
+                # ✅ use the cached version here
+                st.session_state.fx_macro_summary = generate_llm_summary_cached(results)
+
+        # Use cached summary
+        fx_macro_summary = st.session_state.fx_macro_summary
+
+        # ---- Display Narrative Card ----
+        st.markdown(f"""
+        <div style="
+            background-color:#f8f9fa;
+            border-left:6px solid #4a4e69;
+            border-radius:10px;
+            padding:18px 24px;
+            margin-top:10px;
+            font-size:15px;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            line-height:1.6;
+        ">
+        {fx_macro_summary}
+        </div>
+        """, unsafe_allow_html=True)
+        
+        
+        
         
 # ==============================
 # 📊 COMPARE TAB (Enhanced Hover + Delta Type + Bold Axis + Black Lines)
@@ -4445,7 +4582,7 @@ if page == "Equities":
             Here are the data points:
             {context_text}
 
-            Write one short paragraph (5–7 sentences) summarizing the **overall condition of stocks** based on these numbers.
+            Write one short paragraph (5–7 sentences) summarizing the **overall condition of equities** based on these numbers.
 
             Guidelines:
             - Focus on patterns and contrasts across the equities — e.g., which are leading, lagging, or showing extreme positions.
@@ -5003,7 +5140,7 @@ if page == "Commodities":
         }
 
         ticker, date_format, tickformat_override = indicator_map[indicator]
-        df = get_fx_data_yahoo(ticker, start_date=dt.date(2010, 1, 1), end_date=dt.date.today())
+        df = get_fx_data_yahoo(ticker, start_date=dt.date(1990, 1, 1), end_date=dt.date.today())
 
         df = df.dropna()
         if df.empty:
@@ -5283,6 +5420,142 @@ if page == "Commodities":
             indicator_name=indicator
         )
 
+        # ==============================
+        # 🧠 Commodities Market Macro Summary (LLM-enhanced)
+        # ==============================
+
+        import streamlit as st
+        import pandas as pd
+        import numpy as np
+        import datetime as dt
+        from scipy.stats import linregress
+        import openai  # pip install openai
+
+        # ✅ Set your OpenAI API key in Streamlit secrets or environment variable
+        # e.g., in .streamlit/secrets.toml -> [openai] api_key="sk-XXXX"
+        openai.api_key = st.secrets["openai"]["api_key"]
+
+        # ---- Streamlit Section Header ----
+        st.markdown("### Commodities Market Summary")
+
+        @st.cache_data(ttl=3600)
+        def get_commodities_data(ticker: str):
+            """Wrapper for your existing get_fx_data_yahoo function."""
+            # Replace this with your actual data loader
+            df = get_fx_data_yahoo(ticker, start_date=dt.date(2018, 1, 1), end_date=dt.date.today())
+            return df.dropna()
+
+        @st.cache_data(ttl=1800)
+        def analyze_commodities():
+            """Compute normalized position and slope-based trend for major tickers."""
+            commodities_tickers = {
+                 "Crude Oil": ("CL=F"),
+                "Natural Gas": ("NG=F"),
+                "Brent Oil": ("BZ=F"),
+                "Gold": ("GC=F"),
+                "Silver": ("SI=F"),
+                "Copper": ("HG=F"),
+                "Wheat": ("ZW=F"),
+                "Corn": ("ZC=F"),
+                "Soybeans": ("ZS=F")
+            }
+
+            results = {}
+            for name, ticker in commodities_tickers.items():
+                try:
+                    df = get_commodities_data(ticker)
+                    if len(df) < 12:
+                        continue
+                    df_3y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=3))]
+                    latest = df_3y["value"].iloc[-1]
+                    min_val, max_val = df_3y["value"].min(), df_3y["value"].max()
+                    slope, _, _, _, _ = linregress(range(len(df_3y)), df_3y["value"])
+                    pos = (latest - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    results[name] = {"latest": latest, "pos": pos, "trend": trend}
+                except Exception as e:
+                    st.warning(f"⚠️ Could not process {name}: {e}")
+            return results
+        
+        from openai import OpenAI
+        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+
+        def generate_llm_summary(results: dict):
+            if not results:
+                return "No data available to summarize."
+
+            context_text = "\n".join(
+                [f"{name}: latest={data['latest']:.2f}, trend={data['trend']}, position={data['pos']:.1f}%"
+                 for name, data in results.items()]
+            )
+
+            prompt = f"""
+            You are a senior macro-financial strategist writing a concise, data-driven **condition of commodities summary**.
+            You are given the latest 3-year data snapshot for several major commodities.
+
+            Here are the data points:
+            {context_text}
+
+            Write one short paragraph (5–7 sentences) summarizing the **overall condition of commodities** based on these numbers.
+
+            Guidelines:
+            - Focus on patterns and contrasts across the commodities — e.g., which are leading, lagging, or showing extreme positions.
+            - Do NOT add information not in the data.
+            - Use a neutral, analytical tone (no adjectives like “impressive” or “strong”), but use clear concise english.
+            - Output only one paragraph.
+            - Keep it natural and varied in structure — not repetitive, like a normal person is saying it.
+            - Mention the key data points selectively to illustrate your points.
+            """
+
+
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
+                    messages=[{"role": "user", "content": prompt}],
+                    max_completion_tokens=250,
+                    temperature=0
+                )
+
+                summary_text = response.choices[0].message.content.strip()
+                if not summary_text:
+                    summary_text = "⚠️ LLM returned an empty response."
+
+            except Exception as e:
+                summary_text = f"⚠️ LLM generation failed: {e}"
+
+            return summary_text
+
+        # ---- Cached LLM Summary Function ----
+        @st.cache_data
+        def generate_llm_summary_cached(results: dict):
+            return generate_llm_summary(results)
+
+
+        # ---- Run analysis ----
+        if "commodities_macro_summary" not in st.session_state:
+            with st.spinner("Generating summary..."):
+                results = analyze_commodities()
+                # ✅ use the cached version here
+                st.session_state.commodities_macro_summary = generate_llm_summary_cached(results)
+
+        # Use cached summary
+        commodities_macro_summary = st.session_state.commodities_macro_summary
+
+        # ---- Display Narrative Card ----
+        st.markdown(f"""
+        <div style="
+            background-color:#f8f9fa;
+            border-left:6px solid #4a4e69;
+            border-radius:10px;
+            padding:18px 24px;
+            margin-top:10px;
+            font-size:15px;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            line-height:1.6;
+        ">
+        {commodities_macro_summary}
+        </div>
+        """, unsafe_allow_html=True)
 
         
 # -------- Bonds Tab --------
@@ -5621,6 +5894,7 @@ if page == "Bonds":
             indicator_name=indicator
         )
 
+        
 
      
 # -------- Crypto Tab --------
@@ -5676,7 +5950,7 @@ if page == "Crypto":
         ticker, title = crypto_map[indicator]
 
         # Load crypto data
-        df = get_fx_data_yahoo(ticker, start_date=dt.date(2010, 1, 1), end_date=dt.date.today())
+        df = get_fx_data_yahoo(ticker, start_date=dt.date(1990, 1, 1), end_date=dt.date.today())
         df = df.dropna()
         if df.empty:
             st.error("No data available.")
@@ -5897,6 +6171,136 @@ if page == "Crypto":
             volatility=volatility,
             indicator_name=indicator
         )
+        
+        # ==============================
+        # 🧠 Crypto Market Macro Summary (LLM-enhanced)
+        # ==============================
+
+        import streamlit as st
+        import pandas as pd
+        import numpy as np
+        import datetime as dt
+        from scipy.stats import linregress
+        import openai  # pip install openai
+
+        # ✅ Set your OpenAI API key in Streamlit secrets or environment variable
+        # e.g., in .streamlit/secrets.toml -> [openai] api_key="sk-XXXX"
+        openai.api_key = st.secrets["openai"]["api_key"]
+
+        # ---- Streamlit Section Header ----
+        st.markdown("### Crypto Market Summary")
+
+        @st.cache_data(ttl=3600)
+        def get_crypto_data(ticker: str):
+            """Wrapper for your existing get_fx_data_yahoo function."""
+            # Replace this with your actual data loader
+            df = get_fx_data_yahoo(ticker, start_date=dt.date(2018, 1, 1), end_date=dt.date.today())
+            return df.dropna()
+
+        @st.cache_data(ttl=1800)
+        def analyze_crypto():
+            """Compute normalized position and slope-based trend for major tickers."""
+            crypto_tickers = {
+                "Bitcoin": ("BTC-USD"),
+                "Ethereum": ("ETH-USD")
+            }
+
+            results = {}
+            for name, ticker in crypto_tickers.items():
+                try:
+                    df = get_crypto_data(ticker)
+                    if len(df) < 12:
+                        continue
+                    df_3y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=3))]
+                    latest = df_3y["value"].iloc[-1]
+                    min_val, max_val = df_3y["value"].min(), df_3y["value"].max()
+                    slope, _, _, _, _ = linregress(range(len(df_3y)), df_3y["value"])
+                    pos = (latest - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    results[name] = {"latest": latest, "pos": pos, "trend": trend}
+                except Exception as e:
+                    st.warning(f"⚠️ Could not process {name}: {e}")
+            return results
+        
+        from openai import OpenAI
+        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+
+        def generate_llm_summary(results: dict):
+            if not results:
+                return "No data available to summarize."
+
+            context_text = "\n".join(
+                [f"{name}: latest={data['latest']:.2f}, trend={data['trend']}, position={data['pos']:.1f}%"
+                 for name, data in results.items()]
+            )
+
+            prompt = f"""
+            You are a senior macro-financial strategist writing a concise, data-driven **condition of crypto summary**.
+            You are given the latest 3-year data snapshot for several major crypto.
+
+            Here are the data points:
+            {context_text}
+
+            Write one short paragraph (5–7 sentences) summarizing the **overall condition of crypto** based on these numbers.
+
+            Guidelines:
+            - Focus on patterns and contrasts across the commodities — e.g., which are leading, lagging, or showing extreme positions.
+            - Do NOT add information not in the data.
+            - Use a neutral, analytical tone (no adjectives like “impressive” or “strong”), but use clear concise english.
+            - Output only one paragraph.
+            - Keep it natural and varied in structure — not repetitive, like a normal person is saying it.
+            - Mention the key data points selectively to illustrate your points.
+            """
+
+
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
+                    messages=[{"role": "user", "content": prompt}],
+                    max_completion_tokens=250,
+                    temperature=0
+                )
+
+                summary_text = response.choices[0].message.content.strip()
+                if not summary_text:
+                    summary_text = "⚠️ LLM returned an empty response."
+
+            except Exception as e:
+                summary_text = f"⚠️ LLM generation failed: {e}"
+
+            return summary_text
+
+        # ---- Cached LLM Summary Function ----
+        @st.cache_data
+        def generate_llm_summary_cached(results: dict):
+            return generate_llm_summary(results)
+
+
+        # ---- Run analysis ----
+        if "crypto_macro_summary" not in st.session_state:
+            with st.spinner("Generating summary..."):
+                results = analyze_crypto()
+                # ✅ use the cached version here
+                st.session_state.crypto_macro_summary = generate_llm_summary_cached(results)
+
+        # Use cached summary
+        crypto_macro_summary = st.session_state.crypto_macro_summary
+
+        # ---- Display Narrative Card ----
+        st.markdown(f"""
+        <div style="
+            background-color:#f8f9fa;
+            border-left:6px solid #4a4e69;
+            border-radius:10px;
+            padding:18px 24px;
+            margin-top:10px;
+            font-size:15px;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            line-height:1.6;
+        ">
+        {crypto_macro_summary}
+        </div>
+        """, unsafe_allow_html=True)
 
 
        
