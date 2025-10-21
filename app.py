@@ -1337,7 +1337,7 @@ html, body {
 # --- Fixed Top Bar (HTML block) ---
 st.markdown("""
 <div class="custom-header">
-    <div class="logo">THEALEXBFX</div>
+    <div class="logo">MACROLENS</div>
     <div class="menu">
         <a href="?page=Home" target="_self">Home</a>
         <div class="dropdown">
@@ -1629,7 +1629,7 @@ if page == "Home":
         </style>
         
         <div class="hero">
-            <h1>thealexbfx Macro Dashboard</h1>
+            <h1>Macro Lens Research Dashboard</h1>
             <p>Track global macroeconomic trends and FX markets—daily updated, interactive, and analyst-ready.</p>
         </div>
         <hr class="hr-separator"/>
@@ -1741,13 +1741,13 @@ if page == "Home":
 
 
         <div class="footer">
-            <p>Built by <b>thealexbfx</b> • All data updates daily</p>
+            <p>Built by <b>Macro Lens Research</b> • All data updates daily</p>
             <p>
                 Contact: <a href="https://www.linkedin.com/in/alex-ballinger-059919302/" target="_blank">LinkedIn</a> |
                 <a href="https://youtube.com/@thealexbfx" target="_blank">YouTube</a> |
-                <a href="https://www.instagram.com/thealexbfx/" target="_blank">Instagram</a>
+                <a href="https://www.instagram.com/themacrolens_/" target="_blank">Instagram</a>
             </p>
-            <p>&copy; 2025 thealexbfx. All rights reserved.</p>
+            <p>&copy; 2025 Macro Lens Research. All rights reserved.</p>
         </div>
     """, unsafe_allow_html=True)
 
