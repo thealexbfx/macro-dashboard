@@ -2204,6 +2204,132 @@ if page == "USA":
             indicator_name=indicator
         )
         
+        # ==============================
+        # 🧠 USA Economy Macro Summary (LLM-enhanced)
+        # ==============================
+
+        import openai
+        from openai import OpenAI
+
+        # Set API key
+        openai.api_key = st.secrets["openai"]["api_key"]
+        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+        
+        st.markdown("### USA Economy Summary (Based on the last 12 Months)")
+
+        @st.cache_data(ttl=1800)
+        def analyze_usa():
+            """Compute latest value, slope, and relative position for all usa indicators."""
+            usa_tickers = {
+                "Interest Rate": get_usa_interest_rate_data,
+                "CPI YoY":get_usa_cpi_yoy_data,
+                "GDP Growth Rate": get_usa_gdp_qoq_data,
+                "Unemployment Rate": get_usa_unemployment_rate_data,
+                "Core CPI YoY": get_usa_core_cpi_yoy_data,
+                "Average Hourly Earnings YoY": get_usa_average_hourly_earnings_yoy_data,
+                "Core PCE YoY": get_usa_core_pce_yoy_data,
+                "Core PPI YoY": get_usa_core_ppi_yoy_data,
+                "Housing Starts MoM": get_usa_housing_starts_mom_data,
+                "ISM Manufacturing PMI": get_usa_ism_manufacturing_pmi_data,
+                "ISM Services PMI": get_usa_ism_services_pmi_data,
+                "Jolts Job Openings": get_usa_jolts_job_openings_data,
+                "Michigan Consumer Sentiment": get_usa_michigan_consumer_sentiment_data,
+                "Non Farm Payrolls": get_usa_nfp_data,
+                "PCE YoY": get_usa_pce_yoy_data,
+                "PPI YoY": get_usa_ppi_yoy_data,
+                "Retail Sales MoM": get_usa_retail_sales_mom_data,
+                "Trade Balance": get_usa_trade_balance_data
+            }
+
+            results = {}
+            for name, func in usa_tickers.items():
+                try:
+                    df = func().dropna()
+                    if len(df) < 12:
+                        continue
+                    df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
+                    latest = df_1y["value"].iloc[-1]
+                    min_val, max_val = df_1y["value"].min(), df_1y["value"].max()
+                    slope, _, _, _, _ = linregress(range(len(df_1y)), df_1y["value"])
+                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    results[name] = {"latest": latest, "trend": trend}
+                except Exception as e:
+                    st.warning(f"⚠️ Could not process {name}: {e}")
+            return results
+
+        def generate_usa_llm_summary(results: dict):
+            if not results:
+                return "No data available to summarize."
+
+            context_text = "\n".join(
+                [f"{name}: latest={data['latest']:.2f}%, trend={data['trend']}"
+                 for name, data in results.items()]
+            )
+
+            prompt = f"""
+            You are a senior macro-financial strategist writing a concise, data-driven **condition of the US economy summary**.
+            You are given the latest 1-year snapshot for the US economy of various economic indicators.
+
+            Here are the data points:
+            {context_text}
+
+            Write one short paragraph (5–7 sentences) summarizing the **overall condition of the US economy** based on these numbers.
+
+            Guidelines:
+            - Focus on patterns, contrasts, and relative positioning across indicators.
+            - Mention current trends where relevant.
+            - Make sure to use the right units for each indicator.
+            - Do NOT add information not in the data.
+            - Use a neutral, analytical tone (no adjectives like “strong” or “weak”), but clear and concise English.
+            - Output only one paragraph.
+            - Keep the paragraph natural and varied, like a professional commentary.
+            """
+
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
+                    messages=[{"role": "user", "content": prompt}],
+                    max_completion_tokens=250,
+                    temperature=0
+                )
+                summary_text = response.choices[0].message.content.strip()
+                if not summary_text:
+                    summary_text = "⚠️ LLM returned an empty response."
+            except Exception as e:
+                summary_text = f"⚠️ LLM generation failed: {e}"
+
+            return summary_text
+
+        @st.cache_data
+        def generate_usa_llm_summary_cached(results: dict):
+            return generate_usa_llm_summary(results)
+
+        # ---- Run analysis ----
+        if "usa_macro_summary" not in st.session_state:
+            with st.spinner("Generating usa market summary..."):
+                results = analyze_usa()
+                st.session_state.usa_macro_summary = generate_usa_llm_summary_cached(results)
+
+        # Use cached summary
+        usa_macro_summary = st.session_state.usa_macro_summary
+
+        # ---- Display Narrative Card ----
+        st.markdown(f"""
+        <div style="
+            background-color:#f8f9fa;
+            border-left:6px solid #4a4e69;
+            border-radius:10px;
+            padding:18px 24px;
+            margin-top:10px;
+            font-size:15px;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            line-height:1.6;
+        ">
+        {usa_macro_summary}
+        </div>
+        """, unsafe_allow_html=True)
+        
+        
         
 # -------- Japan Tab --------
 if page == "Japan":
@@ -2523,6 +2649,116 @@ if page == "Japan":
             indicator_name=indicator
         )
 
+        # ==============================
+        # 🧠 Japanese Economy Macro Summary (LLM-enhanced)
+        # ==============================
+
+        import openai
+        from openai import OpenAI
+
+        # Set API key
+        openai.api_key = st.secrets["openai"]["api_key"]
+        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+        
+        st.markdown("### Japanese Economy Summary (Based on the last 12 Months)")
+
+        @st.cache_data(ttl=1800)
+        def analyze_japan():
+            """Compute latest value, slope, and relative position for all japan indicators."""
+            japan_tickers = {
+                "Interest Rate": get_japan_interest_rate_data,
+                "CPI YoY": get_japan_cpi_yoy_data,
+                "GDP Growth Rate": get_japan_gdp_qoq_data,
+                "Unemployment Rate": get_japan_unemployment_rate_data
+            }
+
+            results = {}
+            for name, func in japan_tickers.items():
+                try:
+                    df = func().dropna()
+                    if len(df) < 12:
+                        continue
+                    df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
+                    latest = df_1y["value"].iloc[-1]
+                    min_val, max_val = df_1y["value"].min(), df_1y["value"].max()
+                    slope, _, _, _, _ = linregress(range(len(df_1y)), df_1y["value"])
+                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    results[name] = {"latest": latest, "trend": trend}
+                except Exception as e:
+                    st.warning(f"⚠️ Could not process {name}: {e}")
+            return results
+
+        def generate_japan_llm_summary(results: dict):
+            if not results:
+                return "No data available to summarize."
+
+            context_text = "\n".join(
+                [f"{name}: latest={data['latest']:.2f}%, trend={data['trend']}"
+                 for name, data in results.items()]
+            )
+
+            prompt = f"""
+            You are a senior macro-financial strategist writing a concise, data-driven **condition of the Japanese economy summary**.
+            You are given the latest 1-year snapshot for the Japanese economy of various economic indicators.
+
+            Here are the data points:
+            {context_text}
+
+            Write one short paragraph (5–7 sentences) summarizing the **overall condition of the Japanese economy** based on these numbers.
+
+            Guidelines:
+            - Focus on patterns, contrasts, and relative positioning across indicators.
+            - Mention current trends where relevant.
+            - Make sure to use the right units for each indicator.
+            - Do NOT add information not in the data.
+            - Use a neutral, analytical tone (no adjectives like “strong” or “weak”), but clear and concise English.
+            - Output only one paragraph.
+            - Keep the paragraph natural and varied, like a professional commentary.
+            """
+
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
+                    messages=[{"role": "user", "content": prompt}],
+                    max_completion_tokens=250,
+                    temperature=0
+                )
+                summary_text = response.choices[0].message.content.strip()
+                if not summary_text:
+                    summary_text = "⚠️ LLM returned an empty response."
+            except Exception as e:
+                summary_text = f"⚠️ LLM generation failed: {e}"
+
+            return summary_text
+
+        @st.cache_data
+        def generate_japan_llm_summary_cached(results: dict):
+            return generate_japan_llm_summary(results)
+
+        # ---- Run analysis ----
+        if "japan_macro_summary" not in st.session_state:
+            with st.spinner("Generating japan market summary..."):
+                results = analyze_japan()
+                st.session_state.japan_macro_summary = generate_japan_llm_summary_cached(results)
+
+        # Use cached summary
+        japan_macro_summary = st.session_state.japan_macro_summary
+
+        # ---- Display Narrative Card ----
+        st.markdown(f"""
+        <div style="
+            background-color:#f8f9fa;
+            border-left:6px solid #4a4e69;
+            border-radius:10px;
+            padding:18px 24px;
+            margin-top:10px;
+            font-size:15px;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            line-height:1.6;
+        ">
+        {japan_macro_summary}
+        </div>
+        """, unsafe_allow_html=True)
        
 # -------- UK Tab --------
 if page == "UK":
@@ -2841,6 +3077,117 @@ if page == "UK":
             volatility=volatility,
             indicator_name=indicator
         )
+        
+        # ==============================
+        # 🧠 UK Economy Macro Summary (LLM-enhanced)
+        # ==============================
+
+        import openai
+        from openai import OpenAI
+
+        # Set API key
+        openai.api_key = st.secrets["openai"]["api_key"]
+        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+        
+        st.markdown("### UK Economy Summary (Based on the last 12 Months)")
+
+        @st.cache_data(ttl=1800)
+        def analyze_uk():
+            """Compute latest value, slope, and relative position for all uk indicators."""
+            uk_tickers = {
+                "Interest Rate": get_uk_interest_rate_data,
+                "CPI YoY": get_uk_cpi_yoy_data,
+                "GDP Growth Rate": get_uk_gdp_qoq_data,
+                "Unemployment Rate": get_uk_unemployment_rate_data
+            }
+
+            results = {}
+            for name, func in uk_tickers.items():
+                try:
+                    df = func().dropna()
+                    if len(df) < 12:
+                        continue
+                    df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
+                    latest = df_1y["value"].iloc[-1]
+                    min_val, max_val = df_1y["value"].min(), df_1y["value"].max()
+                    slope, _, _, _, _ = linregress(range(len(df_1y)), df_1y["value"])
+                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    results[name] = {"latest": latest, "trend": trend}
+                except Exception as e:
+                    st.warning(f"⚠️ Could not process {name}: {e}")
+            return results
+
+        def generate_uk_llm_summary(results: dict):
+            if not results:
+                return "No data available to summarize."
+
+            context_text = "\n".join(
+                [f"{name}: latest={data['latest']:.2f}%, trend={data['trend']}"
+                 for name, data in results.items()]
+            )
+
+            prompt = f"""
+            You are a senior macro-financial strategist writing a concise, data-driven **condition of the uk economy summary**.
+            You are given the latest 1-year snapshot for the uk economy of various economic indicators.
+
+            Here are the data points:
+            {context_text}
+
+            Write one short paragraph (5–7 sentences) summarizing the **overall condition of the uk economy** based on these numbers.
+
+            Guidelines:
+            - Focus on patterns, contrasts, and relative positioning across indicators.
+            - Mention current trends where relevant.
+            - Make sure to use the right units for each indicator.
+            - Do NOT add information not in the data.
+            - Use a neutral, analytical tone (no adjectives like “strong” or “weak”), but clear and concise English.
+            - Output only one paragraph.
+            - Keep the paragraph natural and varied, like a professional commentary.
+            """
+
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
+                    messages=[{"role": "user", "content": prompt}],
+                    max_completion_tokens=250,
+                    temperature=0
+                )
+                summary_text = response.choices[0].message.content.strip()
+                if not summary_text:
+                    summary_text = "⚠️ LLM returned an empty response."
+            except Exception as e:
+                summary_text = f"⚠️ LLM generation failed: {e}"
+
+            return summary_text
+
+        @st.cache_data
+        def generate_uk_llm_summary_cached(results: dict):
+            return generate_uk_llm_summary(results)
+
+        # ---- Run analysis ----
+        if "uk_macro_summary" not in st.session_state:
+            with st.spinner("Generating uk market summary..."):
+                results = analyze_uk()
+                st.session_state.uk_macro_summary = generate_uk_llm_summary_cached(results)
+
+        # Use cached summary
+        uk_macro_summary = st.session_state.uk_macro_summary
+
+        # ---- Display Narrative Card ----
+        st.markdown(f"""
+        <div style="
+            background-color:#f8f9fa;
+            border-left:6px solid #4a4e69;
+            border-radius:10px;
+            padding:18px 24px;
+            margin-top:10px;
+            font-size:15px;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            line-height:1.6;
+        ">
+        {uk_macro_summary}
+        </div>
+        """, unsafe_allow_html=True)
 
               
 # -------- EURO Tab --------
@@ -3159,6 +3506,117 @@ if page == "EURO":
             volatility=volatility,
             indicator_name=indicator
         )
+        
+        # ==============================
+        # 🧠 EURO Economy Macro Summary (LLM-enhanced)
+        # ==============================
+
+        import openai
+        from openai import OpenAI
+
+        # Set API key
+        openai.api_key = st.secrets["openai"]["api_key"]
+        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+        
+        st.markdown("### EURO Economy Summary (Based on the last 12 Months)")
+
+        @st.cache_data(ttl=1800)
+        def analyze_euro():
+            """Compute latest value, slope, and relative position for all euro indicators."""
+            euro_tickers = {
+                "Interest Rate": get_euro_interest_rate_data,
+                "CPI YoY": get_euro_cpi_yoy_data,
+                "GDP Growth Rate": get_euro_gdp_qoq_data,
+                "Unemployment Rate": get_euro_unemployment_rate_data
+            }
+
+            results = {}
+            for name, func in euro_tickers.items():
+                try:
+                    df = func().dropna()
+                    if len(df) < 12:
+                        continue
+                    df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
+                    latest = df_1y["value"].iloc[-1]
+                    min_val, max_val = df_1y["value"].min(), df_1y["value"].max()
+                    slope, _, _, _, _ = linregress(range(len(df_1y)), df_1y["value"])
+                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    results[name] = {"latest": latest, "trend": trend}
+                except Exception as e:
+                    st.warning(f"⚠️ Could not process {name}: {e}")
+            return results
+
+        def generate_euro_llm_summary(results: dict):
+            if not results:
+                return "No data available to summarize."
+
+            context_text = "\n".join(
+                [f"{name}: latest={data['latest']:.2f}%, trend={data['trend']}"
+                 for name, data in results.items()]
+            )
+
+            prompt = f"""
+            You are a senior macro-financial strategist writing a concise, data-driven **condition of the EURO economy summary**.
+            You are given the latest 1-year snapshot for the EURO economy of various economic indicators.
+
+            Here are the data points:
+            {context_text}
+
+            Write one short paragraph (5–7 sentences) summarizing the **overall condition of the EURO economy** based on these numbers.
+
+            Guidelines:
+            - Focus on patterns, contrasts, and relative positioning across indicators.
+            - Mention current trends where relevant.
+            - Make sure to use the right units for each indicator.
+            - Do NOT add information not in the data.
+            - Use a neutral, analytical tone (no adjectives like “strong” or “weak”), but clear and concise English.
+            - Output only one paragraph.
+            - Keep the paragraph natural and varied, like a professional commentary.
+            """
+
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
+                    messages=[{"role": "user", "content": prompt}],
+                    max_completion_tokens=250,
+                    temperature=0
+                )
+                summary_text = response.choices[0].message.content.strip()
+                if not summary_text:
+                    summary_text = "⚠️ LLM returned an empty response."
+            except Exception as e:
+                summary_text = f"⚠️ LLM generation failed: {e}"
+
+            return summary_text
+
+        @st.cache_data
+        def generate_euro_llm_summary_cached(results: dict):
+            return generate_euro_llm_summary(results)
+
+        # ---- Run analysis ----
+        if "euro_macro_summary" not in st.session_state:
+            with st.spinner("Generating euro market summary..."):
+                results = analyze_euro()
+                st.session_state.euro_macro_summary = generate_euro_llm_summary_cached(results)
+
+        # Use cached summary
+        euro_macro_summary = st.session_state.euro_macro_summary
+
+        # ---- Display Narrative Card ----
+        st.markdown(f"""
+        <div style="
+            background-color:#f8f9fa;
+            border-left:6px solid #4a4e69;
+            border-radius:10px;
+            padding:18px 24px;
+            margin-top:10px;
+            font-size:15px;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            line-height:1.6;
+        ">
+        {euro_macro_summary}
+        </div>
+        """, unsafe_allow_html=True)
 
                 
 # -------- FX Rates Tab --------
@@ -3513,7 +3971,7 @@ if page == "FX Rates":
         openai.api_key = st.secrets["openai"]["api_key"]
 
         # ---- Streamlit Section Header ----
-        st.markdown("### FX Market Summary")
+        st.markdown("### FX Market Summary (Based on the last 3 Years)")
 
         @st.cache_data(ttl=3600)
         def get_fx_data(ticker: str):
@@ -4523,7 +4981,7 @@ if page == "Equities":
         openai.api_key = st.secrets["openai"]["api_key"]
 
         # ---- Streamlit Section Header ----
-        st.markdown("### Equities Market Summary")
+        st.markdown("### Equities Market Summary (Based on the last 3 Years)")
 
         @st.cache_data(ttl=3600)
         def get_equities_data(ticker: str):
@@ -4958,7 +5416,7 @@ if page == "Stocks":
         openai.api_key = st.secrets["openai"]["api_key"]
 
         # ---- Streamlit Section Header ----
-        st.markdown("### Stock Market Summary")
+        st.markdown("### Stock Market Summary (Based on the last 3 Years)")
 
         @st.cache_data(ttl=3600)
         def get_stock_data(ticker: str):
@@ -5436,7 +5894,7 @@ if page == "Commodities":
         openai.api_key = st.secrets["openai"]["api_key"]
 
         # ---- Streamlit Section Header ----
-        st.markdown("### Commodities Market Summary")
+        st.markdown("### Commodities Market Summary (Based on the last 3 Years)")
 
         @st.cache_data(ttl=3600)
         def get_commodities_data(ticker: str):
@@ -5894,7 +6352,121 @@ if page == "Bonds":
             indicator_name=indicator
         )
 
+        # ==============================
+        # 🧠 Bonds Market Macro Summary (LLM-enhanced)
+        # ==============================
+
+        import openai
+        from openai import OpenAI
+
+        # Set API key
+        openai.api_key = st.secrets["openai"]["api_key"]
+        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
         
+        st.markdown("### Bond Market Summary (Based on the last 3 Years)")
+
+        @st.cache_data(ttl=1800)
+        def analyze_bonds():
+            """Compute latest value, slope, and relative position for all bond indicators."""
+            bond_tickers = {
+                "US 2Y": get_usa_2yr_yield_data,
+                "US 10Y": get_usa_10yr_yield_data,
+                "UK 2Y": get_uk_2yr_yield_data,
+                "UK 10Y": get_uk_10yr_yield_data,
+                "Japan 2Y": get_japan_2yr_yield_data,
+                "Japan 10Y": get_japan_10yr_yield_data,
+                "Euro 2Y": get_euro_2yr_yield_data,
+                "Euro 10Y": get_euro_10yr_yield_data
+            }
+
+            results = {}
+            for name, func in bond_tickers.items():
+                try:
+                    df = func().dropna()
+                    if len(df) < 12:
+                        continue
+                    df_3y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=3))]
+                    latest = df_3y["value"].iloc[-1]
+                    min_val, max_val = df_3y["value"].min(), df_3y["value"].max()
+                    slope, _, _, _, _ = linregress(range(len(df_3y)), df_3y["value"])
+                    pos = (latest - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    results[name] = {"latest": latest, "pos": pos, "trend": trend}
+                except Exception as e:
+                    st.warning(f"⚠️ Could not process {name}: {e}")
+            return results
+
+        def generate_bonds_llm_summary(results: dict):
+            if not results:
+                return "No data available to summarize."
+
+            context_text = "\n".join(
+                [f"{name}: latest={data['latest']:.2f}%, trend={data['trend']}, position={data['pos']:.1f}%"
+                 for name, data in results.items()]
+            )
+
+            prompt = f"""
+            You are a senior macro-financial strategist writing a concise, data-driven **condition of global bond markets summary**.
+            You are given the latest 3-year snapshot for yields of various government bonds.
+
+            Here are the data points:
+            {context_text}
+
+            Write one short paragraph (5–7 sentences) summarizing the **overall condition of bond markets** based on these numbers.
+
+            Guidelines:
+            - Focus on patterns, contrasts, and relative positioning across countries and maturities.
+            - Mention short-term vs long-term yield trends where relevant.
+            - Do NOT add information not in the data.
+            - Use a neutral, analytical tone (no adjectives like “strong” or “weak”), but clear and concise English.
+            - Output only one paragraph.
+            - Keep the paragraph natural and varied, like a professional commentary.
+            """
+
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
+                    messages=[{"role": "user", "content": prompt}],
+                    max_completion_tokens=250,
+                    temperature=0
+                )
+                summary_text = response.choices[0].message.content.strip()
+                if not summary_text:
+                    summary_text = "⚠️ LLM returned an empty response."
+            except Exception as e:
+                summary_text = f"⚠️ LLM generation failed: {e}"
+
+            return summary_text
+
+        @st.cache_data
+        def generate_bonds_llm_summary_cached(results: dict):
+            return generate_bonds_llm_summary(results)
+
+        # ---- Run analysis ----
+        if "bonds_macro_summary" not in st.session_state:
+            with st.spinner("Generating bond market summary..."):
+                results = analyze_bonds()
+                st.session_state.bonds_macro_summary = generate_bonds_llm_summary_cached(results)
+
+        # Use cached summary
+        bonds_macro_summary = st.session_state.bonds_macro_summary
+
+        # ---- Display Narrative Card ----
+        st.markdown(f"""
+        <div style="
+            background-color:#f8f9fa;
+            border-left:6px solid #4a4e69;
+            border-radius:10px;
+            padding:18px 24px;
+            margin-top:10px;
+            font-size:15px;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            line-height:1.6;
+        ">
+        {bonds_macro_summary}
+        </div>
+        """, unsafe_allow_html=True)
+
 
      
 # -------- Crypto Tab --------
@@ -6188,7 +6760,7 @@ if page == "Crypto":
         openai.api_key = st.secrets["openai"]["api_key"]
 
         # ---- Streamlit Section Header ----
-        st.markdown("### Crypto Market Summary")
+        st.markdown("### Crypto Market Summary (Based on the last 3 Years)")
 
         @st.cache_data(ttl=3600)
         def get_crypto_data(ticker: str):
