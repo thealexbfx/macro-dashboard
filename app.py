@@ -1247,9 +1247,12 @@ html, body {
 .custom-header .menu {
     display: flex;
     justify-content: center;
-    flex-grow: 1;
+    align-items: center;
     gap: 2rem;
+    flex: 1;              /* evenly spaces between logo and edges */
+    margin: 0 auto;       /* centers horizontally */
 }
+
 
 .custom-header .menu a {
     text-decoration: none;
@@ -1338,9 +1341,12 @@ html, body {
 # --- Fixed Top Bar (HTML block) ---
 st.markdown("""
 <div class="custom-header">
-    <div class="logo">MACROLENS</div>
+    <div class="logo">
+        <a href="?page=Home" target="_self" style="text-decoration: none; color: inherit;">
+            MACROLENS
+        </a>
+    </div>
     <div class="menu">
-        <a href="?page=Home" target="_self">Home</a>
         <div class="dropdown">
             <button class="dropdown-btn">Countries ▾</button>
             <div class="dropdown-content">
@@ -1630,8 +1636,8 @@ if page == "Home":
         </style>
         
         <div class="hero">
-            <h1>Macro Lens Research Dashboard</h1>
-            <p>Track global macroeconomic trends and FX markets—daily updated, interactive, and analyst-ready.</p>
+            <h1>Macro Lens Research</h1>
+            <p>Monitor global economic and market dynamics — updated daily with interactive data and professional-grade insights.</p>
         </div>
         <hr class="hr-separator"/>
     """, unsafe_allow_html=True)
@@ -1708,8 +1714,8 @@ if page == "Home":
                     <p>Stay on top of daily global economic events — with impact levels clearly highlighted.</p>
                 </div>
                 <div class="feature-box">
-                    <h3>🧠 Analysis</h3>
-                    <p>Scenario simulations and commentary tools help you generate insights like an analyst, not just a chart watcher.</p>
+                    <h3>🔄 Cycle</h3>
+                    <p>Assess the U.S. economic cycle using real-time indicators. View the current macro “season”, scoring table and cycle wave</p>
                 </div>
             </div>
         </div>
@@ -1719,13 +1725,14 @@ if page == "Home":
             <h2>🚀 How to Use This Dashboard</h2>
             <ul>
                 <li><b>Navigate using the top bar</b> — choose a <b>Country</b> (USA, Japan, UK, Euro Area) or an <b>Asset Class</b> (Equities, Bonds, Commodities, FX, Crypto).</li>
-                <li><b>Explore Yield Curves & Regimes</b> to analyze steepening, flattening, and inversion cycles across markets.</li>
+                <li><b>Explore Yield Curves & Regimes</b> to track steepening, flattening, or inversion phases across global markets.</li>
                 <li><b>Use Compare</b> to overlay any two indicators with dual y-axes for deeper macro insights.</li>
-                <li><b>Check the Calendar</b> daily for upcoming economic events, sorted by impact level.</li>
-                <li><b>Dive into Analysis</b> for scenario simulations and commentary to support your trading or research ideas.</li>
+                <li><b>Check the Calendar</b> daily for upcoming economic events, highlighted by impact level.</li>
+                <li><b>Visit the Cycle page</b> to assess the current <b>U.S. economic phase</b>, view cycle scores, and read AI-generated summaries.</li>
                 <li><b>Adjust chart types and timeframes</b> as needed — everything updates instantly and interactively.</li>
             </ul>
         </div>
+
 
 
         <div class="section">
