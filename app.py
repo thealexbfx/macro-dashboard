@@ -360,9 +360,10 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
             fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
         else:
             hovertemplate = (
-                "<b>%{x|" + hover_date_format + "}</b><br>"
-                "%{y:,.2f}" + yaxis_suffix + "<extra></extra>"
+                "<span style='color:black'><b>%{x|" + hover_date_format + "}</b></span><br>"
+                "<span style='color:black'>%{y:,.2f}" + yaxis_suffix + "</span><extra></extra>"
             )
+
             fig.update_traces(hovertemplate=hovertemplate)
 
             if tickformat_override:
@@ -1744,7 +1745,7 @@ if page == "Home":
             <p>Built by <b>Macro Lens Research</b> • All data updates daily</p>
             <p>
                 Contact: <a href="https://www.linkedin.com/in/alex-ballinger-059919302/" target="_blank">LinkedIn</a> |
-                <a href="https://youtube.com/@thealexbfx" target="_blank">YouTube</a> |
+                <a href="https://youtube.com/@macrolensresearch" target="_blank">YouTube</a> |
                 <a href="https://www.instagram.com/themacrolens_/" target="_blank">Instagram</a>
             </p>
             <p>&copy; 2025 Macro Lens Research. All rights reserved.</p>
@@ -4097,11 +4098,29 @@ if page == "FX Rates":
 # 📊 COMPARE TAB (Enhanced Hover + Delta Type + Bold Axis + Black Lines)
 # ==============================
 if page == "Compare":
-    col1, col2 = st.columns([1, 5])
+    col1, col2 = st.columns([1.5, 5])
 
     with col1:
+        st.markdown(f"""
+            <div style="
+                position: absolute;
+                top: 0px;
+                width: 100%;
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                font-family: 'Inter','Segoe UI','Arial',sans-serif;
+                color: #111;
+                z-index: 10;
+            ">
+                {page}
+            </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
+
         # --------------------------
-        # Organize indicator options by group
+        # Indicator selection
         # --------------------------
         indicator_groups = {
             "USA": {
@@ -4209,28 +4228,45 @@ if page == "Compare":
                 "Ethereum": "crypto_eth"
             }
         }
-           
-        # --------------------------
-        # Indicator selection
-        # --------------------------
-        group1 = st.selectbox("Select Group for Indicator 1", list(indicator_groups.keys()), key="group1")
-        indicator1_label = st.selectbox("Select Indicator 1", list(indicator_groups[group1].keys()), key="indicator1")
-        indicator1_code = indicator_groups[group1][indicator1_label]
-
-        group2 = st.selectbox("Select Group for Indicator 2", list(indicator_groups.keys()), key="group2")
-        indicator2_options = list(indicator_groups[group2].keys())
-        if group1 == group2:
-            indicator2_options = [opt for opt in indicator2_options if opt != indicator1_label]
-        indicator2_label = st.selectbox("Select Indicator 2", indicator2_options, key="indicator2")
-        indicator2_code = indicator_groups[group2][indicator2_label]
 
         # --------------------------
-        # Delta type selection
+        # Group selection side by side
         # --------------------------
-        delta_type_option = st.selectbox("Delta Type", ["Daily % Change", "Cumulative % Change"], index=1)
+        group_col1, group_col2 = st.columns(2)
+
+        with group_col1:
+            group1 = st.selectbox("Indicator 1 Group", list(indicator_groups.keys()), key="group1")
+            indicator1_label = st.selectbox("Indicator 1", list(indicator_groups[group1].keys()), key="indicator1")
+            indicator1_code = indicator_groups[group1][indicator1_label]
+
+        with group_col2:
+            group2 = st.selectbox("Indicator 2 Group", list(indicator_groups.keys()), key="group2")
+            indicator2_options = list(indicator_groups[group2].keys())
+            if group1 == group2:
+                indicator2_options = [opt for opt in indicator2_options if opt != indicator1_label]
+            indicator2_label = st.selectbox("Indicator 2", indicator2_options, key="indicator2")
+            indicator2_code = indicator_groups[group2][indicator2_label]
+
 
         # --------------------------
-        # Function loader
+        # Delta Type + Timeframe side by side
+        # --------------------------
+        dt_col, tf_col = st.columns(2)
+        with dt_col:
+            delta_type_option = st.selectbox(
+                "Delta Type",
+                ["Off", "Daily % Change", "Cumulative % Change"],
+                index=0
+            )
+        with tf_col:
+            timeframe = st.selectbox(
+                "Time Frame",
+                ["1Y", "3Y", "5Y", "10Y", "Max"],
+                index=2
+            )
+
+        # --------------------------
+        # Load & clean data
         # --------------------------
         def load_indicator_data(code):
             # USA
@@ -4334,9 +4370,6 @@ if page == "Compare":
 
             return pd.DataFrame()
 
-        # --------------------------
-        # Load & clean data
-        # --------------------------
         df1 = load_indicator_data(indicator1_code).dropna()
         df2 = load_indicator_data(indicator2_code).dropna()
         df1 = df1.rename(columns={df1.columns[0]: "date", df1.columns[1]: "value"})
@@ -4347,14 +4380,13 @@ if page == "Compare":
         df2 = df2.dropna(subset=['date'])
 
         # --------------------------
-        # Timeframe & date selection
+        # Timeframe & Start/End Dates side by side
         # --------------------------
         df1_min, df1_max = df1['date'].min().date(), df1['date'].max().date()
         df2_min, df2_max = df2['date'].min().date(), df2['date'].max().date()
         latest_date = max(df1_max, df2_max)
         earliest_start = min(df1_min, df2_min)
 
-        timeframe = st.selectbox("Select Timeframe", ["1Y", "3Y", "5Y", "10Y", "Max"], index=2)
         if timeframe == "1Y": default_start_date = latest_date - dt.timedelta(days=365)
         elif timeframe == "3Y": default_start_date = latest_date - dt.timedelta(days=365*3)
         elif timeframe == "5Y": default_start_date = latest_date - dt.timedelta(days=365*5)
@@ -4362,11 +4394,18 @@ if page == "Compare":
         else: default_start_date = earliest_start
         default_start_date = max(earliest_start, default_start_date)
 
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_start, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_start, max_value=latest_date)
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_start, max_value=latest_date)
+        with date_col2:
+            end_date = st.date_input("End Date", latest_date, min_value=earliest_start, max_value=latest_date)
+
         if start_date > end_date:
             st.warning("Start date cannot be after end date.")
             st.stop()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
 
     with col2:
         # --------------------------
@@ -4377,6 +4416,23 @@ if page == "Compare":
         if df1_filtered.empty or df2_filtered.empty:
             st.warning("Not enough data for this date range.")
             st.stop()
+        # ---- Align zero baselines when both data sets cross 0 ----
+        if not df1_filtered.empty and not df2_filtered.empty:
+            y1_min, y1_max = df1_filtered["value"].min(), df1_filtered["value"].max()
+            y2_min, y2_max = df2_filtered["value"].min(), df2_filtered["value"].max()
+
+            # Only apply common-zero alignment if both series cross or center around 0
+            crosses_zero = (y1_min < 0 < y1_max) and (y2_min < 0 < y2_max)
+            if crosses_zero:
+                # Expand both ranges so that 0 is at the same relative position
+                max_abs = max(abs(y1_min), abs(y1_max), abs(y2_min), abs(y2_max))
+                y1_range = [-max_abs, max_abs]
+                y2_range = [-max_abs, max_abs]
+            else:
+                y1_range, y2_range = None, None
+        else:
+            y1_range, y2_range = None, None
+
 
         latest_val_1 = df1_filtered.iloc[-1]['value']
         latest_val_2 = df2_filtered.iloc[-1]['value']
@@ -4406,7 +4462,7 @@ if page == "Compare":
         # --------------------------
         def same_type(ind1, ind2): return ind1.split()[1:] == ind2.split()[1:]
         same_group = group1 == group2
-        unify_axis = same_group and group1 not in ["FX", "Equities", "Stocks", "Commodities", "Crypto"]
+        unify_axis = False
 
 
         # --------------------------
@@ -4423,6 +4479,12 @@ if page == "Compare":
                 df_['delta'] = np.where(df_['value'].iloc[0] == 0, 0, (df_['value'] / df_['value'].iloc[0] - 1) * 100)
                 df_['delta_str'] = df_['delta'].apply(lambda x: f"▲ {x:.2f}%" if x > 0 else (f"▼ {abs(x):.2f}%" if pd.notnull(x) and x < 0 else "— 0.00%"))
                 df_['delta_color'] = df_['delta'].apply(lambda x: "green" if x > 0 else ("red" if x < 0 else "gray"))
+        elif delta_type_option == "Off":
+            for df_ in [df1_filtered, df2_filtered]:
+                df_['delta'] = None
+                df_['delta_str'] = ""
+                df_['delta_color'] = "gray"
+
 
         # --------------------------
         # Hover label formatting
@@ -4439,8 +4501,8 @@ if page == "Compare":
         fig = go.Figure()
 
         # Decide if dual-axis needed
-        same_group = group1 == group2
-        unify_axis = same_group and group1 not in ["FX", "Equities", "Stocks", "Commodities", "Crypto"]
+        #same_group = group1 == group2
+        #unify_axis = same_group and group1 not in ["FX", "Equities", "Stocks", "Commodities", "Crypto"]
 
         # Plot traces
         if delta_type_option == "Daily Delta Spread":
@@ -4487,26 +4549,121 @@ if page == "Compare":
 
         if unify_axis or delta_type_option == "Daily Delta Spread":
             fig.update_layout(
-                title=f"{group1}: {indicator1_label} vs {group2}: {indicator2_label}",
-                xaxis=dict(title="", tickfont=axis_tickfont, linecolor='black', linewidth=2, showline=True, title_font=axis_title_font),
-                yaxis=dict(title="Value / Spread", side="left", tickfont=axis_tickfont, title_font=axis_title_font),
+                title=dict(
+                    text=f"{group1}: {indicator1_label} vs {group2}: {indicator2_label}",
+                    x=0.5,
+                    xanchor='center',
+                    y=0.90,           # lower it slightly from the very top
+                    yanchor='top',     # aligns top of title at y
+                    font=dict(size=20, family="Arial Bold", color="black")
+                ),
+                margin=dict(t=150, l=20, r=80, b=80),
+                xaxis=dict(
+                    title="",
+                    tickfont=axis_tickfont,
+                    linecolor='black',
+                    linewidth=2,
+                    showline=True,
+                    ticks="outside",
+                    ticklen=8,
+                    tickson="labels",
+                    title_font=axis_title_font,
+                    showgrid=False,
+                    gridcolor="lightgray",
+                    gridwidth=1.2
+                ),
+                yaxis=dict(
+                    title=f"{group1}: {indicator1_label}",
+                    side="left",
+                    tickfont=axis_tickfont,
+                    title_font=axis_title_font,
+                    range=y1_range if crosses_zero else None,
+                    zeroline=False,
+                    showgrid=True,
+                    gridcolor="lightgray",
+                    gridwidth=1.2,
+                    linecolor='black',
+                    linewidth=2,
+                    showline=True
+                ),
+                yaxis2=dict(
+                    title=f"{group2}: {indicator2_label}",
+                    overlaying="y",
+                    side="right",
+                    tickfont=axis_tickfont,
+                    title_font=axis_title_font,
+                    range=y2_range if crosses_zero else None,
+                    zeroline=False,
+                    showgrid=False,
+                    linecolor='black',   # makes right axis line visible like left
+                    linewidth=2,
+                    showline=True
+                ),
                 template="plotly_white",
                 font=dict(color="black"),
                 legend=dict(x=0.01, y=1.1, orientation="h"),
-                height=600
+                height=525
             )
+
         else:
             fig.update_layout(
-                title=f"{group1}: {indicator1_label} vs {group2}: {indicator2_label}",
-                xaxis=dict(title="", tickfont=axis_tickfont, linecolor='black', linewidth=2, showline=True, title_font=axis_title_font),
-                yaxis=dict(title=f"{group1}: {indicator1_label}", side="left", tickfont=axis_tickfont, title_font=axis_title_font),
-                yaxis2=dict(title=f"{group2}: {indicator2_label}", overlaying="y", side="right",
-                            showgrid=False, tickfont=axis_tickfont, title_font=axis_title_font),
+                title=dict(
+                    text=f"{group1}: {indicator1_label} vs {group2}: {indicator2_label}",
+                    x=0.5,
+                    xanchor='center',
+                    y=0.90,           # lower it slightly from the very top
+                    yanchor='top',     # aligns top of title at y
+                    font=dict(size=20, family="Arial Bold", color="black")
+                ),
+                margin=dict(t=150, l=20, r=80, b=80),
+                xaxis=dict(
+                    title="",
+                    tickfont=axis_tickfont,
+                    linecolor='black',
+                    linewidth=2,
+                    showline=True,
+                    ticks="outside",
+                    ticklen=8,
+                    tickson="labels",
+                    title_font=axis_title_font,
+                    showgrid=False,
+                    gridcolor="lightgray",
+                    gridwidth=1.2
+                ),
+                yaxis=dict(
+                    title=f"{group1}: {indicator1_label}",
+                    side="left",
+                    tickfont=axis_tickfont,
+                    title_font=axis_title_font,
+                    range=y1_range if crosses_zero else None,
+                    zeroline=False,
+                    showgrid=True,
+                    gridcolor="lightgray",
+                    gridwidth=1.2,
+                    linecolor='black',
+                    linewidth=2,
+                    showline=True
+                ),
+                yaxis2=dict(
+                    title=f"{group2}: {indicator2_label}",
+                    overlaying="y",
+                    side="right",
+                    tickfont=axis_tickfont,
+                    title_font=axis_title_font,
+                    range=y2_range if crosses_zero else None,
+                    zeroline=False,
+                    showgrid=False,
+                    linecolor='black',   # makes right axis line visible like left
+                    linewidth=2,
+                    showline=True
+                ),
                 template="plotly_white",
                 font=dict(color="black"),
                 legend=dict(x=0.01, y=1.1, orientation="h"),
-                height=600
+                height=525
             )
+
+
 
         st.plotly_chart(
             fig,
@@ -5105,7 +5262,7 @@ if page == "Equities":
 # -------- Stocks Tab --------
 if page == "Stocks":
     
-    col1, col2 = st.columns([1, 5])
+    col1, col2 = st.columns([1.5, 5])
 
     with col1:
         # ---------- Centered Page Title ----------
@@ -5125,7 +5282,7 @@ if page == "Stocks":
             </div>
         """, unsafe_allow_html=True)
         
-        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top:110px;'>", unsafe_allow_html=True)
 
         # Select indicator and chart type
         indicator = st.selectbox("Select Indicator", [
@@ -5134,7 +5291,7 @@ if page == "Stocks":
         chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
 
         # Toggle for delta type
-        delta_type = st.selectbox("Delta Type", ["Cumulative", "Daily"])
+        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
 
         # Map indicator to Yahoo ticker and chart title
         stock_tickers = {
@@ -5166,8 +5323,28 @@ if page == "Stocks":
             default_start_date = earliest_date
 
         # Date inputs
-        start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+        # Date inputs side-by-side
+        col_start, col_end = st.columns(2)
+        with col_start:
+            start_date = st.date_input(
+                "Start Date", 
+                default_start_date, 
+                min_value=earliest_date, 
+                max_value=latest_date
+            )
+        with col_end:
+            end_date = st.date_input(
+                "End Date", 
+                latest_date, 
+                min_value=earliest_date, 
+                max_value=latest_date
+            )
+
+        # Validation
+        if start_date > end_date:
+            st.warning("Start date must be before end date.")
+            st.stop()
+
         if start_date > end_date:
             st.warning("Start date must be before end date.")
             st.stop()
@@ -5303,16 +5480,25 @@ if page == "Stocks":
             if avg_days >= 80:  # ~quarter
                 quarterly = True
 
-        # Plot chart with Bloomberg-style delta hover, no markers
+        # Handle delta type
+        if delta_type == "Off":
+            hover_style = "none"
+            delta_type_arg = None
+        else:
+            hover_style = "delta"
+            delta_type_arg = delta_type.lower()
+
+        # Plot chart with dynamic delta and hover
         fig = plot_chart(
             df_filtered,
             title,
             chart_type,
-            hover_style="delta",
-            delta_type=delta_type.lower(),
+            hover_style=hover_style,
+            delta_type=delta_type_arg,
             date_format="quarterly" if quarterly else "daily",
             show_markers=False
         )
+
 
         # For quarterly charts, show only Q4 labels
         if quarterly:
