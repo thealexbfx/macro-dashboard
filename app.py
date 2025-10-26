@@ -1170,7 +1170,14 @@ def prepare_df(df: pd.DataFrame, label: str) -> pd.DataFrame:
 
 #####-----Streamlit App-----#####
 
-st.set_page_config(page_title="Macro Dashboard", layout="wide")
+# --- Streamlit page config (tab title + favicon + layout) ---
+st.set_page_config(
+    page_title="Macro Lens Research",      # Browser tab title
+    page_icon="Macro Lens Research.png",                  # Your logo file (32x32px recommended)
+    layout="wide",                         # Keeps your wide layout
+    initial_sidebar_state="auto"           # Optional: auto expand/collapse sidebar
+)
+
 
 # --- Global Styles ---
 st.markdown("""
