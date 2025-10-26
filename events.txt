@@ -1,0 +1,2669 @@
+Time	Event	Impact	Actual	Dev	Consensus	Previous		
+Sunday, October 26
+6:50 PM	
+JPY	Corporate Service Price Index (YoY) (Sep)	
+-	-	-	2.7%		
+Monday, October 27
+4:00 AM	
+EUR	M3 Money Supply (3m) (Sep)	
+-	-	-	3.2%		
+4:00 AM	
+EUR	M3 Money Supply (YoY) (Sep)	
+-	-	2.7%	2.9%		
+4:00 AM	
+EUR	Private Loans (YoY) (Sep)	
+-	-	2.6%	2.5%		
+4:15 AM	
+EUR	ECB's Elderson speech	
+Speech		
+N/A	
+USD	Durable Goods Orders (Sep)	
+-	-	0.3%	2.9%		
+N/A	
+USD	Durable Goods Orders ex Defense (Sep)	
+-	-	1.9%	1.9%		
+N/A	
+USD	Durable Goods Orders ex Transportation (Sep)	
+-	-	0.2%	0.4%		
+N/A	
+USD	Nondefense Capital Goods Orders ex Aircraft (Sep)	
+-	-	-	0.6%		
+9:30 AM	
+USD	Dallas Fed Manufacturing Business Index (Oct)	
+-	-	-	-8.7		
+10:30 AM	
+USD	3-Month Bill Auction	
+-	-	-	3.81%		
+10:30 AM	
+USD	6-Month Bill Auction	
+-	-	-	3.66%		
+12:00 PM	
+USD	2-Year Note Auction	
+-	-	-	3.571%		
+12:00 PM	
+USD	5-Year Note Auction	
+-	-	-	3.71%		
+N/A	
+EUR	CFTC EUR NC Net Positions	
+-	-	-	€114.3K		
+N/A	
+JPY	CFTC JPY NC Net Positions	
+-	-	-	¥79.5K		
+N/A	
+GBP	CFTC GBP NC Net Positions	
+-	-	-	£-2K		
+N/A	
+USD	CFTC Gold NC Net Positions	
+-	-	-	$266.7K		
+N/A	
+USD	CFTC Oil NC Net Positions	
+-	-	-	103K		
+N/A	
+USD	CFTC S&P 500 NC Net Positions	
+-	-	-	$-172.5K		
+7:01 PM	
+GBP	BRC Shop Price Index (YoY) (Oct)	
+-	-	-	1.4%		
+Tuesday, October 28
+4:00 AM	
+EUR	ECB Bank Lending Survey	
+Report		
+7:55 AM	
+USD	Redbook Index (YoY)	
+-	-	-	5%		
+8:00 AM	
+USD	Housing Price Index (MoM) (Aug)	
+-	-	0.1%	-0.1%		
+8:00 AM	
+USD	S&P/Case-Shiller Home Price Indices (YoY) (Aug)	
+-	-	1.9%	1.8%		
+9:00 AM	
+USD	Consumer Confidence (Oct)	
+-	-	-	-		
+9:00 AM	
+USD	Richmond Fed Manufacturing Index (Oct)	
+-	-	-14	-17		
+10:30 AM	
+USD	52-Week Bill Auction	
+-	-	-	3.54%		
+12:00 PM	
+USD	7-Year Note Auction	
+-	-	-	3.953%		
+3:30 PM	
+USD	API Weekly Crude Oil Stock	
+-	-	-	-2.98M		
+Wednesday, October 29
+12:00 AM	
+JPY	Consumer Confidence Index (Oct)	
+-	-	35.6	35.3		
+4:30 AM	
+GBP	Consumer Credit (Sep)	
+-	-	-	£1.692B		
+4:30 AM	
+GBP	M4 Money Supply (MoM) (Sep)	
+-	-	-	0.4%		
+4:30 AM	
+GBP	M4 Money Supply (YoY) (Sep)	
+-	-	-	3.4%		
+4:30 AM	
+GBP	Mortgage Approvals (Sep)	
+-	-	64.5K	64.68K		
+4:30 AM	
+GBP	Net Lending to Individuals (MoM) (Sep)	
+-	-	£5.5B	£6B		
+6:00 AM	
+USD	MBA Mortgage Applications	
+-	-	-	-0.3%		
+N/A	
+USD	Goods Trade Balance (Sep) Prel	
+-	-	-	-		
+N/A	
+USD	Wholesale Inventories (Sep) Prel	
+-	-	-0.2%	-0.2%		
+9:00 AM	
+USD	Pending Home Sales (MoM) (Sep)	
+-	-	1.7%	4%		
+9:00 AM	
+USD	Pending Home Sales (YoY) (Sep)	
+-	-	-	3.8%		
+9:30 AM	
+USD	EIA Crude Oil Stocks Change	
+-	-	-	-0.961M		
+1:00 PM	
+USD	Fed Interest Rate Decision	
+-	-	4%	4.25%		
+1:00 PM	
+USD	Fed Monetary Policy Statement	
+locked
+1:30 PM	
+USD	FOMC Press Conference	
+locked
+6:50 PM	
+JPY	Foreign Bond Investment	
+-	-	-	¥-669.7B		
+6:50 PM	
+JPY	Foreign Investment in Japan Stocks	
+-	-	-	¥752.6B		
+N/A	
+JPY	BoJ Interest Rate Decision	
+-	-	0.5%	0.5%		
+N/A	
+JPY	BoJ Monetary Policy Statement	
+Report		
+10:00 PM	
+JPY	BoJ Outlook Report (Q3)	
+Report		
+Thursday, October 30
+1:30 AM	
+JPY	BoJ Press Conference	
+Speech		
+5:00 AM	
+EUR	Business Climate (Oct)	
+-	-	-	-0.76		
+5:00 AM	
+EUR	Consumer Confidence (Oct)	
+-	-	-14.2	-14.2		
+5:00 AM	
+EUR	Economic Sentiment Indicator (Oct)	
+-	-	95.7	95.5		
+5:00 AM	
+EUR	Gross Domestic Product s.a. (QoQ) (Q3) Prel	
+-	-	0.1%	0.1%		
+5:00 AM	
+EUR	Gross Domestic Product s.a. (YoY) (Q3) Prel	
+-	-	1.2%	1.5%		
+5:00 AM	
+EUR	Industrial Confidence (Oct)	
+-	-	-9.8	-10.3		
+5:00 AM	
+EUR	Services Sentiment (Oct)	
+-	-	3.7	3.6		
+5:00 AM	
+EUR	Unemployment Rate (Sep)	
+-	-	6.3%	6.3%		
+7:30 AM	
+USD	Continuing Jobless Claims	
+-	-	-	1.926M		
+7:30 AM	
+USD	Core Personal Consumption Expenditures (QoQ) (Q3) Prel	
+-	-	-	2.6%		
+7:30 AM	
+USD	Gross Domestic Product Annualized (Q3) Prel	
+-	-	3%	3.8%		
+7:30 AM	
+USD	Gross Domestic Product Price Index (Q3) Prel	
+-	-	-	2.1%		
+7:30 AM	
+USD	Initial Jobless Claims	
+-	-	223K	218K		
+7:30 AM	
+USD	Initial Jobless Claims 4-week average	
+-	-	-	237.5K		
+7:30 AM	
+USD	Personal Consumption Expenditures Prices (QoQ) (Q3) Prel	
+-	-	-	2.1%		
+8:15 AM	
+EUR	ECB Main Refinancing Operations Rate	
+-	-	2.15%	2.15%		
+8:15 AM	
+EUR	ECB Monetary Policy Statement	
+locked
+8:15 AM	
+EUR	ECB Rate On Deposit Facility	
+-	-	2%	2%		
+8:45 AM	
+EUR	ECB Press Conference	
+locked
+8:55 AM	
+USD	Fed's Bowman speech	
+locked
+9:30 AM	
+USD	EIA Natural Gas Storage Change	
+-	-	-	87B		
+10:30 AM	
+USD	4-Week Bill Auction	
+-	-	-	3.945%		
+6:30 PM	
+JPY	Jobs / Applicants Ratio (Sep)	
+-	-	-	1.2		
+6:30 PM	
+JPY	Tokyo Consumer Price Index (YoY) (Oct)	
+-	-	-	2.5%		
+6:30 PM	
+JPY	Tokyo CPI ex Food, Energy (YoY) (Oct)	
+-	-	-	2.5%		
+6:30 PM	
+JPY	Tokyo CPI ex Fresh Food (YoY) (Oct)	
+-	-	2.6%	2.5%		
+6:30 PM	
+JPY	Unemployment Rate (Sep)	
+-	-	2.5%	2.6%		
+6:50 PM	
+JPY	Industrial Production (MoM) (Sep) Prel	
+-	-	1.5%	-1.5%		
+6:50 PM	
+JPY	Industrial Production (YoY) (Sep) Prel	
+-	-	-	-1.6%		
+6:50 PM	
+JPY	Large Retailer Sales (Sep)	
+-	-	-	3%		
+6:50 PM	
+JPY	Retail Trade (YoY) (Sep)	
+-	-	0.7%	-1.1%		
+6:50 PM	
+JPY	Retail Trade s.a (MoM) (Sep)	
+-	-	-	-1.1%		
+Friday, October 31
+12:00 AM	
+JPY	Annualized Housing Starts (Sep)	
+-	-	-	0.711M		
+12:00 AM	
+JPY	Construction Orders (YoY) (Sep)	
+-	-	-	38.9%		
+12:00 AM	
+JPY	Housing Starts (YoY) (Sep)	
+-	-	-7.9%	-9.8%		
+2:00 AM	
+GBP	Nationwide Housing Prices n.s.a (YoY) (Oct)	
+-	-	-	2.2%		
+2:00 AM	
+GBP	Nationwide Housing Prices s.a (MoM) (Oct)	
+-	-	-	0.5%		
+5:00 AM	
+EUR	Core Harmonized Index of Consumer Prices (MoM) (Oct) Prel	
+-	-	-	0.1%		
+5:00 AM	
+EUR	Core Harmonized Index of Consumer Prices (YoY) (Oct) Prel	
+-	-	2.3%	2.4%		
+5:00 AM	
+EUR	Harmonized Index of Consumer Prices (MoM) (Oct) Prel	
+-	-	-	0.1%		
+5:00 AM	
+EUR	Harmonized Index of Consumer Prices (YoY) (Oct) Prel	
+-	-	2.1%	2.2%		
+7:30 AM	
+USD	Core Personal Consumption Expenditures - Price Index (MoM) (Sep)	
+-	-	0.2%	0.2%		
+7:30 AM	
+USD	Core Personal Consumption Expenditures - Price Index (YoY) (Sep)	
+-	-	-	2.9%		
+7:30 AM	
+USD	Employment Cost Index (Q3)	
+-	-	0.9%	0.9%		
+N/A	
+USD	Goods and Services Trade Balance (Aug)	
+-	-	$-60.4B	$-78.3B		
+N/A	
+USD	Goods Trade Balance (Aug)	
+-	-	-	$-85.5B		
+7:30 AM	
+USD	Personal Consumption Expenditures - Price Index (MoM) (Sep)	
+-	-	-	0.3%		
+7:30 AM	
+USD	Personal Consumption Expenditures - Price Index (YoY) (Sep)	
+-	-	-	2.7%		
+7:30 AM	
+USD	Personal Income (MoM) (Sep)	
+-	-	0.4%	0.4%		
+7:30 AM	
+USD	Personal Spending (Sep)	
+-	-	0.4%	0.6%		
+8:45 AM	
+USD	Chicago PMI (Oct)	
+-	-	42	40.6		
+N/A	
+USD	Factory Orders (MoM) (Aug)	
+-	-	1.4%	-1.3%		
+11:00 AM	
+USD	Fed's Hammack speech	
+locked
+12:00 PM	
+USD	Baker Hughes US Oil Rig Count	
+-	-	-	420		
+2:30 PM	
+EUR	CFTC EUR NC Net Positions	
+-	-	-	-		
+2:30 PM	
+JPY	CFTC JPY NC Net Positions	
+-	-	-	-		
+2:30 PM	
+GBP	CFTC GBP NC Net Positions	
+-	-	-	-		
+2:30 PM	
+USD	CFTC Gold NC Net Positions	
+-	-	-	-		
+2:30 PM	
+USD	CFTC Oil NC Net Positions	
+-	-	-	-		
+2:30 PM	
+USD	CFTC S&P 500 NC Net Positions	
+-	-	-	-		
+Sunday, November 2
+2:00 AM	
+USD	Daylight Saving Time ends	
+All Day		
+10:00 AM	
+JPY	Culture Day	
+All Day		
+Monday, November 3
+4:00 AM	
+EUR	ECB's Panetta speech	
+locked
+4:00 AM	
+EUR	HCOB Manufacturing PMI (Oct)	
+-	-	-	50		
+4:30 AM	
+GBP	S&P Global Manufacturing PMI (Oct)	
+-	-	-	49.6		
+9:45 AM	
+USD	S&P Global Manufacturing PMI (Oct)	
+-	-	-	52.2		
+10:00 AM	
+USD	Construction Spending (MoM) (Sep)	
+-	-	-	-0.1%		
+10:00 AM	
+USD	ISM Manufacturing Employment Index (Oct)	
+-	-	-	45.3		
+10:00 AM	
+USD	ISM Manufacturing New Orders Index (Oct)	
+-	-	-	48.9		
+10:00 AM	
+USD	ISM Manufacturing PMI (Oct)	
+-	-	-	49.1		
+10:00 AM	
+USD	ISM Manufacturing Prices Paid (Oct)	
+-	-	-	61.9		
+11:30 AM	
+USD	3-Month Bill Auction	
+-	-	-	-		
+11:30 AM	
+USD	6-Month Bill Auction	
+-	-	-	-		
+2:00 PM	
+USD	Loan Officer Survey (Q3)	
+Report		
+N/A	
+USD	Total Vehicle Sales (Oct)	
+-	-	-	16.4M		
+7:30 PM	
+JPY	Jibun Bank Manufacturing PMI (Oct)	
+-	-	-	48.3		
+Tuesday, November 4
+4:00 AM	
+EUR	ECB's Panetta speech	
+locked
+8:30 AM	
+USD	Goods and Services Trade Balance (Sep)	
+-	-	-	-		
+8:30 AM	
+USD	Goods Trade Balance (Sep)	
+-	-	-	-		
+8:55 AM	
+USD	Redbook Index (YoY)	
+-	-	-	-		
+9:00 AM	
+USD	RealClearMarkets/TIPP Economic Optimism (MoM) (Nov)	
+-	-	-	48.3		
+10:00 AM	
+USD	Factory Orders (MoM) (Sep)	
+-	-	-	-		
+10:00 AM	
+USD	JOLTS Job Openings (Sep)	
+-	-	-	7.227M		
+4:30 PM	
+USD	API Weekly Crude Oil Stock	
+-	-	-	-		
+6:50 PM	
+JPY	BoJ Monetary Policy Meeting Minutes	
+Report		
+6:50 PM	
+JPY	Monetary Base (YoY) (Oct)	
+-	-	-	-6.2%		
+10:35 PM	
+JPY	10-y Bond Auction	
+-	-	-	1.635%		
+Wednesday, November 5
+4:00 AM	
+EUR	ECB's Panetta speech	
+locked
+4:00 AM	
+EUR	HCOB Composite PMI (Oct)	
+-	-	-	52.2		
+4:00 AM	
+EUR	HCOB Services PMI (Oct)	
+-	-	-	52.6		
+4:30 AM	
+GBP	S&P Global Composite PMI (Oct)	
+-	-	-	51.1		
+4:30 AM	
+GBP	S&P Global Services PMI (Oct)	
+-	-	-	51.1		
+5:00 AM	
+EUR	Producer Price Index (MoM) (Sep)	
+-	-	-	-0.3%		
+5:00 AM	
+EUR	Producer Price Index (YoY) (Sep)	
+-	-	-	-0.6%		
+7:00 AM	
+USD	MBA Mortgage Applications	
+-	-	-	-		
+8:15 AM	
+USD	ADP Employment Change (Oct)	
+-	-	-	-32K		
+9:45 AM	
+USD	S&P Global Composite PMI (Oct)	
+-	-	-	54.8		
+9:45 AM	
+USD	S&P Global Services PMI (Oct)	
+-	-	-	55.2		
+10:00 AM	
+USD	ISM Services Employment Index (Oct)	
+-	-	-	47.2		
+10:00 AM	
+USD	ISM Services New Orders Index (Oct)	
+-	-	-	50.4		
+10:00 AM	
+USD	ISM Services PMI (Oct)	
+-	-	-	50		
+10:00 AM	
+USD	ISM Services Prices Paid (Oct)	
+-	-	-	69.4		
+10:30 AM	
+USD	EIA Crude Oil Stocks Change	
+-	-	-	-		
+6:30 PM	
+JPY	Labor Cash Earnings (YoY) (Sep)	
+-	-	-	1.5%		
+7:30 PM	
+JPY	Jibun Bank Services PMI (Oct)	
+-	-	-	52.4		
+Thursday, November 6
+4:30 AM	
+GBP	S&P Global Construction PMI (Oct)	
+-	-	-	46.2		
+5:00 AM	
+EUR	Retail Sales (MoM) (Sep)	
+-	-	-	0.1%		
+5:00 AM	
+EUR	Retail Sales (YoY) (Sep)	
+-	-	-	1%		
+7:00 AM	
+GBP	BoE Interest Rate Decision	
+-	-	-	4%		
+7:00 AM	
+GBP	BoE Minutes	
+Report		
+7:00 AM	
+GBP	BoE Monetary Policy Report	
+Report		
+7:00 AM	
+GBP	BoE Monetary Policy Summary	
+locked
+7:00 AM	
+GBP	BoE MPC Vote Rate Cut	
+-	-	-	2		
+7:00 AM	
+GBP	BoE MPC Vote Rate Hike	
+-	-	-	0		
+7:00 AM	
+GBP	BoE MPC Vote Rate Unchanged	
+-	-	-	7		
+7:30 AM	
+GBP	BoE's Governor Bailey speech	
+locked
+7:30 AM	
+USD	Challenger Job Cuts (Oct)	
+-	-	-	54.064K		
+8:30 AM	
+USD	Continuing Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims 4-week average	
+-	-	-	-		
+8:30 AM	
+USD	Nonfarm Productivity (Q3) Prel	
+-	-	-	3.3%		
+8:30 AM	
+USD	Unit Labor Costs (Q3) Prel	
+-	-	-	1%		
+10:00 AM	
+USD	Wholesale Inventories (Sep)	
+-	-	-	-		
+10:30 AM	
+USD	EIA Natural Gas Storage Change	
+-	-	-	-		
+11:30 AM	
+USD	4-Week Bill Auction	
+-	-	-	-		
+3:30 PM	
+USD	Fed's Musalem speech	
+locked
+6:30 PM	
+JPY	Overall Household Spending (YoY) (Sep)	
+-	-	-	2.3%		
+6:50 PM	
+JPY	Foreign Bond Investment	
+-	-	-	-		
+6:50 PM	
+JPY	Foreign Investment in Japan Stocks	
+-	-	-	-		
+Friday, November 7
+2:00 AM	
+GBP	Halifax House Prices (MoM) (Oct)	
+-	-	-	-0.3%		
+2:00 AM	
+GBP	Halifax House Prices (YoY/3m) (Oct)	
+-	-	-	1.3%		
+8:30 AM	
+USD	Average Hourly Earnings (MoM) (Oct)	
+-	-	-	0.3%		
+8:30 AM	
+USD	Average Hourly Earnings (YoY) (Oct)	
+-	-	-	3.7%		
+8:30 AM	
+USD	Average Weekly Hours (Oct)	
+-	-	-	34.2		
+8:30 AM	
+USD	Labor Force Participation Rate (Oct)	
+-	-	-	62.3%		
+8:30 AM	
+USD	Nonfarm Payrolls (Oct)	
+-	-	-	22K		
+8:30 AM	
+USD	U6 Underemployment Rate (Oct)	
+-	-	-	8.1%		
+8:30 AM	
+USD	Unemployment Rate (Oct)	
+-	-	-	4.3%		
+1:00 PM	
+USD	Baker Hughes US Oil Rig Count	
+-	-	-	-		
+3:00 PM	
+USD	Consumer Credit Change (Sep)	
+-	-	-	$0.36B		
+3:30 PM	
+EUR	CFTC EUR NC Net Positions	
+-	-	-	-		
+3:30 PM	
+JPY	CFTC JPY NC Net Positions	
+-	-	-	-		
+3:30 PM	
+GBP	CFTC GBP NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Gold NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Oil NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC S&P 500 NC Net Positions	
+-	-	-	-		
+Sunday, November 9
+6:50 PM	
+JPY	BoJ Summary of Opinions	
+Report		
+6:50 PM	
+JPY	JP Foreign Reserves (Oct)	
+-	-	-	$1,341.3B		
+6:50 PM	
+JPY	Trade Balance - BOP Basis (Sep)	
+-	-	-	¥2,463.5B		
+Monday, November 10
+12:00 AM	
+JPY	Coincident Index (Sep) Prel	
+-	-	-	112.8		
+12:00 AM	
+JPY	Eco Watchers Survey: Current (Oct)	
+-	-	-	47.1		
+12:00 AM	
+JPY	Eco Watchers Survey: Outlook (Oct)	
+-	-	-	48.5		
+12:00 AM	
+JPY	Leading Economic Index (Sep) Prel	
+-	-	-	107		
+4:30 AM	
+EUR	Sentix Investor Confidence (Nov)	
+-	-	-	-5.4		
+11:30 AM	
+USD	3-Month Bill Auction	
+-	-	-	-		
+11:30 AM	
+USD	6-Month Bill Auction	
+-	-	-	-		
+12:00 PM	
+USD	USDA WASDE Report	
+Report		
+6:50 PM	
+JPY	Bank Lending (YoY) (Oct)	
+-	-	-	3.8%		
+6:50 PM	
+JPY	Current Account n.s.a. (Sep)	
+-	-	-	¥3,775.8B		
+6:50 PM	
+JPY	Money Supply M2+CD (YoY) (Oct)	
+-	-	-	1.6%		
+7:01 PM	
+GBP	BRC Like-For-Like Retail Sales (YoY) (Oct)	
+-	-	-	2%		
+Tuesday, November 11
+12:00 AM	
+USD	Veterans Day	
+All Day		
+1:00 AM	
+JPY	Machine Tool Orders (YoY) (Oct)	
+-	-	-	9.9%		
+2:00 AM	
+GBP	Average Earnings Excluding Bonus (3Mo/Yr) (Oct)	
+-	-	-	4.7%		
+2:00 AM	
+GBP	Average Earnings Including Bonus (3Mo/Yr) (Oct)	
+-	-	-	5%		
+2:00 AM	
+GBP	Claimant Count Change (Oct)	
+-	-	-	25.8K		
+2:00 AM	
+GBP	Claimant Count Rate (Oct)	
+-	-	-	4.4%		
+2:00 AM	
+GBP	Employment Change (3M) (Oct)	
+-	-	-	91K		
+2:00 AM	
+GBP	ILO Unemployment Rate (3M) (Oct)	
+-	-	-	4.8%		
+5:00 AM	
+EUR	ZEW Survey – Economic Sentiment (Nov)	
+-	-	-	22.7		
+6:00 AM	
+USD	NFIB Business Optimism Index (Oct)	
+-	-	-	98.8		
+8:55 AM	
+USD	Redbook Index (YoY)	
+-	-	-	-		
+1:00 PM	
+USD	10-Year Note Auction	
+-	-	-	4.117%		
+1:00 PM	
+USD	3-Year Note Auction	
+-	-	-	3.576%		
+2:00 PM	
+USD	Monthly Budget Statement (Oct)	
+-	-	-	$-345B		
+4:30 PM	
+USD	API Weekly Crude Oil Stock	
+-	-	-	-		
+6:50 PM	
+JPY	Machinery Orders (MoM) (Sep)	
+-	-	-	-0.9%		
+6:50 PM	
+JPY	Machinery Orders (YoY) (Sep)	
+-	-	-	1.6%		
+6:50 PM	
+JPY	Producer Price Index (MoM) (Oct)	
+-	-	-	0.3%		
+6:50 PM	
+JPY	Producer Price Index (YoY) (Oct)	
+-	-	-	2.7%		
+Wednesday, November 12
+7:00 AM	
+USD	MBA Mortgage Applications	
+-	-	-	-		
+7:00 AM	
+USD	OPEC Monthly Market Report	
+Report		
+10:30 AM	
+USD	EIA Crude Oil Stocks Change	
+-	-	-	-		
+6:50 PM	
+JPY	Foreign Bond Investment	
+-	-	-	-		
+6:50 PM	
+JPY	Foreign Investment in Japan Stocks	
+-	-	-	-		
+7:01 PM	
+GBP	RICS Housing Price Balance (Oct)	
+-	-	-	-15%		
+11:30 PM	
+JPY	Capacity Utilization (Sep)	
+-	-	-	-2.3%		
+Thursday, November 13
+2:00 AM	
+GBP	Goods Trade Balance (Sep)	
+-	-	-	£-21.183B		
+2:00 AM	
+GBP	Gross Domestic Product (MoM) (Sep)	
+-	-	-	0.1%		
+2:00 AM	
+GBP	Gross Domestic Product (QoQ) (Q3) Prel	
+-	-	-	0.3%		
+2:00 AM	
+GBP	Gross Domestic Product (YoY) (Q3) Prel	
+-	-	-	1.4%		
+2:00 AM	
+GBP	Index of Services (3M/3M) (Sep)	
+-	-	-	0.4%		
+2:00 AM	
+GBP	Industrial Production (MoM) (Sep)	
+-	-	-	0.4%		
+2:00 AM	
+GBP	Industrial Production (YoY) (Sep)	
+-	-	-	-0.7%		
+2:00 AM	
+GBP	Manufacturing Production (MoM) (Sep)	
+-	-	-	0.7%		
+2:00 AM	
+GBP	Manufacturing Production (YoY) (Sep)	
+-	-	-	-0.8%		
+2:00 AM	
+GBP	Total Business Investment (QoQ) (Q3) Prel	
+-	-	-	-1.1%		
+2:00 AM	
+GBP	Total Business Investment (YoY) (Q3) Prel	
+-	-	-	3%		
+2:00 AM	
+GBP	Total Trade Balance (Sep)	
+-	-	-	£-3.386B		
+2:00 AM	
+GBP	Trade Balance; non-EU (Sep)	
+-	-	-	£-8.294B		
+4:00 AM	
+EUR	Economic Bulletin	
+Report		
+5:00 AM	
+EUR	Construction Output s.a (MoM) (Sep)	
+-	-	-	-0.1%		
+5:00 AM	
+EUR	Construction Output w.d.a (YoY) (Sep)	
+-	-	-	0.1%		
+5:00 AM	
+EUR	Industrial Production s.a. (MoM) (Sep)	
+-	-	-	-1.2%		
+5:00 AM	
+EUR	Industrial Production w.d.a. (YoY) (Sep)	
+-	-	-	1.1%		
+N/A	
+GBP	NIESR GDP Estimate (3M) (Oct)	
+-	-	-	5.294%		
+8:30 AM	
+USD	Consumer Price Index (MoM) (Oct)	
+-	-	-	0.3%		
+8:30 AM	
+USD	Consumer Price Index (YoY) (Oct)	
+-	-	-	3%		
+8:30 AM	
+USD	Consumer Price Index Core s.a (Oct)	
+-	-	-	330.54		
+8:30 AM	
+USD	Consumer Price Index ex Food & Energy (MoM) (Oct)	
+-	-	-	0.2%		
+8:30 AM	
+USD	Consumer Price Index ex Food & Energy (YoY) (Oct)	
+-	-	-	3%		
+8:30 AM	
+USD	Consumer Price Index n.s.a (MoM) (Oct)	
+-	-	-	324.8		
+8:30 AM	
+USD	Continuing Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims 4-week average	
+-	-	-	-		
+10:30 AM	
+USD	EIA Natural Gas Storage Change	
+-	-	-	-		
+11:30 AM	
+USD	4-Week Bill Auction	
+-	-	-	-		
+1:00 PM	
+USD	30-Year Bond Auction	
+-	-	-	4.734%		
+6:50 PM	
+JPY	Gross Domestic Product (QoQ) (Q3) Prel	
+-	-	-	0.5%		
+6:50 PM	
+JPY	Gross Domestic Product Annualized (Q3) Prel	
+-	-	-	2.2%		
+6:50 PM	
+JPY	Gross Domestic Product Deflator (YoY) (Q3) Prel	
+-	-	-	2.9%		
+Friday, November 14
+5:00 AM	
+EUR	Employment Change (QoQ) (Q3) Prel	
+-	-	-	0.1%		
+5:00 AM	
+EUR	Employment Change (YoY) (Q3) Prel	
+-	-	-	0.6%		
+5:00 AM	
+EUR	European Commission releases Economic Growth Forecasts	
+Report		
+5:00 AM	
+EUR	Gross Domestic Product s.a. (QoQ) (Q3) Prel	
+-	-	-	-		
+5:00 AM	
+EUR	Gross Domestic Product s.a. (YoY) (Q3) Prel	
+-	-	-	-		
+5:00 AM	
+EUR	Trade Balance n.s.a. (Sep)	
+-	-	-	€1B		
+5:00 AM	
+EUR	Trade Balance s.a. (Sep)	
+-	-	-	€9.7B		
+8:30 AM	
+USD	Export Price Index (MoM) (Oct)	
+-	-	-	0.3%		
+8:30 AM	
+USD	Export Price Index (YoY) (Oct)	
+-	-	-	3.4%		
+8:30 AM	
+USD	Import Price Index (MoM) (Oct)	
+-	-	-	0.3%		
+8:30 AM	
+USD	Import Price Index (YoY) (Oct)	
+-	-	-	0%		
+8:30 AM	
+USD	Producer Price Index (MoM) (Oct)	
+-	-	-	-0.1%		
+8:30 AM	
+USD	Producer Price Index (YoY) (Oct)	
+-	-	-	2.6%		
+8:30 AM	
+USD	Producer Price Index ex Food & Energy (MoM) (Oct)	
+-	-	-	-0.1%		
+8:30 AM	
+USD	Producer Price Index ex Food & Energy (YoY) (Oct)	
+-	-	-	2.8%		
+8:30 AM	
+USD	Retail Sales (MoM) (Oct)	
+-	-	-	0.6%		
+8:30 AM	
+USD	Retail Sales (YoY) (Oct)	
+-	-	-	5%		
+8:30 AM	
+USD	Retail Sales Control Group (Oct)	
+-	-	-	0.7%		
+8:30 AM	
+USD	Retail Sales ex Autos (MoM) (Oct)	
+-	-	-	0.7%		
+10:00 AM	
+USD	Business Inventories (Sep)	
+-	-	-	0.2%		
+10:00 AM	
+USD	Michigan Consumer Expectations Index (Nov) Prel	
+-	-	-	50.3		
+10:00 AM	
+USD	Michigan Consumer Sentiment Index (Nov) Prel	
+-	-	-	53.6		
+10:00 AM	
+USD	UoM 1-year Consumer Inflation Expectations (Nov) Prel	
+-	-	-	4.6%		
+10:00 AM	
+USD	UoM 5-year Consumer Inflation Expectation (Nov) Prel	
+-	-	-	3.9%		
+1:00 PM	
+USD	Baker Hughes US Oil Rig Count	
+-	-	-	-		
+3:30 PM	
+EUR	CFTC EUR NC Net Positions	
+-	-	-	-		
+3:30 PM	
+JPY	CFTC JPY NC Net Positions	
+-	-	-	-		
+3:30 PM	
+GBP	CFTC GBP NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Gold NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Oil NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC S&P 500 NC Net Positions	
+-	-	-	-		
+Sunday, November 16
+7:01 PM	
+GBP	Rightmove House Price Index (MoM) (Nov)	
+-	-	-	0.3%		
+7:01 PM	
+GBP	Rightmove House Price Index (YoY) (Nov)	
+-	-	-	-0.1%		
+11:30 PM	
+JPY	Industrial Production (MoM) (Sep)	
+-	-	-	-		
+11:30 PM	
+JPY	Industrial Production (YoY) (Sep)	
+-	-	-	-		
+11:30 PM	
+JPY	Tertiary Industry Index (MoM) (Sep)	
+-	-	-	-0.4%		
+Monday, November 17
+8:30 AM	
+USD	NY Empire State Manufacturing Index (Nov)	
+-	-	-	10.7		
+10:00 AM	
+USD	NAHB Housing Market Index (Nov)	
+-	-	-	37		
+11:30 AM	
+USD	3-Month Bill Auction	
+-	-	-	-		
+11:30 AM	
+USD	6-Month Bill Auction	
+-	-	-	-		
+Tuesday, November 18
+8:55 AM	
+USD	Redbook Index (YoY)	
+-	-	-	-		
+9:15 AM	
+USD	Capacity Utilization (Oct)	
+-	-	-	77.4%		
+9:15 AM	
+USD	Industrial Production (MoM) (Oct)	
+-	-	-	0.1%		
+4:00 PM	
+USD	Net Long-Term TIC Flows (Sep)	
+-	-	-	$49.2B		
+4:00 PM	
+USD	Total Net TIC Flows (Sep)	
+-	-	-	$2.1B		
+4:30 PM	
+USD	API Weekly Crude Oil Stock	
+-	-	-	-		
+Wednesday, November 19
+2:00 AM	
+GBP	Consumer Price Index (MoM) (Oct)	
+-	-	-	0%		
+2:00 AM	
+GBP	Consumer Price Index (YoY) (Oct)	
+-	-	-	3.8%		
+2:00 AM	
+GBP	Core Consumer Price Index (YoY) (Oct)	
+-	-	-	3.5%		
+2:00 AM	
+GBP	PPI Core Output (MoM) n.s.a (Oct)	
+-	-	-	0%		
+2:00 AM	
+GBP	PPI Core Output (YoY) n.s.a (Oct)	
+-	-	-	3.6%		
+2:00 AM	
+GBP	Producer Price Index - Input (MoM) n.s.a (Oct)	
+-	-	-	-0.1%		
+2:00 AM	
+GBP	Producer Price Index - Input (YoY) n.s.a (Oct)	
+-	-	-	0.8%		
+2:00 AM	
+GBP	Producer Price Index - Output (MoM) n.s.a (Oct)	
+-	-	-	0%		
+2:00 AM	
+GBP	Producer Price Index - Output (YoY) n.s.a (Oct)	
+-	-	-	3.4%		
+2:00 AM	
+GBP	Retail Price Index (MoM) (Oct)	
+-	-	-	-0.4%		
+2:00 AM	
+GBP	Retail Price Index (YoY) (Oct)	
+-	-	-	4.5%		
+4:00 AM	
+EUR	Current Account n.s.a (Sep)	
+-	-	-	€13B		
+4:00 AM	
+EUR	Current Account s.a (Sep)	
+-	-	-	€11.9B		
+4:30 AM	
+GBP	DCLG House Price Index (YoY) (Sep)	
+-	-	-	3%		
+5:00 AM	
+EUR	Core Harmonized Index of Consumer Prices (MoM) (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	Core Harmonized Index of Consumer Prices (YoY) (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	Harmonized Index of Consumer Prices (MoM) (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	Harmonized Index of Consumer Prices (YoY) (Oct)	
+-	-	-	-		
+7:00 AM	
+USD	MBA Mortgage Applications	
+-	-	-	-		
+8:30 AM	
+USD	Building Permits (MoM) (Oct)	
+-	-	-	1.312M		
+8:30 AM	
+USD	Building Permits Change (Oct)	
+-	-	-	-3.7%		
+8:30 AM	
+USD	Housing Starts (MoM) (Oct)	
+-	-	-	1.307M		
+8:30 AM	
+USD	Housing Starts Change (Oct)	
+-	-	-	-8.5%		
+10:30 AM	
+USD	EIA Crude Oil Stocks Change	
+-	-	-	-		
+1:00 PM	
+USD	20-Year Bond Auction	
+-	-	-	4.506%		
+2:00 PM	
+USD	FOMC Minutes	
+Report		
+6:50 PM	
+JPY	Adjusted Merchandise Trade Balance (Oct)	
+-	-	-	¥-314.3B		
+6:50 PM	
+JPY	Exports (YoY) (Oct)	
+-	-	-	4.2%		
+6:50 PM	
+JPY	Foreign Bond Investment	
+-	-	-	-		
+6:50 PM	
+JPY	Foreign Investment in Japan Stocks	
+-	-	-	-		
+6:50 PM	
+JPY	Imports (YoY) (Oct)	
+-	-	-	3.3%		
+6:50 PM	
+JPY	Merchandise Trade Balance Total (Oct)	
+-	-	-	¥-234.6B		
+Thursday, November 20
+8:30 AM	
+USD	Continuing Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims 4-week average	
+-	-	-	-		
+8:30 AM	
+USD	Philadelphia Fed Manufacturing Survey (Nov)	
+-	-	-	-12.8		
+10:00 AM	
+EUR	Consumer Confidence (Nov) Prel	
+-	-	-	-		
+10:00 AM	
+USD	Existing Home Sales (MoM) (Oct)	
+-	-	-	4.06M		
+10:00 AM	
+USD	Existing Home Sales Change (MoM) (Oct)	
+-	-	-	1.5%		
+10:30 AM	
+USD	EIA Natural Gas Storage Change	
+-	-	-	-		
+11:30 AM	
+USD	4-Week Bill Auction	
+-	-	-	-		
+1:00 PM	
+USD	10-year TIPS Auction	
+-	-	-	1.734%		
+6:30 PM	
+JPY	National Consumer Price Index (YoY) (Oct)	
+-	-	-	2.9%		
+6:30 PM	
+JPY	National CPI ex Food, Energy (YoY) (Oct)	
+-	-	-	3%		
+6:30 PM	
+JPY	National CPI ex Fresh Food (YoY) (Oct)	
+-	-	-	2.9%		
+7:01 PM	
+GBP	GfK Consumer Confidence (Nov)	
+-	-	-	-17		
+7:30 PM	
+JPY	Jibun Bank Manufacturing PMI (Nov) Prel	
+-	-	-	-		
+7:30 PM	
+JPY	Jibun Bank Services PMI (Nov) Prel	
+-	-	-	-		
+Friday, November 21
+2:00 AM	
+GBP	Public Sector Net Borrowing (Oct)	
+-	-	-	£20.246B		
+2:00 AM	
+GBP	Retail Sales (MoM) (Oct)	
+-	-	-	0.5%		
+2:00 AM	
+GBP	Retail Sales (YoY) (Oct)	
+-	-	-	1.5%		
+2:00 AM	
+GBP	Retail Sales ex-Fuel (MoM) (Oct)	
+-	-	-	0.6%		
+2:00 AM	
+GBP	Retail Sales ex-Fuel (YoY) (Oct)	
+-	-	-	2.3%		
+4:00 AM	
+EUR	HCOB Composite PMI (Nov) Prel	
+-	-	-	-		
+4:00 AM	
+EUR	HCOB Manufacturing PMI (Nov) Prel	
+-	-	-	-		
+4:00 AM	
+EUR	HCOB Services PMI (Nov) Prel	
+-	-	-	-		
+4:30 AM	
+GBP	S&P Global Composite PMI (Nov) Prel	
+-	-	-	-		
+4:30 AM	
+GBP	S&P Global Manufacturing PMI (Nov) Prel	
+-	-	-	-		
+4:30 AM	
+GBP	S&P Global Services PMI (Nov) Prel	
+-	-	-	-		
+5:00 AM	
+EUR	Negotiated Wage Rates (QoQ) (Q3)	
+-	-	-	3.95%		
+9:45 AM	
+USD	S&P Global Composite PMI (Nov) Prel	
+-	-	-	-		
+9:45 AM	
+USD	S&P Global Manufacturing PMI (Nov) Prel	
+-	-	-	-		
+9:45 AM	
+USD	S&P Global Services PMI (Nov) Prel	
+-	-	-	-		
+1:00 PM	
+USD	Baker Hughes US Oil Rig Count	
+-	-	-	-		
+3:30 PM	
+EUR	CFTC EUR NC Net Positions	
+-	-	-	-		
+3:30 PM	
+JPY	CFTC JPY NC Net Positions	
+-	-	-	-		
+3:30 PM	
+GBP	CFTC GBP NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Gold NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Oil NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC S&P 500 NC Net Positions	
+-	-	-	-		
+Saturday, November 22
+10:00 AM	
+JPY	Labor Thanksgiving Day	
+All Day		
+Sunday, November 23
+6:50 PM	
+JPY	Corporate Service Price Index (YoY) (Oct)	
+-	-	-	-		
+Monday, November 24
+8:30 AM	
+USD	Chicago Fed National Activity Index (Oct)	
+-	-	-	-0.12		
+10:30 AM	
+USD	Dallas Fed Manufacturing Business Index (Nov)	
+-	-	-	-		
+11:30 AM	
+USD	3-Month Bill Auction	
+-	-	-	-		
+11:30 AM	
+USD	6-Month Bill Auction	
+-	-	-	-		
+1:00 PM	
+USD	2-Year Note Auction	
+-	-	-	-		
+Tuesday, November 25
+8:55 AM	
+USD	Redbook Index (YoY)	
+-	-	-	-		
+9:00 AM	
+USD	Housing Price Index (MoM) (Sep)	
+-	-	-	-		
+9:00 AM	
+USD	S&P/Case-Shiller Home Price Indices (YoY) (Sep)	
+-	-	-	-		
+10:00 AM	
+USD	Consumer Confidence (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	New Home Sales (MoM) (Oct)	
+-	-	-	0.8M		
+10:00 AM	
+USD	New Home Sales Change (MoM) (Oct)	
+-	-	-	20.5%		
+10:00 AM	
+USD	Richmond Fed Manufacturing Index (Nov)	
+-	-	-	-		
+11:30 AM	
+USD	52-Week Bill Auction	
+-	-	-	-		
+4:30 PM	
+USD	API Weekly Crude Oil Stock	
+-	-	-	-		
+7:01 PM	
+GBP	BRC Shop Price Index (YoY) (Nov)	
+-	-	-	-		
+Wednesday, November 26
+4:00 AM	
+EUR	EU Financial Stability Review	
+Report		
+7:00 AM	
+USD	MBA Mortgage Applications	
+-	-	-	-		
+8:30 AM	
+USD	Core Personal Consumption Expenditures (QoQ) (Q3) Prel	
+-	-	-	-		
+8:30 AM	
+USD	Durable Goods Orders (Oct)	
+-	-	-	-		
+8:30 AM	
+USD	Durable Goods Orders ex Defense (Oct)	
+-	-	-	-		
+8:30 AM	
+USD	Durable Goods Orders ex Transportation (Oct)	
+-	-	-	-		
+8:30 AM	
+USD	Goods Trade Balance (Oct) Prel	
+-	-	-	-		
+8:30 AM	
+USD	Gross Domestic Product Annualized (Q3) Prel	
+-	-	-	-		
+8:30 AM	
+USD	Gross Domestic Product Price Index (Q3) Prel	
+-	-	-	-		
+8:30 AM	
+USD	Nondefense Capital Goods Orders ex Aircraft (Oct)	
+-	-	-	-		
+8:30 AM	
+USD	Personal Consumption Expenditures Prices (QoQ) (Q3) Prel	
+-	-	-	-		
+8:30 AM	
+USD	Wholesale Inventories (Oct) Prel	
+-	-	-	-		
+9:45 AM	
+USD	Chicago PMI (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Core Personal Consumption Expenditures - Price Index (MoM) (Oct)	
+-	-	-	-		
+10:00 AM	
+USD	Core Personal Consumption Expenditures - Price Index (YoY) (Oct)	
+-	-	-	-		
+10:00 AM	
+USD	Personal Consumption Expenditures - Price Index (MoM) (Oct)	
+-	-	-	-		
+10:00 AM	
+USD	Personal Consumption Expenditures - Price Index (YoY) (Oct)	
+-	-	-	-		
+10:00 AM	
+USD	Personal Income (MoM) (Oct)	
+-	-	-	-		
+10:00 AM	
+USD	Personal Spending (Oct)	
+-	-	-	-		
+10:30 AM	
+USD	EIA Crude Oil Stocks Change	
+-	-	-	-		
+1:00 PM	
+USD	5-Year Note Auction	
+-	-	-	-		
+6:50 PM	
+JPY	Foreign Bond Investment	
+-	-	-	-		
+6:50 PM	
+JPY	Foreign Investment in Japan Stocks	
+-	-	-	-		
+Thursday, November 27
+12:00 AM	
+JPY	Coincident Index (Sep)	
+-	-	-	-		
+12:00 AM	
+JPY	Leading Economic Index (Sep)	
+-	-	-	-		
+12:00 AM	
+USD	Thanksgiving Day	
+All Day		
+4:00 AM	
+EUR	M3 Money Supply (3m) (Oct)	
+-	-	-	-		
+4:00 AM	
+EUR	M3 Money Supply (YoY) (Oct)	
+-	-	-	-		
+4:00 AM	
+EUR	Private Loans (YoY) (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	Consumer Confidence (Nov)	
+-	-	-	-		
+5:00 AM	
+EUR	Economic Sentiment Indicator (Nov)	
+-	-	-	-		
+5:00 AM	
+EUR	Industrial Confidence (Nov)	
+-	-	-	-		
+5:00 AM	
+EUR	Services Sentiment (Nov)	
+-	-	-	-		
+7:30 AM	
+EUR	ECB Monetary Policy Meeting Accounts	
+Report		
+8:30 AM	
+USD	Continuing Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims 4-week average	
+-	-	-	-		
+10:00 AM	
+USD	Pending Home Sales (MoM) (Oct)	
+-	-	-	-		
+10:00 AM	
+USD	Pending Home Sales (YoY) (Oct)	
+-	-	-	-		
+10:30 AM	
+USD	EIA Natural Gas Storage Change	
+-	-	-	-		
+11:00 AM	
+USD	Kansas Fed Manufacturing Activity (Nov)	
+-	-	-	15		
+11:30 AM	
+USD	4-Week Bill Auction	
+-	-	-	-		
+1:00 PM	
+USD	7-Year Note Auction	
+-	-	-	-		
+6:30 PM	
+JPY	Jobs / Applicants Ratio (Oct)	
+-	-	-	-		
+6:30 PM	
+JPY	Tokyo Consumer Price Index (YoY) (Nov)	
+-	-	-	-		
+6:30 PM	
+JPY	Tokyo CPI ex Food, Energy (YoY) (Nov)	
+-	-	-	-		
+6:30 PM	
+JPY	Tokyo CPI ex Fresh Food (YoY) (Nov)	
+-	-	-	-		
+6:30 PM	
+JPY	Unemployment Rate (Oct)	
+-	-	-	-		
+6:50 PM	
+JPY	Industrial Production (MoM) (Oct) Prel	
+-	-	-	-		
+6:50 PM	
+JPY	Industrial Production (YoY) (Oct) Prel	
+-	-	-	-		
+6:50 PM	
+JPY	Large Retailer Sales (Oct)	
+-	-	-	-		
+6:50 PM	
+JPY	Retail Trade (YoY) (Oct)	
+-	-	-	-		
+6:50 PM	
+JPY	Retail Trade s.a (MoM) (Oct)	
+-	-	-	-		
+Friday, November 28
+12:00 AM	
+JPY	Annualized Housing Starts (Oct)	
+-	-	-	-		
+12:00 AM	
+JPY	Construction Orders (YoY) (Oct)	
+-	-	-	-		
+12:00 AM	
+JPY	Housing Starts (YoY) (Oct)	
+-	-	-	-		
+2:00 AM	
+GBP	Nationwide Housing Prices n.s.a (YoY) (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Nationwide Housing Prices s.a (MoM) (Nov)	
+-	-	-	-		
+5:00 AM	
+EUR	Business Climate (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Michigan Consumer Expectations Index (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Michigan Consumer Sentiment Index (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	UoM 1-year Consumer Inflation Expectations (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	UoM 5-year Consumer Inflation Expectation (Nov)	
+-	-	-	-		
+1:00 PM	
+USD	Baker Hughes US Oil Rig Count	
+-	-	-	-		
+Sunday, November 30
+6:50 PM	
+JPY	Capital Spending (Q3)	
+-	-	-	7.6%		
+7:30 PM	
+JPY	Jibun Bank Manufacturing PMI (Nov)	
+-	-	-	-		
+Monday, December 1
+12:00 AM	
+JPY	Consumer Confidence Index (Nov)	
+-	-	-	-		
+4:00 AM	
+EUR	HCOB Manufacturing PMI (Nov)	
+-	-	-	-		
+4:30 AM	
+GBP	Consumer Credit (Oct)	
+-	-	-	-		
+4:30 AM	
+GBP	M4 Money Supply (MoM) (Oct)	
+-	-	-	-		
+4:30 AM	
+GBP	M4 Money Supply (YoY) (Oct)	
+-	-	-	-		
+4:30 AM	
+GBP	Mortgage Approvals (Oct)	
+-	-	-	-		
+4:30 AM	
+GBP	Net Lending to Individuals (MoM) (Oct)	
+-	-	-	-		
+4:30 AM	
+GBP	S&P Global Manufacturing PMI (Nov)	
+-	-	-	-		
+9:45 AM	
+USD	S&P Global Manufacturing PMI (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Construction Spending (MoM) (Oct)	
+-	-	-	-		
+10:00 AM	
+USD	ISM Manufacturing Employment Index (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	ISM Manufacturing New Orders Index (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	ISM Manufacturing PMI (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	ISM Manufacturing Prices Paid (Nov)	
+-	-	-	-		
+11:30 AM	
+USD	3-Month Bill Auction	
+-	-	-	-		
+11:30 AM	
+USD	6-Month Bill Auction	
+-	-	-	-		
+3:30 PM	
+EUR	CFTC EUR NC Net Positions	
+-	-	-	-		
+3:30 PM	
+JPY	CFTC JPY NC Net Positions	
+-	-	-	-		
+3:30 PM	
+GBP	CFTC GBP NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Gold NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Oil NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC S&P 500 NC Net Positions	
+-	-	-	-		
+10:35 PM	
+JPY	10-y Bond Auction	
+-	-	-	-		
+Tuesday, December 2
+5:00 AM	
+EUR	Core Harmonized Index of Consumer Prices (MoM) (Nov) Prel	
+-	-	-	-		
+5:00 AM	
+EUR	Core Harmonized Index of Consumer Prices (YoY) (Nov) Prel	
+-	-	-	-		
+5:00 AM	
+EUR	Harmonized Index of Consumer Prices (MoM) (Nov) Prel	
+-	-	-	-		
+5:00 AM	
+EUR	Harmonized Index of Consumer Prices (YoY) (Nov) Prel	
+-	-	-	-		
+5:00 AM	
+EUR	Unemployment Rate (Oct)	
+-	-	-	-		
+5:30 AM	
+GBP	Financial Stability Report	
+Report		
+8:55 AM	
+USD	Redbook Index (YoY)	
+-	-	-	-		
+10:00 AM	
+USD	JOLTS Job Openings (Oct)	
+-	-	-	-		
+10:00 AM	
+USD	RealClearMarkets/TIPP Economic Optimism (MoM) (Dec)	
+-	-	-	-		
+N/A	
+USD	Total Vehicle Sales (Nov)	
+-	-	-	-		
+4:30 PM	
+USD	API Weekly Crude Oil Stock	
+-	-	-	-		
+6:50 PM	
+JPY	Monetary Base (YoY) (Nov)	
+-	-	-	-		
+7:30 PM	
+JPY	Jibun Bank Services PMI (Nov)	
+-	-	-	-		
+Wednesday, December 3
+4:00 AM	
+EUR	HCOB Composite PMI (Nov)	
+-	-	-	-		
+4:00 AM	
+EUR	HCOB Services PMI (Nov)	
+-	-	-	-		
+4:30 AM	
+GBP	S&P Global Composite PMI (Nov)	
+-	-	-	-		
+4:30 AM	
+GBP	S&P Global Services PMI (Nov)	
+-	-	-	-		
+7:00 AM	
+USD	MBA Mortgage Applications	
+-	-	-	-		
+8:15 AM	
+USD	ADP Employment Change (Nov)	
+-	-	-	-		
+9:45 AM	
+USD	S&P Global Composite PMI (Nov)	
+-	-	-	-		
+9:45 AM	
+USD	S&P Global Services PMI (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	ISM Services Employment Index (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	ISM Services New Orders Index (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	ISM Services PMI (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	ISM Services Prices Paid (Nov)	
+-	-	-	-		
+10:30 AM	
+USD	EIA Crude Oil Stocks Change	
+-	-	-	-		
+2:00 PM	
+USD	Fed's Beige Book	
+Report		
+6:50 PM	
+JPY	Foreign Bond Investment	
+-	-	-	-		
+6:50 PM	
+JPY	Foreign Investment in Japan Stocks	
+-	-	-	-		
+Thursday, December 4
+4:30 AM	
+GBP	S&P Global Construction PMI (Nov)	
+-	-	-	-		
+5:00 AM	
+EUR	Producer Price Index (MoM) (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	Producer Price Index (YoY) (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	Retail Sales (MoM) (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	Retail Sales (YoY) (Oct)	
+-	-	-	-		
+7:30 AM	
+USD	Challenger Job Cuts (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Continuing Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Goods and Services Trade Balance (Oct)	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims 4-week average	
+-	-	-	-		
+10:30 AM	
+USD	EIA Natural Gas Storage Change	
+-	-	-	-		
+11:30 AM	
+USD	4-Week Bill Auction	
+-	-	-	-		
+6:30 PM	
+JPY	Overall Household Spending (YoY) (Oct)	
+-	-	-	-		
+6:50 PM	
+JPY	JP Foreign Reserves (Nov)	
+-	-	-	-		
+Friday, December 5
+2:00 AM	
+GBP	Halifax House Prices (MoM) (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Halifax House Prices (YoY/3m) (Nov)	
+-	-	-	-		
+5:00 AM	
+EUR	Employment Change (QoQ) (Q3)	
+-	-	-	-		
+5:00 AM	
+EUR	Employment Change (YoY) (Q3)	
+-	-	-	-		
+5:00 AM	
+EUR	Gross Domestic Product s.a. (QoQ) (Q3)	
+-	-	-	-		
+5:00 AM	
+EUR	Gross Domestic Product s.a. (YoY) (Q3)	
+-	-	-	-		
+8:30 AM	
+USD	Average Hourly Earnings (MoM) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Average Hourly Earnings (YoY) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Average Weekly Hours (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Goods Trade Balance (Oct)	
+-	-	-	-		
+8:30 AM	
+USD	Labor Force Participation Rate (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Nonfarm Payrolls (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	U6 Underemployment Rate (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Unemployment Rate (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Factory Orders (MoM) (Oct)	
+-	-	-	-		
+10:00 AM	
+USD	Michigan Consumer Expectations Index (Dec) Prel	
+-	-	-	-		
+10:00 AM	
+USD	Michigan Consumer Sentiment Index (Dec) Prel	
+-	-	-	-		
+10:00 AM	
+USD	UoM 1-year Consumer Inflation Expectations (Dec) Prel	
+-	-	-	-		
+10:00 AM	
+USD	UoM 5-year Consumer Inflation Expectation (Dec) Prel	
+-	-	-	-		
+1:00 PM	
+USD	Baker Hughes US Oil Rig Count	
+-	-	-	-		
+3:30 PM	
+EUR	CFTC EUR NC Net Positions	
+-	-	-	-		
+3:30 PM	
+JPY	CFTC JPY NC Net Positions	
+-	-	-	-		
+3:30 PM	
+GBP	CFTC GBP NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Gold NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Oil NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC S&P 500 NC Net Positions	
+-	-	-	-		
+Sunday, December 7
+6:30 PM	
+JPY	Labor Cash Earnings (YoY) (Oct)	
+-	-	-	-		
+6:50 PM	
+JPY	Bank Lending (YoY) (Nov)	
+-	-	-	-		
+6:50 PM	
+JPY	Current Account n.s.a. (Oct)	
+-	-	-	-		
+6:50 PM	
+JPY	Gross Domestic Product (QoQ) (Q3)	
+-	-	-	-		
+6:50 PM	
+JPY	Gross Domestic Product Annualized (Q3)	
+-	-	-	-		
+6:50 PM	
+JPY	Gross Domestic Product Deflator (YoY) (Q3)	
+-	-	-	-		
+6:50 PM	
+JPY	Trade Balance - BOP Basis (Oct)	
+-	-	-	-		
+Monday, December 8
+12:00 AM	
+JPY	Coincident Index (Oct) Prel	
+-	-	-	-		
+12:00 AM	
+JPY	Leading Economic Index (Oct) Prel	
+-	-	-	-		
+4:30 AM	
+EUR	Sentix Investor Confidence (Dec)	
+-	-	-	-		
+11:30 AM	
+USD	3-Month Bill Auction	
+-	-	-	-		
+11:30 AM	
+USD	6-Month Bill Auction	
+-	-	-	-		
+3:00 PM	
+USD	Consumer Credit Change (Oct)	
+-	-	-	-		
+7:01 PM	
+GBP	BRC Like-For-Like Retail Sales (YoY) (Nov)	
+-	-	-	-		
+Tuesday, December 9
+1:00 AM	
+JPY	Machine Tool Orders (YoY) (Nov)	
+-	-	-	-		
+6:00 AM	
+USD	NFIB Business Optimism Index (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Nonfarm Productivity (Q3)	
+-	-	-	-		
+8:30 AM	
+USD	Unit Labor Costs (Q3)	
+-	-	-	-		
+8:55 AM	
+USD	Redbook Index (YoY)	
+-	-	-	-		
+12:00 PM	
+USD	USDA WASDE Report	
+Report		
+1:00 PM	
+USD	3-Year Note Auction	
+-	-	-	-		
+4:30 PM	
+USD	API Weekly Crude Oil Stock	
+-	-	-	-		
+6:50 PM	
+JPY	Money Supply M2+CD (YoY) (Nov)	
+-	-	-	-		
+Wednesday, December 10
+6:30 AM	
+GBP	FPC Meeting Minutes	
+Report		
+6:30 AM	
+GBP	FPC Statement	
+Report		
+7:00 AM	
+USD	MBA Mortgage Applications	
+-	-	-	-		
+8:30 AM	
+USD	Consumer Price Index (MoM) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Consumer Price Index (YoY) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Consumer Price Index Core s.a (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Consumer Price Index ex Food & Energy (MoM) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Consumer Price Index ex Food & Energy (YoY) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Consumer Price Index n.s.a (MoM) (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Wholesale Inventories (Oct)	
+-	-	-	-		
+10:30 AM	
+USD	EIA Crude Oil Stocks Change	
+-	-	-	-		
+1:00 PM	
+USD	10-Year Note Auction	
+-	-	-	-		
+2:00 PM	
+USD	Fed Interest Rate Decision	
+-	-	-	-		
+2:00 PM	
+USD	Fed Monetary Policy Statement	
+locked
+2:00 PM	
+USD	FOMC Economic Projections	
+Report		
+2:00 PM	
+USD	Interest Rate Projections - 1st year	
+-	-	-	3.4%		
+2:00 PM	
+USD	Interest Rate Projections - 2nd year	
+-	-	-	3.1%		
+2:00 PM	
+USD	Interest Rate Projections - 3rd year	
+-	-	-	3.1%		
+2:00 PM	
+USD	Interest Rate Projections - Current	
+-	-	-	3.6%		
+2:00 PM	
+USD	Interest Rate Projections - Longer	
+-	-	-	3%		
+2:00 PM	
+USD	Monthly Budget Statement (Nov)	
+-	-	-	-		
+2:30 PM	
+USD	FOMC Press Conference	
+locked
+6:50 PM	
+JPY	BSI Large Manufacturing Conditions Index (QoQ) (Q4)	
+-	-	-	3.8		
+6:50 PM	
+JPY	Foreign Bond Investment	
+-	-	-	-		
+6:50 PM	
+JPY	Foreign Investment in Japan Stocks	
+-	-	-	-		
+6:50 PM	
+JPY	Machinery Orders (MoM) (Oct)	
+-	-	-	-		
+6:50 PM	
+JPY	Machinery Orders (YoY) (Oct)	
+-	-	-	-		
+6:50 PM	
+JPY	Producer Price Index (MoM) (Nov)	
+-	-	-	-		
+6:50 PM	
+JPY	Producer Price Index (YoY) (Nov)	
+-	-	-	-		
+7:01 PM	
+GBP	RICS Housing Price Balance (Nov)	
+-	-	-	-		
+Thursday, December 11
+7:00 AM	
+USD	OPEC Monthly Market Report	
+Report		
+8:30 AM	
+USD	Continuing Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims 4-week average	
+-	-	-	-		
+8:30 AM	
+USD	Producer Price Index (MoM) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Producer Price Index (YoY) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Producer Price Index ex Food & Energy (MoM) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Producer Price Index ex Food & Energy (YoY) (Nov)	
+-	-	-	-		
+10:30 AM	
+USD	EIA Natural Gas Storage Change	
+-	-	-	-		
+11:30 AM	
+USD	4-Week Bill Auction	
+-	-	-	-		
+1:00 PM	
+USD	30-Year Bond Auction	
+-	-	-	-		
+11:30 PM	
+JPY	Capacity Utilization (Oct)	
+-	-	-	-		
+11:30 PM	
+JPY	Industrial Production (MoM) (Oct)	
+-	-	-	-		
+11:30 PM	
+JPY	Industrial Production (YoY) (Oct)	
+-	-	-	-		
+Friday, December 12
+12:00 AM	
+JPY	Eco Watchers Survey: Current (Nov)	
+-	-	-	-		
+12:00 AM	
+JPY	Eco Watchers Survey: Outlook (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Goods Trade Balance (Oct)	
+-	-	-	-		
+2:00 AM	
+GBP	Gross Domestic Product (MoM) (Oct)	
+-	-	-	-		
+2:00 AM	
+GBP	Index of Services (3M/3M) (Oct)	
+-	-	-	-		
+2:00 AM	
+GBP	Industrial Production (MoM) (Oct)	
+-	-	-	-		
+2:00 AM	
+GBP	Industrial Production (YoY) (Oct)	
+-	-	-	-		
+2:00 AM	
+GBP	Manufacturing Production (MoM) (Oct)	
+-	-	-	-		
+2:00 AM	
+GBP	Manufacturing Production (YoY) (Oct)	
+-	-	-	-		
+2:00 AM	
+GBP	Total Trade Balance (Oct)	
+-	-	-	-		
+2:00 AM	
+GBP	Trade Balance; non-EU (Oct)	
+-	-	-	-		
+4:30 AM	
+GBP	Consumer Inflation Expectations	
+-	-	-	3.6%		
+N/A	
+GBP	NIESR GDP Estimate (3M) (Nov)	
+-	-	-	-		
+1:00 PM	
+USD	Baker Hughes US Oil Rig Count	
+-	-	-	-		
+3:30 PM	
+EUR	CFTC EUR NC Net Positions	
+-	-	-	-		
+3:30 PM	
+JPY	CFTC JPY NC Net Positions	
+-	-	-	-		
+3:30 PM	
+GBP	CFTC GBP NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Gold NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Oil NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC S&P 500 NC Net Positions	
+-	-	-	-		
+Sunday, December 14
+6:50 PM	
+JPY	Tankan Large All Industry Capex (Q4)	
+-	-	-	12.5%		
+6:50 PM	
+JPY	Tankan Large Manufacturing Index (Q4)	
+-	-	-	14		
+6:50 PM	
+JPY	Tankan Large Manufacturing Outlook (Q4)	
+-	-	-	12		
+6:50 PM	
+JPY	Tankan Non - Manufacturing Index (Q4)	
+-	-	-	34		
+6:50 PM	
+JPY	Tankan Non - Manufacturing Outlook (Q4)	
+-	-	-	28		
+7:01 PM	
+GBP	Rightmove House Price Index (MoM) (Dec)	
+-	-	-	-		
+7:01 PM	
+GBP	Rightmove House Price Index (YoY) (Dec)	
+-	-	-	-		
+Monday, December 15
+5:00 AM	
+EUR	Construction Output s.a (MoM) (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	Construction Output w.d.a (YoY) (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	Industrial Production s.a. (MoM) (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	Industrial Production w.d.a. (YoY) (Oct)	
+-	-	-	-		
+8:30 AM	
+USD	NY Empire State Manufacturing Index (Dec)	
+-	-	-	-		
+11:30 AM	
+USD	3-Month Bill Auction	
+-	-	-	-		
+11:30 AM	
+USD	6-Month Bill Auction	
+-	-	-	-		
+7:30 PM	
+JPY	Jibun Bank Manufacturing PMI (Dec) Prel	
+-	-	-	-		
+Tuesday, December 16
+2:00 AM	
+GBP	Average Earnings Excluding Bonus (3Mo/Yr) (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Average Earnings Including Bonus (3Mo/Yr) (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Claimant Count Change (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Claimant Count Rate (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Employment Change (3M) (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	ILO Unemployment Rate (3M) (Nov)	
+-	-	-	-		
+4:00 AM	
+EUR	HCOB Composite PMI (Dec) Prel	
+-	-	-	-		
+4:00 AM	
+EUR	HCOB Manufacturing PMI (Dec) Prel	
+-	-	-	-		
+4:00 AM	
+EUR	HCOB Services PMI (Dec) Prel	
+-	-	-	-		
+5:00 AM	
+EUR	Trade Balance n.s.a. (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	Trade Balance s.a. (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	ZEW Survey – Economic Sentiment (Dec)	
+-	-	-	-		
+8:30 AM	
+USD	Building Permits (MoM) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Building Permits Change (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Housing Starts (MoM) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Housing Starts Change (Nov)	
+-	-	-	-		
+8:55 AM	
+USD	Redbook Index (YoY)	
+-	-	-	-		
+9:15 AM	
+USD	Capacity Utilization (Nov)	
+-	-	-	-		
+9:15 AM	
+USD	Industrial Production (MoM) (Nov)	
+-	-	-	-		
+4:30 PM	
+USD	API Weekly Crude Oil Stock	
+-	-	-	-		
+7:30 PM	
+JPY	Jibun Bank Services PMI (Dec) Prel	
+-	-	-	-		
+Wednesday, December 17
+2:00 AM	
+GBP	Consumer Price Index (MoM) (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Consumer Price Index (YoY) (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Core Consumer Price Index (YoY) (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	PPI Core Output (MoM) n.s.a (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	PPI Core Output (YoY) n.s.a (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Producer Price Index - Input (MoM) n.s.a (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Producer Price Index - Input (YoY) n.s.a (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Producer Price Index - Output (MoM) n.s.a (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Producer Price Index - Output (YoY) n.s.a (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Retail Price Index (MoM) (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Retail Price Index (YoY) (Nov)	
+-	-	-	-		
+4:30 AM	
+GBP	DCLG House Price Index (YoY) (Oct)	
+-	-	-	-		
+5:00 AM	
+EUR	Core Harmonized Index of Consumer Prices (MoM) (Nov)	
+-	-	-	-		
+5:00 AM	
+EUR	Core Harmonized Index of Consumer Prices (YoY) (Nov)	
+-	-	-	-		
+5:00 AM	
+EUR	Harmonized Index of Consumer Prices (MoM) (Nov)	
+-	-	-	-		
+5:00 AM	
+EUR	Harmonized Index of Consumer Prices (YoY) (Nov)	
+-	-	-	-		
+5:00 AM	
+EUR	Labor Cost Index (Q3)	
+-	-	-	3.6%		
+7:00 AM	
+USD	MBA Mortgage Applications	
+-	-	-	-		
+8:30 AM	
+USD	Export Price Index (MoM) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Export Price Index (YoY) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Import Price Index (MoM) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Import Price Index (YoY) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Retail Sales (MoM) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Retail Sales (YoY) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Retail Sales Control Group (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Retail Sales ex Autos (MoM) (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Business Inventories (Oct)	
+-	-	-	-		
+10:30 AM	
+USD	EIA Crude Oil Stocks Change	
+-	-	-	-		
+1:00 PM	
+USD	20-Year Bond Auction	
+-	-	-	-		
+6:50 PM	
+JPY	Adjusted Merchandise Trade Balance (Nov)	
+-	-	-	-		
+6:50 PM	
+JPY	Exports (YoY) (Nov)	
+-	-	-	-		
+6:50 PM	
+JPY	Foreign Bond Investment	
+-	-	-	-		
+6:50 PM	
+JPY	Foreign Investment in Japan Stocks	
+-	-	-	-		
+6:50 PM	
+JPY	Imports (YoY) (Nov)	
+-	-	-	-		
+6:50 PM	
+JPY	Merchandise Trade Balance Total (Nov)	
+-	-	-	-		
+11:30 PM	
+JPY	Tertiary Industry Index (MoM) (Oct)	
+-	-	-	-		
+Thursday, December 18
+4:30 AM	
+GBP	S&P Global Composite PMI (Dec) Prel	
+-	-	-	-		
+4:30 AM	
+GBP	S&P Global Manufacturing PMI (Dec) Prel	
+-	-	-	-		
+4:30 AM	
+GBP	S&P Global Services PMI (Dec) Prel	
+-	-	-	-		
+7:00 AM	
+GBP	BoE Interest Rate Decision	
+-	-	-	-		
+7:00 AM	
+GBP	BoE Minutes	
+Report		
+7:00 AM	
+GBP	BoE Monetary Policy Summary	
+locked
+7:00 AM	
+GBP	BoE MPC Vote Rate Cut	
+-	-	-	-		
+7:00 AM	
+GBP	BoE MPC Vote Rate Hike	
+-	-	-	-		
+7:00 AM	
+GBP	BoE MPC Vote Rate Unchanged	
+-	-	-	-		
+8:15 AM	
+EUR	ECB Main Refinancing Operations Rate	
+-	-	-	-		
+8:15 AM	
+EUR	ECB Monetary Policy Statement	
+locked
+8:15 AM	
+EUR	ECB Rate On Deposit Facility	
+-	-	-	-		
+8:30 AM	
+USD	Continuing Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims 4-week average	
+-	-	-	-		
+8:30 AM	
+USD	Philadelphia Fed Manufacturing Survey (Dec)	
+-	-	-	-		
+8:45 AM	
+EUR	ECB Press Conference	
+locked
+10:00 AM	
+USD	NAHB Housing Market Index (Dec)	
+-	-	-	-		
+10:30 AM	
+USD	EIA Natural Gas Storage Change	
+-	-	-	-		
+11:00 AM	
+USD	Kansas Fed Manufacturing Activity (Dec)	
+-	-	-	-		
+11:30 AM	
+USD	4-Week Bill Auction	
+-	-	-	-		
+1:00 PM	
+USD	5-year TIPS Auction	
+-	-	-	1.182%		
+4:00 PM	
+USD	Net Long-Term TIC Flows (Oct)	
+-	-	-	-		
+4:00 PM	
+USD	Total Net TIC Flows (Oct)	
+-	-	-	-		
+6:30 PM	
+JPY	National Consumer Price Index (YoY) (Nov)	
+-	-	-	-		
+6:30 PM	
+JPY	National CPI ex Food, Energy (YoY) (Nov)	
+-	-	-	-		
+6:30 PM	
+JPY	National CPI ex Fresh Food (YoY) (Nov)	
+-	-	-	-		
+7:01 PM	
+GBP	GfK Consumer Confidence (Dec)	
+-	-	-	-		
+N/A	
+JPY	BoJ Interest Rate Decision	
+-	-	-	-		
+N/A	
+JPY	BoJ Monetary Policy Statement	
+Report		
+Friday, December 19
+1:30 AM	
+JPY	BoJ Press Conference	
+Speech		
+2:00 AM	
+GBP	Public Sector Net Borrowing (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Retail Sales (MoM) (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Retail Sales (YoY) (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Retail Sales ex-Fuel (MoM) (Nov)	
+-	-	-	-		
+2:00 AM	
+GBP	Retail Sales ex-Fuel (YoY) (Nov)	
+-	-	-	-		
+4:00 AM	
+EUR	Current Account n.s.a (Oct)	
+-	-	-	-		
+4:00 AM	
+EUR	Current Account s.a (Oct)	
+-	-	-	-		
+4:00 AM	
+EUR	M3 Money Supply (3m) (Nov)	
+-	-	-	-		
+4:00 AM	
+EUR	M3 Money Supply (YoY) (Nov)	
+-	-	-	-		
+4:00 AM	
+EUR	Private Loans (YoY) (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Core Personal Consumption Expenditures (QoQ) (Q3)	
+-	-	-	-		
+8:30 AM	
+USD	Gross Domestic Product Annualized (Q3)	
+-	-	-	-		
+8:30 AM	
+USD	Gross Domestic Product Price Index (Q3)	
+-	-	-	-		
+8:30 AM	
+USD	Personal Consumption Expenditures Prices (QoQ) (Q3)	
+-	-	-	-		
+9:45 AM	
+USD	S&P Global Composite PMI (Dec) Prel	
+-	-	-	-		
+9:45 AM	
+USD	S&P Global Manufacturing PMI (Dec) Prel	
+-	-	-	-		
+9:45 AM	
+USD	S&P Global Services PMI (Dec) Prel	
+-	-	-	-		
+10:00 AM	
+EUR	Consumer Confidence (Dec) Prel	
+-	-	-	-		
+10:00 AM	
+USD	Core Personal Consumption Expenditures - Price Index (MoM) (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Core Personal Consumption Expenditures - Price Index (YoY) (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Existing Home Sales (MoM) (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Existing Home Sales Change (MoM) (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Michigan Consumer Expectations Index (Dec)	
+-	-	-	-		
+10:00 AM	
+USD	Michigan Consumer Sentiment Index (Dec)	
+-	-	-	-		
+10:00 AM	
+USD	Personal Consumption Expenditures - Price Index (MoM) (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Personal Consumption Expenditures - Price Index (YoY) (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Personal Income (MoM) (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Personal Spending (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	UoM 1-year Consumer Inflation Expectations (Dec)	
+-	-	-	-		
+10:00 AM	
+USD	UoM 5-year Consumer Inflation Expectation (Dec)	
+-	-	-	-		
+1:00 PM	
+USD	Baker Hughes US Oil Rig Count	
+-	-	-	-		
+3:30 PM	
+EUR	CFTC EUR NC Net Positions	
+-	-	-	-		
+3:30 PM	
+JPY	CFTC JPY NC Net Positions	
+-	-	-	-		
+3:30 PM	
+GBP	CFTC GBP NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Gold NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Oil NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC S&P 500 NC Net Positions	
+-	-	-	-		
+Monday, December 22
+12:00 AM	
+JPY	Coincident Index (Oct)	
+-	-	-	-		
+12:00 AM	
+JPY	Leading Economic Index (Oct)	
+-	-	-	-		
+2:00 AM	
+GBP	Current Account (Q3)	
+-	-	-	£-28.939B		
+2:00 AM	
+GBP	Gross Domestic Product (QoQ) (Q3)	
+-	-	-	-		
+2:00 AM	
+GBP	Gross Domestic Product (YoY) (Q3)	
+-	-	-	-		
+2:00 AM	
+GBP	Total Business Investment (QoQ) (Q3)	
+-	-	-	-		
+2:00 AM	
+GBP	Total Business Investment (YoY) (Q3)	
+-	-	-	-		
+11:30 AM	
+USD	3-Month Bill Auction	
+-	-	-	-		
+11:30 AM	
+USD	6-Month Bill Auction	
+-	-	-	-		
+1:00 PM	
+USD	2-Year Note Auction	
+-	-	-	-		
+Tuesday, December 23
+8:30 AM	
+USD	Current Account (Q3)	
+-	-	-	$-251.3B		
+8:55 AM	
+USD	Redbook Index (YoY)	
+-	-	-	-		
+10:00 AM	
+USD	Consumer Confidence (Dec)	
+-	-	-	-		
+10:00 AM	
+USD	Richmond Fed Manufacturing Index (Dec)	
+-	-	-	-		
+11:30 AM	
+USD	52-Week Bill Auction	
+-	-	-	-		
+4:30 PM	
+USD	API Weekly Crude Oil Stock	
+-	-	-	-		
+6:50 PM	
+JPY	BoJ Monetary Policy Meeting Minutes	
+Report		
+Wednesday, December 24
+7:00 AM	
+USD	MBA Mortgage Applications	
+-	-	-	-		
+8:30 AM	
+USD	Durable Goods Orders (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Durable Goods Orders ex Defense (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Durable Goods Orders ex Transportation (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Nondefense Capital Goods Orders ex Aircraft (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	New Home Sales (MoM) (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	New Home Sales Change (MoM) (Nov)	
+-	-	-	-		
+10:30 AM	
+USD	EIA Crude Oil Stocks Change	
+-	-	-	-		
+6:00 PM	
+EUR	Christmas Day	
+All Day		
+6:50 PM	
+JPY	Foreign Bond Investment	
+-	-	-	-		
+6:50 PM	
+JPY	Foreign Investment in Japan Stocks	
+-	-	-	-		
+7:00 PM	
+GBP	Christmas Day	
+All Day		
+Thursday, December 25
+12:00 AM	
+USD	Christmas Day	
+All Day		
+8:30 AM	
+USD	Chicago Fed National Activity Index (Nov)	
+-	-	-	-		
+8:30 AM	
+USD	Continuing Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims	
+-	-	-	-		
+8:30 AM	
+USD	Initial Jobless Claims 4-week average	
+-	-	-	-		
+10:30 AM	
+USD	EIA Natural Gas Storage Change	
+-	-	-	-		
+11:30 AM	
+USD	4-Week Bill Auction	
+-	-	-	-		
+1:00 PM	
+USD	7-Year Note Auction	
+-	-	-	-		
+6:50 PM	
+JPY	Corporate Service Price Index (YoY) (Nov)	
+-	-	-	-		
+6:50 PM	
+JPY	Industrial Production (MoM) (Nov) Prel	
+-	-	-	-		
+6:50 PM	
+JPY	Industrial Production (YoY) (Nov) Prel	
+-	-	-	-		
+7:00 PM	
+GBP	Boxing Day	
+All Day		
+Friday, December 26
+1:00 PM	
+USD	Baker Hughes US Oil Rig Count	
+-	-	-	-		
+Sunday, December 28
+6:50 PM	
+JPY	BoJ Summary of Opinions	
+Report		
+7:01 PM	
+GBP	BRC Shop Price Index (YoY) (Dec)	
+-	-	-	-		
+Monday, December 29
+2:00 AM	
+GBP	Nationwide Housing Prices n.s.a (YoY) (Dec)	
+-	-	-	-		
+2:00 AM	
+GBP	Nationwide Housing Prices s.a (MoM) (Dec)	
+-	-	-	-		
+8:30 AM	
+USD	Goods Trade Balance (Nov) Prel	
+-	-	-	-		
+8:30 AM	
+USD	Wholesale Inventories (Nov) Prel	
+-	-	-	-		
+10:30 AM	
+USD	Dallas Fed Manufacturing Business Index (Dec)	
+-	-	-	-		
+11:30 AM	
+USD	3-Month Bill Auction	
+-	-	-	-		
+11:30 AM	
+USD	6-Month Bill Auction	
+-	-	-	-		
+1:00 PM	
+USD	5-Year Note Auction	
+-	-	-	-		
+3:30 PM	
+EUR	CFTC EUR NC Net Positions	
+-	-	-	-		
+3:30 PM	
+JPY	CFTC JPY NC Net Positions	
+-	-	-	-		
+3:30 PM	
+GBP	CFTC GBP NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Gold NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC Oil NC Net Positions	
+-	-	-	-		
+3:30 PM	
+USD	CFTC S&P 500 NC Net Positions	
+-	-	-	-		
+6:30 PM	
+JPY	Jobs / Applicants Ratio (Nov)	
+-	-	-	-		
+6:30 PM	
+JPY	Unemployment Rate (Nov)	
+-	-	-	-		
+Tuesday, December 30
+8:55 AM	
+USD	Redbook Index (YoY)	
+-	-	-	-		
+9:00 AM	
+USD	Housing Price Index (MoM) (Oct)	
+-	-	-	-		
+9:00 AM	
+USD	S&P/Case-Shiller Home Price Indices (YoY) (Oct)	
+-	-	-	-		
+9:45 AM	
+USD	Chicago PMI (Dec)	
+-	-	-	-		
+10:00 AM	
+USD	Pending Home Sales (MoM) (Nov)	
+-	-	-	-		
+10:00 AM	
+USD	Pending Home Sales (YoY) (Nov)	
+-	-	-	-		
+4:30 PM	
+USD	API Weekly Crude Oil Stock	
+-	-	-	-		
+6:50 PM	
+JPY	Large Retailer Sales (Nov)	
+-	-	-	-		
+6:50 PM	
+JPY	Retail Trade (YoY) (Nov)	
+-	-	-	-		
+6:50 PM	
+JPY	Retail Trade s.a (MoM) (Nov)	
+-	-	-	-		
+Wednesday, December 31
+12:00 AM	
+JPY	Annualized Housing Starts (Nov)	
+-	-	-	-		
+12:00 AM	
+JPY	Construction Orders (YoY) (Nov)	
+-	-	-	-		
+12:00 AM	
+JPY	Housing Starts (YoY) (Nov)	
+-	-	-	-		
+7:00 AM	
+USD	MBA Mortgage Applications	
+-	-	-	-		
+10:00 AM	
+JPY	New Year's Day	
+All Day		
+10:30 AM	
+USD	EIA Crude Oil Stocks Change	
+-	-	-	-		
+6:00 PM	
+GBP	New Year's Day	
+All Day		
+6:50 PM	
+JPY	Foreign Bond Investment	
+-	-	-	-		
+6:50 PM	
+JPY	Foreign Investment in Japan Stocks	
+-	-	-	-		
+7:30 PM	
+JPY	Jibun Bank Manufacturing PMI (Dec)	
+-	-	-	-		

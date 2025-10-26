@@ -207,12 +207,12 @@ August 2024      4.0
 September 2024   3.9
 October 2024     4.1
 November 2024    4.2
-December 2024    4.0
+December 2024    4.6
 January 2025     3.9
 February 2025    3.9
-March 2025       3.8
-April 2025       3.9
+March 2025       3.9
+April 2025       3.8
 May 2025         3.8
-June 2025        3.8
+June 2025        3.7
 July 2025        3.9
 August 2025      3.7

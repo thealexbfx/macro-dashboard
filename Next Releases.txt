@@ -1,0 +1,39 @@
+Next Releases:
+
+EURO:
+CPI YoY: Oct 31st
+GDP QoQ: Oct 30th
+Interest Rate: Oct 30th
+Unemployment Rate: Oct 30th
+
+Japan:
+CPI YoY: Nov 20th
+GDP QoQ: Nov 13th
+Interest Rate: Oct 30th
+Unemployment Rate: Oct 30th
+
+UK:
+CPI YoY: Nov 19th
+GDP QoQ: Nov 13th
+Interest Rate: Nov 6th
+Unemployment Rate: Nov 11th
+
+USA: 
+Avg Hrly Erngs YoY: Nov 7th
+Core CPI YoY: Nov 13th
+Core PCE YoY: Oct 31st
+Core PPI YoY: Nov 14th
+CPI YoY: Nov 13th
+GDP QoQ: Oct 30th
+Housing Starts: Nov 19th
+Interest Rate: Oct 29th
+ISM Manu Index: Nov 3rd
+ISM Serv PMI: Nov 5th
+Jolts: Nov 4th
+Mich Cons Sentiment: Nov 14th
+NFP: Nov 7th
+PCE YoY: Oct 31st
+PPI YoY: Nov 14th
+Retail Sales: Nov 14th
+Trade Balance: Oct 31st
+Unemployment Rate: Nov 7th

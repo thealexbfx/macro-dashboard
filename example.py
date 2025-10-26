@@ -1,48 +1,44 @@
 import pandas as pd
-import numpy as np
-from scipy.stats import linregress
+from io import StringIO
 
-print("🔍 Checking consistency for: AAPL")
+# Paste your raw data here (including the header)
+raw_data = """
+Date
+Price
+Open
+High
+Low
+Change %
+Oct 24, 2025	4.4310	4.4120	4.4480	4.3910	+0.29%
+Oct 23, 2025	4.4180	4.4260	4.4460	4.4030	+0.07%
+Oct 22, 2025	4.4150	4.4210	4.4420	4.3700	-1.36%
+Oct 21, 2025	4.4760	4.4850	4.5230	4.4650	-0.62%
+Oct 20, 2025	4.5040	4.5340	4.5430	4.5010	-0.64%
+Oct 17, 2025	4.5330	4.4650	4.5550	4.4520	+1.21%
+Oct 16, 2025	4.4790	4.5380	4.5590	4.4720	-1.58%
+Oct 15, 2025	4.5510	4.5530	4.5620	4.5240	-0.50%
+Oct 14, 2025	4.5740	4.6300	4.6300	4.5710	-1.68%
+Oct 13, 2025	4.6520	4.6750	4.6980	4.6440	-0.45%
+Oct 10, 2025	4.6730	4.7240	4.7350	4.6590	-1.54%
+Oct 09, 2025	4.7460	4.7170	4.7600	4.7060	+0.89%
+Oct 08, 2025	4.7040	4.7120	4.7280	4.6940	-0.36%
+Oct 07, 2025	4.7210	4.7430	4.7680	4.7150	-0.30%
+Oct 06, 2025	4.7350	4.7230	4.7610	4.7160	+0.83%
+Oct 03, 2025	4.6960	4.7070	4.7120	4.6810	+0.09%
+Oct 02, 2025	4.6920	4.6960	4.7490	4.6910	-0.06%
+Oct 01, 2025	4.6950	4.7330	4.7460	4.6770	-0.06%
+"""
 
-# Simulate some fake price data
-dates = pd.date_range("2010-01-01", periods=4000, freq="D")
-values = np.linspace(100, 300, len(dates)) + np.random.normal(0, 10, len(dates))
-df_chart = pd.DataFrame({"date": dates, "value": values})
+# Clean and process the data
+# Skip the first 6 header lines
+data_lines = "\n".join(raw_data.strip().split("\n")[6:])
+df = pd.read_csv(StringIO(data_lines), sep="\t", header=None, names=['Date', 'Price', 'Open', 'High', 'Low', 'Change'])
 
-# ✅ Ensure date column is proper datetime type
-df_chart["date"] = pd.to_datetime(df_chart["date"])
+# Keep only Date and Price
+df = df[['Date', 'Price']]
 
-# ---- Filter logic ----
-three_years_ago = df_chart["date"].max() - pd.DateOffset(years=3)
-df_chart = df_chart[df_chart["date"] >= three_years_ago]
+# Convert Date to MM/DD/YYYY format
+df['Date'] = pd.to_datetime(df['Date']).dt.strftime('%m/%d/%Y')
 
-# ---- Summary Stats (3Y Window) ----
-n_obs = len(df_chart)
-mean_val = df_chart["value"].mean()
-latest_val = df_chart["value"].iloc[-1]
-min_val = df_chart["value"].min()
-max_val = df_chart["value"].max()
-start_val = df_chart["value"].iloc[0]
-change_since_start = latest_val - start_val
-position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
-slope, _, _, _, _ = linregress(range(n_obs), df_chart["value"])
-volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
-
-# ---- Print Everything ----
-print(f"Date range used: {df_chart['date'].iloc[0].date()} → {df_chart['date'].iloc[-1].date()}")
-print(f"Number of obs: {n_obs}")
-print(f"Mean: {mean_val:.2f}")
-print(f"Latest: {latest_val:.2f}")
-print(f"Min: {min_val:.2f}")
-print(f"Max: {max_val:.2f}")
-print(f"Start: {start_val:.2f}")
-print(f"Change since start: {change_since_start:+.2f}")
-print(f"Position %: {position_pct:.2f}%")
-print(f"Slope: {slope:.6f}")
-print(f"Volatility: {volatility:.2f}%")
-
-print("\nFormulas used:")
-print("  change_since_start = latest_val - start_val")
-print("  position_pct = (latest_val - min_val) / (max_val - min_val) * 100")
-print("  volatility = (max_val - min_val) / mean_val * 100")
-print("  slope = linregress(range(n_obs), df_filtered['value'])[0]")
+# Output the result
+print(df.to_csv(sep='\t', index=False))
