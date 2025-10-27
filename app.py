@@ -1381,10 +1381,16 @@ st.markdown("""
                 <a href="?page=Curve Regimes" target="_self">Curve Regimes</a>
             </div>
         </div>
-        <a href="?page=Compare" target="_self">Compare</a>
-        <a href="?page=Calendar" target="_self">Calendar</a>
-        <a href="?page=Cycle" target="_self">Cycle</a>
-    </div>
+        <div class="dropdown">
+            <button class="dropdown-btn">Tools + Features ▾</button>
+            <div class="dropdown-content">
+                <a href="?page=Compare" target="_self">Compare</a>
+                <a href="?page=Calendar" target="_self">Calendar</a>
+                <a href="?page=Cycle" target="_self">Cycle</a>
+                <a href="?page=Reports" target="_self">Reports</a>
+            </div>    
+        </div>
+    </div>    
 </div>
 """, unsafe_allow_html=True)
 
@@ -7914,4 +7920,131 @@ if page == "Cycle":
 
     
     
+# -------- Macro Reports Tab --------
+if page == "Reports":
+    import os
+    import base64
+    from pathlib import Path
 
+    # --- Title ---
+    st.markdown("""
+    <div style="text-align:center; font-size:32px; font-weight:800; color:#000000; margin-bottom:10px;">
+        Macro Reports
+    </div>
+    """, unsafe_allow_html=True)
+
+    # --- Intro text ---
+    st.markdown("""
+    <div style="color:#000000; font-size:16px; line-height:1.6; text-align:justify; margin-bottom:15px;">
+        Welcome to the <b>Macro Lens Research Reports</b> section — a growing archive of weekly macroeconomic insights.
+        Each report explores key developments in growth, inflation, financial markets, and global policy shifts,
+        helping readers understand the forces shaping economies and investor sentiment worldwide. 
+        Select a report from the left to view it in full on the right.
+    </div>
+    """, unsafe_allow_html=True)
+
+    # --- Reports folder setup ---
+    reports_folder = Path("reports")
+    pdf_files = sorted([f for f in reports_folder.glob("*.pdf")], reverse=True)
+
+    if not pdf_files:
+        st.info("No reports found yet. Add PDFs to the `reports/` folder.")
+    else:
+        # Adjust column width ratio (more space for the report)
+        col1, col2 = st.columns([0.7, 1.5])
+
+        with col1:
+            st.markdown("### 🗂 Weekly Reports")
+
+            month_map = {
+                "01": "January", "02": "February", "03": "March", "04": "April",
+                "05": "May", "06": "June", "07": "July", "08": "August",
+                "09": "September", "10": "October", "11": "November", "12": "December"
+            }
+
+            report_buttons = []
+            for pdf_path in pdf_files:
+                file_name = pdf_path.name.replace(".pdf", "")
+                parts = file_name.split("_")[0].split("-")
+
+                # Detect date structure
+                if len(parts) == 3:
+                    year, month, day = parts
+                    month_name = month_map.get(month, month)
+                    display_name = f"{month_name} {int(day)}, {year} Report"
+                else:
+                    year, month = parts
+                    month_name = month_map.get(month, month)
+                    display_name = f"{month_name} {year} Report"
+
+                report_buttons.append((display_name, pdf_path))
+
+            # Default to most recent
+            if "selected_report" not in st.session_state:
+                st.session_state.selected_report = report_buttons[0][1]
+
+            for display_name, pdf_path in report_buttons:
+                is_selected = pdf_path == st.session_state.selected_report
+                button_style = f"""
+                    border-radius: 10px;
+                    border: 2px solid {'#0072ff' if is_selected else '#cccccc'};
+                    padding: 12px 18px;
+                    margin-bottom: 8px;
+                    font-size: 18px;
+                    font-weight: 700;
+                    color: {'#0072ff' if is_selected else '#000000'};
+                    background-color: {'#f9fbff' if is_selected else '#ffffff'};
+                    text-align: center;
+                    cursor: pointer;
+                    transition: all 0.2s ease-in-out;
+                """
+                st.markdown(
+                    f"""
+                    <div style="{button_style}" 
+                         onClick="window.parent.postMessage({{'selectReport': '{pdf_path.name}'}}, '*')">
+                        {display_name}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+        # --- Report Viewer ---
+        selected_pdf = st.session_state.selected_report
+        with open(selected_pdf, "rb") as f:
+            pdf_bytes = f.read()
+        pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
+        pdf_data_uri = f"data:application/pdf;base64,{pdf_base64}"
+
+        # Extract display name again for the right column title
+        file_name = selected_pdf.name.replace(".pdf", "")
+        parts = file_name.split("_")[0].split("-")
+        if len(parts) == 3:
+            year, month, day = parts
+            month_name = month_map.get(month, month)
+            display_title = f"{month_name} {int(day)}, {year} Report"
+        else:
+            year, month = parts
+            month_name = month_map.get(month, month)
+            display_title = f"{month_name} {year} Report"
+
+        with col2:
+            st.markdown(f"### 📈 {display_title}", unsafe_allow_html=True)
+
+            st.download_button(
+                label="⬇️ Download PDF",
+                data=pdf_bytes,
+                file_name=selected_pdf.name,
+                mime="application/pdf",
+            )
+
+            st.markdown(
+                f'<iframe src="{pdf_data_uri}" width="100%" height="450px" style="border:none; margin-top:-10px; border-radius:10px; transform:scale(0.98); transform-origin:top center;"></iframe>',
+                unsafe_allow_html=True
+            )
+
+    # --- Footer ---
+    st.markdown("""
+    <div style="text-align:center; margin-top:35px; font-size:14px; color:#666;">
+        © 2025 Macro Lens Research | Weekly Global Macro Insights
+    </div>
+    """, unsafe_allow_html=True)
