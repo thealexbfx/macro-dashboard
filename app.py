@@ -376,6 +376,113 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
 
     return fig
     
+import pandas as pd
+import plotly.graph_objects as go
+
+def plot_scenario_chart(df, threshold_pct=4.0, window=30, window_unit='days',
+                        yaxis_suffix='', start_date=None, end_date=None):
+    df = df.copy()
+    df['date'] = pd.to_datetime(df['date'])
+    df.sort_values('date', inplace=True)
+    df = df.reset_index(drop=True)
+
+    # ---- Clamp to valid date range ----
+    today = pd.Timestamp.today().normalize()
+    df = df[df['date'] <= today]
+    if start_date:
+        df = df[df['date'] >= pd.to_datetime(start_date)]
+    if end_date:
+        df = df[df['date'] <= pd.to_datetime(end_date)]
+
+    # ---- Calculate daily % change ----
+    df['daily_return'] = df['value'].pct_change() * 100
+    df['trigger'] = df['daily_return'].abs() >= threshold_pct
+
+    # ---- Determine window length ----
+    if window_unit == 'days':
+        delta = pd.Timedelta(days=window)
+    elif window_unit == 'weeks':
+        delta = pd.Timedelta(weeks=window)
+    elif window_unit == 'months':
+        delta = pd.DateOffset(months=window)
+    elif window_unit == 'years':
+        delta = pd.DateOffset(years=window)
+    else:
+        delta = pd.Timedelta(days=window)
+
+    # ---- Build highlighted segments ----
+    segments = []
+    n = len(df)
+    base_color = '#1f77b4'  # default blue
+    trigger_color = 'orange'
+
+    i = 0
+    trigger_rows = []
+
+    while i < n - 1:
+        if df.loc[i, 'trigger']:
+            start_idx = i
+            end_date = df.loc[i, 'date'] + delta
+            after_idx = df[df['date'] <= end_date].index.max() if any(df['date'] <= end_date) else i
+
+            # Highlight trigger day
+            segments.append({
+                'x': df.loc[start_idx:start_idx + 1, 'date'],
+                'y': df.loc[start_idx:start_idx + 1, 'value'],
+                'color': trigger_color
+            })
+
+            # Record stats for table
+            start_price = df.loc[start_idx, 'value']
+            end_price = df.loc[after_idx, 'value']
+            total_return = (end_price / start_price - 1) * 100
+            trigger_rows.append({
+                'Trigger Date': df.loc[start_idx, 'date'].strftime("%Y-%m-%d"),
+                'Move %': round(df.loc[start_idx, 'daily_return'], 2),
+                f'{window} {window_unit} Return %': round(total_return, 2)
+            })
+
+            i = after_idx
+        else:
+            next_trigger = df.index[(df.index > i) & (df['trigger'])].min() if any(df['trigger'][i+1:]) else n - 1
+            segments.append({
+                'x': df.loc[i:next_trigger, 'date'],
+                'y': df.loc[i:next_trigger, 'value'],
+                'color': base_color
+            })
+            i = next_trigger
+
+    # ---- Create the figure ----
+    fig = go.Figure()
+    for seg in segments:
+        fig.add_trace(go.Scatter(
+            x=seg['x'], y=seg['y'],
+            mode='lines',
+            line=dict(color=seg['color'], width=3),
+            hovertemplate="<b>%{x|%d %B %Y}</b><br>%{y:,.2f}" + yaxis_suffix + "<extra></extra>"
+        ))
+
+    fig.update_layout(
+        title=f"{threshold_pct}% Daily Move (Highlighted in Orange)",
+        margin=dict(l=40, r=30, t=60, b=20),
+        hovermode='x unified',
+        xaxis=dict(showgrid=False, showline=True, linecolor='black', linewidth=2),
+        yaxis=dict(showgrid=True, gridcolor='LightGrey', gridwidth=0.3,
+                   showline=True, linecolor='black', linewidth=2,
+                   tickformat=f',.2f{yaxis_suffix}'),
+    )
+
+    # ---- Summary Table ----
+    if trigger_rows:
+        table_df = pd.DataFrame(trigger_rows)
+    else:
+        table_df = pd.DataFrame(columns=['Trigger Date', 'Move %', f'{window} {window_unit} Return %'])
+
+    return fig, table_df
+
+
+
+    
 @st.cache_data
 def get_japan_interest_rate_data():
     base_dir = os.path.dirname(__file__)
@@ -1375,7 +1482,7 @@ st.markdown("""
             </div>
         </div>
         <div class="dropdown">
-            <button class="dropdown-btn">Yield Curve & Regimes ▾</button>
+            <button class="dropdown-btn">Yield Curve ▾</button>
             <div class="dropdown-content">
                 <a href="?page=Yield Curve" target="_self">Yield Curve</a>
                 <a href="?page=Curve Regimes" target="_self">Curve Regimes</a>
@@ -1388,6 +1495,7 @@ st.markdown("""
                 <a href="?page=Calendar" target="_self">Calendar</a>
                 <a href="?page=Cycle" target="_self">Cycle</a>
                 <a href="?page=Reports" target="_self">Reports</a>
+                <a href="?page=Scenario" target="_self">Scenario</a>
             </div>    
         </div>
     </div>    
@@ -8048,3 +8156,326 @@ if page == "Reports":
         © 2025 Macro Lens Research | Weekly Global Macro Insights
     </div>
     """, unsafe_allow_html=True)
+
+
+# -------- Scenario Testing (Professional Edition) --------
+if page == "Scenario":
+
+    st.markdown("""
+    <div style="text-align:center; font-size:30px; font-weight:700; color:#000; margin-bottom:12px;">
+        Scenario Testing — Daily Move Triggers
+    </div>
+    <div style="text-align:center; color:#444; margin-bottom:18px;">
+        Highlight every day the asset’s daily move exceeded a selected % (colored markers). Analyze forward returns after custom periods.
+    </div>
+    """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns([1.8, 5])
+
+    # --- Asset display names ---
+    display_names = {
+        # USA Economic Indicators
+        "usa_rate": "USA Interest Rate",
+        "usa_cpi": "USA CPI YoY",
+        "usa_core_cpi": "USA Core CPI YoY",
+        "usa_gdp": "USA GDP QoQ",
+        "usa_unemp": "USA Unemployment Rate",
+        "usa_ahe": "USA Average Hourly Earnings YoY",
+        "usa_core_pce": "USA Core PCE YoY",
+        "usa_core_ppi": "USA Core PPI YoY",
+        "usa_housing": "USA Housing Starts MoM",
+        "usa_ism_manu": "USA ISM Manufacturing PMI",
+        "usa_ism_serv": "USA ISM Services PMI",
+        "usa_jolts": "USA JOLTS Job Openings",
+        "usa_michigan": "USA Michigan Consumer Sentiment",
+        "usa_nfp": "USA Non-Farm Payrolls",
+        "usa_pce": "USA PCE YoY",
+        "usa_ppi": "USA PPI YoY",
+        "usa_retail": "USA Retail Sales MoM",
+        "usa_trade": "USA Trade Balance",
+
+        # US Yields
+        "usa_1m": "USA 1M Yield",
+        "usa_3m": "USA 3M Yield",
+        "usa_6m": "USA 6M Yield",
+        "usa_1y": "USA 1Y Yield",
+        "usa_2y": "USA 2Y Yield",
+        "usa_3y": "USA 3Y Yield",
+        "usa_5y": "USA 5Y Yield",
+        "usa_7y": "USA 7Y Yield",
+        "usa_10y": "USA 10Y Yield",
+        "usa_20y": "USA 20Y Yield",
+        "usa_30y": "USA 30Y Yield",
+
+        # UK
+        "uk_rate": "UK Interest Rate",
+        "uk_cpi": "UK CPI YoY",
+        "uk_gdp": "UK GDP QoQ",
+        "uk_unemp": "UK Unemployment Rate",
+        "uk_10y": "UK 10Y Yield",
+        "uk_2y": "UK 2Y Yield",
+
+        # Japan
+        "jp_rate": "Japan Interest Rate",
+        "jp_cpi": "Japan CPI YoY",
+        "jp_gdp": "Japan GDP QoQ",
+        "jp_unemp": "Japan Unemployment Rate",
+        "jp_10y": "Japan 10Y Yield",
+        "jp_2y": "Japan 2Y Yield",
+
+        # Euro Area
+        "eu_rate": "Euro Interest Rate",
+        "eu_cpi": "Euro CPI YoY",
+        "eu_gdp": "Euro GDP QoQ",
+        "eu_unemp": "Euro Unemployment Rate",
+        "eu_10y": "Euro 10Y Yield",
+        "eu_2y": "Euro 2Y Yield",
+
+        # FX
+        "eurusd": "EUR/USD",
+        "gbpusd": "GBP/USD",
+        "usdjpy": "USD/JPY",
+        "dxy": "US Dollar Index (DXY)",
+
+        # Equities / Indices
+        "eq_sp500": "S&P 500",
+        "eq_nasdaq": "Nasdaq 100",
+        "eq_dow": "Dow Jones Industrial",
+        "eq_ftse": "FTSE 100",
+        "eq_nikkei": "Nikkei 225",
+        "eq_dax": "DAX",
+        "eq_msci_em": "MSCI Emerging Markets",
+        "eq_vix": "VIX",
+
+        # Stocks
+        "st_aapl": "Apple",
+        "st_amzn": "Amazon",
+        "st_meta": "Meta",
+        "st_googl": "Google",
+        "st_nvda": "Nvidia",
+        "st_msft": "Microsoft",
+        "st_tsla": "Tesla",
+
+        # Commodities
+        "cmd_gold": "Gold",
+        "cmd_silver": "Silver",
+        "cmd_wti": "WTI Crude",
+        "cmd_brent": "Brent Crude",
+        "cmd_ng": "Natural Gas",
+        "cmd_wheat": "Wheat",
+        "cmd_copper": "Copper",
+        "cmd_corn": "Corn",
+        "cmd_soy": "Soy",
+
+        # Crypto
+        "crypto_btc": "Bitcoin",
+        "crypto_eth": "Ethereum",
+    }
+
+    # --- Reverse map for dropdown ---
+    dropdown_map = {v: k for k, v in display_names.items()}
+
+    with col1:
+        st.markdown("<div style='margin-top:40px;'>", unsafe_allow_html=True)
+
+        # --- Asset selection ---
+        asset_map = {
+            "USA": ["usa_rate","usa_cpi","usa_core_cpi","usa_gdp","usa_unemp","usa_ahe","usa_core_pce","usa_core_ppi","usa_housing","usa_ism_manu","usa_ism_serv","usa_jolts","usa_michigan","usa_nfp","usa_pce","usa_ppi","usa_retail","usa_trade"],
+            "Yields": ["usa_1m","usa_3m","usa_6m","usa_1y","usa_2y","usa_3y","usa_5y","usa_7y","usa_10y","usa_20y","usa_30y"],
+            "UK": ["uk_rate","uk_cpi","uk_gdp","uk_unemp","uk_10y","uk_2y"],
+            "Japan": ["jp_rate","jp_cpi","jp_gdp","jp_unemp","jp_10y","jp_2y"],
+            "Euro Area": ["eu_rate","eu_cpi","eu_gdp","eu_unemp","eu_10y","eu_2y"],
+            "FX": ["eurusd","gbpusd","usdjpy","dxy"],
+            "Equities": ["eq_sp500","eq_nasdaq","eq_dow","eq_ftse","eq_nikkei","eq_dax","eq_msci_em","eq_vix"],
+            "Stocks": ["st_aapl","st_amzn","st_meta","st_googl","st_nvda","st_msft","st_tsla"],
+            "Commodities": ["cmd_gold","cmd_silver","cmd_wti","cmd_brent","cmd_ng","cmd_wheat","cmd_copper","cmd_corn","cmd_soy"],
+            "Crypto": ["crypto_btc","crypto_eth"]
+        }
+
+        group = st.selectbox("Select Category", list(asset_map.keys()), index=7)
+
+        # display names in dropdown
+        asset_names_for_dropdown = [display_names.get(a, a) for a in asset_map[group]]
+        selected_name = st.selectbox("Select Asset", asset_names_for_dropdown)
+
+        # convert back to code for data
+        code = dropdown_map.get(selected_name, selected_name)
+
+        # --- User inputs ---
+        direction = st.selectbox("Direction", ["Up", "Down"], index=0)
+        threshold = st.number_input("Daily % Move Threshold", min_value=0.1, max_value=100.0, value=5.0, step=0.1)
+        forward_unit = st.selectbox("Forward Unit", ["days","weeks","months","years"], index=0)
+        forward_period = st.number_input(f"Forward Period ({forward_unit})", min_value=1, max_value=3650, value=30)
+
+        # --- Load data ---
+        df = load_indicator_data(code)
+        if df.empty:
+            st.error("No data available for this asset.")
+            st.stop()
+
+        df = df.rename(columns={c.lower(): c for c in df.columns})
+        if 'date' not in df.columns:
+            df = df.reset_index().rename(columns={'index':'date'})
+        if 'adj close' in df.columns:
+            df['value'] = df['adj close']
+        elif 'close' in df.columns:
+            df['value'] = df['close']
+        elif 'value' not in df.columns:
+            st.error("Data format not recognized.")
+            st.stop()
+
+        df = df[['date','value']].dropna()
+        df['date'] = pd.to_datetime(df['date'])
+
+        # --- Date range setup ---
+        earliest_date = df['date'].min().date()
+        latest_date = df['date'].max().date()
+        timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"], index=4)
+
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y", ""))
+            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365 * years))
+        else:
+            default_start_date = earliest_date
+
+        date_col1, date_col2 = st.columns(2)
+        with date_col1:
+            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
+        with date_col2:
+            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
+
+        if start_date > end_date:
+            st.warning("⚠️ Start date cannot be after end date.")
+            st.stop()
+
+        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))].reset_index(drop=True)
+
+    with col2:
+        # --- Compute daily % changes and triggers ---
+        df['pct_change'] = df['value'].pct_change() * 100
+        if direction == "Up":
+            df['is_trigger'] = df['pct_change'] >= threshold
+        else:
+            df['is_trigger'] = df['pct_change'] <= -threshold
+
+        triggers = df[df['is_trigger']].copy().reset_index().rename(columns={'index':'df_index'})
+
+        ticker_display = display_names.get(code, code)
+
+        # --- Plotly chart (highlight triggers) ---
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=df['date'], y=df['value'],
+            mode='lines', line=dict(color='#1f77b4', width=2),
+            name=code.upper()
+        ))
+
+        fig.add_trace(go.Scatter(
+            x=triggers['date'], y=triggers['value'],
+            mode='markers',
+            marker=dict(color='orange', size=8, line=dict(color='black', width=1)),
+            customdata=triggers['pct_change'],
+            hovertemplate="<b>Date:</b> %{x|%d %b %Y}<br><b>Value:</b> %{y:,.2f}<br><b>Move:</b> %{customdata:+.2f}%<extra></extra>",
+            name="Trigger"
+        ))
+
+        fig.update_layout(
+            title=dict(
+                text=f"<b>{ticker_display}</b>",
+                x=0.5,
+                xanchor='center',
+                y=0.95,  # moved up
+                yanchor='top',
+                font=dict(size=22, family="Inter, Arial Black", color="#000"),
+            ),
+            margin=dict(l=40, r=30, t=80, b=40),  # increased top margin
+            xaxis=dict(showline=True, linecolor='black', showgrid=False),
+            yaxis=dict(showline=True, linecolor='black', gridcolor='LightGrey', gridwidth=0.4, tickformat=',.2f'),
+            plot_bgcolor='white',
+            hovermode='x unified',
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
+            font=dict(family="Inter, Arial", color="#000")
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+        # --- Forward outcome calculations ---
+        results = []
+        for _, tr in triggers.iterrows():
+            trigger_date = tr['date']
+            start_val = tr['value']
+            daily_move = tr['pct_change']
+
+            # Compute forward date
+            if forward_unit == 'days':
+                target = trigger_date + pd.Timedelta(days=forward_period)
+            elif forward_unit == 'weeks':
+                target = trigger_date + pd.Timedelta(weeks=forward_period)
+            elif forward_unit == 'months':
+                target = trigger_date + pd.DateOffset(months=forward_period)
+            elif forward_unit == 'years':
+                target = trigger_date + pd.DateOffset(years=forward_period)
+            else:
+                target = trigger_date
+
+            next_row = df[df['date'] >= target].head(1)
+            if not next_row.empty:
+                end_val = float(next_row['value'].iloc[0])
+                forward_ret = (end_val / start_val - 1) * 100
+                forward_date = next_row['date'].iloc[0].date()
+            else:
+                end_val, forward_ret, forward_date = np.nan, np.nan, ""
+
+            results.append({
+                "Trigger Date": trigger_date.date(),
+                "Daily Move (%)": round(daily_move, 2),
+                "Start Value": round(start_val, 2),
+                f"End Value (after {forward_period} {forward_unit})": (round(end_val, 2) if not np.isnan(end_val) else ""),
+                "Forward Return (%)": (round(forward_ret, 2) if not np.isnan(forward_ret) else ""),
+                "Forward Date Used": forward_date
+            })
+
+        results_df = pd.DataFrame(results)
+
+        # --- Summary Stats ---
+        valid_forward = pd.to_numeric(results_df["Forward Return (%)"], errors='coerce').dropna()
+        count_triggers = len(results_df)
+        mean_forward = valid_forward.mean() if not valid_forward.empty else np.nan
+
+        st.markdown("<h4 style='margin-top:18px;'>Trigger Outcomes</h4>", unsafe_allow_html=True)
+
+        def render_scenario_html_table(df_results, total_count, mean_forward_val):
+            header_bg = "#d9d9d9"
+            html = '<table style="border-collapse: collapse; width:100%; font-family: Inter, Arial; font-size:14px;">'
+            html += '<thead><tr>'
+            for col in df_results.columns:
+                html += f'<th style="font-weight:700; border:1px solid #ddd; padding:8px; text-align:center; background-color:{header_bg};">{col}</th>'
+            html += '</tr></thead><tbody>'
+            for _, row in df_results.iterrows():
+                html += '<tr>'
+                for col in df_results.columns:
+                    val = row[col]
+                    if col == "Forward Return (%)":
+                        if val == "":
+                            html += "<td style='border:1px solid #ddd; padding:8px; background-color:#f0f0f0;'></td>"
+                        else:
+                            color = "#b6f0c3" if float(val) > 0 else "#f7b6b6" if float(val) < 0 else "#f0f0f0"
+                            html += f"<td style='border:1px solid #ddd; padding:8px; text-align:center; background-color:{color};'>{float(val):+.2f}%</td>"
+                    elif col == "Daily Move (%)":
+                        html += f"<td style='border:1px solid #ddd; text-align:center;'>{float(val):+.2f}%</td>"
+                    else:
+                        html += f"<td style='border:1px solid #ddd; text-align:center;'>{val}</td>"
+                html += '</tr>'
+            html += '</tbody>'
+            html += f"<tfoot><tr><td colspan='{len(df_results.columns)-2}' style='padding:8px; font-weight:700; background-color:#f8f8f8;'>Count: {total_count} | Mean Forward Return:</td>"
+            mean_disp = f"{mean_forward_val:+.2f}%" if not np.isnan(mean_forward_val) else "N/A"
+            html += f"<td colspan='2' style='padding:8px; text-align:center; font-weight:700; background-color:#f8f8f8;'>{mean_disp}</td></tr></tfoot></table>"
+            return html
+
+        if results_df.empty:
+            st.info("No triggers found for this range or threshold.")
+        else:
+            st.markdown(render_scenario_html_table(results_df, count_triggers, mean_forward), unsafe_allow_html=True)
+            with st.expander("Export / raw data (CSV)"):
+                st.dataframe(results_df, use_container_width=True)
+                csv = results_df.to_csv(index=False)
+                st.download_button("Download CSV", data=csv, file_name=f"{code}_scenario_results.csv", mime="text/csv")
