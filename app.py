@@ -18,6 +18,122 @@ import plotly.graph_objects as go
 import streamlit.components.v1 as components
 import calendar
 
+# -------- Asset Map (Global Reference) --------
+asset_map = {
+    "USA": ["usa_rate","usa_cpi","usa_core_cpi","usa_gdp","usa_unemp","usa_ahe","usa_core_pce","usa_core_ppi","usa_housing","usa_ism_manu","usa_ism_serv","usa_jolts","usa_michigan","usa_nfp","usa_pce","usa_ppi","usa_retail","usa_trade"],
+    "Yields": ["usa_1m","usa_3m","usa_6m","usa_1y","usa_2y","usa_3y","usa_5y","usa_7y","usa_10y","usa_20y","usa_30y"],
+    "UK": ["uk_rate","uk_cpi","uk_gdp","uk_unemp","uk_10y","uk_2y"],
+    "Japan": ["jp_rate","jp_cpi","jp_gdp","jp_unemp","jp_10y","jp_2y"],
+    "Euro Area": ["eu_rate","eu_cpi","eu_gdp","eu_unemp","eu_10y","eu_2y"],
+    "FX": ["eurusd","gbpusd","usdjpy","dxy"],
+    "Equities": ["eq_sp500","eq_nasdaq","eq_dow","eq_ftse","eq_nikkei","eq_dax","eq_msci_em","eq_vix"],
+    "Stocks": ["st_aapl","st_amzn","st_meta","st_googl","st_nvda","st_msft","st_tsla"],
+    "Commodities": ["cmd_gold","cmd_silver","cmd_wti","cmd_brent","cmd_ng","cmd_wheat","cmd_copper","cmd_corn","cmd_soy"],
+    "Crypto": ["crypto_btc","crypto_eth"]
+}
+
+# --- Asset display names ---
+display_names = {
+    # USA Economic Indicators
+    "usa_rate": "USA Interest Rate",
+    "usa_cpi": "USA CPI YoY",
+    "usa_core_cpi": "USA Core CPI YoY",
+    "usa_gdp": "USA GDP QoQ",
+    "usa_unemp": "USA Unemployment Rate",
+    "usa_ahe": "USA Average Hourly Earnings YoY",
+    "usa_core_pce": "USA Core PCE YoY",
+    "usa_core_ppi": "USA Core PPI YoY",
+    "usa_housing": "USA Housing Starts MoM",
+    "usa_ism_manu": "USA ISM Manufacturing PMI",
+    "usa_ism_serv": "USA ISM Services PMI",
+    "usa_jolts": "USA JOLTS Job Openings",
+    "usa_michigan": "USA Michigan Consumer Sentiment",
+    "usa_nfp": "USA Non-Farm Payrolls",
+    "usa_pce": "USA PCE YoY",
+    "usa_ppi": "USA PPI YoY",
+    "usa_retail": "USA Retail Sales MoM",
+    "usa_trade": "USA Trade Balance",
+
+    # US Yields
+    "usa_1m": "USA 1M Yield",
+    "usa_3m": "USA 3M Yield",
+    "usa_6m": "USA 6M Yield",
+    "usa_1y": "USA 1Y Yield",
+    "usa_2y": "USA 2Y Yield",
+    "usa_3y": "USA 3Y Yield",
+    "usa_5y": "USA 5Y Yield",
+    "usa_7y": "USA 7Y Yield",
+    "usa_10y": "USA 10Y Yield",
+    "usa_20y": "USA 20Y Yield",
+    "usa_30y": "USA 30Y Yield",
+
+    # UK
+    "uk_rate": "UK Interest Rate",
+    "uk_cpi": "UK CPI YoY",
+    "uk_gdp": "UK GDP QoQ",
+    "uk_unemp": "UK Unemployment Rate",
+    "uk_10y": "UK 10Y Yield",
+    "uk_2y": "UK 2Y Yield",
+
+    # Japan
+    "jp_rate": "Japan Interest Rate",
+    "jp_cpi": "Japan CPI YoY",
+    "jp_gdp": "Japan GDP QoQ",
+    "jp_unemp": "Japan Unemployment Rate",
+    "jp_10y": "Japan 10Y Yield",
+    "jp_2y": "Japan 2Y Yield",
+
+    # Euro Area
+    "eu_rate": "Euro Interest Rate",
+    "eu_cpi": "Euro CPI YoY",
+    "eu_gdp": "Euro GDP QoQ",
+    "eu_unemp": "Euro Unemployment Rate",
+    "eu_10y": "Euro 10Y Yield",
+    "eu_2y": "Euro 2Y Yield",
+
+    # FX
+    "eurusd": "EUR/USD",
+    "gbpusd": "GBP/USD",
+    "usdjpy": "USD/JPY",
+    "dxy": "US Dollar Index (DXY)",
+
+    # Equities / Indices
+    "eq_sp500": "S&P 500",
+    "eq_nasdaq": "Nasdaq 100",
+    "eq_dow": "Dow Jones Industrial",
+    "eq_ftse": "FTSE 100",
+    "eq_nikkei": "Nikkei 225",
+    "eq_dax": "DAX",
+    "eq_msci_em": "MSCI Emerging Markets",
+    "eq_vix": "VIX",
+
+    # Stocks
+    "st_aapl": "Apple",
+    "st_amzn": "Amazon",
+    "st_meta": "Meta",
+    "st_googl": "Google",
+    "st_nvda": "Nvidia",
+    "st_msft": "Microsoft",
+    "st_tsla": "Tesla",
+
+    # Commodities
+    "cmd_gold": "Gold",
+    "cmd_silver": "Silver",
+    "cmd_wti": "WTI Crude",
+    "cmd_brent": "Brent Crude",
+    "cmd_ng": "Natural Gas",
+    "cmd_wheat": "Wheat",
+    "cmd_copper": "Copper",
+    "cmd_corn": "Corn",
+    "cmd_soy": "Soy",
+
+    # Crypto
+    "crypto_btc": "Bitcoin",
+    "crypto_eth": "Ethereum",
+}
+
+dropdown_map = {v: k for k, v in display_names.items()}
+
 def load_indicator_data(code):
             # USA
             if code == "usa_rate": return get_usa_interest_rate_data()
@@ -1482,13 +1598,6 @@ st.markdown("""
             </div>
         </div>
         <div class="dropdown">
-            <button class="dropdown-btn">Yield Curve ▾</button>
-            <div class="dropdown-content">
-                <a href="?page=Yield Curve" target="_self">Yield Curve</a>
-                <a href="?page=Curve Regimes" target="_self">Curve Regimes</a>
-            </div>
-        </div>
-        <div class="dropdown">
             <button class="dropdown-btn">Tools + Features ▾</button>
             <div class="dropdown-content">
                 <a href="?page=Compare" target="_self">Compare</a>
@@ -1496,6 +1605,9 @@ st.markdown("""
                 <a href="?page=Cycle" target="_self">Cycle</a>
                 <a href="?page=Reports" target="_self">Reports</a>
                 <a href="?page=Scenario" target="_self">Scenario</a>
+                <a href="?page=Forecasting" target="_self">Forecasting</a>
+                <a href="?page=Yield Curve" target="_self">Yield Curve</a>
+                <a href="?page=Curve Regimes" target="_self">Curve Regimes</a>
             </div>    
         </div>
     </div>    
@@ -8437,9 +8549,14 @@ if page == "Scenario":
         results_df = pd.DataFrame(results)
 
         # --- Summary Stats ---
-        valid_forward = pd.to_numeric(results_df["Forward Return (%)"], errors='coerce').dropna()
-        count_triggers = len(results_df)
-        mean_forward = valid_forward.mean() if not valid_forward.empty else np.nan
+        if "Forward Return (%)" in results_df.columns and not results_df.empty:
+            valid_forward = pd.to_numeric(results_df["Forward Return (%)"], errors='coerce').dropna()
+            count_triggers = len(results_df)
+            mean_forward = valid_forward.mean() if not valid_forward.empty else np.nan
+        else:
+            valid_forward = pd.Series(dtype=float)
+            count_triggers = len(results_df)
+            mean_forward = np.nan
 
         st.markdown("<h4 style='margin-top:18px;'>Trigger Outcomes</h4>", unsafe_allow_html=True)
 
@@ -8479,3 +8596,4 @@ if page == "Scenario":
                 st.dataframe(results_df, use_container_width=True)
                 csv = results_df.to_csv(index=False)
                 st.download_button("Download CSV", data=csv, file_name=f"{code}_scenario_results.csv", mime="text/csv")
+

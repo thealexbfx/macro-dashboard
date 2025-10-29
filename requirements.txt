@@ -10,4 +10,5 @@ xlrd
 streamlit-option-menu
 scikit-learn
 openai
+statsmodels
 
