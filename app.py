@@ -8158,7 +8158,7 @@ if page == "Reports":
     <div style="color:#000000; font-size:16px; line-height:1.6; text-align:justify; margin-bottom:15px;">
         Welcome to the <b>Macro Lens Research Reports</b> section — a growing archive of weekly macroeconomic insights.
         Each report explores key developments in growth, inflation, financial markets, and global policy shifts,
-        helping readers understand the forces shaping economies and investor sentiment worldwide. 
+        helping readers understand the forces shaping economies and investor sentiment worldwide.
         Select a report from the left to view it in full on the right.
     </div>
     """, unsafe_allow_html=True)
@@ -8173,69 +8173,100 @@ if page == "Reports":
         # Adjust column width ratio (more space for the report)
         col1, col2 = st.columns([0.7, 1.5])
 
+        # --- Custom button styling ---
+        st.markdown("""
+        <style>
+        div.stButton > button {
+            border-radius: 10px;
+            border: 2px solid #cccccc;
+            background-color: #ffffff;
+            color: #000000;
+            padding: 10px 18px;
+            margin-bottom: 8px;
+            font-size: 17px;
+            font-weight: 700;
+            text-align: center;
+            transition: all 0.15s ease-in-out;
+        }
+        div.stButton > button:hover {
+            border-color: #0072ff;
+            color: #0072ff;
+            background-color: #f9fbff;
+            transform: scale(1.01);
+        }
+        div.stButton > button:focus:not(:active) {
+            border-color: #0072ff;
+            color: #0072ff;
+            background-color: #f9fbff;
+            transform: scale(1.01);
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        # --- Month name map ---
+        month_map = {
+            "01": "January", "02": "February", "03": "March", "04": "April",
+            "05": "May", "06": "June", "07": "July", "08": "August",
+            "09": "September", "10": "October", "11": "November", "12": "December"
+        }
+
+        # --- Build report button list ---
+        report_buttons = []
+        for pdf_path in pdf_files:
+            file_name = pdf_path.name.replace(".pdf", "")
+            parts = file_name.split("_")[0].split("-")
+
+            if len(parts) == 3:
+                year, month, day = parts
+                month_name = month_map.get(month, month)
+                display_name = f"{month_name} {int(day)}, {year} Report"
+            else:
+                year, month = parts
+                month_name = month_map.get(month, month)
+                display_name = f"{month_name} {year} Report"
+
+            report_buttons.append((display_name, pdf_path))
+
+        # --- Default selection ---
+        if "selected_report" not in st.session_state:
+            st.session_state.selected_report = report_buttons[0][1]
+
+        # --- Left column (buttons) ---
         with col1:
-            st.markdown("### 🗂 Weekly Reports")
-
-            month_map = {
-                "01": "January", "02": "February", "03": "March", "04": "April",
-                "05": "May", "06": "June", "07": "July", "08": "August",
-                "09": "September", "10": "October", "11": "November", "12": "December"
-            }
-
-            report_buttons = []
-            for pdf_path in pdf_files:
-                file_name = pdf_path.name.replace(".pdf", "")
-                parts = file_name.split("_")[0].split("-")
-
-                # Detect date structure
-                if len(parts) == 3:
-                    year, month, day = parts
-                    month_name = month_map.get(month, month)
-                    display_name = f"{month_name} {int(day)}, {year} Report"
-                else:
-                    year, month = parts
-                    month_name = month_map.get(month, month)
-                    display_name = f"{month_name} {year} Report"
-
-                report_buttons.append((display_name, pdf_path))
-
-            # Default to most recent
-            if "selected_report" not in st.session_state:
-                st.session_state.selected_report = report_buttons[0][1]
+            st.markdown("### Weekly Reports")
 
             for display_name, pdf_path in report_buttons:
                 is_selected = pdf_path == st.session_state.selected_report
-                button_style = f"""
-                    border-radius: 10px;
-                    border: 2px solid {'#0072ff' if is_selected else '#cccccc'};
-                    padding: 12px 18px;
-                    margin-bottom: 8px;
-                    font-size: 18px;
-                    font-weight: 700;
-                    color: {'#0072ff' if is_selected else '#000000'};
-                    background-color: {'#f9fbff' if is_selected else '#ffffff'};
-                    text-align: center;
-                    cursor: pointer;
-                    transition: all 0.2s ease-in-out;
-                """
-                st.markdown(
-                    f"""
-                    <div style="{button_style}" 
-                         onClick="window.parent.postMessage({{'selectReport': '{pdf_path.name}'}}, '*')">
-                        {display_name}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                if is_selected:
+                    st.markdown(
+                        f"""
+                        <div style="
+                            border:2px solid #0072ff;
+                            border-radius:10px;
+                            padding:12px 18px;
+                            margin-bottom:8px;
+                            font-size:17px;
+                            font-weight:700;
+                            color:#0072ff;
+                            background-color:#f9fbff;
+                            text-align:center;
+                        ">
+                            {display_name}
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                else:
+                    if st.button(display_name, use_container_width=True, key=display_name):
+                        st.session_state.selected_report = pdf_path
 
-        # --- Report Viewer ---
+        # --- Right column (PDF viewer) ---
         selected_pdf = st.session_state.selected_report
         with open(selected_pdf, "rb") as f:
             pdf_bytes = f.read()
         pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
         pdf_data_uri = f"data:application/pdf;base64,{pdf_base64}"
 
-        # Extract display name again for the right column title
         file_name = selected_pdf.name.replace(".pdf", "")
         parts = file_name.split("_")[0].split("-")
         if len(parts) == 3:
@@ -8249,7 +8280,6 @@ if page == "Reports":
 
         with col2:
             st.markdown(f"### 📈 {display_title}", unsafe_allow_html=True)
-
             st.download_button(
                 label="⬇️ Download PDF",
                 data=pdf_bytes,
@@ -8258,7 +8288,9 @@ if page == "Reports":
             )
 
             st.markdown(
-                f'<iframe src="{pdf_data_uri}" width="100%" height="450px" style="border:none; margin-top:-10px; border-radius:10px; transform:scale(0.98); transform-origin:top center;"></iframe>',
+                f'<iframe src="{pdf_data_uri}" width="100%" height="450px" '
+                f'style="border:none; margin-top:-10px; border-radius:10px; transform:scale(0.98); '
+                f'transform-origin:top center;"></iframe>',
                 unsafe_allow_html=True
             )
 
@@ -8268,6 +8300,7 @@ if page == "Reports":
         © 2025 Macro Lens Research | Weekly Global Macro Insights
     </div>
     """, unsafe_allow_html=True)
+
 
 
 # -------- Scenario Testing (Professional Edition) --------
