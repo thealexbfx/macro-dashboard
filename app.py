@@ -130,6 +130,7 @@ display_names = {
     # Crypto
     "crypto_btc": "Bitcoin",
     "crypto_eth": "Ethereum",
+    
 }
 
 dropdown_map = {v: k for k, v in display_names.items()}
@@ -1604,8 +1605,7 @@ st.markdown("""
                 <a href="?page=Calendar" target="_self">Calendar</a>
                 <a href="?page=Cycle" target="_self">Cycle</a>
                 <a href="?page=Reports" target="_self">Reports</a>
-                <a href="?page=Scenario" target="_self">Scenario</a>
-                <a href="?page=Forecasting" target="_self">Forecasting</a>
+                <a href="?page=Scenario" target="_self">Scenarios</a>
                 <a href="?page=Yield Curve" target="_self">Yield Curve</a>
                 <a href="?page=Curve Regimes" target="_self">Curve Regimes</a>
             </div>    
