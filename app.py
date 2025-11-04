@@ -1608,6 +1608,7 @@ st.markdown("""
                 <a href="?page=Scenario" target="_self">Scenarios</a>
                 <a href="?page=Yield Curve" target="_self">Yield Curve</a>
                 <a href="?page=Curve Regimes" target="_self">Curve Regimes</a>
+                <a href="?page=Seasonality" target="_self">Seasonality</a>
             </div>    
         </div>
     </div>    
@@ -8319,63 +8320,6 @@ if page == "Scenario":
 
     # --- Asset display names ---
     display_names = {
-        # USA Economic Indicators
-        "usa_rate": "USA Interest Rate",
-        "usa_cpi": "USA CPI YoY",
-        "usa_core_cpi": "USA Core CPI YoY",
-        "usa_gdp": "USA GDP QoQ",
-        "usa_unemp": "USA Unemployment Rate",
-        "usa_ahe": "USA Average Hourly Earnings YoY",
-        "usa_core_pce": "USA Core PCE YoY",
-        "usa_core_ppi": "USA Core PPI YoY",
-        "usa_housing": "USA Housing Starts MoM",
-        "usa_ism_manu": "USA ISM Manufacturing PMI",
-        "usa_ism_serv": "USA ISM Services PMI",
-        "usa_jolts": "USA JOLTS Job Openings",
-        "usa_michigan": "USA Michigan Consumer Sentiment",
-        "usa_nfp": "USA Non-Farm Payrolls",
-        "usa_pce": "USA PCE YoY",
-        "usa_ppi": "USA PPI YoY",
-        "usa_retail": "USA Retail Sales MoM",
-        "usa_trade": "USA Trade Balance",
-
-        # US Yields
-        "usa_1m": "USA 1M Yield",
-        "usa_3m": "USA 3M Yield",
-        "usa_6m": "USA 6M Yield",
-        "usa_1y": "USA 1Y Yield",
-        "usa_2y": "USA 2Y Yield",
-        "usa_3y": "USA 3Y Yield",
-        "usa_5y": "USA 5Y Yield",
-        "usa_7y": "USA 7Y Yield",
-        "usa_10y": "USA 10Y Yield",
-        "usa_20y": "USA 20Y Yield",
-        "usa_30y": "USA 30Y Yield",
-
-        # UK
-        "uk_rate": "UK Interest Rate",
-        "uk_cpi": "UK CPI YoY",
-        "uk_gdp": "UK GDP QoQ",
-        "uk_unemp": "UK Unemployment Rate",
-        "uk_10y": "UK 10Y Yield",
-        "uk_2y": "UK 2Y Yield",
-
-        # Japan
-        "jp_rate": "Japan Interest Rate",
-        "jp_cpi": "Japan CPI YoY",
-        "jp_gdp": "Japan GDP QoQ",
-        "jp_unemp": "Japan Unemployment Rate",
-        "jp_10y": "Japan 10Y Yield",
-        "jp_2y": "Japan 2Y Yield",
-
-        # Euro Area
-        "eu_rate": "Euro Interest Rate",
-        "eu_cpi": "Euro CPI YoY",
-        "eu_gdp": "Euro GDP QoQ",
-        "eu_unemp": "Euro Unemployment Rate",
-        "eu_10y": "Euro 10Y Yield",
-        "eu_2y": "Euro 2Y Yield",
-
         # FX
         "eurusd": "EUR/USD",
         "gbpusd": "GBP/USD",
@@ -8425,11 +8369,6 @@ if page == "Scenario":
 
         # --- Asset selection ---
         asset_map = {
-            "USA": ["usa_rate","usa_cpi","usa_core_cpi","usa_gdp","usa_unemp","usa_ahe","usa_core_pce","usa_core_ppi","usa_housing","usa_ism_manu","usa_ism_serv","usa_jolts","usa_michigan","usa_nfp","usa_pce","usa_ppi","usa_retail","usa_trade"],
-            "Yields": ["usa_1m","usa_3m","usa_6m","usa_1y","usa_2y","usa_3y","usa_5y","usa_7y","usa_10y","usa_20y","usa_30y"],
-            "UK": ["uk_rate","uk_cpi","uk_gdp","uk_unemp","uk_10y","uk_2y"],
-            "Japan": ["jp_rate","jp_cpi","jp_gdp","jp_unemp","jp_10y","jp_2y"],
-            "Euro Area": ["eu_rate","eu_cpi","eu_gdp","eu_unemp","eu_10y","eu_2y"],
             "FX": ["eurusd","gbpusd","usdjpy","dxy"],
             "Equities": ["eq_sp500","eq_nasdaq","eq_dow","eq_ftse","eq_nikkei","eq_dax","eq_msci_em","eq_vix"],
             "Stocks": ["st_aapl","st_amzn","st_meta","st_googl","st_nvda","st_msft","st_tsla"],
@@ -8437,7 +8376,7 @@ if page == "Scenario":
             "Crypto": ["crypto_btc","crypto_eth"]
         }
 
-        group = st.selectbox("Select Category", list(asset_map.keys()), index=7)
+        group = st.selectbox("Select Category", list(asset_map.keys()), index=1)
 
         # display names in dropdown
         asset_names_for_dropdown = [display_names.get(a, a) for a in asset_map[group]]
@@ -8475,7 +8414,7 @@ if page == "Scenario":
         # --- Date range setup ---
         earliest_date = df['date'].min().date()
         latest_date = df['date'].max().date()
-        timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"], index=4)
+        timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"], index=3)
 
         if timeframe != "MAX":
             years = int(timeframe.replace("Y", ""))
@@ -8624,9 +8563,374 @@ if page == "Scenario":
         if results_df.empty:
             st.info("No triggers found for this range or threshold.")
         else:
-            st.markdown(render_scenario_html_table(results_df, count_triggers, mean_forward), unsafe_allow_html=True)
-            with st.expander("Export / raw data (CSV)"):
-                st.dataframe(results_df, use_container_width=True)
-                csv = results_df.to_csv(index=False)
-                st.download_button("Download CSV", data=csv, file_name=f"{code}_scenario_results.csv", mime="text/csv")
+            # --- Scrollable trigger outcomes table container ---
+            st.markdown("""
+            <style>
+            .trigger-table-container {
+                max-height: 350px;          /* Controls scroll area height */
+                overflow-y: auto;           /* Enables vertical scrolling */
+                overflow-x: hidden;         /* Optional: hide horizontal scroll */
+                border: 1px solid #ddd;     /* Subtle border */
+                border-radius: 8px;
+                padding: 4px;
+                background-color: #fafafa;  /* Soft background */
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+            .trigger-table-container::-webkit-scrollbar {
+                width: 6px;
+            }
+            .trigger-table-container::-webkit-scrollbar-thumb {
+                background-color: #bbb;
+                border-radius: 3px;
+            }
+            .trigger-table-container::-webkit-scrollbar-thumb:hover {
+                background-color: #999;
+            }
+            </style>
+            """, unsafe_allow_html=True)
 
+            st.markdown(
+                f"""
+                <div class="trigger-table-container">
+                    {render_scenario_html_table(results_df, count_triggers, mean_forward)}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+       
+               # ----------- AI Summary for Scenario Testing (Auto Refresh) -----------
+
+        if not results_df.empty:
+            st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
+            st.markdown("### AI Scenario Summary")
+
+            from openai import OpenAI
+            client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+
+            # --- Summarize the scenario results for AI context ---
+            scenario_summary_data = "\n".join([
+                f"Trigger on {row['Trigger Date']}: daily move {row['Daily Move (%)']:+.2f}%, "
+                f"forward return {row['Forward Return (%)']}% after {forward_period} {forward_unit}"
+                for _, row in results_df.iterrows()
+                if row['Forward Return (%)'] != ""
+            ])
+
+            ticker_display = display_names.get(code, code)
+
+            prompt = f"""
+            You are a professional macro and market strategist writing a concise report-style summary
+            of a scenario test.
+
+            Asset: {ticker_display}
+            Direction tested: {direction} moves beyond {threshold}%
+            Forward horizon: {forward_period} {forward_unit}
+            Number of triggers: {count_triggers}
+            Average forward return: {mean_forward:+.2f}%
+
+            Historical trigger outcomes:
+            {scenario_summary_data}
+
+            Write a single paragraph (4–6 sentences) that:
+            - Describes how this asset tends to behave after similar daily {direction.lower()} moves.
+            - Explains whether these events usually lead to trend continuation or mean reversion.
+            - Comments briefly on the statistical strength or limitations of the findings.
+            - Keeps the tone professional, objective, and suitable for an institutional macro research dashboard.
+            - Do not use bullet points or markdown formatting — write one cohesive paragraph.
+            """
+
+            # --- Cache summary with parameter dependencies ---
+            @st.cache_data(ttl=3600, show_spinner=False)
+            def generate_scenario_summary(asset, direction, threshold, forward_period, forward_unit, data_text):
+                try:
+                    response = client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[{"role": "user", "content": prompt}],
+                        max_completion_tokens=250,
+                        temperature=0.25
+                    )
+                    return response.choices[0].message.content.strip()
+                except Exception as e:
+                    return f"⚠️ AI summary generation failed: {e}"
+
+            with st.spinner("Generating AI summary..."):
+                scenario_summary_text = generate_scenario_summary(
+                    code,
+                    direction,
+                    threshold,
+                    forward_period,
+                    forward_unit,
+                    scenario_summary_data
+                )
+
+            # --- Styled display ---
+            st.markdown(f"""
+            <div style="
+                background-color:#f8f9fa;
+                border-left:6px solid #1d3557;
+                border-radius:10px;
+                padding:18px 24px;
+                margin-top:10px;
+                font-size:15px;
+                font-family:'Inter','Segoe UI','Arial',sans-serif;
+                line-height:1.6;
+                color:#111;
+            ">
+            {scenario_summary_text}
+            </div>
+            """, unsafe_allow_html=True)
+
+
+# -------- Seasonality Tab --------
+if page == "Seasonality":
+    st.markdown("""
+    <div style="text-align:center; font-size:30px; font-weight:700; color:#000; margin-bottom:12px;">
+        Seasonality Analysis
+    </div>
+    <div style="text-align:center; color:#444; margin-bottom:18px;">
+        Compare a given asset's YTD monthly returns vs its historical average for a selected timeframe.
+    </div>
+    """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns([2, 5])
+
+    # --- Asset categories & mapping ---
+    asset_map = {
+        "FX": ["eurusd","gbpusd","usdjpy","dxy"],
+        "Equities": ["eq_sp500","eq_nasdaq","eq_dow","eq_ftse","eq_nikkei","eq_dax","eq_msci_em","eq_vix"],
+        "Stocks": ["st_aapl","st_amzn","st_meta","st_googl","st_nvda","st_msft","st_tsla"],
+        "Commodities": ["cmd_gold","cmd_silver","cmd_wti","cmd_brent","cmd_ng","cmd_wheat","cmd_copper","cmd_corn","cmd_soy"],
+        "Crypto": ["crypto_btc","crypto_eth"]
+    }
+
+    display_names = {
+        "eurusd": "EUR/USD", "gbpusd": "GBP/USD", "usdjpy": "USD/JPY", "dxy": "US Dollar Index (DXY)",
+        "eq_sp500": "S&P 500", "eq_nasdaq": "Nasdaq 100", "eq_dow": "Dow Jones Industrial", "eq_ftse": "FTSE 100",
+        "eq_nikkei": "Nikkei 225", "eq_dax": "DAX", "eq_msci_em": "MSCI Emerging Markets", "eq_vix": "VIX",
+        "st_aapl": "Apple", "st_amzn": "Amazon", "st_meta": "Meta", "st_googl": "Google", "st_nvda": "Nvidia",
+        "st_msft": "Microsoft", "st_tsla": "Tesla",
+        "cmd_gold": "Gold", "cmd_silver": "Silver", "cmd_wti": "WTI Crude", "cmd_brent": "Brent Crude", "cmd_ng": "Natural Gas",
+        "cmd_wheat": "Wheat", "cmd_copper": "Copper", "cmd_corn": "Corn", "cmd_soy": "Soy",
+        "crypto_btc": "Bitcoin", "crypto_eth": "Ethereum"
+    }
+
+    dropdown_map = {v: k for k, v in display_names.items()}
+
+    with col1:
+        cat1 = st.selectbox("Select Category", list(asset_map.keys()), index=1)
+        cat2_options = asset_map[cat1]
+        cat2 = st.selectbox("Select Asset", [display_names[a] for a in cat2_options])
+        code = dropdown_map.get(cat2, cat2)
+
+        timeframe = st.selectbox("Select Timeframe", ["1Y","3Y","5Y","10Y","MAX"], index=3)
+
+        if timeframe != "MAX":
+            years = int(timeframe.replace("Y",""))
+            end_date = pd.Timestamp.today().date()
+            start_date = end_date - pd.DateOffset(years=years)
+        else:
+            df_temp = load_indicator_data(code)
+            start_date = df_temp['date'].min().date()
+            end_date = df_temp['date'].max().date()
+
+        d1, d2 = st.columns(2)
+        with d1:
+            start_date = st.date_input("Start Date", start_date, min_value=start_date, max_value=end_date)
+        with d2:
+            end_date = st.date_input("End Date", end_date, min_value=start_date, max_value=end_date)
+
+        # --- Chart type selection ---
+        c1, c2 = st.columns(2)
+        with c1:
+            avg_chart_type = st.selectbox("Historical Avg Chart", ["Line", "Bar"], index=0)
+        with c2:
+            ytd_chart_type = st.selectbox("YTD Chart", ["Bar", "Line"], index=0)
+
+    # --- Load & prep data ---
+    df = load_indicator_data(code)
+    if df.empty:
+        st.error("No data available for this asset.")
+        st.stop()
+
+    df['date'] = pd.to_datetime(df['date'])
+    df['value'] = df.get('adj close', df.get('close', df.get('value', np.nan)))
+    df = df[['date','value']].dropna()
+    df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))].reset_index(drop=True)
+
+    def calc_monthly_returns(df):
+        df = df.copy()
+        df['year'] = df['date'].dt.year
+        df['month'] = df['date'].dt.month
+        monthly = []
+        for (y, m), g in df.groupby(['year','month']):
+            g = g.sort_values('date')
+            if len(g) > 1 and g['value'].iloc[0] != 0:
+                ret = ((g['value'].iloc[-1] / g['value'].iloc[0]) - 1) * 100
+                monthly.append({'year': y, 'month': m, 'return': ret})
+        return pd.DataFrame(monthly)
+
+    monthly_df = calc_monthly_returns(df)
+    avg_df = monthly_df.groupby('month')['return'].mean().reset_index().rename(columns={'return':'avg_return'})
+    current_year = pd.Timestamp.today().year
+    ytd_df = monthly_df[monthly_df['year']==current_year][['month','return']].rename(columns={'return':'ytd_return'})
+
+    chart_df = pd.DataFrame({'month':range(1,13)})
+    chart_df = chart_df.merge(avg_df, on='month', how='left').merge(ytd_df, on='month', how='left')
+    chart_df['month_name'] = chart_df['month'].apply(lambda x: pd.Timestamp(2000, x, 1).strftime('%b'))
+
+    # --- Plotly chart ---
+    import plotly.graph_objects as go
+    fig = go.Figure()
+
+    # Historical Average
+    if avg_chart_type == "Line":
+        fig.add_trace(go.Scatter(
+            x=chart_df['month_name'], y=chart_df['avg_return'].round(1),
+            name='Historical Average',
+            mode='lines+markers',
+            line=dict(color='black', width=2, dash='dot'),
+            marker=dict(size=6),
+            hovertemplate='%{y:.1f}%%<extra></extra>'
+        ))
+    else:
+        fig.add_trace(go.Bar(
+            x=chart_df['month_name'], y=chart_df['avg_return'].round(1),
+            name='Historical Average',
+            marker=dict(color='#1f77b4', line=dict(color='black', width=1.2)),
+            opacity=0.5,
+            hovertemplate='%{y:.1f}%%<extra></extra>'
+        ))
+
+    # YTD
+    if ytd_chart_type == "Bar":
+        fig.add_trace(go.Bar(
+            x=chart_df['month_name'], y=chart_df['ytd_return'].round(1),
+            name=f'YTD {current_year}',
+            marker=dict(color='#1f77b4', line=dict(color='black', width=1.2)),
+            hovertemplate='%{y:.1f}%%<extra></extra>'
+        ))
+    else:
+        fig.add_trace(go.Scatter(
+            x=chart_df['month_name'], y=chart_df['ytd_return'].round(1),
+            name=f'YTD {current_year}',
+            mode='lines+markers',
+            line=dict(color='black', width=2, dash='dot'),
+            marker=dict(size=6),
+            hovertemplate='%{y:.1f}%%<extra></extra>'
+        ))
+
+    # --- Layout styling ---
+    fig.update_layout(
+        title=f"{cat2} - Monthly Seasonality",
+        xaxis=dict(
+            title=dict(
+                text="Month",
+                font=dict(color='black', size=13, family='Arial')
+            ),
+            showgrid=False,
+            tickfont=dict(color='black', size=12, family='Arial'),
+        ),
+        yaxis=dict(
+            title=dict(
+                text="Return (%)",
+                font=dict(color='black', size=13, family='Arial')
+            ),
+            showgrid=True,
+            gridcolor='LightGrey',
+            tickfont=dict(color='black', size=12, family='Arial'),
+        ),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        height=520,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="center",
+            x=0.5
+        ),
+        hoverlabel=dict(
+            bgcolor='white',
+            font=dict(color='black', size=13, family='Arial'),
+            bordercolor='black'
+        ),
+        font=dict(color='black', family='Arial')
+    )
+
+    with col2:
+        st.plotly_chart(fig, use_container_width=True)
+
+    # ----------- AI Summary for Seasonality -----------
+
+    st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
+    st.markdown("### AI Seasonality Summary")
+
+    from openai import OpenAI
+    client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+
+    # --- Prepare structured context ---
+    seasonality_data_summary = "\n".join([
+        f"{row['month_name']}: avg_return={row['avg_return']:.2f}%, ytd_return={row['ytd_return'] if not np.isnan(row['ytd_return']) else 'N/A'}%"
+        for _, row in chart_df.iterrows()
+    ])
+
+    from datetime import datetime
+    current_month = datetime.now().month
+    current_month_name = datetime.now().strftime("%B")
+
+    prompt = f"""
+    You are a financial analyst writing a concise professional summary of a seasonality analysis.
+
+    Asset: {cat2}
+    Timeframe: {timeframe}
+    Today's date: {datetime.now().strftime('%B %d, %Y')}
+    Current month number: {current_month}
+
+    Data summary (monthly average vs YTD returns):
+    {seasonality_data_summary}
+
+    Instructions:
+    - Compare each completed month’s YTD return against its historical monthly average.
+    - Treat months before {current_month_name} as completed.
+    - Do NOT mention “missing data” for months that have not yet occurred (November and December).
+    - Instead, phrase future months as “historically strong/weak” if relevant, but not “lacking data.”
+    - September and October should be analyzed if YTD data is available.
+    - Keep it one professional paragraph (4–6 sentences).
+    - Use an analytical tone suitable for an investment research brief.
+    """
+
+
+
+
+    @st.cache_data(ttl=3600)
+    def generate_seasonality_summary():
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                max_completion_tokens=250,
+                temperature=0.2
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            return f"⚠️ AI summary generation failed: {e}"
+
+    # --- Generate and display ---
+    with st.spinner("Generating AI summary..."):
+        seasonality_summary_text = generate_seasonality_summary()
+
+    st.markdown(f"""
+    <div style="
+        background-color:#f8f9fa;
+        border-left:6px solid #1d3557;
+        border-radius:10px;
+        padding:18px 24px;
+        margin-top:10px;
+        font-size:15px;
+        font-family:'Inter','Segoe UI','Arial',sans-serif;
+        line-height:1.6;
+        color:#111;
+    ">
+    {seasonality_summary_text}
+    </div>
+    """, unsafe_allow_html=True)
