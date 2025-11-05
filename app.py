@@ -17,6 +17,302 @@ import os
 import plotly.graph_objects as go
 import streamlit.components.v1 as components
 import calendar
+from openai import OpenAI
+
+load_dotenv()  # loads .env file
+
+FRED_API_KEY = os.getenv("FRED_API_KEY")
+ESTAT_API_KEY = os.getenv("ESTAT_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # fallback if not using Streamlit secrets
+
+# ------------------------------
+# Initialize OpenAI client
+# ------------------------------
+try:
+    # Prefer Streamlit secrets if available
+    OPENAI_API_KEY = st.secrets["openai"]["api_key"]
+except Exception:
+    # fallback to .env
+    if not OPENAI_API_KEY:
+        st.error("❌ OpenAI API key not found! Set it in .env or Streamlit secrets.")
+        st.stop()
+
+client = OpenAI(api_key=OPENAI_API_KEY)
+
+# --------- Global Analysis Functions ---------
+@st.cache_data(ttl=1800)
+def analyze_usa():
+    """Compute latest value, slope, and relative position for all USA indicators."""
+    usa_tickers = {
+        "Interest Rate": get_usa_interest_rate_data,
+        "CPI YoY": get_usa_cpi_yoy_data,
+        "GDP Growth Rate": get_usa_gdp_qoq_data,
+        "Unemployment Rate": get_usa_unemployment_rate_data,
+        "Core CPI YoY": get_usa_core_cpi_yoy_data,
+        "Average Hourly Earnings YoY": get_usa_average_hourly_earnings_yoy_data,
+        "Core PCE YoY": get_usa_core_pce_yoy_data,
+        "Core PPI YoY": get_usa_core_ppi_yoy_data,
+        "Housing Starts MoM": get_usa_housing_starts_mom_data,
+        "ISM Manufacturing PMI": get_usa_ism_manufacturing_pmi_data,
+        "ISM Services PMI": get_usa_ism_services_pmi_data,
+        "Jolts Job Openings": get_usa_jolts_job_openings_data,
+        "Michigan Consumer Sentiment": get_usa_michigan_consumer_sentiment_data,
+        "Non Farm Payrolls": get_usa_nfp_data,
+        "PCE YoY": get_usa_pce_yoy_data,
+        "PPI YoY": get_usa_ppi_yoy_data,
+        "Retail Sales MoM": get_usa_retail_sales_mom_data,
+        "Trade Balance": get_usa_trade_balance_data
+    }
+
+    results = {}
+    for name, func in usa_tickers.items():
+        try:
+            df = func().dropna()
+            if len(df) < 12:
+                continue
+            df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
+            latest = df_1y["value"].iloc[-1]
+            start = df_1y["value"].iloc[0]
+
+            if latest > start:
+                trend = "up"
+            elif latest < start:
+                trend = "down"
+            else:
+                trend = "flat"
+
+            results[name] = {"latest": latest, "trend": trend}
+
+        except Exception as e:
+            st.warning(f"⚠️ Could not process {name}: {e}")
+    return results
+
+@st.cache_data(ttl=1800)
+def analyze_japan():
+    """Compute latest value, slope, and relative position for all japan indicators."""
+    japan_tickers = {
+        "Interest Rate": get_japan_interest_rate_data,
+        "CPI YoY": get_japan_cpi_yoy_data,
+        "GDP Growth Rate": get_japan_gdp_qoq_data,
+        "Unemployment Rate": get_japan_unemployment_rate_data
+    }
+
+    results = {}
+    for name, func in japan_tickers.items():
+        try:
+            df = func().dropna()
+            if len(df) < 12:
+                continue
+            df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
+            latest = df_1y["value"].iloc[-1]
+            start = df_1y["value"].iloc[0]
+
+            if latest > start:
+                trend = "up"
+            elif latest < start:
+                trend = "down"
+            else:
+                trend = "flat"
+
+            results[name] = {"latest": latest, "trend": trend}
+
+        except Exception as e:
+            st.warning(f"⚠️ Could not process {name}: {e}")
+    return results
+
+@st.cache_data(ttl=1800)
+def analyze_uk():
+    """Compute latest value, slope, and relative position for all uk indicators."""
+    uk_tickers = {
+        "Interest Rate": get_uk_interest_rate_data,
+        "CPI YoY": get_uk_cpi_yoy_data,
+        "GDP Growth Rate": get_uk_gdp_qoq_data,
+        "Unemployment Rate": get_uk_unemployment_rate_data
+    }
+
+    results = {}
+    for name, func in uk_tickers.items():
+        try:
+            df = func().dropna()
+            if len(df) < 12:
+                continue
+            df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
+            latest = df_1y["value"].iloc[-1]
+            start = df_1y["value"].iloc[0]
+
+            if latest > start:
+                trend = "up"
+            elif latest < start:
+                trend = "down"
+            else:
+                trend = "flat"
+
+            results[name] = {"latest": latest, "trend": trend}
+
+        except Exception as e:
+            st.warning(f"⚠️ Could not process {name}: {e}")
+    return results
+
+@st.cache_data(ttl=1800)
+def analyze_euro():
+    """Compute latest value, slope, and relative position for all euro indicators."""
+    euro_tickers = {
+        "Interest Rate": get_euro_interest_rate_data,
+        "CPI YoY": get_euro_cpi_yoy_data,
+        "GDP Growth Rate": get_euro_gdp_qoq_data,
+        "Unemployment Rate": get_euro_unemployment_rate_data
+    }
+
+    results = {}
+    for name, func in euro_tickers.items():
+        try:
+            df = func().dropna()
+            if len(df) < 12:
+                continue
+            df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
+            latest = df_1y["value"].iloc[-1]
+            start = df_1y["value"].iloc[0]
+
+            if latest > start:
+                trend = "up"
+            elif latest < start:
+                trend = "down"
+            else:
+                trend = "flat"
+
+            results[name] = {"latest": latest, "trend": trend}
+
+        except Exception as e:
+            st.warning(f"⚠️ Could not process {name}: {e}")
+    return results
+    
+# -----------------------------
+# Asset Class Analysis Functions
+# -----------------------------
+
+def analyze_asset_class(tickers_dict):
+    """
+    Generic function to analyze tickers/asset class.
+    tickers_dict: { "Name": ("ticker", "Friendly Name") } or { "Name": "code" }
+    Returns: { Name: {latest, trend, position} }
+    """
+    results = {}
+    for name, code_or_ticker in tickers_dict.items():
+        try:
+            if isinstance(code_or_ticker, tuple):
+                # For equities / stocks / commodities / FX: tuple(ticker, friendly_name)
+                df = get_fx_data_yahoo(code_or_ticker[0], start_date=dt.date(1980,1,1), end_date=dt.date.today())
+            else:
+                # For other codes (bonds, etc.)
+                df = load_indicator_data(code_or_ticker)
+
+            df = df.dropna()
+            if len(df) < 12:
+                continue
+
+            df_1y = df[df['date'] >= (df['date'].max() - pd.DateOffset(years=1))]
+            latest = df_1y['value'].iloc[-1]
+            start = df_1y['value'].iloc[0]
+
+            trend = "up" if latest > start else "down" if latest < start else "flat"
+            min_val, max_val = df_1y['value'].min(), df_1y['value'].max()
+            position = (latest - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
+
+            results[name] = {
+                "latest": latest,
+                "trend": trend,
+                "position": position
+            }
+        except Exception as e:
+            st.warning(f"⚠️ Could not process {name}: {e}")
+    return results
+
+
+# Equities
+@st.cache_data(ttl=1800)
+def analyze_equities():
+    tickers = {
+        "S&P 500": ("^GSPC", "S&P 500"),
+        "NASDAQ": ("^IXIC", "NASDAQ"),
+        "Dow Jones": ("^DJI", "Dow Jones"),
+        "FTSE 100": ("^FTSE", "FTSE 100"),
+        "Nikkei 225": ("^N225", "Nikkei 225"),
+        "DAX": ("^GDAXI", "DAX"),
+        "MSCI Emerging Markets ETF": ("EEM", "MSCI Emerging Markets ETF"),
+        "VIX": ("^VIX", "VIX")
+    }
+    return analyze_asset_class(tickers)
+
+
+# Stocks
+@st.cache_data(ttl=1800)
+def analyze_stocks():
+    tickers = {
+        "Apple": "st_aapl",
+        "Amazon": "st_amzn",
+        "Meta": "st_meta",
+        "Google": "st_googl",
+        "Nvidia": "st_nvda",
+        "Microsoft": "st_msft",
+        "Tesla": "st_tsla"
+    }
+    return analyze_asset_class(tickers)
+
+
+# Commodities
+@st.cache_data(ttl=1800)
+def analyze_commodities():
+    tickers = {
+        "Gold": "cmd_gold",
+        "Silver": "cmd_silver",
+        "WTI Crude": "cmd_wti",
+        "Brent Crude": "cmd_brent",
+        "Natural Gas": "cmd_ng",
+        "Wheat": "cmd_wheat",
+        "Copper": "cmd_copper",
+        "Corn": "cmd_corn",
+        "Soy": "cmd_soy"
+    }
+    return analyze_asset_class(tickers)
+
+
+# FX
+@st.cache_data(ttl=1800)
+def analyze_fx():
+    tickers = {
+        "EUR/USD": "eurusd",
+        "GBP/USD": "gbpusd",
+        "USD/JPY": "usdjpy",
+        "DXY": "dxy"
+    }
+    return analyze_asset_class(tickers)
+
+
+# Crypto
+@st.cache_data(ttl=1800)
+def analyze_crypto():
+    tickers = {
+        "Bitcoin": "crypto_btc",
+        "Ethereum": "crypto_eth"
+    }
+    return analyze_asset_class(tickers)
+
+
+# Bonds (special handling: US yields via Yahoo, others via text)
+@st.cache_data(ttl=1800)
+def analyze_bonds():
+    tickers = {
+        "US 2Y": "usa_2y",
+        "US 10Y": "usa_10y",
+        "UK 2Y": "uk_2y",
+        "UK 10Y": "uk_10y",
+        "Japan 2Y": "jp_2y",
+        "Japan 10Y": "jp_10y",
+        "Euro 2Y": "eu_2y",
+        "Euro 10Y": "eu_10y"
+    }
+    return analyze_asset_class(tickers)
+
 
 # -------- Asset Map (Global Reference) --------
 asset_map = {
@@ -1605,10 +1901,11 @@ st.markdown("""
                 <a href="?page=Calendar" target="_self">Calendar</a>
                 <a href="?page=Cycle" target="_self">Cycle</a>
                 <a href="?page=Reports" target="_self">Reports</a>
-                <a href="?page=Scenario" target="_self">Scenarios</a>
+                <a href="?page=Scenarios" target="_self">Scenarios</a>
                 <a href="?page=Yield Curve" target="_self">Yield Curve</a>
                 <a href="?page=Curve Regimes" target="_self">Curve Regimes</a>
                 <a href="?page=Seasonality" target="_self">Seasonality</a>
+                <a href="?page=Summary" target="_self">Summary</a>
             </div>    
         </div>
     </div>    
@@ -1992,6 +2289,37 @@ if page == "Home":
             <p>&copy; 2025 Macro Lens Research. All rights reserved.</p>
         </div>
     """, unsafe_allow_html=True)
+    
+def get_country_summary(key_name, country_prompt, data_text):
+    """
+    Checks if a summary exists for a country, otherwise generates one using your AI summarizer.
+    """
+    if key_name in st.session_state:
+        return st.session_state[key_name]
+    else:
+        prompt = f"""
+        Summarize the macroeconomic situation for {country_prompt} based on the following data and analysis.
+        Focus on growth trends, inflation, labor markets, and financial conditions.
+        Keep it concise, professional, and under 150 words.
+
+        --- Data & Context ---
+        {data_text}
+        """
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_completion_tokens=250,
+            temperature=0
+        )
+        summary = response.choices[0].message.content.strip()
+        st.session_state[key_name] = summary
+        return summary
+
+
+# Global AI Summary Collector (used across all pages)
+if "ai_summaries" not in st.session_state:
+    st.session_state["ai_summaries"] = []
+
 
 # -------- USA Tab --------
 if page == "USA":
@@ -2231,27 +2559,47 @@ if page == "USA":
         # ======== Summary Stats ========
 
         n_obs = len(df_filtered)
-        mean_val = df_filtered['value'].mean()
-        latest_val = df_filtered['value'].iloc[-1]
-        min_val = df_filtered['value'].min()
-        max_val = df_filtered['value'].max()
-        start_val = df_filtered['value'].iloc[0]
+
+        if n_obs == 0:
+            raise ValueError("df_filtered is empty")
+
+        values = df_filtered['value']
+        mean_val = values.mean()
+        latest_val = values.iloc[-1]
+        start_val = values.iloc[0]
+        min_val = values.min()
+        max_val = values.max()
+
+        # Absolute and percentage change
         change_since_start = latest_val - start_val
+        pct_change_since_start = ((latest_val - start_val) / start_val * 100) if start_val != 0 else np.nan
 
         # Relative position (0–100%)
         position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
 
-        # Trend (using regression slope)
-        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
-        if slope > 0:
+        # Trend (First-to-last, intuitive)
+        if change_since_start > 0:
             trend = "🔺 Upward"
-        elif slope < 0:
+        elif change_since_start < 0:
             trend = "🔻 Downward"
         else:
             trend = "⏸ Flat"
 
-        # Volatility (range as % of mean)
-        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+        # Optional: regression slope trend (for additional insight)
+        if n_obs > 1:
+            slope, _, _, _, _ = linregress(range(n_obs), values)
+            if slope > 0:
+                trend_reg = "🔺 Upward"
+            elif slope < 0:
+                trend_reg = "🔻 Downward"
+            else:
+                trend_reg = "⏸ Flat"
+        else:
+            slope = 0
+            trend_reg = trend
+
+        # Volatility: standard deviation as % of mean
+        volatility = (values.std() / mean_val * 100) if mean_val != 0 else np.nan
 
         # ======== Display (Minimal Modern Summary Bar) ========
 
@@ -2285,8 +2633,8 @@ if page == "USA":
         """
 
         st.markdown(summary_html, unsafe_allow_html=True)
-                         
 
+                         
         # -------- Dynamic Titles --------
         titles = {
             # Monetary Policy
@@ -2491,10 +2839,17 @@ if page == "USA":
                         continue
                     df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
                     latest = df_1y["value"].iloc[-1]
-                    min_val, max_val = df_1y["value"].min(), df_1y["value"].max()
-                    slope, _, _, _, _ = linregress(range(len(df_1y)), df_1y["value"])
-                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    start = df_1y["value"].iloc[0]
+
+                    if latest > start:
+                        trend = "up"
+                    elif latest < start:
+                        trend = "down"
+                    else:
+                        trend = "flat"
+
                     results[name] = {"latest": latest, "trend": trend}
+
                 except Exception as e:
                     st.warning(f"⚠️ Could not process {name}: {e}")
             return results
@@ -2520,7 +2875,7 @@ if page == "USA":
             Guidelines:
             - Focus on patterns, contrasts, and relative positioning across indicators.
             - Mention current trends where relevant.
-            - Make sure to use the right units for each indicator.
+            - Make sure to use the right units for each indicator, for example jolts job openings is in millions etc.
             - Do NOT add information not in the data.
             - Use a neutral, analytical tone (no adjectives like “strong” or “weak”), but clear and concise English.
             - Output only one paragraph.
@@ -2554,6 +2909,14 @@ if page == "USA":
 
         # Use cached summary
         usa_macro_summary = st.session_state.usa_macro_summary
+
+        # Add USA summary to global collector
+        summary_label = f"🇺🇸 USA Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+        entry = f"{summary_label}:\n{usa_macro_summary}"
+
+        # Prevent duplicates (so it doesn’t re-add every rerun)
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
 
         # ---- Display Narrative Card ----
         st.markdown(f"""
@@ -2716,27 +3079,47 @@ if page == "Japan":
         # ======== Summary Stats ========
 
         n_obs = len(df_filtered)
-        mean_val = df_filtered['value'].mean()
-        latest_val = df_filtered['value'].iloc[-1]
-        min_val = df_filtered['value'].min()
-        max_val = df_filtered['value'].max()
-        start_val = df_filtered['value'].iloc[0]
+
+        if n_obs == 0:
+            raise ValueError("df_filtered is empty")
+
+        values = df_filtered['value']
+        mean_val = values.mean()
+        latest_val = values.iloc[-1]
+        start_val = values.iloc[0]
+        min_val = values.min()
+        max_val = values.max()
+
+        # Absolute and percentage change
         change_since_start = latest_val - start_val
+        pct_change_since_start = ((latest_val - start_val) / start_val * 100) if start_val != 0 else np.nan
 
         # Relative position (0–100%)
         position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
 
-        # Trend (using regression slope)
-        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
-        if slope > 0:
+        # Trend (First-to-last, intuitive)
+        if change_since_start > 0:
             trend = "🔺 Upward"
-        elif slope < 0:
+        elif change_since_start < 0:
             trend = "🔻 Downward"
         else:
             trend = "⏸ Flat"
 
-        # Volatility (range as % of mean)
-        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+        # Optional: regression slope trend (for additional insight)
+        if n_obs > 1:
+            slope, _, _, _, _ = linregress(range(n_obs), values)
+            if slope > 0:
+                trend_reg = "🔺 Upward"
+            elif slope < 0:
+                trend_reg = "🔻 Downward"
+            else:
+                trend_reg = "⏸ Flat"
+        else:
+            slope = 0
+            trend_reg = trend
+
+        # Volatility: standard deviation as % of mean
+        volatility = (values.std() / mean_val * 100) if mean_val != 0 else np.nan
 
         # ======== Display (Minimal Modern Summary Bar) ========
 
@@ -2770,6 +3153,7 @@ if page == "Japan":
         """
 
         st.markdown(summary_html, unsafe_allow_html=True)
+
 
         # -------- Dynamic Titles --------
         titles = {
@@ -2922,10 +3306,17 @@ if page == "Japan":
                         continue
                     df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
                     latest = df_1y["value"].iloc[-1]
-                    min_val, max_val = df_1y["value"].min(), df_1y["value"].max()
-                    slope, _, _, _, _ = linregress(range(len(df_1y)), df_1y["value"])
-                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    start = df_1y["value"].iloc[0]
+
+                    if latest > start:
+                        trend = "up"
+                    elif latest < start:
+                        trend = "down"
+                    else:
+                        trend = "flat"
+
                     results[name] = {"latest": latest, "trend": trend}
+
                 except Exception as e:
                     st.warning(f"⚠️ Could not process {name}: {e}")
             return results
@@ -2985,6 +3376,15 @@ if page == "Japan":
 
         # Use cached summary
         japan_macro_summary = st.session_state.japan_macro_summary
+        
+        # Add Japan summary to global collector
+        summary_label = f"Japan Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+        entry = f"{summary_label}:\n{japan_macro_summary}"
+
+        # Prevent duplicates (so it doesn’t re-add every rerun)
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
+
 
         # ---- Display Narrative Card ----
         st.markdown(f"""
@@ -3145,27 +3545,47 @@ if page == "UK":
         # ======== Summary Stats ========
 
         n_obs = len(df_filtered)
-        mean_val = df_filtered['value'].mean()
-        latest_val = df_filtered['value'].iloc[-1]
-        min_val = df_filtered['value'].min()
-        max_val = df_filtered['value'].max()
-        start_val = df_filtered['value'].iloc[0]
+
+        if n_obs == 0:
+            raise ValueError("df_filtered is empty")
+
+        values = df_filtered['value']
+        mean_val = values.mean()
+        latest_val = values.iloc[-1]
+        start_val = values.iloc[0]
+        min_val = values.min()
+        max_val = values.max()
+
+        # Absolute and percentage change
         change_since_start = latest_val - start_val
+        pct_change_since_start = ((latest_val - start_val) / start_val * 100) if start_val != 0 else np.nan
 
         # Relative position (0–100%)
         position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
 
-        # Trend (using regression slope)
-        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
-        if slope > 0:
+        # Trend (First-to-last, intuitive)
+        if change_since_start > 0:
             trend = "🔺 Upward"
-        elif slope < 0:
+        elif change_since_start < 0:
             trend = "🔻 Downward"
         else:
             trend = "⏸ Flat"
 
-        # Volatility (range as % of mean)
-        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+        # Optional: regression slope trend (for additional insight)
+        if n_obs > 1:
+            slope, _, _, _, _ = linregress(range(n_obs), values)
+            if slope > 0:
+                trend_reg = "🔺 Upward"
+            elif slope < 0:
+                trend_reg = "🔻 Downward"
+            else:
+                trend_reg = "⏸ Flat"
+        else:
+            slope = 0
+            trend_reg = trend
+
+        # Volatility: standard deviation as % of mean
+        volatility = (values.std() / mean_val * 100) if mean_val != 0 else np.nan
 
         # ======== Display (Minimal Modern Summary Bar) ========
 
@@ -3199,6 +3619,7 @@ if page == "UK":
         """
 
         st.markdown(summary_html, unsafe_allow_html=True)
+
 
         # -------- Dynamic Titles --------
         titles = {
@@ -3351,10 +3772,17 @@ if page == "UK":
                         continue
                     df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
                     latest = df_1y["value"].iloc[-1]
-                    min_val, max_val = df_1y["value"].min(), df_1y["value"].max()
-                    slope, _, _, _, _ = linregress(range(len(df_1y)), df_1y["value"])
-                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    start = df_1y["value"].iloc[0]
+
+                    if latest > start:
+                        trend = "up"
+                    elif latest < start:
+                        trend = "down"
+                    else:
+                        trend = "flat"
+
                     results[name] = {"latest": latest, "trend": trend}
+
                 except Exception as e:
                     st.warning(f"⚠️ Could not process {name}: {e}")
             return results
@@ -3414,6 +3842,15 @@ if page == "UK":
 
         # Use cached summary
         uk_macro_summary = st.session_state.uk_macro_summary
+        
+        # Add UK summary to global collector
+        summary_label = f"UK Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+        entry = f"{summary_label}:\n{uk_macro_summary}"
+
+        # Prevent duplicates (so it doesn’t re-add every rerun)
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
+
 
         # ---- Display Narrative Card ----
         st.markdown(f"""
@@ -3574,27 +4011,47 @@ if page == "EURO":
         # ======== Summary Stats ========
 
         n_obs = len(df_filtered)
-        mean_val = df_filtered['value'].mean()
-        latest_val = df_filtered['value'].iloc[-1]
-        min_val = df_filtered['value'].min()
-        max_val = df_filtered['value'].max()
-        start_val = df_filtered['value'].iloc[0]
+
+        if n_obs == 0:
+            raise ValueError("df_filtered is empty")
+
+        values = df_filtered['value']
+        mean_val = values.mean()
+        latest_val = values.iloc[-1]
+        start_val = values.iloc[0]
+        min_val = values.min()
+        max_val = values.max()
+
+        # Absolute and percentage change
         change_since_start = latest_val - start_val
+        pct_change_since_start = ((latest_val - start_val) / start_val * 100) if start_val != 0 else np.nan
 
         # Relative position (0–100%)
         position_pct = (latest_val - min_val) / (max_val - min_val) * 100 if max_val != min_val else 50
 
-        # Trend (using regression slope)
-        slope, _, _, _, _ = linregress(range(n_obs), df_filtered['value'])
-        if slope > 0:
+        # Trend (First-to-last, intuitive)
+        if change_since_start > 0:
             trend = "🔺 Upward"
-        elif slope < 0:
+        elif change_since_start < 0:
             trend = "🔻 Downward"
         else:
             trend = "⏸ Flat"
 
-        # Volatility (range as % of mean)
-        volatility = ((max_val - min_val) / mean_val * 100) if mean_val != 0 else np.nan
+        # Optional: regression slope trend (for additional insight)
+        if n_obs > 1:
+            slope, _, _, _, _ = linregress(range(n_obs), values)
+            if slope > 0:
+                trend_reg = "🔺 Upward"
+            elif slope < 0:
+                trend_reg = "🔻 Downward"
+            else:
+                trend_reg = "⏸ Flat"
+        else:
+            slope = 0
+            trend_reg = trend
+
+        # Volatility: standard deviation as % of mean
+        volatility = (values.std() / mean_val * 100) if mean_val != 0 else np.nan
 
         # ======== Display (Minimal Modern Summary Bar) ========
 
@@ -3628,6 +4085,7 @@ if page == "EURO":
         """
 
         st.markdown(summary_html, unsafe_allow_html=True)
+
 
         # -------- Dynamic Titles --------
         titles = {
@@ -3780,10 +4238,17 @@ if page == "EURO":
                         continue
                     df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
                     latest = df_1y["value"].iloc[-1]
-                    min_val, max_val = df_1y["value"].min(), df_1y["value"].max()
-                    slope, _, _, _, _ = linregress(range(len(df_1y)), df_1y["value"])
-                    trend = "up" if slope > 0 else "down" if slope < 0 else "flat"
+                    start = df_1y["value"].iloc[0]
+
+                    if latest > start:
+                        trend = "up"
+                    elif latest < start:
+                        trend = "down"
+                    else:
+                        trend = "flat"
+
                     results[name] = {"latest": latest, "trend": trend}
+
                 except Exception as e:
                     st.warning(f"⚠️ Could not process {name}: {e}")
             return results
@@ -3843,6 +4308,15 @@ if page == "EURO":
 
         # Use cached summary
         euro_macro_summary = st.session_state.euro_macro_summary
+        
+        # Add EURO summary to global collector
+        summary_label = f"EURO Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+        entry = f"{summary_label}:\n{euro_macro_summary}"
+
+        # Prevent duplicates (so it doesn’t re-add every rerun)
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
+
 
         # ---- Display Narrative Card ----
         st.markdown(f"""
@@ -4315,6 +4789,15 @@ if page == "FX Rates":
 
         # Use cached summary
         fx_macro_summary = st.session_state.fx_macro_summary
+        
+        # Add FX summary to global collector
+        summary_label = f"FX Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+        entry = f"{summary_label}:\n{fx_macro_summary}"
+
+        # Prevent duplicates (so it doesn’t re-add every rerun)
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
+
 
         # ---- Display Narrative Card ----
         st.markdown(f"""
@@ -5482,6 +5965,14 @@ if page == "Equities":
 
         # Use cached summary
         equities_macro_summary = st.session_state.equities_macro_summary
+        
+        # Add Equities summary to global collector
+        summary_label = f"Equities Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+        entry = f"{summary_label}:\n{equities_macro_summary}"
+
+        # Prevent duplicates (so it doesn’t re-add every rerun)
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
 
         # ---- Display Narrative Card ----
         st.markdown(f"""
@@ -5945,6 +6436,15 @@ if page == "Stocks":
 
         # Use cached summary
         stock_macro_summary = st.session_state.stock_macro_summary
+        
+        # Add Stocks summary to global collector
+        summary_label = f"Stocks Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+        entry = f"{summary_label}:\n{stock_macro_summary}"
+
+        # Prevent duplicates (so it doesn’t re-add every rerun)
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
+
 
         # ---- Display Narrative Card ----
         st.markdown(f"""
@@ -6425,6 +6925,14 @@ if page == "Commodities":
 
         # Use cached summary
         commodities_macro_summary = st.session_state.commodities_macro_summary
+        
+        # Add commodities summary to global collector
+        summary_label = f"Commodities Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+        entry = f"{summary_label}:\n{commodities_macro_summary}"
+
+        # Prevent duplicates (so it doesn’t re-add every rerun)
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
 
         # ---- Display Narrative Card ----
         st.markdown(f"""
@@ -6877,6 +7385,14 @@ if page == "Bonds":
 
         # Use cached summary
         bonds_macro_summary = st.session_state.bonds_macro_summary
+        
+        # Add Bonds summary to global collector
+        summary_label = f"Bonds Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+        entry = f"{summary_label}:\n{bonds_macro_summary}"
+
+        # Prevent duplicates (so it doesn’t re-add every rerun)
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
 
         # ---- Display Narrative Card ----
         st.markdown(f"""
@@ -7284,6 +7800,14 @@ if page == "Crypto":
 
         # Use cached summary
         crypto_macro_summary = st.session_state.crypto_macro_summary
+        
+        # Add Crypto summary to global collector
+        summary_label = f"Crypto Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+        entry = f"{summary_label}:\n{crypto_macro_summary}"
+
+        # Prevent duplicates (so it doesn’t re-add every rerun)
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
 
         # ---- Display Narrative Card ----
         st.markdown(f"""
@@ -8122,6 +8646,14 @@ if page == "Cycle":
     # Generate and display
     with st.spinner("Generating cycle summary..."):
         cycle_summary_text = generate_cycle_summary()
+        
+        # Add Cycle summary to global collector
+        summary_label = f"Cycle Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+        entry = f"{summary_label}:\n{cycle_summary_text}"
+
+        # Prevent duplicates (so it doesn’t re-add every rerun)
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
 
     st.markdown(f"""
     <div style="
@@ -8305,7 +8837,7 @@ if page == "Reports":
 
 
 # -------- Scenario Testing (Professional Edition) --------
-if page == "Scenario":
+if page == "Scenarios":
 
     st.markdown("""
     <div style="text-align:center; font-size:30px; font-weight:700; color:#000; margin-bottom:12px;">
@@ -8603,7 +9135,7 @@ if page == "Scenario":
 
         if not results_df.empty:
             st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
-            st.markdown("### AI Scenario Summary")
+            st.markdown("### Scenario Summary")
 
             from openai import OpenAI
             client = OpenAI(api_key=st.secrets["openai"]["api_key"])
@@ -8662,6 +9194,14 @@ if page == "Scenario":
                     forward_unit,
                     scenario_summary_data
                 )
+                
+                # Add Scenario summary to global collector
+                summary_label = f"Scenario Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+                entry = f"{summary_label}:\n{scenario_summary_text}"
+
+                # Prevent duplicates (so it doesn’t re-add every rerun)
+                if entry not in st.session_state["ai_summaries"]:
+                    st.session_state["ai_summaries"].append(entry)
 
             # --- Styled display ---
             st.markdown(f"""
@@ -8863,7 +9403,7 @@ if page == "Seasonality":
     # ----------- AI Summary for Seasonality -----------
 
     st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
-    st.markdown("### AI Seasonality Summary")
+    st.markdown("### Seasonality Summary")
 
     from openai import OpenAI
     client = OpenAI(api_key=st.secrets["openai"]["api_key"])
@@ -8916,8 +9456,17 @@ if page == "Seasonality":
             return f"⚠️ AI summary generation failed: {e}"
 
     # --- Generate and display ---
-    with st.spinner("Generating AI summary..."):
+    with st.spinner("Generating summary..."):
         seasonality_summary_text = generate_seasonality_summary()
+        
+        # Add Seasonality summary to global collector
+        summary_label = f"Seasonality Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
+        entry = f"{summary_label}:\n{seasonality_summary_text}"  # <-- fixed variable name
+
+        # Prevent duplicates
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
+
 
     st.markdown(f"""
     <div style="
@@ -8932,5 +9481,220 @@ if page == "Seasonality":
         color:#111;
     ">
     {seasonality_summary_text}
+    </div>
+    """, unsafe_allow_html=True)
+
+import streamlit as st
+from openai import OpenAI
+import pandas as pd
+from copy import deepcopy
+import os
+
+# -----------------------------
+# Initialize OpenAI client
+# -----------------------------
+try:
+    OPENAI_API_KEY = st.secrets["openai"]["api_key"]
+except Exception:
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+if not OPENAI_API_KEY:
+    st.error("❌ OpenAI API key not found!")
+    st.stop()
+
+client = OpenAI(api_key=OPENAI_API_KEY)
+
+# -----------------------------
+# Helper: Generate LLM Summary
+# -----------------------------
+def generate_country_llm_summary(results: dict, country_name: str) -> str:
+    """
+    Generate a concise macro summary for a country based on indicator data.
+    """
+    if not results:
+        return f"No data available for {country_name}."
+
+    # Convert to LLM-readable text
+    context_text = "\n".join(
+        [f"{name}: latest={data['latest']:.2f}%, trend={data['trend']}" 
+         for name, data in results.items()]
+    )
+
+    prompt = f"""
+    You are a senior macro-financial strategist writing a concise, data-driven
+    condition of the {country_name} economy. You are given the latest 1-year snapshot
+    of various economic indicators.
+
+    Data points:
+    {context_text}
+
+    Write one short paragraph (5–7 sentences) summarizing the overall condition
+    of the {country_name} economy. Focus on patterns, contrasts, and relative positions.
+    Use only the data provided. Keep it professional, concise, and analytical.
+    """
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_completion_tokens=250,
+            temperature=0
+        )
+        summary_text = response.choices[0].message.content.strip()
+        if not summary_text:
+            summary_text = "⚠️ LLM returned an empty response."
+    except Exception as e:
+        summary_text = f"⚠️ LLM generation failed: {e}"
+
+    return summary_text
+
+# -----------------------------
+# --- Helper Functions for Summaries ---
+# -----------------------------
+def generate_asset_llm_summary(results, asset_name):
+    """
+    Calls the existing country summary function but strips any trailing % formatting
+    or instructs LLM to avoid percentages in output.
+    """
+    # Option A: just call it and return text as-is
+    summary = generate_country_llm_summary(results, asset_name)
+
+    # Option B (safer): if your summary sometimes adds % values, replace/remove them
+    import re
+    summary = re.sub(r'(\d+\.?\d*)%', r'\1', summary)
+
+    return summary
+
+def get_country_summary_from_indicator_data(country_name: str, analyze_fn) -> str:
+    """
+    Uses the analyze function for a country to compute indicator results
+    and generate (or fetch cached) summary.
+    """
+    key_name = f"{country_name.lower()}_macro_summary"
+
+    if key_name not in st.session_state:
+        with st.spinner(f"Generating {country_name} market summary..."):
+            results = analyze_fn()
+            summary = generate_country_llm_summary(results, country_name)
+            st.session_state[key_name] = summary
+    return st.session_state[key_name]
+
+def get_asset_summary_from_indicator_data(asset_name: str, analyze_fn) -> str:
+    key_name = f"{asset_name.lower()}_summary"
+
+    if key_name not in st.session_state:
+        with st.spinner(f"Generating {asset_name} summary..."):
+            results = analyze_fn()
+            summary = generate_asset_llm_summary(results, asset_name)  # <--- updated line
+            st.session_state[key_name] = summary
+    return st.session_state[key_name]
+
+
+# -----------------------------
+# --- Summary Page ---
+# -----------------------------
+if page == "Summary":
+    # --- Page Title ---
+    st.markdown(
+        "<h1 style='text-align:center; color:black; font-weight:bold; font-size:32px;'>Global Macro Summary</h1>",
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        "<p style='text-align:center; color:black; font-size:16px;'>A concise professional overview of key country and asset class trends to guide market decisions.</p>",
+        unsafe_allow_html=True
+    )
+
+    # --- 1. Country Summaries ---
+    usa_summary = get_country_summary_from_indicator_data("United States", analyze_usa)
+    uk_summary = get_country_summary_from_indicator_data("United Kingdom", analyze_uk)
+    euro_summary = get_country_summary_from_indicator_data("Euro Area", analyze_euro)
+    japan_summary = get_country_summary_from_indicator_data("Japan", analyze_japan)
+
+    combined_country_summaries = f"""
+United States:
+{usa_summary}
+
+United Kingdom:
+{uk_summary}
+
+Euro Area:
+{euro_summary}
+
+Japan:
+{japan_summary}
+    """
+
+    st.markdown("<h3 style='color:black; font-weight:bold;'>Individual Country Summaries</h3>", unsafe_allow_html=True)
+    st.text_area("Collected Summaries", combined_country_summaries, height=300)
+
+    # --- 2. Asset Class Summaries ---
+    equities_summary = get_asset_summary_from_indicator_data("Equities", analyze_equities)
+    stocks_summary = get_asset_summary_from_indicator_data("Stocks", analyze_stocks)
+    commodities_summary = get_asset_summary_from_indicator_data("Commodities", analyze_commodities)
+    bonds_summary = get_asset_summary_from_indicator_data("Bonds", analyze_bonds)
+    fx_summary = get_asset_summary_from_indicator_data("FX", analyze_fx)
+    crypto_summary = get_asset_summary_from_indicator_data("Crypto", analyze_crypto)
+
+    combined_asset_summaries = f"""
+Equities:
+{equities_summary}
+
+Stocks:
+{stocks_summary}
+
+Commodities:
+{commodities_summary}
+
+Bonds:
+{bonds_summary}
+
+FX:
+{fx_summary}
+
+Crypto:
+{crypto_summary}
+    """
+
+    st.markdown("<h3 style='color:black; font-weight:bold;'>Individual Asset Class Summaries</h3>", unsafe_allow_html=True)
+    st.text_area("Collected Asset Summaries", combined_asset_summaries, height=300)
+
+    # --- 3. Global Synthesis ---
+    synthesis_prompt = f"""
+You are a senior global macro strategist. Combine the following regional and asset class summaries
+into one unified, professional market commentary. Identify overarching trends,
+divergences, risks, and opportunities. Keep it under 3 paragraphs and analytical.
+
+--- Country Summaries ---
+{combined_country_summaries}
+
+--- Asset Summaries ---
+{combined_asset_summaries}
+    """
+
+    with st.spinner("Synthesizing global market summary..."):
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": synthesis_prompt}],
+            max_completion_tokens=600,
+            temperature=0
+        )
+
+    global_summary = response.choices[0].message.content.strip()
+
+    st.markdown("<h3 style='color:black; font-weight:bold;'>Global Market Commentary</h3>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="
+        background-color:#f8f9fa;
+        border-left:6px solid #0a9396;
+        border-radius:10px;
+        padding:18px 24px;
+        margin-top:10px;
+        font-size:15px;
+        font-family:'Inter','Segoe UI','Arial',sans-serif;
+        line-height:1.6;
+        color:black;
+    ">
+    {global_summary}
     </div>
     """, unsafe_allow_html=True)
