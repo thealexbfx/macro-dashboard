@@ -9481,7 +9481,6 @@ if page == "Seasonality":
 
 
 
-    @st.cache_data(ttl=3600)
     def generate_seasonality_summary():
         try:
             response = client.chat.completions.create(
