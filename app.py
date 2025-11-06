@@ -9312,7 +9312,15 @@ if page == "Seasonality":
     monthly_df = calc_monthly_returns(df)
     avg_df = monthly_df.groupby('month')['return'].mean().reset_index().rename(columns={'return':'avg_return'})
     current_year = pd.Timestamp.today().year
-    ytd_df = monthly_df[monthly_df['year']==current_year][['month','return']].rename(columns={'return':'ytd_return'})
+    # Exclude the current (incomplete) month from YTD data
+    current_year = pd.Timestamp.today().year
+    current_month = pd.Timestamp.today().month
+
+    ytd_df = monthly_df[
+        (monthly_df['year'] == current_year) &
+        (monthly_df['month'] < current_month)
+    ][['month', 'return']].rename(columns={'return': 'ytd_return'})
+
 
     chart_df = pd.DataFrame({'month':range(1,13)})
     chart_df = chart_df.merge(avg_df, on='month', how='left').merge(ytd_df, on='month', how='left')
@@ -9325,39 +9333,66 @@ if page == "Seasonality":
     # Historical Average
     if avg_chart_type == "Line":
         fig.add_trace(go.Scatter(
-            x=chart_df['month_name'], y=chart_df['avg_return'].round(1),
+            x=chart_df['month_name'],
+            y=chart_df['avg_return'].round(1),
             name='Historical Average',
-            mode='lines+markers',
-            line=dict(color='black', width=2, dash='dot'),
-            marker=dict(size=6),
+            mode='lines+markers+text',
+            line=dict(color='#ffb703', width=3, dash='dot'),
+            # 💫 Yellow markers with subtle black outline
+            marker=dict(size=8, color='#ffb703', line=dict(color='black', width=0.8)),
+            text=[f"{v:.1f}%" if not pd.isna(v) else "" for v in chart_df['avg_return']],
+            textposition="top center",
+            # 🟡 Bold yellow text labels
+            textfont=dict(color='#ffb703', size=11, family='Arial', weight='bold'),
             hovertemplate='%{y:.1f}%%<extra></extra>'
         ))
     else:
         fig.add_trace(go.Bar(
-            x=chart_df['month_name'], y=chart_df['avg_return'].round(1),
+            x=chart_df['month_name'],
+            y=chart_df['avg_return'].round(1),
             name='Historical Average',
-            marker=dict(color='#1f77b4', line=dict(color='black', width=1.2)),
-            opacity=0.5,
+            marker=dict(color='#ffb703', line=dict(color='black', width=1.2)),
+            text=[f"{v:.1f}%" if not pd.isna(v) else "" for v in chart_df['avg_return']],
+            textposition="outside",
+            # 🟡 Bold yellow text labels
+            textfont=dict(color='#ffb703', size=11, family='Arial', weight='bold'),
+            opacity=0.7,
             hovertemplate='%{y:.1f}%%<extra></extra>'
         ))
 
     # YTD
     if ytd_chart_type == "Bar":
         fig.add_trace(go.Bar(
-            x=chart_df['month_name'], y=chart_df['ytd_return'].round(1),
+            x=chart_df['month_name'],
+            y=chart_df['ytd_return'].round(1),
             name=f'YTD {current_year}',
             marker=dict(color='#1f77b4', line=dict(color='black', width=1.2)),
+            text=[f"{v:.1f}%" if not pd.isna(v) else "" for v in chart_df['ytd_return']],
+            textposition="outside",
+            textfont=dict(color='black', size=11, family='Arial', weight='bold'),
             hovertemplate='%{y:.1f}%%<extra></extra>'
         ))
     else:
         fig.add_trace(go.Scatter(
-            x=chart_df['month_name'], y=chart_df['ytd_return'].round(1),
+            x=chart_df['month_name'],
+            y=chart_df['ytd_return'].round(1),
             name=f'YTD {current_year}',
-            mode='lines+markers',
-            line=dict(color='black', width=2, dash='dot'),
-            marker=dict(size=6),
+            mode='lines+markers+text',
+            line=dict(color='#1f77b4', width=3),
+            marker=dict(size=7, color='#1f77b4', line=dict(color='black', width=1)),
+            text=[f"{v:.1f}%" if not pd.isna(v) else "" for v in chart_df['ytd_return']],
+            textposition="top center",
+            textfont=dict(color='#1f77b4', size=11, family='Arial', weight='bold'),
             hovertemplate='%{y:.1f}%%<extra></extra>'
         ))
+
+    # --- Fix bar overlap and ensure labels visible ---
+    fig.update_layout(
+        barmode='group',  # group bars side by side instead of stacking
+        bargap=0.2,       # spacing between groups
+        uniformtext_minsize=8,
+        uniformtext_mode='hide'
+    )
 
     # --- Layout styling ---
     fig.update_layout(
@@ -9400,6 +9435,9 @@ if page == "Seasonality":
     with col2:
         st.plotly_chart(fig, use_container_width=True)
 
+        
+        
+
     # ----------- AI Summary for Seasonality -----------
 
     st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
@@ -9432,6 +9470,7 @@ if page == "Seasonality":
     Instructions:
     - Compare each completed month’s YTD return against its historical monthly average.
     - Treat months before {current_month_name} as completed.
+    - Mention any statistics you think is necessary.
     - Do NOT mention “missing data” for months that have not yet occurred (November and December).
     - Instead, phrase future months as “historically strong/weak” if relevant, but not “lacking data.”
     - September and October should be analyzed if YTD data is available.
@@ -9698,3 +9737,203 @@ divergences, risks, and opportunities. Keep it under 3 paragraphs and analytical
     {global_summary}
     </div>
     """, unsafe_allow_html=True)
+
+if page == "Forecasting":
+    import streamlit as st
+    import pandas as pd
+    import numpy as np
+    from sklearn.linear_model import Ridge
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import mean_absolute_error, mean_squared_error
+    import plotly.graph_objects as go
+    from datetime import datetime
+    from openai import OpenAI
+
+    st.markdown("""
+    <div style="text-align:center; font-size:30px; font-weight:700; color:#000; margin-bottom:12px;">
+        Macro Indicator Forecasting
+    </div>
+    <div style="text-align:center; color:#444; margin-bottom:18px;">
+        Forecast macro indicators using related economic data with scenario simulation and AI summary.
+    </div>
+    """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns([2,5])
+
+    # --- 1. Region & Target Selection ---
+    regions = ["USA", "UK", "Japan", "Euro"]
+    with col1:
+        region = st.selectbox("Select Region", regions)
+
+        if region == "USA":
+            indicators = ["usa_rate","usa_cpi","usa_core_cpi","usa_gdp","usa_unemp","usa_ahe","usa_core_pce"]
+        elif region == "UK":
+            indicators = ["uk_rate","uk_cpi","uk_gdp","uk_unemp"]
+        elif region == "Japan":
+            indicators = ["jp_rate","jp_cpi","jp_gdp","jp_unemp"]
+        else:
+            indicators = ["eu_rate","eu_cpi","eu_gdp","eu_unemp"]
+
+        target = st.selectbox("Select Target Indicator", indicators)
+        lags = st.slider("Number of Lag Months", 1, 6, 3)
+        forecast_horizon = st.selectbox("Forecast Horizon", ["1M","3M","6M","12M"], index=1)
+
+    # --- 2. Define indicator relationships ---
+    forecast_inputs = {
+        "usa_rate": ["usa_cpi", "usa_core_pce", "usa_gdp", "usa_unemp"],
+        "usa_cpi": ["usa_rate", "usa_core_ppi", "usa_ahe"],
+        "usa_gdp": ["usa_rate", "usa_cpi", "usa_retail", "usa_trade"],
+        "usa_unemp": ["usa_gdp", "usa_nfp", "usa_jolts"],
+
+        "uk_rate": ["uk_cpi","uk_gdp","uk_unemp"],
+        "uk_cpi": ["uk_rate","uk_gdp"],
+        "uk_gdp": ["uk_rate","uk_cpi","uk_unemp"],
+        "uk_unemp": ["uk_gdp","uk_rate"],
+
+        "jp_rate": ["jp_cpi","jp_gdp","jp_unemp"],
+        "jp_cpi": ["jp_rate","jp_gdp"],
+        "jp_gdp": ["jp_rate","jp_cpi","jp_unemp"],
+        "jp_unemp": ["jp_gdp","jp_rate"],
+
+        "eu_rate": ["eu_cpi","eu_gdp","eu_unemp"],
+        "eu_cpi": ["eu_rate","eu_gdp"],
+        "eu_gdp": ["eu_rate","eu_cpi","eu_unemp"],
+        "eu_unemp": ["eu_gdp","eu_rate"]
+    }
+
+    input_codes = forecast_inputs.get(target, [])
+
+    # --- 3. Prepare lagged dataset with single-column extraction ---
+    def extract_series(df):
+        if isinstance(df, pd.Series):
+            return df.reset_index(drop=True)
+        elif isinstance(df, pd.DataFrame):
+            for col in ["value","close","adj close"]:
+                if col in df.columns:
+                    return df[col].reset_index(drop=True)
+            return df.iloc[:,0].reset_index(drop=True)  # fallback
+        else:
+            return pd.Series(df)
+
+    def prepare_data(target, input_codes, lags=3):
+        df = pd.DataFrame()
+        df[target] = extract_series(load_indicator_data(target))
+        for code in input_codes:
+            series = extract_series(load_indicator_data(code))
+            for lag in range(1,lags+1):
+                df[f"{code}_lag{lag}"] = series.shift(lag)
+        df.dropna(inplace=True)
+        return df
+
+    df = prepare_data(target, input_codes, lags)
+
+    if df.empty:
+        st.error("Insufficient data to generate forecast for this target.")
+        st.stop()
+
+    X = df.drop(columns=[target])
+    y = df[target]
+
+    train_size = int(0.8 * len(df))
+    X_train, X_test = X.iloc[:train_size], X.iloc[train_size:]
+    y_train, y_test = y.iloc[:train_size], y.iloc[train_size:]
+
+    # --- 4. Train model ---
+    model = Ridge()
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+    # --- 5. Metrics ---
+    mae = mean_absolute_error(y_test, y_pred)
+    mse = mean_squared_error(y_test, y_pred)
+    rmse = np.sqrt(mse)  # Works for all sklearn versions
+
+    st.write(f"**MAE:** {mae:.3f} | **RMSE:** {rmse:.3f}")
+
+    # --- 6. Forecast vs Actual Plot ---
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=y_test.index, y=y_test, mode='lines+markers', name='Actual'))
+    fig.add_trace(go.Scatter(x=y_test.index, y=y_pred, mode='lines+markers', name='Forecast'))
+    fig.update_layout(
+        title=f"{target} Forecast vs Actual",
+        xaxis_title="Time Index",
+        yaxis_title=target,
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        height=520
+    )
+    with col2:
+        st.plotly_chart(fig, use_container_width=True)
+
+    # --- 7. Next-period forecast / scenario ---
+    with col1:
+        st.markdown("### Scenario Simulation")
+        scenario_inputs = {}
+        for code in input_codes:
+            last_val = extract_series(load_indicator_data(code)).iloc[-1]
+            val = st.number_input(f"{code} Shock (+/-)", value=float(last_val))
+            scenario_inputs[code] = val
+
+        if st.button("Forecast Next Period"):
+            last_row = X.iloc[-1].copy()
+            for code in input_codes:
+                for lag in range(1,lags+1):
+                    col_name = f"{code}_lag{lag}"
+                    last_row[col_name] = scenario_inputs[code]
+            next_pred = model.predict(last_row.values.reshape(1,-1))[0]
+            st.write(f"Predicted next {target}: **{next_pred:.3f}**")
+
+    # --- 8. AI Summary ---
+    st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
+    st.markdown("### Forecast Summary")
+
+    client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+    forecast_table = "\n".join([f"{i}: Actual={a:.3f}, Forecast={f:.3f}" for i,a,f in zip(y_test.index, y_test, y_pred)])
+    prompt = f"""
+    You are a financial analyst. Provide a professional summary of the forecast for {target} in {region}.
+    Include interpretation of forecast accuracy, recent trends, and implications for the economy.
+    Here is the forecast data:
+    {forecast_table}
+    Keep it concise (4-6 sentences), analytical, and suitable for an investment research brief.
+    """
+
+    @st.cache_data(ttl=3600)
+    def generate_forecast_summary():
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role":"user","content":prompt}],
+                max_completion_tokens=250,
+                temperature=0.2
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            return f"⚠️ AI summary generation failed: {e}"
+
+    with st.spinner("Generating AI summary..."):
+        summary_text = generate_forecast_summary()
+        if "ai_summaries" not in st.session_state:
+            st.session_state["ai_summaries"] = []
+        entry = f"Forecast Summary ({datetime.now().strftime('%Y-%m-%d')}):\n{summary_text}"
+        if entry not in st.session_state["ai_summaries"]:
+            st.session_state["ai_summaries"].append(entry)
+
+        st.markdown(f"""
+        <div style="
+            background-color:#f8f9fa;
+            border-left:6px solid #1d3557;
+            border-radius:10px;
+            padding:18px 24px;
+            margin-top:10px;
+            font-size:15px;
+            font-family:'Inter','Segoe UI','Arial',sans-serif;
+            line-height:1.6;
+            color:#111;
+        ">
+        {summary_text}
+        </div>
+        """, unsafe_allow_html=True)
+
+    # --- 9. Download Forecast Table ---
+    forecast_df = pd.DataFrame({"Actual": y_test.values, "Forecast": y_pred})
+    st.download_button("Download Forecast Data", forecast_df.to_csv(), file_name=f"{target}_forecast.csv")
