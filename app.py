@@ -9559,7 +9559,7 @@ def generate_country_llm_summary(results: dict, country_name: str) -> str:
     )
 
     prompt = f"""
-    You are a senior macro-financial strategist writing a concise, data-driven
+    You are a senior macro financial strategist writing a concise, data-driven
     condition of the {country_name} economy. You are given the latest 1-year snapshot
     of various economic indicators.
 
