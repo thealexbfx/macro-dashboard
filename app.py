@@ -1572,14 +1572,6 @@ def get_usa_retail_sales_mom_data():
 def get_usa_trade_balance_data():
     return load_usa_data("USA_Trade_Balance.txt", freq="monthly", date_format="%B %Y")
     
-# ---------------------------
-# FRED API Setup
-# ---------------------------
-FRED_API_KEY = "3be1b836ee6f78badf0f0a5a4905ab73"   # <- put your key here once
-
-# ---------------------------
-# Yield Data Functions
-# ---------------------------
 
 @st.cache_data
 def get_usa_yield_data(series_id: str):
