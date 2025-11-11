@@ -533,7 +533,6 @@ def load_indicator_data(code):
 
             return pd.DataFrame()
 
-
 def analyze_series(df: pd.DataFrame, window: int = 12):
     """
     Compute statistical, trend, and regime metrics for a macro series.
@@ -590,46 +589,6 @@ def analyze_series(df: pd.DataFrame, window: int = 12):
         "regime": regime,
         "obs_count": len(df)
     }
-
-def simulate_scenario(df: pd.DataFrame, shock_value: float, shock_type: str = "absolute", periods: int = 12):
-    """
-    Simulate a macro scenario by applying a shock to the last value of a series
-    and projecting it forward.
-
-    Args:
-        df (pd.DataFrame): Must contain 'date' and 'value' columns.
-        shock_value (float): Amount of shock (absolute or percent).
-        shock_type (str): "absolute" or "percent".
-        periods (int): Number of periods to project forward.
-
-    Returns:
-        pd.DataFrame: Projected series with dates extended.
-    """
-    if df.empty or "value" not in df.columns:
-        return pd.DataFrame(columns=["date", "value"])
-
-    last_value = df["value"].iloc[-1]
-
-    # Determine projected values
-    proj_values = []
-    for i in range(periods):
-        if shock_type == "absolute":
-            last_value = last_value + shock_value
-        elif shock_type == "percent":
-            last_value = last_value * (1 + shock_value / 100)
-        proj_values.append(last_value)
-
-    # Create projected dates
-    last_date = df["date"].iloc[-1]
-    # Determine frequency (monthly or quarterly)
-    if df["date"].diff().median().days >= 80:  # approx quarterly
-        freq = 'Q'
-    else:
-        freq = 'M'
-    proj_dates = pd.date_range(start=last_date + pd.offsets.MonthBegin(1), periods=periods, freq=freq)
-
-    df_proj = pd.DataFrame({"date": proj_dates, "value": proj_values})
-    return df_proj
 
 
 # -------- Helper Functions --------
@@ -1898,7 +1857,6 @@ st.markdown("""
                 <a href="?page=Curve Regimes" target="_self">Curve Regimes</a>
                 <a href="?page=Seasonality" target="_self">Seasonality</a>
                 <a href="?page=Summary" target="_self">Summary</a>
-                <a href="?page=AP" target="_self">AP</a>
             </div>    
         </div>
     </div>    
