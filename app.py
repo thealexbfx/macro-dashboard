@@ -1880,17 +1880,6 @@ window.addEventListener('scroll', function() {
 query_params = st.query_params
 page = query_params.get("page", "Home")  # default to Home if not specified
 
-st.markdown("""
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const params = new URLSearchParams(window.location.search);
-    const page = params.get('page') || 'Home';
-    gtag('event', 'page_view', { 'page_name': page });
-});
-</script>
-""", unsafe_allow_html=True)
-
-
 # --- Main content wrapper to start scroll below header ---
 st.markdown('<div class="main-content">', unsafe_allow_html=True)
 
@@ -1950,12 +1939,13 @@ div[data-baseweb="input"]:hover {
 </style>
 """, unsafe_allow_html=True)
 
-# GA4 Measurement ID
+import streamlit as st
+import streamlit.components.v1 as components
+
 GA_MEASUREMENT_ID = "G-V0EWK424DW"
 
-# Inject Google Analytics script
-st.markdown(f"""
-<!-- Global site tag (gtag.js) - Google Analytics -->
+components.html(f"""
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -1963,7 +1953,8 @@ st.markdown(f"""
   gtag('js', new Date());
   gtag('config', '{GA_MEASUREMENT_ID}');
 </script>
-""", unsafe_allow_html=True)
+""", height=0)
+
 
 # --- Main Content Below Header ---
 
