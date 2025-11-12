@@ -1650,21 +1650,6 @@ st.set_page_config(
     initial_sidebar_state="auto"           # Optional: auto expand/collapse sidebar
 )
 
-# GA4 Measurement ID
-GA_MEASUREMENT_ID = "G-V0EWK424DW"
-
-# Inject Google Analytics script
-st.markdown(f"""
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
-  gtag('js', new Date());
-  gtag('config', '{GA_MEASUREMENT_ID}');
-</script>
-""", unsafe_allow_html=True)
-
 # --- Global Styles ---
 st.markdown("""
 <style>
@@ -1895,6 +1880,17 @@ window.addEventListener('scroll', function() {
 query_params = st.query_params
 page = query_params.get("page", "Home")  # default to Home if not specified
 
+st.markdown("""
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    const page = params.get('page') || 'Home';
+    gtag('event', 'page_view', { 'page_name': page });
+});
+</script>
+""", unsafe_allow_html=True)
+
+
 # --- Main content wrapper to start scroll below header ---
 st.markdown('<div class="main-content">', unsafe_allow_html=True)
 
@@ -1952,6 +1948,21 @@ div[data-baseweb="input"]:hover {
     border-color: #000000 !important;       /* Black on hover */
 }
 </style>
+""", unsafe_allow_html=True)
+
+# GA4 Measurement ID
+GA_MEASUREMENT_ID = "G-V0EWK424DW"
+
+# Inject Google Analytics script
+st.markdown(f"""
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{GA_MEASUREMENT_ID}');
+</script>
 """, unsafe_allow_html=True)
 
 # --- Main Content Below Header ---
