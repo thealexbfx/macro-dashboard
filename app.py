@@ -18,6 +18,7 @@ import plotly.graph_objects as go
 import streamlit.components.v1 as components
 import calendar
 from openai import OpenAI
+import streamlit.components.v1 as components
 
 
 load_dotenv()  # loads .env file
@@ -1650,18 +1651,10 @@ st.set_page_config(
     initial_sidebar_state="auto"           # Optional: auto expand/collapse sidebar
 )
 
-GA_MEASUREMENT_ID = "G-V0EWK424DW"
-components.html(f"""
-<!-- Google tag (gtag.js) -->
-https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}</script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
-  gtag('js', new Date());
-  gtag('config', '{GA_MEASUREMENT_ID}');
-</script>
+# --- Umami Analytics (add right here) ---
+components.html("""
+<script defer src="https://cloud.umami.is/script.js" data-website-id="4fd6c49f-bf1f-4823-870d-31e2ffe75961"></script>
 """, height=0)
-
 
 # --- Global Styles ---
 st.markdown("""
