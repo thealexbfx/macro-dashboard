@@ -19,6 +19,24 @@ import streamlit.components.v1 as components
 import calendar
 from openai import OpenAI
 
+import streamlit as st
+
+# GA4 Measurement ID
+GA_MEASUREMENT_ID = "G-V0EWK424DW"
+
+# Inject Google Analytics script
+st.markdown(f"""
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{GA_MEASUREMENT_ID}');
+</script>
+""", unsafe_allow_html=True)
+
+
 load_dotenv()  # loads .env file
 
 FRED_API_KEY = os.getenv("FRED_API_KEY")
