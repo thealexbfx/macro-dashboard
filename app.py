@@ -1863,6 +1863,7 @@ st.markdown("""
                 <a href="?page=Curve Regimes" target="_self">Curve Regimes</a>
                 <a href="?page=Seasonality" target="_self">Seasonality</a>
                 <a href="?page=Summary" target="_self">Summary</a>
+                <a href="?page=ESI" target="_self">ESI</a>
             </div>    
         </div>
     </div>    
@@ -9694,3 +9695,258 @@ divergences, risks, and opportunities. Keep it under 3 paragraphs and analytical
     </div>
     """, unsafe_allow_html=True)
 
+# -------- Economic Surprise Index (ESI) --------
+if page == "ESI":
+
+    st.markdown("""
+    <div style="text-align:center; font-size:30px; font-weight:700; color:#000; margin-bottom:12px;">
+        Economic Surprise Index (ESI)
+    </div>
+    <div style="text-align:center; color:#444; margin-bottom:18px;">
+        Calculates the surprise between actual and forecasted economic data, highlighting beats and misses for each indicator.
+    </div>
+    """, unsafe_allow_html=True)
+
+    import pandas as pd
+    from openai import OpenAI
+
+    # --- Load CSV ---
+    esi = pd.read_csv("ESI.csv")
+
+    # --- Calculate raw surprise ---
+    esi['Surprise'] = esi['Actual'] - esi['Forecast']
+
+    # --- Adjust for directionality ---
+    reverse_indicators = ["Unemployment Rate (%)"]
+    esi['Adjusted_Surprise'] = esi.apply(
+        lambda row: -row['Surprise'] if row['Indicator'] in reverse_indicators else row['Surprise'], axis=1
+    )
+
+    # --- Country Selector ---
+    countries = esi['Country'].unique()
+    selected_country = st.selectbox("Select Country", countries)
+
+    # --- Filter & sort by adjusted surprise ---
+    filtered_df = esi[esi['Country'] == selected_country].sort_values(
+        'Adjusted_Surprise', ascending=False
+    )
+
+    # --- Market sentiment mapping ---
+    def market_sentiment(indicator, surprise):
+        """
+        Returns market sentiment for Stocks, DXY, and Gold based on the indicator and its surprise.
+        Logic:
+        - If actual < forecast → Stocks & Gold = Bullish, DXY = Bearish
+        - If actual > forecast → Stocks & Gold = Bearish, DXY = Bullish
+        - Handles specific reversals for Unemployment Rate (%) and other labor data correctly
+        """
+
+        # Default
+        stocks, dxy, gold = 'Neutral','Neutral','Neutral'
+
+        # NFP / Labor indicators
+        if indicator in ["Non Farm Employment Change (Thousands)", "JOLTS Job Openings"]:
+            if surprise < 0:  # actual < forecast
+                stocks, dxy, gold = 'Bullish','Bearish','Bullish'
+            elif surprise > 0:  # actual > forecast
+                stocks, dxy, gold = 'Bearish','Bullish','Bearish'
+
+        # Unemployment Rate (higher = worse)
+        elif indicator == "Unemployment Rate (%)":
+            if surprise < 0:  # lower unemployment = positive
+                stocks, dxy, gold = 'Bullish','Bearish','Bullish'
+            elif surprise > 0:  # higher unemployment = negative
+                stocks, dxy, gold = 'Bearish','Bullish','Bearish'
+
+        # Average Hourly Earnings YoY
+        elif indicator == "Average Hourly Earnings YoY (%)":
+            if surprise < 0:  # below forecast → positive for markets
+                stocks, dxy, gold = 'Bullish','Bearish','Bullish'
+            elif surprise > 0:  # above forecast → negative for markets
+                stocks, dxy, gold = 'Bearish','Bullish','Bearish'
+
+        # CPI YoY / PPI YoY
+        elif indicator in ["CPI YoY (%)", "PPI YoY (%)"]:
+            if surprise < 0:  # below forecast → positive
+                stocks, dxy, gold = 'Bullish','Bearish','Bullish'
+            elif surprise > 0:  # above forecast → negative
+                stocks, dxy, gold = 'Bearish','Bullish','Bearish'
+
+        # PMIs
+        elif indicator in ["Manufacturing PMI", "ISM Services PMI"]:
+            if surprise > 0:  # above forecast → positive growth → stocks/DXY up, gold down
+                stocks, dxy, gold = 'Bullish','Bullish','Bearish'
+            elif surprise < 0:
+                stocks, dxy, gold = 'Bearish','Bearish','Bullish'
+
+        # GDP QoQ, Retail Sales, Consumer Sentiment
+        elif indicator in ["GDP QoQ (%)", "Retail Sales MoM (%)", "UoM Consumer Sentiment"]:
+            if surprise > 0:  # above forecast → positive
+                stocks, dxy, gold = 'Bullish','Bullish','Bearish'
+            elif surprise < 0:
+                stocks, dxy, gold = 'Bearish','Bearish','Bullish'
+
+        # If surprise == 0
+        if surprise == 0:
+            stocks, dxy, gold = 'Neutral','Neutral','Neutral'
+
+        return stocks, dxy, gold
+
+
+    # --- Add sentiment columns ---
+    filtered_df[['Stocks','DXY','Gold']] = filtered_df.apply(
+        lambda row: pd.Series(market_sentiment(row['Indicator'], row['Adjusted_Surprise'])), axis=1
+    )
+
+    # --- Compute Net Market Sentiment ---
+    def compute_net_sentiment(df):
+        totals = {}
+        for col in ["Stocks","DXY","Gold"]:
+            counts = df[col].value_counts()
+            bulls = counts.get('Bullish', 0)
+            bears = counts.get('Bearish', 0)
+            if bulls > bears:
+                totals[col] = "Bullish"
+            elif bears > bulls:
+                totals[col] = "Bearish"
+            else:
+                totals[col] = "Neutral"
+        return totals
+
+    net_sentiment = compute_net_sentiment(filtered_df)
+
+    # --- Table rendering ---
+    def render_esi_table(df):
+        df = df[['Indicator','Actual','Forecast','Adjusted_Surprise','Stocks','DXY','Gold']].copy()
+        df.rename(columns={'Adjusted_Surprise':'Surprise'}, inplace=True)
+        df = df.sort_values('Surprise', ascending=False).reset_index(drop=True)
+
+        positive_count = (df['Surprise']>0).sum()
+        negative_count = (df['Surprise']<0).sum()
+        total_surprise = positive_count - negative_count
+
+        total_label_color = "#f5f5f5"
+        total_value_color = "#c5f2ce" if total_surprise>0 else "#f8c9c9" if total_surprise<0 else "#f0f0f0"
+
+        html = f"""
+        <style>
+        .esi-table {{ border-collapse:collapse; width:100%; font-family:Inter, Arial, sans-serif; color:#000; font-size:12px; }}
+        .esi-table th {{ border:1px solid #000; border-bottom:2px solid #000; padding:4px; text-align:center; background-color:#f5f5f5; font-weight:700; position:sticky; top:0; z-index:2; font-size:12px; }}
+        .esi-table td {{ border:1px solid #000; padding:4px; text-align:center; color:#000; font-size:12px; }}
+        .total-label {{ font-weight:700; background-color:{total_label_color}; text-align:center; border-top:2px solid #000; font-size:12px; }}
+        .total-value {{ font-weight:700; background-color:{total_value_color}; text-align:center; border-top:2px solid #000; font-size:12px; }}
+        </style>
+
+        <table class="esi-table">
+        <thead><tr>"""
+        for col in df.columns:
+            html += f"<th>{col}</th>"
+        html += "</tr></thead><tbody>"
+
+        for _, row in df.iterrows():
+            html += "<tr>"
+            for col in df.columns:
+                val = row[col]
+                if col=="Surprise":
+                    color = "#c5f2ce" if val>0 else "#f8c9c9" if val<0 else "#f0f0f0"
+                    html += f"<td style='background-color:{color}; font-weight:600;'>{val:+.2f}</td>"
+                elif col in ["Stocks","DXY","Gold"]:
+                    color = "#c5f2ce" if val=="Bullish" else "#f8c9c9" if val=="Bearish" else "#f0f0f0"
+                    html += f"<td style='background-color:{color}; font-weight:600;'>{val}</td>"
+                elif isinstance(val,(int,float)):
+                    html += f"<td>{val:.2f}</td>"
+                else:
+                    html += f"<td>{val}</td>"
+            html += "</tr>"
+
+        # Total Surprise row
+        html += f"""
+        <tr>
+            <td colspan="3" class="total-label">Total Surprise</td>
+            <td class="total-value">{total_surprise:+d}</td>
+            <td colspan="3"></td>
+        </tr>
+        """
+
+        # Net Market Sentiment row
+        html += "<tr>"
+        html += f"<td colspan='4' class='total-label'>Net Market Sentiment</td>"
+        for col in ["Stocks","DXY","Gold"]:
+            val = net_sentiment[col]
+            color = "#c5f2ce" if val=="Bullish" else "#f8c9c9" if val=="Bearish" else "#f0f0f0"
+            html += f"<td style='background-color:{color}; font-weight:700; text-align:center;'>{val}</td>"
+        html += "</tr>"
+
+        html += "</tbody></table>"
+        return html
+
+
+    st.markdown(render_esi_table(filtered_df), unsafe_allow_html=True)
+
+    # --- AI Summary ---
+    st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
+    st.markdown("### ESI Summary")
+
+    top_pos = filtered_df.sort_values('Surprise', ascending=False).head(3)
+    top_neg = filtered_df.sort_values('Surprise').head(3)
+
+    def format_records_with_markets(df):
+        records = []
+        for _, row in df.iterrows():
+            records.append({
+                'Indicator': row['Indicator'],
+                'Surprise': f"{row['Surprise']:+.2f}",
+                'Stocks': row['Stocks'],
+                'DXY': row['DXY'],
+                'Gold': row['Gold']
+            })
+        return records
+
+    top_pos_records = format_records_with_markets(top_pos)
+    top_neg_records = format_records_with_markets(top_neg)
+
+    summary_text = f"Top positive surprises: {top_pos_records}. Top negative surprises: {top_neg_records}."
+
+    client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+
+    prompt = f"""
+    You are a professional macro strategist summarizing economic surprises.
+
+    Data summary: {summary_text}
+
+    Write a concise 4–6 sentence paragraph describing which indicators beat or missed expectations, highlighting the most notable surprises. 
+    For each indicator, also include the expected market reactions for Stocks, DXY, and Gold. Keep the tone professional and analytical, suitable for a macro research dashboard.
+    Don't mention points or units, just the numbers. Each indicator should only be mentioned once, clearly as either a positive or negative surprise. Avoid contradictory statements.
+    """
+
+    @st.cache_data(ttl=3600, show_spinner=False)
+    def generate_esi_summary(prompt_text):
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt_text}],
+                max_completion_tokens=350,
+                temperature=0.25
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            return f"⚠️ Summary generation failed: {e}"
+
+    with st.spinner("Generating ESI summary with market reactions..."):
+        esi_summary = generate_esi_summary(prompt)
+
+    st.markdown(f"""
+    <div style="
+        background-color:#f8f9fa;
+        border-left:6px solid #1d3557;
+        border-radius:10px;
+        padding:18px 24px;
+        margin-top:10px;
+        font-size:15px;
+        font-family:'Inter','Segoe UI','Arial',sans-serif;
+        line-height:1.6;
+        color:#111;
+    ">
+    {esi_summary}
+    </div>
+    """, unsafe_allow_html=True)
