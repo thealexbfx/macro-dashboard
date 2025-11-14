@@ -9735,6 +9735,7 @@ if page == "ESI":
     fx_map = {
         "USA": ["DXY", "Gold"],
         "United States": ["DXY", "Gold"],
+        "US": ["DXY", "Gold"],
 
         "United Kingdom": ["GBPUSD"],
         "UK": ["GBPUSD"],
