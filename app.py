@@ -1835,35 +1835,35 @@ st.markdown("""
             <button class="dropdown-btn">Countries ▾</button>
             <div class="dropdown-content">
                 <a href="?page=USA" target="_self">USA</a>
-                <a href="?page=Japan" target="_self">Japan</a>
-                <a href="?page=UK" target="_self">UK</a>
                 <a href="?page=EURO" target="_self">Euro Area</a>
+                <a href="?page=UK" target="_self">UK</a>
+                <a href="?page=Japan" target="_self">Japan</a>
             </div>
         </div>
         <div class="dropdown">
             <button class="dropdown-btn">Asset Classes ▾</button>
             <div class="dropdown-content">
-                <a href="?page=Equities" target="_self">Equities</a>
-                <a href="?page=Stocks" target="_self">Stocks</a>
-                <a href="?page=Commodities" target="_self">Commodities</a>
-                <a href="?page=Bonds" target="_self">Bonds</a>
                 <a href="?page=FX%20Rates" target="_self">FX Rates</a>
+                <a href="?page=Equities" target="_self">Equities</a>
+                <a href="?page=Bonds" target="_self">Bonds</a>
+                <a href="?page=Commodities" target="_self">Commodities</a>
+                <a href="?page=Stocks" target="_self">Stocks</a>
                 <a href="?page=Crypto" target="_self">Crypto</a>
             </div>
         </div>
         <div class="dropdown">
             <button class="dropdown-btn">Tools + Features ▾</button>
             <div class="dropdown-content">
+                <a href="?page=ESI" target="_self">ESI</a>
                 <a href="?page=Compare" target="_self">Compare</a>
-                <a href="?page=Calendar" target="_self">Calendar</a>
+                <a href="?page=Seasonality" target="_self">Seasonality</a>
                 <a href="?page=Cycle" target="_self">Cycle</a>
-                <a href="?page=Reports" target="_self">Reports</a>
                 <a href="?page=Scenarios" target="_self">Scenarios</a>
                 <a href="?page=Yield Curve" target="_self">Yield Curve</a>
                 <a href="?page=Curve Regimes" target="_self">Curve Regimes</a>
-                <a href="?page=Seasonality" target="_self">Seasonality</a>
+                <a href="?page=Calendar" target="_self">Calendar</a>
                 <a href="?page=Summary" target="_self">Summary</a>
-                <a href="?page=ESI" target="_self">ESI</a>
+                <a href="?page=Reports" target="_self">Reports</a>
             </div>    
         </div>
     </div>    
@@ -8380,48 +8380,150 @@ if page == "Cycle":
         </div>
     </div>
     """, unsafe_allow_html=True)
+    
+    # ---- Asset Position Logic (Matches ESI Rules) ----
+    def asset_signal(indicator_name, score):
+        # Default
+        if score > 0:
+            stocks = "Bullish"
+            dxy = "Bullish"
+            gold = "Bearish"
+        elif score < 0:
+            stocks = "Bearish"
+            dxy = "Bearish"
+            gold = "Bullish"
+        else:
+            stocks = dxy = gold = "Neutral"
+
+        # --- Override logic based on indicator category ---
+
+        # Labor market
+        if indicator_name in ["Unemployment", "NFP Avg"]:
+            if score < 0:   # weak labor
+                stocks, dxy, gold = "Bullish", "Bearish", "Bullish"
+            elif score > 0:  # strong labor
+                stocks, dxy, gold = "Bearish", "Bullish", "Bearish"
+
+        # Inflation (CPI, PPI)
+        if indicator_name in ["CPI Level", "CPI Trend"]:
+            if score > 0:  # rising inflation
+                stocks, dxy, gold = "Bearish", "Bullish", "Bearish"
+            elif score < 0:  # falling inflation
+                stocks, dxy, gold = "Bullish", "Bearish", "Bullish"
+
+        # PMI (growth sentiment)
+        if indicator_name in ["PMI", "PMI Trend"]:
+            if score > 0:  # strong PMI
+                stocks, dxy, gold = "Bullish", "Bullish", "Bearish"
+            elif score < 0:  # weak PMI
+                stocks, dxy, gold = "Bearish", "Bearish", "Bullish"
+
+        # Yield curve inversion
+        if indicator_name == "Yield Curve":
+            if score < 0:  # inverted
+                stocks, dxy, gold = "Bearish", "Bearish", "Bullish"
+
+        return stocks, dxy, gold
 
 
     # ---- Professional HTML Table ----
     def render_cycle_html_table(details, total_score):
         html = '<table style="border-collapse: collapse; width:100%; font-family: Arial;">'
+
         # Header
         html += '<tr>'
-        for h in ["Indicator", "Value", "Score"]:
-            html += f'<th style="font-weight:bold; border:1px solid black; padding:6px; text-align:center; background-color:#d9d9d9;">{h}</th>'
+        for h in ["Indicator", "Value", "Score", "Stocks", "DXY", "Gold"]:
+            html += f'''
+            <th style="font-weight:bold; border:1px solid black; padding:6px;
+            text-align:center; background-color:#d9d9d9;">{h}</th>'''
         html += '</tr>'
-        
+
+
+        # ---- Color helper ----
+        def signal_color(sig):
+            if sig == "Bullish": return "#b6f0c3"   # same green as score
+            if sig == "Bearish": return "#f7b6b6"   # same red as score
+            return "#f0f0f0"                        # same neutral grey
+
+
         # Rows
         for k, (val, scr) in details.items():
-            # Determine color
-            if scr > 0:
-                color = "#b6f0c3"  # green
-            elif scr < 0:
-                color = "#f7b6b6"  # red
-            else:
-                color = "#f0f0f0"  # gray
-            
+
+            # Score color
+            if scr > 0: score_color = "#b6f0c3"
+            elif scr < 0: score_color = "#f7b6b6"
+            else: score_color = "#f0f0f0"
+
+            # Asset signals
+            stocks_sig, dxy_sig, gold_sig = asset_signal(k, scr)
+
             html += '<tr>'
-            html += f'<td style="font-weight:bold; border:1px solid black; padding:6px; text-align:center; background-color:#F0F0F0;">{k}</td>'
-            html += f'<td style="border:1px solid black; padding:6px; text-align:center; background-color:{color};">{val}</td>'
-            html += f'<td style="border:1px solid black; padding:6px; text-align:center; background-color:{color};">{scr:+.2f}</td>'
+
+            html += f'''
+            <td style="font-weight:bold; border:1px solid black; padding:6px;
+            text-align:center; background-color:#F0F0F0;">{k}</td>'''
+
+            html += f'''
+            <td style="border:1px solid black; padding:6px; text-align:center;
+            background-color:{score_color};">{val}</td>'''
+
+            html += f'''
+            <td style="border:1px solid black; padding:6px; text-align:center;
+            background-color:{score_color};">{scr:+.2f}</td>'''
+
+            # Stocks
+            html += f'''
+            <td style="border:1px solid black; padding:6px; text-align:center;
+            background-color:{signal_color(stocks_sig)};">{stocks_sig}</td>'''
+
+            # DXY
+            html += f'''
+            <td style="border:1px solid black; padding:6px; text-align:center;
+            background-color:{signal_color(dxy_sig)};">{dxy_sig}</td>'''
+
+            # Gold
+            html += f'''
+            <td style="border:1px solid black; padding:6px; text-align:center;
+            background-color:{signal_color(gold_sig)};">{gold_sig}</td>'''
+
             html += '</tr>'
-        
-        # Total row
-        if total_score > 0:
-            total_color = "#b6f0c3"
-        elif total_score < 0:
-            total_color = "#f7b6b6"
-        else:
-            total_color = "#f0f0f0"
-        
+
+
+        # ---- TOTAL row ----
+        if total_score > 0: total_color = "#b6f0c3"
+        elif total_score < 0: total_color = "#f7b6b6"
+        else: total_color = "#f0f0f0"
+
+        total_stocks, total_dxy, total_gold = asset_signal("TOTAL", total_score)
+
         html += '<tr>'
-        html += f'<td colspan="2" style="font-weight:bold; border:1px solid black; padding:6px; text-align:center; background-color:#d9d9d9;">TOTAL</td>'
-        html += f'<td style="font-weight:bold; border:1px solid black; padding:6px; text-align:center; background-color:{total_color};">{total_score:+.2f}</td>'
+        html += f'''
+        <td colspan="2" style="font-weight:bold; border:1px solid black;
+        padding:6px; text-align:center; background-color:#d9d9d9;">TOTAL</td>'''
+
+        html += f'''
+        <td style="font-weight:bold; border:1px solid black; padding:6px;
+        text-align:center; background-color:{total_color};">{total_score:+.2f}</td>'''
+
+        # Total signals (colored)
+        html += f'''
+        <td style="border:1px solid black; padding:6px; text-align:center;
+        background-color:{signal_color(total_stocks)};">{total_stocks}</td>'''
+
+        html += f'''
+        <td style="border:1px solid black; padding:6px; text-align:center;
+        background-color:{signal_color(total_dxy)};">{total_dxy}</td>'''
+
+        html += f'''
+        <td style="border:1px solid black; padding:6px; text-align:center;
+        background-color:{signal_color(total_gold)};">{total_gold}</td>'''
+
         html += '</tr>'
-        
+
         html += '</table>'
         return html
+
+
 
     # Display table
     st.markdown(render_cycle_html_table(details, total_score), unsafe_allow_html=True)
