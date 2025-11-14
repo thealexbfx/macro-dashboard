@@ -8424,6 +8424,34 @@ if page == "Cycle":
                 stocks, dxy, gold = "Bearish", "Bearish", "Bullish"
 
         return stocks, dxy, gold
+        
+    def total_asset_signal(details):
+        bullish_count = 0
+        bearish_count = 0
+        
+        # Count individual signals
+        for indicator_name, (val, score) in details.items():
+            stocks_sig, dxy_sig, gold_sig = asset_signal(indicator_name, score)
+            
+            if stocks_sig == "Bullish":
+                bullish_count += 1
+            elif stocks_sig == "Bearish":
+                bearish_count += 1
+
+        # Decide TOTAL signals
+        if bullish_count > bearish_count:
+            total_stocks = "Bullish"
+        elif bearish_count > bullish_count:
+            total_stocks = "Bearish"
+        else:
+            total_stocks = "Neutral"
+
+        # For simplicity, DXY and Gold can be neutral or you can do similar majority logic
+        total_dxy = "Neutral"
+        total_gold = "Neutral"
+
+        return total_stocks, total_dxy, total_gold
+
 
 
     # ---- Professional HTML Table ----
@@ -8494,7 +8522,7 @@ if page == "Cycle":
         elif total_score < 0: total_color = "#f7b6b6"
         else: total_color = "#f0f0f0"
 
-        total_stocks, total_dxy, total_gold = asset_signal("TOTAL", total_score)
+        total_stocks, total_dxy, total_gold = total_asset_signal(details)
 
         html += '<tr>'
         html += f'''
