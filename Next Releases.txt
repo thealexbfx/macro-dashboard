@@ -8,13 +8,13 @@ Unemployment Rate: Dec 2nd
 
 Japan:
 CPI YoY: Nov 20th
-GDP QoQ: Nov 13th
+GDP QoQ: Nov 16th
 Interest Rate: Dec 19th
 Unemployment Rate: Nov 27th
 
 UK:
 CPI YoY: Nov 19th
-GDP QoQ: Nov 13th
+GDP QoQ: Dec 22nd
 Interest Rate: Dec 18th
 Unemployment Rate: Dec 16th
 

@@ -9729,79 +9729,145 @@ if page == "ESI":
     # --- Filter & sort by adjusted surprise ---
     filtered_df = esi[esi['Country'] == selected_country].sort_values(
         'Adjusted_Surprise', ascending=False
-    )
+    ).reset_index(drop=True)
 
-    # --- Market sentiment mapping ---
-    def market_sentiment(indicator, surprise):
+    # --- FX mapping per country (order matters for display) ---
+    fx_map = {
+        "USA": ["DXY", "Gold"],
+        "United States": ["DXY", "Gold"],
+
+        "United Kingdom": ["GBPUSD"],
+        "UK": ["GBPUSD"],
+
+        "Euro Area": ["EURUSD"],
+        "Euro area": ["EURUSD"],
+        "Eurozone": ["EURUSD"],
+        "Euro Zone": ["EURUSD"],
+        "EURO": ["EURUSD"],
+
+        "Japan": ["USDJPY"]
+    }
+
+
+    # Choose FX cols for the selected country (default to DXY/Gold for safety)
+    fx_cols = fx_map.get(selected_country, [])
+
+    # --- Market sentiment mapping (now accepts country and adapts FX behavior) ---
+    def market_sentiment(indicator, surprise, country):
         """
-        Returns market sentiment for Stocks, DXY, and Gold based on the indicator and its surprise.
-        Logic:
-        - If actual < forecast → Stocks & Gold = Bullish, DXY = Bearish
-        - If actual > forecast → Stocks & Gold = Bearish, DXY = Bullish
-        - Handles specific reversals for Unemployment Rate (%) and other labor data correctly
+        Returns a tuple with Stocks and 1 or 2 FX sentiments depending on country.
+        For Japan, USDJPY should be reversed: a positive surprise for Japan -> JPY stronger -> USDJPY Bearish.
         """
+        # Base default
+        stocks_base = fx_base = "Neutral"
 
-        # Default
-        stocks, dxy, gold = 'Neutral','Neutral','Neutral'
+        # Generic directional logic (most indicators: actual < forecast => positive (surprise < 0)?)
+        # NOTE: here 'surprise' is Already Adjusted_Surprise (directional adjustments applied).
+        if surprise < 0:
+            stocks_base, fx_base = "Bullish", "Bearish"
+        elif surprise > 0:
+            stocks_base, fx_base = "Bearish", "Bullish"
+        else:
+            stocks_base, fx_base = "Neutral", "Neutral"
 
-        # NFP / Labor indicators
+        # Indicator-specific overrides
         if indicator in ["Non Farm Employment Change (Thousands)", "JOLTS Job Openings"]:
-            if surprise < 0:  # actual < forecast
-                stocks, dxy, gold = 'Bullish','Bearish','Bullish'
-            elif surprise > 0:  # actual > forecast
-                stocks, dxy, gold = 'Bearish','Bullish','Bearish'
+            # Strong labor prints (surprise > 0) typically tighten -> negative for stocks
+            if surprise < 0:
+                stocks_base, fx_base = "Bullish", "Bearish"
+            elif surprise > 0:
+                stocks_base, fx_base = "Bearish", "Bullish"
 
-        # Unemployment Rate (higher = worse)
         elif indicator == "Unemployment Rate (%)":
-            if surprise < 0:  # lower unemployment = positive
-                stocks, dxy, gold = 'Bullish','Bearish','Bullish'
-            elif surprise > 0:  # higher unemployment = negative
-                stocks, dxy, gold = 'Bearish','Bullish','Bearish'
+            # Lower unemployment than expected -> positive for markets
+            if surprise < 0:
+                stocks_base, fx_base = "Bullish", "Bearish"
+            elif surprise > 0:
+                stocks_base, fx_base = "Bearish", "Bullish"
 
-        # Average Hourly Earnings YoY
         elif indicator == "Average Hourly Earnings YoY (%)":
-            if surprise < 0:  # below forecast → positive for markets
-                stocks, dxy, gold = 'Bullish','Bearish','Bullish'
-            elif surprise > 0:  # above forecast → negative for markets
-                stocks, dxy, gold = 'Bearish','Bullish','Bearish'
+            # Higher wages than expected -> inflationary -> negative
+            if surprise < 0:
+                stocks_base, fx_base = "Bullish", "Bearish"
+            elif surprise > 0:
+                stocks_base, fx_base = "Bearish", "Bullish"
 
-        # CPI YoY / PPI YoY
         elif indicator in ["CPI YoY (%)", "PPI YoY (%)"]:
-            if surprise < 0:  # below forecast → positive
-                stocks, dxy, gold = 'Bullish','Bearish','Bullish'
-            elif surprise > 0:  # above forecast → negative
-                stocks, dxy, gold = 'Bearish','Bullish','Bearish'
+            if surprise < 0:
+                stocks_base, fx_base = "Bullish", "Bearish"
+            elif surprise > 0:
+                stocks_base, fx_base = "Bearish", "Bullish"
 
-        # PMIs
         elif indicator in ["Manufacturing PMI", "ISM Services PMI"]:
-            if surprise > 0:  # above forecast → positive growth → stocks/DXY up, gold down
-                stocks, dxy, gold = 'Bullish','Bullish','Bearish'
+            # PMI above expectations = growth surprise -> positive for stocks & local FX (usually)
+            if surprise > 0:
+                stocks_base, fx_base = "Bullish", "Bullish"
             elif surprise < 0:
-                stocks, dxy, gold = 'Bearish','Bearish','Bullish'
+                stocks_base, fx_base = "Bearish", "Bearish"
 
-        # GDP QoQ, Retail Sales, Consumer Sentiment
         elif indicator in ["GDP QoQ (%)", "Retail Sales MoM (%)", "UoM Consumer Sentiment"]:
-            if surprise > 0:  # above forecast → positive
-                stocks, dxy, gold = 'Bullish','Bullish','Bearish'
+            if surprise > 0:
+                stocks_base, fx_base = "Bullish", "Bullish"
             elif surprise < 0:
-                stocks, dxy, gold = 'Bearish','Bearish','Bullish'
+                stocks_base, fx_base = "Bearish", "Bearish"
 
-        # If surprise == 0
-        if surprise == 0:
-            stocks, dxy, gold = 'Neutral','Neutral','Neutral'
+        # Compute FX final sentiment, with special handling for Japan
+        fx_final = fx_base
 
-        return stocks, dxy, gold
+        # For Japan: a positive surprise for Japan strengthens JPY -> USDJPY falls (Bearish for USDJPY)
+        if country in ["Japan"]:
+            # invert fx sentiment for USDJPY specifically
+            if fx_base == "Bullish":
+                fx_final = "Bearish"
+            elif fx_base == "Bearish":
+                fx_final = "Bullish"
+            else:
+                fx_final = "Neutral"
 
+        # Return appropriate tuple depending on how many fx columns are used for country
+        if len(fx_cols) == 2:
+            # For USA: we will use the same fx_final for both DXY and Gold (Gold uses similar mapping here).
+            # You may refine Gold logic separately if desired.
+            # Keep Gold inverse for risk-off scenarios? For simplicity use fx_final for DXY and inverse for Gold:
+            # But to remain consistent with prior behaviour, we map:
+            # - If fx_final bullish -> DXY bullish, Gold bearish (risk-on)
+            # - If fx_final bearish -> DXY bearish, Gold bullish
+            if fx_final == "Bullish":
+                dxy_sent, gold_sent = "Bullish", "Bearish"
+            elif fx_final == "Bearish":
+                dxy_sent, gold_sent = "Bearish", "Bullish"
+            else:
+                dxy_sent, gold_sent = "Neutral", "Neutral"
+            return stocks_base, dxy_sent, gold_sent
 
-    # --- Add sentiment columns ---
-    filtered_df[['Stocks','DXY','Gold']] = filtered_df.apply(
-        lambda row: pd.Series(market_sentiment(row['Indicator'], row['Adjusted_Surprise'])), axis=1
-    )
+        elif len(fx_cols) == 1:
+            # Single FX column (e.g., GBPUSD, EURUSD, USDJPY)
+            return stocks_base, fx_final
 
-    # --- Compute Net Market Sentiment ---
-    def compute_net_sentiment(df):
+        else:
+            # fallback: only stocks
+            return (stocks_base,)
+
+    # --- Add sentiment columns dynamically ---
+    def apply_sentiment_row(row):
+        res = market_sentiment(row['Indicator'], row['Adjusted_Surprise'], selected_country)
+        # Normalize to a consistent-length series depending on fx_cols
+        if len(fx_cols) == 2:
+            return pd.Series([res[0], res[1], res[2]])
+        elif len(fx_cols) == 1:
+            return pd.Series([res[0], res[1]])
+        else:
+            return pd.Series([res[0]])
+
+    # Compose column names for sentiment assignment
+    sentiment_columns = ['Stocks'] + fx_cols
+    # Apply sentiments
+    filtered_df[sentiment_columns] = filtered_df.apply(apply_sentiment_row, axis=1)
+
+    # --- Compute Net Market Sentiment dynamically ---
+    def compute_net_sentiment_dynamic(df, columns):
         totals = {}
-        for col in ["Stocks","DXY","Gold"]:
+        for col in columns:
             counts = df[col].value_counts()
             bulls = counts.get('Bullish', 0)
             bears = counts.get('Bearish', 0)
@@ -9813,16 +9879,20 @@ if page == "ESI":
                 totals[col] = "Neutral"
         return totals
 
-    net_sentiment = compute_net_sentiment(filtered_df)
+    net_sentiment = compute_net_sentiment_dynamic(filtered_df, sentiment_columns)
 
-    # --- Table rendering ---
-    def render_esi_table(df):
-        df = df[['Indicator','Actual','Forecast','Adjusted_Surprise','Stocks','DXY','Gold']].copy()
-        df.rename(columns={'Adjusted_Surprise':'Surprise'}, inplace=True)
-        df = df.sort_values('Surprise', ascending=False).reset_index(drop=True)
+    # --- Table rendering (dynamic columns) ---
+    def render_esi_table(df, fx_columns, net_sent):
+        # Build columns to show
+        cols = ['Indicator','Actual','Forecast','Adjusted_Surprise','Stocks'] + fx_columns
+        # Safe guard: if any of those cols are missing, intersect
+        cols = [c for c in cols if c in df.columns]
+        df_display = df[cols].copy()
+        df_display.rename(columns={'Adjusted_Surprise':'Surprise'}, inplace=True)
+        df_display = df_display.sort_values('Surprise', ascending=False).reset_index(drop=True)
 
-        positive_count = (df['Surprise']>0).sum()
-        negative_count = (df['Surprise']<0).sum()
+        positive_count = (df_display['Surprise']>0).sum()
+        negative_count = (df_display['Surprise']<0).sum()
         total_surprise = positive_count - negative_count
 
         total_label_color = "#f5f5f5"
@@ -9831,48 +9901,53 @@ if page == "ESI":
         html = f"""
         <style>
         .esi-table {{ border-collapse:collapse; width:100%; font-family:Inter, Arial, sans-serif; color:#000; font-size:12px; }}
-        .esi-table th {{ border:1px solid #000; border-bottom:2px solid #000; padding:4px; text-align:center; background-color:#f5f5f5; font-weight:700; position:sticky; top:0; z-index:2; font-size:12px; }}
-        .esi-table td {{ border:1px solid #000; padding:4px; text-align:center; color:#000; font-size:12px; }}
+        .esi-table th {{ border:1px solid #000; border-bottom:2px solid #000; padding:6px; text-align:center; background-color:#f5f5f5; font-weight:700; position:sticky; top:0; z-index:2; font-size:12px; }}
+        .esi-table td {{ border:1px solid #000; padding:6px; text-align:center; color:#000; font-size:12px; }}
         .total-label {{ font-weight:700; background-color:{total_label_color}; text-align:center; border-top:2px solid #000; font-size:12px; }}
         .total-value {{ font-weight:700; background-color:{total_value_color}; text-align:center; border-top:2px solid #000; font-size:12px; }}
         </style>
 
         <table class="esi-table">
         <thead><tr>"""
-        for col in df.columns:
+        for col in df_display.columns:
             html += f"<th>{col}</th>"
         html += "</tr></thead><tbody>"
 
-        for _, row in df.iterrows():
+        for _, row in df_display.iterrows():
             html += "<tr>"
-            for col in df.columns:
+            for col in df_display.columns:
                 val = row[col]
-                if col=="Surprise":
+                # Surprise coloring
+                if col == "Surprise":
                     color = "#c5f2ce" if val>0 else "#f8c9c9" if val<0 else "#f0f0f0"
                     html += f"<td style='background-color:{color}; font-weight:600;'>{val:+.2f}</td>"
-                elif col in ["Stocks","DXY","Gold"]:
-                    color = "#c5f2ce" if val=="Bullish" else "#f8c9c9" if val=="Bearish" else "#f0f0f0"
+                # Market sentiment coloring for Stocks + FXs
+                elif col in ['Stocks'] + fx_columns:
+                    color = "#c5f2ce" if val == "Bullish" else "#f8c9c9" if val == "Bearish" else "#f0f0f0"
                     html += f"<td style='background-color:{color}; font-weight:600;'>{val}</td>"
-                elif isinstance(val,(int,float)):
+                # Numeric formatting
+                elif isinstance(val, (int, float)):
                     html += f"<td>{val:.2f}</td>"
                 else:
                     html += f"<td>{val}</td>"
             html += "</tr>"
 
         # Total Surprise row
+        colspan_after = max(0, len(df_display.columns) - 4)
         html += f"""
         <tr>
             <td colspan="3" class="total-label">Total Surprise</td>
             <td class="total-value">{total_surprise:+d}</td>
-            <td colspan="3"></td>
+            <td colspan="{colspan_after}"></td>
         </tr>
         """
 
         # Net Market Sentiment row
         html += "<tr>"
         html += f"<td colspan='4' class='total-label'>Net Market Sentiment</td>"
-        for col in ["Stocks","DXY","Gold"]:
-            val = net_sentiment[col]
+        # For each sentiment column, display net_sent value
+        for col in ['Stocks'] + fx_columns:
+            val = net_sent.get(col, "Neutral")
             color = "#c5f2ce" if val=="Bullish" else "#f8c9c9" if val=="Bearish" else "#f0f0f0"
             html += f"<td style='background-color:{color}; font-weight:700; text-align:center;'>{val}</td>"
         html += "</tr>"
@@ -9880,43 +9955,56 @@ if page == "ESI":
         html += "</tbody></table>"
         return html
 
-
-    st.markdown(render_esi_table(filtered_df), unsafe_allow_html=True)
+    st.markdown(render_esi_table(filtered_df, fx_cols, net_sentiment), unsafe_allow_html=True)
 
     # --- AI Summary ---
     st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
     st.markdown("### ESI Summary")
 
-    top_pos = filtered_df.sort_values('Surprise', ascending=False).head(3)
-    top_neg = filtered_df.sort_values('Surprise').head(3)
+    # Ensure 'Surprise' exists for sorting (we renamed in the rendering step, but filtered_df still has Adjusted_Surprise)
+    top_pos = filtered_df.sort_values('Adjusted_Surprise', ascending=False).head(3)
+    top_neg = filtered_df.sort_values('Adjusted_Surprise').head(3)
 
-    def format_records_with_markets(df):
+    def format_records_with_markets_dynamic(df, fx_columns):
         records = []
         for _, row in df.iterrows():
-            records.append({
+            rec = {
                 'Indicator': row['Indicator'],
-                'Surprise': f"{row['Surprise']:+.2f}",
-                'Stocks': row['Stocks'],
-                'DXY': row['DXY'],
-                'Gold': row['Gold']
-            })
+                'Surprise': f"{row['Adjusted_Surprise']:+.2f}",
+                'Stocks': row['Stocks']
+            }
+            # Add any FX columns present
+            for fx in fx_columns:
+                rec[fx] = row.get(fx, "Neutral")
+            records.append(rec)
         return records
 
-    top_pos_records = format_records_with_markets(top_pos)
-    top_neg_records = format_records_with_markets(top_neg)
+    top_pos_records = format_records_with_markets_dynamic(top_pos, fx_cols)
+    top_neg_records = format_records_with_markets_dynamic(top_neg, fx_cols)
 
+    # Build short summary text for the prompt
     summary_text = f"Top positive surprises: {top_pos_records}. Top negative surprises: {top_neg_records}."
+
+    # Include net sentiment in prompt (human-readable)
+    net_sent_readable = ", ".join([f"{k}: {v}" for k,v in net_sentiment.items()])
 
     client = OpenAI(api_key=st.secrets["openai"]["api_key"])
 
+    # Build friendly label list for the AI prompt (Stocks + FX names)
+    ai_market_labels = ["Stocks"] + fx_cols
+
     prompt = f"""
-    You are a professional macro strategist summarizing economic surprises.
+    You are a professional macro strategist summarizing economic surprises for a macro dashboard.
+
+    Country: {selected_country}
+    Markets considered: {', '.join(ai_market_labels)}
+    Net market sentiment: {net_sent_readable}
 
     Data summary: {summary_text}
 
     Write a concise 4–6 sentence paragraph describing which indicators beat or missed expectations, highlighting the most notable surprises. 
-    For each indicator, also include the expected market reactions for Stocks, DXY, and Gold. Keep the tone professional and analytical, suitable for a macro research dashboard.
-    Don't mention points or units, just the numbers. Each indicator should only be mentioned once, clearly as either a positive or negative surprise. Avoid contradictory statements.
+    For each indicator mentioned, also include the expected market reactions for {', '.join(ai_market_labels)}. Keep the tone professional and analytical, suitable for a macro research dashboard.
+    Do not mention units (points/percent) or exact data sources. Each indicator should be mentioned once and labeled as either a positive surprise or negative surprise. Avoid contradictory statements.
     """
 
     @st.cache_data(ttl=3600, show_spinner=False)
