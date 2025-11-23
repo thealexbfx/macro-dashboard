@@ -221,5 +221,6 @@ September 2024    240
       May 2025     19
      June 2025     -13
      July 2025     79
-   August 2025     22
+   August 2025     -4
+September 2025    119
 

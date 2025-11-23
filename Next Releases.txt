@@ -1,25 +1,25 @@
 Next Releases:
 
 EURO:
-CPI YoY: Nov 19th
-GDP QoQ: Nov 14th
+CPI YoY: Dec 2nd
+GDP QoQ: Dec 5th
 Interest Rate: Dec 18th
 Unemployment Rate: Dec 2nd
 
 Japan:
-CPI YoY: Nov 20th
-GDP QoQ: Nov 16th
+CPI YoY: Dec 18th
+GDP QoQ: Dec 7th
 Interest Rate: Dec 19th
 Unemployment Rate: Nov 27th
 
 UK:
-CPI YoY: Nov 19th
+CPI YoY: Dec 17th
 GDP QoQ: Dec 22nd
 Interest Rate: Dec 18th
 Unemployment Rate: Dec 16th
 
 USA: 
-Avg Hrly Erngs YoY: Dec 5th
+Avg Hrly Erngs YoY: Dec 16th
 Core CPI YoY: Nov 13th
 Core PCE YoY: Nov 26th
 Core PPI YoY: Nov 14th
@@ -31,9 +31,9 @@ ISM Manu Index: Dec 1st
 ISM Serv PMI: Dec 3rd
 Jolts: Dec 2nd
 Mich Cons Sentiment: Dec 5th
-NFP: Dec 5th
+NFP: Dec 16th
 PCE YoY: Nov 26th
 PPI YoY: Nov 14th
 Retail Sales: Nov 14th
 Trade Balance: Dec 4th
-Unemployment Rate: Dec 5th
+Unemployment Rate: Dec 16th
