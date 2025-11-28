@@ -222,3 +222,4 @@ May 2025     -0.8
 June 2025     0.9
 July 2025     0.6
 August 2025     0.6
+September 2025     0.2    

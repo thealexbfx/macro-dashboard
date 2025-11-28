@@ -10,7 +10,7 @@ Japan:
 CPI YoY: Dec 18th
 GDP QoQ: Dec 7th
 Interest Rate: Dec 19th
-Unemployment Rate: Nov 27th
+Unemployment Rate: Dec 25th
 
 UK:
 CPI YoY: Dec 17th
@@ -22,7 +22,7 @@ USA:
 Avg Hrly Erngs YoY: Dec 16th
 Core CPI YoY: Nov 13th
 Core PCE YoY: Nov 26th
-Core PPI YoY: Nov 14th
+Core PPI YoY: Dec 11th
 CPI YoY: Nov 13th
 GDP QoQ: Nov 26th
 Housing Starts: Nov 19th
@@ -33,7 +33,7 @@ Jolts: Dec 2nd
 Mich Cons Sentiment: Dec 5th
 NFP: Dec 16th
 PCE YoY: Nov 26th
-PPI YoY: Nov 14th
-Retail Sales: Nov 14th
+PPI YoY: Dec 11th
+Retail Sales: Dec 17th
 Trade Balance: Dec 4th
 Unemployment Rate: Dec 16th

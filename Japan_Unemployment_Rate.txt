@@ -223,4 +223,5 @@ June 2025  2.5
 July 2025  2.3
 August 2025  2.6
 September 2025  2.6
+October 2025  2.6
 
