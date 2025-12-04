@@ -1,10 +1,10 @@
 Next Releases:
 
 EURO:
-CPI YoY: Dec 2nd
+CPI YoY: Jan 2nd
 GDP QoQ: Dec 5th
 Interest Rate: Dec 18th
-Unemployment Rate: Dec 2nd
+Unemployment Rate: Jan 2nd
 
 Japan:
 CPI YoY: Dec 18th
@@ -27,8 +27,8 @@ CPI YoY: Nov 13th
 GDP QoQ: Nov 26th
 Housing Starts: Nov 19th
 Interest Rate: Dec 10th
-ISM Manu Index: Dec 1st
-ISM Serv PMI: Dec 3rd
+ISM Manu Index: Jan 2nd
+ISM Serv PMI: Jan 6th
 Jolts: Dec 2nd
 Mich Cons Sentiment: Dec 5th
 NFP: Dec 16th

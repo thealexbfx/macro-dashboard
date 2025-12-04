@@ -224,3 +224,4 @@ July 2025     50.1
 August 2025     52.0
 September 2025     50.0
 October 2025     52.4
+November 2025     52.6
