@@ -141,4 +141,6 @@ September 2024   7.103
      June 2025   7.357
      July 2025   7.208  
    August 2025   7.227
+September 2025   7.658
+  October 2025   7.670
 

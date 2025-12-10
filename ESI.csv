@@ -1,11 +1,11 @@
 Indicator,Actual,Forecast,Country
 ISM Manufacturing PMI,48.2,49,US
-Jolts Job Openings (Millions),7.23,7.19,US
+Jolts Job Openings (Millions),7.67,7.14,US
 ISM Services PMI,52.6,52.0,US
 Non Farm Employment Change (Thousands),119,53,US
 Unemployment Rate (%),4.4,4.3,US
 CPI YoY (%),3.0,3.1,US
-UoM Consumer Sentiment,51.0,50.6,US
+UoM Consumer Sentiment,53.3,52.0,US
 Retail Sales MoM (%),0.2,0.4,US
 GDP QoQ (%),3.8,3.3,US
 Average Hourly Earnings YoY (%),3.8,3.7,US
@@ -14,10 +14,10 @@ CPI YoY (%),3.6,3.5,UK
 GDP QoQ (%),0.1,0.2,UK
 Unemployment Rate (%),5.0,4.9,UK
 CPI YoY (%),2.2,2.1,EURO
-GDP QoQ (%),0.2,0.2,EURO
+GDP QoQ (%),0.3,0.2,EURO
 Unemployment Rate (%),6.4,6.3,EURO
 CPI YoY (%),3.0,3.0,Japan
-GDP QoQ (%),-0.4,-0.6,Japan
+GDP QoQ (%),-0.6,-0.5,Japan
 Unemployment Rate (%),2.5,2.6,Japan
 
 
