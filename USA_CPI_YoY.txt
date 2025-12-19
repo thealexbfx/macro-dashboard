@@ -224,3 +224,5 @@ September 2024     2.4
      July 2025     2.7
    August 2025     2.9
 September 2025     3.0
+  October 2025     
+ November 2025     2.7

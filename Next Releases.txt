@@ -3,37 +3,37 @@ Next Releases:
 EURO:
 CPI YoY: Jan 2nd
 GDP QoQ: Jan 30th
-Interest Rate: Dec 18th
+Interest Rate: Feb 5th
 Unemployment Rate: Jan 2nd
 
 Japan:
-CPI YoY: Dec 18th
+CPI YoY: Jan 22nd
 GDP QoQ: Feb 15th
-Interest Rate: Dec 19th
+Interest Rate: Jan 23rd
 Unemployment Rate: Dec 25th
 
 UK:
-CPI YoY: Dec 17th
+CPI YoY: Feb 18th
 GDP QoQ: Dec 22nd
-Interest Rate: Dec 18th
-Unemployment Rate: Dec 16th
+Interest Rate: Feb 5th
+Unemployment Rate: Jan 20th
 
 USA: 
-Avg Hrly Erngs YoY: Dec 16th
-Core CPI YoY: Nov 13th
-Core PCE YoY: Nov 26th
-Core PPI YoY: Dec 11th
-CPI YoY: Nov 13th
-GDP QoQ: Nov 26th
-Housing Starts: Nov 19th
-Interest Rate: Dec 10th
+Avg Hrly Erngs YoY: Jan 9th
+Core CPI YoY: Jan 13th
+Core PCE YoY: Jan 29th
+Core PPI YoY: Jan 14th
+CPI YoY: Jan 13th
+GDP QoQ: Dec 23rd
+Housing Starts: Jan 21st
+Interest Rate: Jan 28th
 ISM Manu Index: Jan 2nd
 ISM Serv PMI: Jan 6th
 Jolts: Jan 6th
-Mich Cons Sentiment: Dec 19th
-NFP: Dec 16th
-PCE YoY: Dec 19th
-PPI YoY: Dec 11th
-Retail Sales: Dec 17th
-Trade Balance: Dec 11th
+Mich Cons Sentiment: Jan 23rd
+NFP: Jan 9th
+PCE YoY: Jan 29th
+PPI YoY: Jan 14th
+Retail Sales: Jan 15th
+Trade Balance: Jan 6th
 Unemployment Rate: Dec 16th
