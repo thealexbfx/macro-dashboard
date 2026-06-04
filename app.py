@@ -1844,6 +1844,49 @@ def get_country_summary(key_name, country_prompt, data_text):
 # Global AI Summary Collector (used across all pages)
 if "ai_summaries" not in st.session_state:
     st.session_state["ai_summaries"] = []
+    
+    
+
+def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
+    if position_pct >= 90 and slope > 0:
+        status, color, emoji = "Extreme High", "#e63946", "🚨"
+        message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
+    elif position_pct <= 10 and slope < 0:
+        status, color, emoji = "Extreme Low", "#1d3557", "⚠️"
+        message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
+    elif position_pct >= 70:
+        status, color, emoji = "High", "#f77f00", "🔺"
+        message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
+    elif position_pct <= 30:
+        status, color, emoji = "Low", "#2a9d8f", "🔻"
+        message = f"{indicator_name} is below normal levels. Could indicate caution."
+    else:
+        status, color, emoji = "Normal", "#06b606", "✅"
+        message = f"{indicator_name} is within normal historical range."
+
+    st.markdown(f"""
+    <div style="
+        width: 100%;
+        background-color:{color}1A;
+        border-left: 6px solid {color};
+        border-radius: 8px;
+        padding: 18px 24px;
+        margin-top: 18px;
+        margin-bottom: 24px;
+        font-family:'Inter','Segoe UI','Arial',sans-serif;
+        box-shadow:0 2px 6px rgba(0,0,0,0.05);
+    ">
+        <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
+            {emoji} {indicator_name}: {status}
+        </div>
+        <div style="font-size:14px; line-height:1.5; color:#111;">
+            Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+        </div>
+        <div style="margin-top:6px; font-size:14px; color:#333;">
+            {message}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # -------- USA Tab --------
@@ -2251,63 +2294,7 @@ if page == "USA":
             }
         )
         
-        # -------- Full-width Indicator Alert Panel --------
-        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-            """
-            Display a full-width alert panel for the selected indicator
-            """
-            # Determine status
-            if position_pct >= 90 and slope > 0:
-                status = "Extreme High"
-                color = "#e63946"  # Red
-                emoji = "🚨"
-                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-            elif position_pct <= 10 and slope < 0:
-                status = "Extreme Low"
-                color = "#1d3557"  # Dark blue
-                emoji = "⚠️"
-                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-            elif position_pct >= 70:
-                status = "High"
-                color = "#f77f00"  # Orange
-                emoji = "🔺"
-                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-            elif position_pct <= 30:
-                status = "Low"
-                color = "#2a9d8f"  # Teal
-                emoji = "🔻"
-                message = f"{indicator_name} is below normal levels. Could indicate caution."
-            else:
-                status = "Normal"
-                color = "#06b606"  # Green
-                emoji = "✅"
-                message = f"{indicator_name} is within normal historical range."
-
-            # HTML panel
-            alert_html = f"""
-            <div style="
-                width: 100%;
-                background-color:{color}1A;  /* light transparent background */
-                border-left: 6px solid {color};
-                border-radius: 8px;
-                padding: 18px 24px;
-                margin-top: 18px;
-                margin-bottom: 24px;
-                font-family:'Inter','Segoe UI','Arial',sans-serif;
-                box-shadow:0 2px 6px rgba(0,0,0,0.05);
-            ">
-                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-                    {emoji} {indicator_name}: {status}
-                </div>
-                <div style="font-size:14px; line-height:1.5; color:#111;">
-                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
-                </div>
-                <div style="margin-top:6px; font-size:14px; color:#333;">
-                    {message}
-                </div>
-            </div>
-            """
-            st.markdown(alert_html, unsafe_allow_html=True)
+        
 
         # -------- Call it after plotting chart --------
         display_indicator_alert(
@@ -2682,63 +2669,7 @@ if page == "Japan":
             }
         )
 
-                # -------- Full-width Indicator Alert Panel --------
-        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-            """
-            Display a full-width alert panel for the selected indicator
-            """
-            # Determine status
-            if position_pct >= 90 and slope > 0:
-                status = "Extreme High"
-                color = "#e63946"  # Red
-                emoji = "🚨"
-                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-            elif position_pct <= 10 and slope < 0:
-                status = "Extreme Low"
-                color = "#1d3557"  # Dark blue
-                emoji = "⚠️"
-                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-            elif position_pct >= 70:
-                status = "High"
-                color = "#f77f00"  # Orange
-                emoji = "🔺"
-                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-            elif position_pct <= 30:
-                status = "Low"
-                color = "#2a9d8f"  # Teal
-                emoji = "🔻"
-                message = f"{indicator_name} is below normal levels. Could indicate caution."
-            else:
-                status = "Normal"
-                color = "#06b606"  # Green
-                emoji = "✅"
-                message = f"{indicator_name} is within normal historical range."
-
-            # HTML panel
-            alert_html = f"""
-            <div style="
-                width: 100%;
-                background-color:{color}1A;  /* light transparent background */
-                border-left: 6px solid {color};
-                border-radius: 8px;
-                padding: 18px 24px;
-                margin-top: 18px;
-                margin-bottom: 24px;
-                font-family:'Inter','Segoe UI','Arial',sans-serif;
-                box-shadow:0 2px 6px rgba(0,0,0,0.05);
-            ">
-                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-                    {emoji} {indicator_name}: {status}
-                </div>
-                <div style="font-size:14px; line-height:1.5; color:#111;">
-                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
-                </div>
-                <div style="margin-top:6px; font-size:14px; color:#333;">
-                    {message}
-                </div>
-            </div>
-            """
-            st.markdown(alert_html, unsafe_allow_html=True)
+           
 
         # -------- Call it after plotting chart --------
         display_indicator_alert(
@@ -2754,12 +2685,7 @@ if page == "Japan":
         # 🧠 Japanese Economy Macro Summary (LLM-enhanced)
         # ==============================
 
-        import openai
-        from openai import OpenAI
-
-        # Set API key
-        openai.api_key = st.secrets["openai"]["api_key"]
-        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+        
         
         st.markdown("### Japanese Economy Summary (Based on the last 12 Months)")
 
@@ -3147,64 +3073,7 @@ if page == "UK":
                 "modeBarButtonsToRemove": ["lasso2d", "select2d"]
             }
         )
-
-                # -------- Full-width Indicator Alert Panel --------
-        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-            """
-            Display a full-width alert panel for the selected indicator
-            """
-            # Determine status
-            if position_pct >= 90 and slope > 0:
-                status = "Extreme High"
-                color = "#e63946"  # Red
-                emoji = "🚨"
-                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-            elif position_pct <= 10 and slope < 0:
-                status = "Extreme Low"
-                color = "#1d3557"  # Dark blue
-                emoji = "⚠️"
-                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-            elif position_pct >= 70:
-                status = "High"
-                color = "#f77f00"  # Orange
-                emoji = "🔺"
-                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-            elif position_pct <= 30:
-                status = "Low"
-                color = "#2a9d8f"  # Teal
-                emoji = "🔻"
-                message = f"{indicator_name} is below normal levels. Could indicate caution."
-            else:
-                status = "Normal"
-                color = "#06b606"  # Green
-                emoji = "✅"
-                message = f"{indicator_name} is within normal historical range."
-
-            # HTML panel
-            alert_html = f"""
-            <div style="
-                width: 100%;
-                background-color:{color}1A;  /* light transparent background */
-                border-left: 6px solid {color};
-                border-radius: 8px;
-                padding: 18px 24px;
-                margin-top: 18px;
-                margin-bottom: 24px;
-                font-family:'Inter','Segoe UI','Arial',sans-serif;
-                box-shadow:0 2px 6px rgba(0,0,0,0.05);
-            ">
-                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-                    {emoji} {indicator_name}: {status}
-                </div>
-                <div style="font-size:14px; line-height:1.5; color:#111;">
-                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
-                </div>
-                <div style="margin-top:6px; font-size:14px; color:#333;">
-                    {message}
-                </div>
-            </div>
-            """
-            st.markdown(alert_html, unsafe_allow_html=True)
+        
 
         # -------- Call it after plotting chart --------
         display_indicator_alert(
@@ -3220,12 +3089,7 @@ if page == "UK":
         # 🧠 UK Economy Macro Summary (LLM-enhanced)
         # ==============================
 
-        import openai
-        from openai import OpenAI
-
-        # Set API key
-        openai.api_key = st.secrets["openai"]["api_key"]
-        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+       
         
         st.markdown("### UK Economy Summary (Based on the last 12 Months)")
 
@@ -3614,63 +3478,7 @@ if page == "EURO":
             }
         )
 
-                # -------- Full-width Indicator Alert Panel --------
-        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-            """
-            Display a full-width alert panel for the selected indicator
-            """
-            # Determine status
-            if position_pct >= 90 and slope > 0:
-                status = "Extreme High"
-                color = "#e63946"  # Red
-                emoji = "🚨"
-                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-            elif position_pct <= 10 and slope < 0:
-                status = "Extreme Low"
-                color = "#1d3557"  # Dark blue
-                emoji = "⚠️"
-                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-            elif position_pct >= 70:
-                status = "High"
-                color = "#f77f00"  # Orange
-                emoji = "🔺"
-                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-            elif position_pct <= 30:
-                status = "Low"
-                color = "#2a9d8f"  # Teal
-                emoji = "🔻"
-                message = f"{indicator_name} is below normal levels. Could indicate caution."
-            else:
-                status = "Normal"
-                color = "#06b606"  # Green
-                emoji = "✅"
-                message = f"{indicator_name} is within normal historical range."
-
-            # HTML panel
-            alert_html = f"""
-            <div style="
-                width: 100%;
-                background-color:{color}1A;  /* light transparent background */
-                border-left: 6px solid {color};
-                border-radius: 8px;
-                padding: 18px 24px;
-                margin-top: 18px;
-                margin-bottom: 24px;
-                font-family:'Inter','Segoe UI','Arial',sans-serif;
-                box-shadow:0 2px 6px rgba(0,0,0,0.05);
-            ">
-                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-                    {emoji} {indicator_name}: {status}
-                </div>
-                <div style="font-size:14px; line-height:1.5; color:#111;">
-                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
-                </div>
-                <div style="margin-top:6px; font-size:14px; color:#333;">
-                    {message}
-                </div>
-            </div>
-            """
-            st.markdown(alert_html, unsafe_allow_html=True)
+            
 
         # -------- Call it after plotting chart --------
         display_indicator_alert(
@@ -3686,12 +3494,7 @@ if page == "EURO":
         # 🧠 EURO Economy Macro Summary (LLM-enhanced)
         # ==============================
 
-        import openai
-        from openai import OpenAI
-
-        # Set API key
-        openai.api_key = st.secrets["openai"]["api_key"]
-        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+        
         
         st.markdown("### EURO Economy Summary (Based on the last 12 Months)")
 
@@ -4078,63 +3881,7 @@ if page == "FX Rates":
             }
         )
 
-                # -------- Full-width Indicator Alert Panel --------
-        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-            """
-            Display a full-width alert panel for the selected indicator
-            """
-            # Determine status
-            if position_pct >= 90 and slope > 0:
-                status = "Extreme High"
-                color = "#e63946"  # Red
-                emoji = "🚨"
-                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-            elif position_pct <= 10 and slope < 0:
-                status = "Extreme Low"
-                color = "#1d3557"  # Dark blue
-                emoji = "⚠️"
-                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-            elif position_pct >= 70:
-                status = "High"
-                color = "#f77f00"  # Orange
-                emoji = "🔺"
-                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-            elif position_pct <= 30:
-                status = "Low"
-                color = "#2a9d8f"  # Teal
-                emoji = "🔻"
-                message = f"{indicator_name} is below normal levels. Could indicate caution."
-            else:
-                status = "Normal"
-                color = "#06b606"  # Green
-                emoji = "✅"
-                message = f"{indicator_name} is within normal historical range."
-
-            # HTML panel
-            alert_html = f"""
-            <div style="
-                width: 100%;
-                background-color:{color}1A;  /* light transparent background */
-                border-left: 6px solid {color};
-                border-radius: 8px;
-                padding: 18px 24px;
-                margin-top: 18px;
-                margin-bottom: 24px;
-                font-family:'Inter','Segoe UI','Arial',sans-serif;
-                box-shadow:0 2px 6px rgba(0,0,0,0.05);
-            ">
-                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-                    {emoji} {indicator_name}: {status}
-                </div>
-                <div style="font-size:14px; line-height:1.5; color:#111;">
-                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
-                </div>
-                <div style="margin-top:6px; font-size:14px; color:#333;">
-                    {message}
-                </div>
-            </div>
-            """
-            st.markdown(alert_html, unsafe_allow_html=True)
+            
 
         # -------- Call it after plotting chart --------
         display_indicator_alert(
@@ -4155,11 +3902,7 @@ if page == "FX Rates":
         import numpy as np
         import datetime as dt
         from scipy.stats import linregress
-        import openai  # pip install openai
-
-        # ✅ Set your OpenAI API key in Streamlit secrets or environment variable
-        # e.g., in .streamlit/secrets.toml -> [openai] api_key="sk-XXXX"
-        openai.api_key = st.secrets["openai"]["api_key"]
+       
 
         # ---- Streamlit Section Header ----
         st.markdown("### FX Market Summary (Based on the last 3 Years)")
@@ -4201,8 +3944,7 @@ if page == "FX Rates":
                     st.warning(f"⚠️ Could not process {name}: {e}")
             return results
         
-        from openai import OpenAI
-        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+        
 
         def generate_llm_summary(results: dict):
             if not results:
@@ -5253,63 +4995,7 @@ if page == "Equities":
             }
         )
 
-                # -------- Full-width Indicator Alert Panel --------
-        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-            """
-            Display a full-width alert panel for the selected indicator
-            """
-            # Determine status
-            if position_pct >= 90 and slope > 0:
-                status = "Extreme High"
-                color = "#e63946"  # Red
-                emoji = "🚨"
-                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-            elif position_pct <= 10 and slope < 0:
-                status = "Extreme Low"
-                color = "#1d3557"  # Dark blue
-                emoji = "⚠️"
-                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-            elif position_pct >= 70:
-                status = "High"
-                color = "#f77f00"  # Orange
-                emoji = "🔺"
-                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-            elif position_pct <= 30:
-                status = "Low"
-                color = "#2a9d8f"  # Teal
-                emoji = "🔻"
-                message = f"{indicator_name} is below normal levels. Could indicate caution."
-            else:
-                status = "Normal"
-                color = "#06b606"  # Green
-                emoji = "✅"
-                message = f"{indicator_name} is within normal historical range."
-
-            # HTML panel
-            alert_html = f"""
-            <div style="
-                width: 100%;
-                background-color:{color}1A;  /* light transparent background */
-                border-left: 6px solid {color};
-                border-radius: 8px;
-                padding: 18px 24px;
-                margin-top: 18px;
-                margin-bottom: 24px;
-                font-family:'Inter','Segoe UI','Arial',sans-serif;
-                box-shadow:0 2px 6px rgba(0,0,0,0.05);
-            ">
-                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-                    {emoji} {indicator_name}: {status}
-                </div>
-                <div style="font-size:14px; line-height:1.5; color:#111;">
-                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
-                </div>
-                <div style="margin-top:6px; font-size:14px; color:#333;">
-                    {message}
-                </div>
-            </div>
-            """
-            st.markdown(alert_html, unsafe_allow_html=True)
+                
 
         # -------- Call it after plotting chart --------
         display_indicator_alert(
@@ -5330,11 +5016,7 @@ if page == "Equities":
         import numpy as np
         import datetime as dt
         from scipy.stats import linregress
-        import openai  # pip install openai
-
-        # ✅ Set your OpenAI API key in Streamlit secrets or environment variable
-        # e.g., in .streamlit/secrets.toml -> [openai] api_key="sk-XXXX"
-        openai.api_key = st.secrets["openai"]["api_key"]
+        
 
         # ---- Streamlit Section Header ----
         st.markdown("### Equities Market Summary (Based on the last 3 Years)")
@@ -5377,8 +5059,7 @@ if page == "Equities":
                     st.warning(f"⚠️ Could not process {name}: {e}")
             return results
         
-        from openai import OpenAI
-        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+        
 
         def generate_llm_summary(results: dict):
             if not results:
@@ -5725,63 +5406,7 @@ if page == "Stocks":
             }
         )
 
-                # -------- Full-width Indicator Alert Panel --------
-        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-            """
-            Display a full-width alert panel for the selected indicator
-            """
-            # Determine status
-            if position_pct >= 90 and slope > 0:
-                status = "Extreme High"
-                color = "#e63946"  # Red
-                emoji = "🚨"
-                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-            elif position_pct <= 10 and slope < 0:
-                status = "Extreme Low"
-                color = "#1d3557"  # Dark blue
-                emoji = "⚠️"
-                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-            elif position_pct >= 70:
-                status = "High"
-                color = "#f77f00"  # Orange
-                emoji = "🔺"
-                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-            elif position_pct <= 30:
-                status = "Low"
-                color = "#2a9d8f"  # Teal
-                emoji = "🔻"
-                message = f"{indicator_name} is below normal levels. Could indicate caution."
-            else:
-                status = "Normal"
-                color = "#06b606"  # Green
-                emoji = "✅"
-                message = f"{indicator_name} is within normal historical range."
-
-            # HTML panel
-            alert_html = f"""
-            <div style="
-                width: 100%;
-                background-color:{color}1A;  /* light transparent background */
-                border-left: 6px solid {color};
-                border-radius: 8px;
-                padding: 18px 24px;
-                margin-top: 18px;
-                margin-bottom: 24px;
-                font-family:'Inter','Segoe UI','Arial',sans-serif;
-                box-shadow:0 2px 6px rgba(0,0,0,0.05);
-            ">
-                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-                    {emoji} {indicator_name}: {status}
-                </div>
-                <div style="font-size:14px; line-height:1.5; color:#111;">
-                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
-                </div>
-                <div style="margin-top:6px; font-size:14px; color:#333;">
-                    {message}
-                </div>
-            </div>
-            """
-            st.markdown(alert_html, unsafe_allow_html=True)
+                
 
         # -------- Call it after plotting chart --------
         display_indicator_alert(
@@ -5802,11 +5427,7 @@ if page == "Stocks":
         import numpy as np
         import datetime as dt
         from scipy.stats import linregress
-        import openai  # pip install openai
-
-        # ✅ Set your OpenAI API key in Streamlit secrets or environment variable
-        # e.g., in .streamlit/secrets.toml -> [openai] api_key="sk-XXXX"
-        openai.api_key = st.secrets["openai"]["api_key"]
+       
 
         # ---- Streamlit Section Header ----
         st.markdown("### Stock Market Summary (Based on the last 3 Years)")
@@ -5848,8 +5469,7 @@ if page == "Stocks":
                     st.warning(f"⚠️ Could not process {name}: {e}")
             return results
 
-        from openai import OpenAI
-        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+       
 
         def generate_llm_summary(results: dict):
             if not results:
@@ -6212,63 +5832,7 @@ if page == "Commodities":
             }
         )
 
-                # -------- Full-width Indicator Alert Panel --------
-        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-            """
-            Display a full-width alert panel for the selected indicator
-            """
-            # Determine status
-            if position_pct >= 90 and slope > 0:
-                status = "Extreme High"
-                color = "#e63946"  # Red
-                emoji = "🚨"
-                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-            elif position_pct <= 10 and slope < 0:
-                status = "Extreme Low"
-                color = "#1d3557"  # Dark blue
-                emoji = "⚠️"
-                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-            elif position_pct >= 70:
-                status = "High"
-                color = "#f77f00"  # Orange
-                emoji = "🔺"
-                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-            elif position_pct <= 30:
-                status = "Low"
-                color = "#2a9d8f"  # Teal
-                emoji = "🔻"
-                message = f"{indicator_name} is below normal levels. Could indicate caution."
-            else:
-                status = "Normal"
-                color = "#06b606"  # Green
-                emoji = "✅"
-                message = f"{indicator_name} is within normal historical range."
-
-            # HTML panel
-            alert_html = f"""
-            <div style="
-                width: 100%;
-                background-color:{color}1A;  /* light transparent background */
-                border-left: 6px solid {color};
-                border-radius: 8px;
-                padding: 18px 24px;
-                margin-top: 18px;
-                margin-bottom: 24px;
-                font-family:'Inter','Segoe UI','Arial',sans-serif;
-                box-shadow:0 2px 6px rgba(0,0,0,0.05);
-            ">
-                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-                    {emoji} {indicator_name}: {status}
-                </div>
-                <div style="font-size:14px; line-height:1.5; color:#111;">
-                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
-                </div>
-                <div style="margin-top:6px; font-size:14px; color:#333;">
-                    {message}
-                </div>
-            </div>
-            """
-            st.markdown(alert_html, unsafe_allow_html=True)
+                
 
         # -------- Call it after plotting chart --------
         display_indicator_alert(
@@ -6289,11 +5853,7 @@ if page == "Commodities":
         import numpy as np
         import datetime as dt
         from scipy.stats import linregress
-        import openai  # pip install openai
-
-        # ✅ Set your OpenAI API key in Streamlit secrets or environment variable
-        # e.g., in .streamlit/secrets.toml -> [openai] api_key="sk-XXXX"
-        openai.api_key = st.secrets["openai"]["api_key"]
+        
 
         # ---- Streamlit Section Header ----
         st.markdown("### Commodities Market Summary (Based on the last 3 Years)")
@@ -6337,8 +5897,7 @@ if page == "Commodities":
                     st.warning(f"⚠️ Could not process {name}: {e}")
             return results
         
-        from openai import OpenAI
-        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+        
 
         def generate_llm_summary(results: dict):
             if not results:
@@ -6694,63 +6253,7 @@ if page == "Bonds":
             }
         )
 
-                # -------- Full-width Indicator Alert Panel --------
-        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-            """
-            Display a full-width alert panel for the selected indicator
-            """
-            # Determine status
-            if position_pct >= 90 and slope > 0:
-                status = "Extreme High"
-                color = "#e63946"  # Red
-                emoji = "🚨"
-                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-            elif position_pct <= 10 and slope < 0:
-                status = "Extreme Low"
-                color = "#1d3557"  # Dark blue
-                emoji = "⚠️"
-                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-            elif position_pct >= 70:
-                status = "High"
-                color = "#f77f00"  # Orange
-                emoji = "🔺"
-                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-            elif position_pct <= 30:
-                status = "Low"
-                color = "#2a9d8f"  # Teal
-                emoji = "🔻"
-                message = f"{indicator_name} is below normal levels. Could indicate caution."
-            else:
-                status = "Normal"
-                color = "#06b606"  # Green
-                emoji = "✅"
-                message = f"{indicator_name} is within normal historical range."
-
-            # HTML panel
-            alert_html = f"""
-            <div style="
-                width: 100%;
-                background-color:{color}1A;  /* light transparent background */
-                border-left: 6px solid {color};
-                border-radius: 8px;
-                padding: 18px 24px;
-                margin-top: 18px;
-                margin-bottom: 24px;
-                font-family:'Inter','Segoe UI','Arial',sans-serif;
-                box-shadow:0 2px 6px rgba(0,0,0,0.05);
-            ">
-                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-                    {emoji} {indicator_name}: {status}
-                </div>
-                <div style="font-size:14px; line-height:1.5; color:#111;">
-                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
-                </div>
-                <div style="margin-top:6px; font-size:14px; color:#333;">
-                    {message}
-                </div>
-            </div>
-            """
-            st.markdown(alert_html, unsafe_allow_html=True)
+                
 
         # -------- Call it after plotting chart --------
         display_indicator_alert(
@@ -6766,12 +6269,7 @@ if page == "Bonds":
         # 🧠 Bonds Market Macro Summary (LLM-enhanced)
         # ==============================
 
-        import openai
-        from openai import OpenAI
-
-        # Set API key
-        openai.api_key = st.secrets["openai"]["api_key"]
-        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+       
         
         st.markdown("### Bond Market Summary (Based on the last 3 Years)")
 
@@ -7094,63 +6592,7 @@ if page == "Crypto":
             }
         )
 
-                # -------- Full-width Indicator Alert Panel --------
-        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-            """
-            Display a full-width alert panel for the selected indicator
-            """
-            # Determine status
-            if position_pct >= 90 and slope > 0:
-                status = "Extreme High"
-                color = "#e63946"  # Red
-                emoji = "🚨"
-                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-            elif position_pct <= 10 and slope < 0:
-                status = "Extreme Low"
-                color = "#1d3557"  # Dark blue
-                emoji = "⚠️"
-                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-            elif position_pct >= 70:
-                status = "High"
-                color = "#f77f00"  # Orange
-                emoji = "🔺"
-                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-            elif position_pct <= 30:
-                status = "Low"
-                color = "#2a9d8f"  # Teal
-                emoji = "🔻"
-                message = f"{indicator_name} is below normal levels. Could indicate caution."
-            else:
-                status = "Normal"
-                color = "#06b606"  # Green
-                emoji = "✅"
-                message = f"{indicator_name} is within normal historical range."
-
-            # HTML panel
-            alert_html = f"""
-            <div style="
-                width: 100%;
-                background-color:{color}1A;  /* light transparent background */
-                border-left: 6px solid {color};
-                border-radius: 8px;
-                padding: 18px 24px;
-                margin-top: 18px;
-                margin-bottom: 24px;
-                font-family:'Inter','Segoe UI','Arial',sans-serif;
-                box-shadow:0 2px 6px rgba(0,0,0,0.05);
-            ">
-                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-                    {emoji} {indicator_name}: {status}
-                </div>
-                <div style="font-size:14px; line-height:1.5; color:#111;">
-                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
-                </div>
-                <div style="margin-top:6px; font-size:14px; color:#333;">
-                    {message}
-                </div>
-            </div>
-            """
-            st.markdown(alert_html, unsafe_allow_html=True)
+                
 
         # -------- Call it after plotting chart --------
         display_indicator_alert(
@@ -7171,11 +6613,7 @@ if page == "Crypto":
         import numpy as np
         import datetime as dt
         from scipy.stats import linregress
-        import openai  # pip install openai
-
-        # ✅ Set your OpenAI API key in Streamlit secrets or environment variable
-        # e.g., in .streamlit/secrets.toml -> [openai] api_key="sk-XXXX"
-        openai.api_key = st.secrets["openai"]["api_key"]
+       
 
         # ---- Streamlit Section Header ----
         st.markdown("### Crypto Market Summary (Based on the last 3 Years)")
@@ -7212,8 +6650,7 @@ if page == "Crypto":
                     st.warning(f"⚠️ Could not process {name}: {e}")
             return results
         
-        from openai import OpenAI
-        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+       
 
         def generate_llm_summary(results: dict):
             if not results:
@@ -7523,63 +6960,7 @@ if page == "Yield Curve":
             }
         )
 
-                # -------- Full-width Indicator Alert Panel --------
-        def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-            """
-            Display a full-width alert panel for the selected indicator
-            """
-            # Determine status
-            if position_pct >= 90 and slope > 0:
-                status = "Extreme High"
-                color = "#e63946"  # Red
-                emoji = "🚨"
-                message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-            elif position_pct <= 10 and slope < 0:
-                status = "Extreme Low"
-                color = "#1d3557"  # Dark blue
-                emoji = "⚠️"
-                message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-            elif position_pct >= 70:
-                status = "High"
-                color = "#f77f00"  # Orange
-                emoji = "🔺"
-                message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-            elif position_pct <= 30:
-                status = "Low"
-                color = "#2a9d8f"  # Teal
-                emoji = "🔻"
-                message = f"{indicator_name} is below normal levels. Could indicate caution."
-            else:
-                status = "Normal"
-                color = "#06b606"  # Green
-                emoji = "✅"
-                message = f"{indicator_name} is within normal historical range."
-
-            # HTML panel
-            alert_html = f"""
-            <div style="
-                width: 100%;
-                background-color:{color}1A;  /* light transparent background */
-                border-left: 6px solid {color};
-                border-radius: 8px;
-                padding: 18px 24px;
-                margin-top: 18px;
-                margin-bottom: 24px;
-                font-family:'Inter','Segoe UI','Arial',sans-serif;
-                box-shadow:0 2px 6px rgba(0,0,0,0.05);
-            ">
-                <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-                    {emoji} {indicator_name}: {status}
-                </div>
-                <div style="font-size:14px; line-height:1.5; color:#111;">
-                    Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
-                </div>
-                <div style="margin-top:6px; font-size:14px; color:#333;">
-                    {message}
-                </div>
-            </div>
-            """
-            st.markdown(alert_html, unsafe_allow_html=True)
+                
 
         # -------- Call it after plotting chart --------
         display_indicator_alert(
@@ -7788,9 +7169,7 @@ if page == "Cycle":
 
     st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
     
-    from openai import OpenAI
-    client = OpenAI(api_key=st.secrets["openai"]["api_key"])
-
+   
 
     # ---- Helper: Analyze a series ----
     def analyze_series(df, window=4):
@@ -8742,9 +8121,7 @@ if page == "Scenarios":
             st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
             st.markdown("### Scenario Summary")
 
-            from openai import OpenAI
-            client = OpenAI(api_key=st.secrets["openai"]["api_key"])
-
+            
             # --- Summarize the scenario results for AI context ---
             scenario_summary_data = "\n".join([
                 f"Trigger on {row['Trigger Date']}: daily move {row['Daily Move (%)']:+.2f}%, "
@@ -9048,8 +8425,7 @@ if page == "Seasonality":
     st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
     st.markdown("### Seasonality Summary")
 
-    from openai import OpenAI
-    client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+   
 
     # --- Prepare structured context ---
     seasonality_data_summary = "\n".join([
@@ -9128,7 +8504,7 @@ if page == "Seasonality":
     """, unsafe_allow_html=True)
 
 import streamlit as st
-from openai import OpenAI
+
 import pandas as pd
 from copy import deepcopy
 import os
@@ -9355,7 +8731,7 @@ if page == "ESI":
     """, unsafe_allow_html=True)
 
     import pandas as pd
-    from openai import OpenAI
+   
 
     # --- Load CSV ---
     esi = pd.read_csv("ESI.csv")
