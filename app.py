@@ -2323,61 +2323,11 @@ if page == "USA":
         # 🧠 USA Economy Macro Summary (LLM-enhanced)
         # ==============================
 
-        import openai
-        from openai import OpenAI
-
-        # Set API key
-        openai.api_key = st.secrets["openai"]["api_key"]
-        client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+       
         
         st.markdown("### USA Economy Summary (Based on the last 12 Months)")
 
-        @st.cache_data(ttl=1800)
-        def analyze_usa():
-            """Compute latest value, slope, and relative position for all usa indicators."""
-            usa_tickers = {
-                "Interest Rate": get_usa_interest_rate_data,
-                "CPI YoY":get_usa_cpi_yoy_data,
-                "GDP Growth Rate": get_usa_gdp_qoq_data,
-                "Unemployment Rate": get_usa_unemployment_rate_data,
-                "Core CPI YoY": get_usa_core_cpi_yoy_data,
-                "Average Hourly Earnings YoY": get_usa_average_hourly_earnings_yoy_data,
-                "Core PCE YoY": get_usa_core_pce_yoy_data,
-                "Core PPI YoY": get_usa_core_ppi_yoy_data,
-                "Housing Starts MoM": get_usa_housing_starts_mom_data,
-                "ISM Manufacturing PMI": get_usa_ism_manufacturing_pmi_data,
-                "ISM Services PMI": get_usa_ism_services_pmi_data,
-                "Jolts Job Openings": get_usa_jolts_job_openings_data,
-                "Michigan Consumer Sentiment": get_usa_michigan_consumer_sentiment_data,
-                "Non Farm Payrolls": get_usa_nfp_data,
-                "PCE YoY": get_usa_pce_yoy_data,
-                "PPI YoY": get_usa_ppi_yoy_data,
-                "Retail Sales MoM": get_usa_retail_sales_mom_data,
-                "Trade Balance": get_usa_trade_balance_data
-            }
-
-            results = {}
-            for name, func in usa_tickers.items():
-                try:
-                    df = func().dropna()
-                    if len(df) < 12:
-                        continue
-                    df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
-                    latest = df_1y["value"].iloc[-1]
-                    start = df_1y["value"].iloc[0]
-
-                    if latest > start:
-                        trend = "up"
-                    elif latest < start:
-                        trend = "down"
-                    else:
-                        trend = "flat"
-
-                    results[name] = {"latest": latest, "trend": trend}
-
-                except Exception as e:
-                    st.warning(f"⚠️ Could not process {name}: {e}")
-            return results
+        
 
         def generate_usa_llm_summary(results: dict):
             if not results:
