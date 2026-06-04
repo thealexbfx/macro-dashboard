@@ -18,7 +18,7 @@ import plotly.graph_objects as go
 import streamlit.components.v1 as components
 import calendar
 from openai import OpenAI
-import streamlit.components.v1 as components
+
 
 
 load_dotenv()  # loads .env file
@@ -434,106 +434,118 @@ display_names = {
 dropdown_map = {v: k for k, v in display_names.items()}
 
 def load_indicator_data(code):
-            # USA
-            if code == "usa_rate": return get_usa_interest_rate_data()
-            if code == "usa_cpi": return get_usa_cpi_yoy_data()
-            if code == "usa_core_cpi": return get_usa_core_cpi_yoy_data()
-            if code == "usa_gdp": return get_usa_gdp_qoq_data()
-            if code == "usa_unemp": return get_usa_unemployment_rate_data()
-            if code == "usa_ahe": return get_usa_average_hourly_earnings_yoy_data()
-            if code == "usa_core_pce": return get_usa_core_pce_yoy_data()
-            if code == "usa_core_ppi": return get_usa_core_ppi_yoy_data()
-            if code == "usa_housing": return get_usa_housing_starts_mom_data()
-            if code == "usa_ism_manu": return get_usa_ism_manufacturing_pmi_data()
-            if code == "usa_ism_serv": return get_usa_ism_services_pmi_data()
-            if code == "usa_jolts": return get_usa_jolts_job_openings_data()
-            if code == "usa_michigan": return get_usa_michigan_consumer_sentiment_data()
-            if code == "usa_nfp": return get_usa_nfp_data()
-            if code == "usa_pce": return get_usa_pce_yoy_data()
-            if code == "usa_ppi": return get_usa_ppi_yoy_data()
-            if code == "usa_retail": return get_usa_retail_sales_mom_data()
-            if code == "usa_trade": return get_usa_trade_balance_data()
+    loader_map = {
+        # USA
+        "usa_rate": get_usa_interest_rate_data,
+        "usa_cpi": get_usa_cpi_yoy_data,
+        "usa_core_cpi": get_usa_core_cpi_yoy_data,
+        "usa_gdp": get_usa_gdp_qoq_data,
+        "usa_unemp": get_usa_unemployment_rate_data,
+        "usa_ahe": get_usa_average_hourly_earnings_yoy_data,
+        "usa_core_pce": get_usa_core_pce_yoy_data,
+        "usa_core_ppi": get_usa_core_ppi_yoy_data,
+        "usa_housing": get_usa_housing_starts_mom_data,
+        "usa_ism_manu": get_usa_ism_manufacturing_pmi_data,
+        "usa_ism_serv": get_usa_ism_services_pmi_data,
+        "usa_jolts": get_usa_jolts_job_openings_data,
+        "usa_michigan": get_usa_michigan_consumer_sentiment_data,
+        "usa_nfp": get_usa_nfp_data,
+        "usa_pce": get_usa_pce_yoy_data,
+        "usa_ppi": get_usa_ppi_yoy_data,
+        "usa_retail": get_usa_retail_sales_mom_data,
+        "usa_trade": get_usa_trade_balance_data,
 
-            # Yields
-            if code == "usa_1m": return get_usa_1mo_yield_data()
-            if code == "usa_3m": return get_usa_3mo_yield_data()
-            if code == "usa_6m": return get_usa_6mo_yield_data()
-            if code == "usa_1y": return get_usa_1yr_yield_data()
-            if code == "usa_2y": return get_usa_2yr_yield_data()
-            if code == "usa_3y": return get_usa_3yr_yield_data()
-            if code == "usa_5y": return get_usa_5yr_yield_data()
-            if code == "usa_7y": return get_usa_7yr_yield_data()
-            if code == "usa_10y": return get_usa_10yr_yield_data()
-            if code == "usa_20y": return get_usa_20yr_yield_data()
-            if code == "usa_30y": return get_usa_30yr_yield_data()
+        # US Yields
+        "usa_1m": get_usa_1mo_yield_data,
+        "usa_3m": get_usa_3mo_yield_data,
+        "usa_6m": get_usa_6mo_yield_data,
+        "usa_1y": get_usa_1yr_yield_data,
+        "usa_2y": get_usa_2yr_yield_data,
+        "usa_3y": get_usa_3yr_yield_data,
+        "usa_5y": get_usa_5yr_yield_data,
+        "usa_7y": get_usa_7yr_yield_data,
+        "usa_10y": get_usa_10yr_yield_data,
+        "usa_20y": get_usa_20yr_yield_data,
+        "usa_30y": get_usa_30yr_yield_data,
 
+        # UK
+        "uk_rate": get_uk_interest_rate_data,
+        "uk_cpi": get_uk_cpi_yoy_data,
+        "uk_gdp": get_uk_gdp_qoq_data,
+        "uk_unemp": get_uk_unemployment_rate_data,
+        "uk_10y": get_uk_10yr_yield_data,
+        "uk_2y": get_uk_2yr_yield_data,
 
-            # UK
-            if code == "uk_rate": return get_uk_interest_rate_data()
-            if code == "uk_cpi": return get_uk_cpi_yoy_data()
-            if code == "uk_gdp": return get_uk_gdp_qoq_data()
-            if code == "uk_unemp": return get_uk_unemployment_rate_data()
-            if code == "uk_10y": return get_uk_10yr_yield_data()
-            if code == "uk_2y": return get_uk_2yr_yield_data()
+        # Japan
+        "jp_rate": get_japan_interest_rate_data,
+        "jp_cpi": get_japan_cpi_yoy_data,
+        "jp_gdp": get_japan_gdp_qoq_data,
+        "jp_unemp": get_japan_unemployment_rate_data,
+        "jp_10y": get_japan_10yr_yield_data,
+        "jp_2y": get_japan_2yr_yield_data,
 
-            # Japan
-            if code == "jp_rate": return get_japan_interest_rate_data()
-            if code == "jp_cpi": return get_japan_cpi_yoy_data()
-            if code == "jp_gdp": return get_japan_gdp_qoq_data()
-            if code == "jp_unemp": return get_japan_unemployment_rate_data()
-            if code == "jp_10y": return get_japan_10yr_yield_data()
-            if code == "jp_2y": return get_japan_2yr_yield_data()
+        # Euro
+        "eu_rate": get_euro_interest_rate_data,
+        "eu_cpi": get_euro_cpi_yoy_data,
+        "eu_gdp": get_euro_gdp_qoq_data,
+        "eu_unemp": get_euro_unemployment_rate_data,
+        "eu_10y": get_euro_10yr_yield_data,
+        "eu_2y": get_euro_2yr_yield_data,
+    }
 
-            # Euro
-            if code == "eu_rate": return get_euro_interest_rate_data()
-            if code == "eu_cpi": return get_euro_cpi_yoy_data()
-            if code == "eu_gdp": return get_euro_gdp_qoq_data()
-            if code == "eu_unemp": return get_euro_unemployment_rate_data()
-            if code == "eu_10y": return get_euro_10yr_yield_data()
-            if code == "eu_2y": return get_euro_2yr_yield_data()
+    yahoo_map = {
+        # FX
+        "eurusd": "EURUSD=X",
+        "gbpusd": "GBPUSD=X",
+        "usdjpy": "USDJPY=X",
+        "dxy": "DX-Y.NYB",
 
-            # FX
-            if code == "eurusd": return get_fx_data_yahoo("EURUSD=X", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "gbpusd": return get_fx_data_yahoo("GBPUSD=X", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "usdjpy": return get_fx_data_yahoo("USDJPY=X", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "dxy": return get_fx_data_yahoo("DX-Y.NYB", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            
-            # Equities
-            if code == "eq_sp500": return get_fx_data_yahoo("^GSPC", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_nasdaq": return get_fx_data_yahoo("^IXIC", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_dow": return get_fx_data_yahoo("^DJI", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_ftse": return get_fx_data_yahoo("^FTSE", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_nikkei": return get_fx_data_yahoo("^N225", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_dax": return get_fx_data_yahoo("^GDAXI", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_msci_em": return get_fx_data_yahoo("EEM", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "eq_vix": return get_fx_data_yahoo("^VIX", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+        # Equities
+        "eq_sp500": "^GSPC",
+        "eq_nasdaq": "^IXIC",
+        "eq_dow": "^DJI",
+        "eq_ftse": "^FTSE",
+        "eq_nikkei": "^N225",
+        "eq_dax": "^GDAXI",
+        "eq_msci_em": "EEM",
+        "eq_vix": "^VIX",
 
-            # Stocks
-            if code == "st_aapl": return get_fx_data_yahoo("AAPL", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "st_amzn": return get_fx_data_yahoo("AMZN", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "st_meta": return get_fx_data_yahoo("META", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "st_googl": return get_fx_data_yahoo("GOOGL", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "st_nvda": return get_fx_data_yahoo("NVDA", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "st_msft": return get_fx_data_yahoo("MSFT", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "st_tsla": return get_fx_data_yahoo("TSLA", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+        # Stocks
+        "st_aapl": "AAPL",
+        "st_amzn": "AMZN",
+        "st_meta": "META",
+        "st_googl": "GOOGL",
+        "st_nvda": "NVDA",
+        "st_msft": "MSFT",
+        "st_tsla": "TSLA",
 
-            # Commodities
-            if code == "cmd_gold": return get_fx_data_yahoo("GC=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_silver": return get_fx_data_yahoo("SI=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_wti": return get_fx_data_yahoo("CL=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_brent": return get_fx_data_yahoo("BZ=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_ng": return get_fx_data_yahoo("NG=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_wheat": return get_fx_data_yahoo("ZW=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_copper": return get_fx_data_yahoo("HG=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_corn": return get_fx_data_yahoo("ZC=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "cmd_soy": return get_fx_data_yahoo("ZS=F", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            
-            # Crypto
-            if code == "crypto_btc": return get_fx_data_yahoo("BTC-USD", start_date=dt.date(1980,1,1), end_date=dt.date.today())
-            if code == "crypto_eth": return get_fx_data_yahoo("ETH-USD", start_date=dt.date(1980,1,1), end_date=dt.date.today())
+        # Commodities
+        "cmd_gold": "GC=F",
+        "cmd_silver": "SI=F",
+        "cmd_wti": "CL=F",
+        "cmd_brent": "BZ=F",
+        "cmd_ng": "NG=F",
+        "cmd_wheat": "ZW=F",
+        "cmd_copper": "HG=F",
+        "cmd_corn": "ZC=F",
+        "cmd_soy": "ZS=F",
 
+        # Crypto
+        "crypto_btc": "BTC-USD",
+        "crypto_eth": "ETH-USD",
+    }
 
-            return pd.DataFrame()
+    if code in loader_map:
+        return loader_map[code]()
+
+    if code in yahoo_map:
+        return get_fx_data_yahoo(
+            yahoo_map[code],
+            start_date=dt.date(1980, 1, 1),
+            end_date=dt.date.today()
+        )
+
+    return pd.DataFrame()
 
 def analyze_series(df: pd.DataFrame, window: int = 12):
     """
