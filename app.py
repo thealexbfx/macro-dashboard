@@ -761,9 +761,7 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
                 )
 
     return fig
-    
-import pandas as pd
-import plotly.graph_objects as go
+   
 
 def plot_scenario_chart(df, threshold_pct=4.0, window=30, window_unit='days',
                         yaxis_suffix='', start_date=None, end_date=None):
@@ -870,562 +868,119 @@ def plot_scenario_chart(df, threshold_pct=4.0, window=30, window_unit='days',
 
     
 @st.cache_data
+def load_local_macro_data(file_name, freq="monthly", value_col="Rate"):
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, file_name)
+
+    if freq == "daily":
+        df = pd.read_csv(file_path, delim_whitespace=True)
+    else:
+        df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+
+    df.columns = df.columns.str.strip()
+
+    if freq == "quarterly":
+        df.rename(columns={"Date": "quarter", value_col: "value"}, inplace=True)
+
+        def parse_quarter(q):
+            q = str(q).strip()
+            if "Q" not in q:
+                return pd.NaT
+            quarter, year = q.split()
+            month_map = {"Q1": 3, "Q2": 6, "Q3": 9, "Q4": 12}
+            month = month_map.get(quarter, 3)
+            return pd.Timestamp(year=int(year), month=month, day=1) + pd.offsets.MonthEnd(0)
+
+        df["date"] = df["quarter"].apply(parse_quarter)
+        df = df[["date", "value"]]
+
+    else:
+        df.rename(columns={"Date": "date", value_col: "value"}, inplace=True)
+        df["date"] = pd.to_datetime(
+            df["date"],
+            format="%B %Y" if freq == "monthly" else None,
+            errors="coerce"
+        )
+
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+    df = df.dropna(subset=["date", "value"])
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+    
+@st.cache_data
 def get_japan_interest_rate_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "Japan_Interest_Rate.txt")
-    
-    # Use whitespace delimiter for space/tab-separated file
-    df = pd.read_csv(file_path, delim_whitespace=True)
+    return load_local_macro_data("Japan_Interest_Rate.txt", freq="daily", value_col="Rate")
 
-    # Strip column names to remove hidden spaces
-    df.columns = df.columns.str.strip()
-
-    # Rename for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert date column to datetime
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
-
-    # Drop any rows where date could not be parsed
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_japan_cpi_yoy_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "Japan_CPI_YoY.txt")
-    
-    # Read using regex for 2+ spaces
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+    return load_local_macro_data("Japan_CPI_YoY.txt", freq="monthly", value_col="Rate")
 
-    # Clean column names
-    df.columns = df.columns.str.strip()
-
-    # Rename columns for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert value to float
-    df['value'] = pd.to_numeric(df['value'], errors='coerce')
-
-    # Drop invalid rows
-    df = df.dropna(subset=['value'])
-
-    # Convert Month Year to datetime
-    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
-
-    # Drop rows with invalid dates
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-    
-@st.cache_data    
+@st.cache_data
 def get_japan_gdp_qoq_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "Japan_GDP_Growth_Rate_QoQ.txt")
-    
-    # Read the file (split on 2+ spaces, so "Q1 2008" stays together)
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+    return load_local_macro_data("Japan_GDP_Growth_Rate_QoQ.txt", freq="quarterly", value_col="Rate")
 
-    # Clean up column names
-    df.columns = df.columns.str.strip()
-
-    # Rename for consistency
-    df.rename(columns={"Date": "quarter", "Rate": "value"}, inplace=True)
-
-    # Function to convert "Q1 2008" -> datetime (end of quarter)
-    def parse_quarter(q):
-        q = str(q).strip()
-        if "Q" not in q:
-            return pd.NaT
-        quarter, year = q.split()
-        month_map = {"Q1": 3, "Q2": 6, "Q3": 9, "Q4": 12}
-        month = month_map.get(quarter, 3)
-        return pd.Timestamp(year=int(year), month=month, day=1) + pd.offsets.MonthEnd(0)
-
-    df["date"] = df["quarter"].apply(parse_quarter)
-
-    # Keep only relevant columns
-    df = df[["date", "value"]]
-
-    # Convert value to numeric
-    df["value"] = pd.to_numeric(df["value"], errors="coerce")
-
-    # Drop invalid rows
-    df = df.dropna(subset=["date", "value"]).sort_values("date").reset_index(drop=True)
-
-    return df
-    
-@st.cache_data    
+@st.cache_data
 def get_japan_unemployment_rate_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "Japan_Unemployment_Rate.txt")
-    
-    # Read using regex for 2+ spaces
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+    return load_local_macro_data("Japan_Unemployment_Rate.txt", freq="monthly", value_col="Rate")
 
-    # Clean column names
-    df.columns = df.columns.str.strip()
-
-    # Rename columns for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert value to float
-    df['value'] = pd.to_numeric(df['value'], errors='coerce')
-
-    # Drop invalid rows
-    df = df.dropna(subset=['value'])
-
-    # Convert Month Year to datetime
-    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
-
-    # Drop rows with invalid dates
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_japan_10yr_yield_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "Japan_10_Year_Yield.txt")
-        
-    # Read tab or whitespace-delimited file
-    df = pd.read_csv(file_path, delim_whitespace=True)
+    return load_local_macro_data("Japan_10_Year_Yield.txt", freq="daily", value_col="Price")
 
-    # Strip column names
-    df.columns = df.columns.str.strip()
-
-    # Rename for consistency
-    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
-
-    # Convert date to datetime
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
-
-    # Drop invalid dates
-    df = df.dropna(subset=["date"])
-
-    # Ensure value is numeric
-    df["value"] = pd.to_numeric(df["value"], errors="coerce")
-
-    # Drop rows with missing values
-    df = df.dropna(subset=["value"])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_japan_2yr_yield_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "Japan_2_Year_Yield.txt")
-        
-    # Read tab or whitespace-delimited file
-    df = pd.read_csv(file_path, delim_whitespace=True)
+    return load_local_macro_data("Japan_2_Year_Yield.txt", freq="daily", value_col="Price")
 
-    # Strip column names
-    df.columns = df.columns.str.strip()
-
-    # Rename for consistency
-    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
-
-    # Convert date to datetime
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
-
-    # Drop invalid dates
-    df = df.dropna(subset=["date"])
-
-    # Ensure value is numeric
-    df["value"] = pd.to_numeric(df["value"], errors="coerce")
-
-    # Drop rows with missing values
-    df = df.dropna(subset=["value"])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
 
 @st.cache_data
 def get_uk_interest_rate_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "UK_Interest_Rate.txt")
-    
-    # Use whitespace delimiter for space/tab-separated file
-    df = pd.read_csv(file_path, delim_whitespace=True)
+    return load_local_macro_data("UK_Interest_Rate.txt", freq="daily", value_col="Rate")
 
-    # Strip column names to remove hidden spaces
-    df.columns = df.columns.str.strip()
-
-    # Rename for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert date column to datetime
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
-
-    # Drop any rows where date could not be parsed
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_uk_cpi_yoy_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "UK_CPI_YoY.txt")
-    
-    # Read using regex for 2+ spaces
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+    return load_local_macro_data("UK_CPI_YoY.txt", freq="monthly", value_col="Rate")
 
-    # Clean column names
-    df.columns = df.columns.str.strip()
-
-    # Rename columns for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert value to float
-    df['value'] = pd.to_numeric(df['value'], errors='coerce')
-
-    # Drop invalid rows
-    df = df.dropna(subset=['value'])
-
-    # Convert Month Year to datetime
-    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
-
-    # Drop rows with invalid dates
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_uk_gdp_qoq_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "UK_GDP_Growth_Rate_QoQ.txt")
-    
-    # Read the file (split on 2+ spaces, so "Q1 2008" stays together)
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+    return load_local_macro_data("UK_GDP_Growth_Rate_QoQ.txt", freq="quarterly", value_col="Rate")
 
-    # Clean up column names
-    df.columns = df.columns.str.strip()
-
-    # Rename for consistency
-    df.rename(columns={"Date": "quarter", "Rate": "value"}, inplace=True)
-
-    # Function to convert "Q1 2008" -> datetime (end of quarter)
-    def parse_quarter(q):
-        q = str(q).strip()
-        if "Q" not in q:
-            return pd.NaT
-        quarter, year = q.split()
-        month_map = {"Q1": 3, "Q2": 6, "Q3": 9, "Q4": 12}
-        month = month_map.get(quarter, 3)
-        return pd.Timestamp(year=int(year), month=month, day=1) + pd.offsets.MonthEnd(0)
-
-    df["date"] = df["quarter"].apply(parse_quarter)
-
-    # Keep only relevant columns
-    df = df[["date", "value"]]
-
-    # Convert value to numeric
-    df["value"] = pd.to_numeric(df["value"], errors="coerce")
-
-    # Drop invalid rows
-    df = df.dropna(subset=["date", "value"]).sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_uk_unemployment_rate_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "UK_Unemployment_Rate.txt")
-    
-    # Read using regex for 2+ spaces
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+    return load_local_macro_data("UK_Unemployment_Rate.txt", freq="monthly", value_col="Rate")
 
-    # Clean column names
-    df.columns = df.columns.str.strip()
-
-    # Rename columns for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert value to float
-    df['value'] = pd.to_numeric(df['value'], errors='coerce')
-
-    # Drop invalid rows
-    df = df.dropna(subset=['value'])
-
-    # Convert Month Year to datetime
-    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
-
-    # Drop rows with invalid dates
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_uk_10yr_yield_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "UK_10_Year_Yield.txt")
-        
-    # Read tab or whitespace-delimited file
-    df = pd.read_csv(file_path, delim_whitespace=True)
+    return load_local_macro_data("UK_10_Year_Yield.txt", freq="daily", value_col="Price")
 
-    # Strip column names
-    df.columns = df.columns.str.strip()
-
-    # Rename for consistency
-    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
-
-    # Convert date to datetime
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
-
-    # Drop invalid dates
-    df = df.dropna(subset=["date"])
-
-    # Ensure value is numeric
-    df["value"] = pd.to_numeric(df["value"], errors="coerce")
-
-    # Drop rows with missing values
-    df = df.dropna(subset=["value"])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_uk_2yr_yield_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "UK_2_Year_Yield.txt")
-        
-    # Read tab or whitespace-delimited file
-    df = pd.read_csv(file_path, delim_whitespace=True)
+    return load_local_macro_data("UK_2_Year_Yield.txt", freq="daily", value_col="Price")
 
-    # Strip column names
-    df.columns = df.columns.str.strip()
 
-    # Rename for consistency
-    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
-
-    # Convert date to datetime
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
-
-    # Drop invalid dates
-    df = df.dropna(subset=["date"])
-
-    # Ensure value is numeric
-    df["value"] = pd.to_numeric(df["value"], errors="coerce")
-
-    # Drop rows with missing values
-    df = df.dropna(subset=["value"])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_euro_interest_rate_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "EURO_Interest_Rate.txt")
-    
-    # Use whitespace delimiter for space/tab-separated file
-    df = pd.read_csv(file_path, delim_whitespace=True)
+    return load_local_macro_data("EURO_Interest_Rate.txt", freq="daily", value_col="Rate")
 
-    # Strip column names to remove hidden spaces
-    df.columns = df.columns.str.strip()
-
-    # Rename for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert date column to datetime
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
-
-    # Drop any rows where date could not be parsed
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_euro_cpi_yoy_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "EURO_CPI_YoY.txt")
-    
-    # Read using regex for 2+ spaces
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+    return load_local_macro_data("EURO_CPI_YoY.txt", freq="monthly", value_col="Rate")
 
-    # Clean column names
-    df.columns = df.columns.str.strip()
-
-    # Rename columns for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert value to float
-    df['value'] = pd.to_numeric(df['value'], errors='coerce')
-
-    # Drop invalid rows
-    df = df.dropna(subset=['value'])
-
-    # Convert Month Year to datetime
-    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
-
-    # Drop rows with invalid dates
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_euro_gdp_qoq_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "EURO_GDP_Growth_Rate_QoQ.txt")
-    
-    # Read the file (split on 2+ spaces, so "Q1 2008" stays together)
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+    return load_local_macro_data("EURO_GDP_Growth_Rate_QoQ.txt", freq="quarterly", value_col="Rate")
 
-    # Clean up column names
-    df.columns = df.columns.str.strip()
-
-    # Rename for consistency
-    df.rename(columns={"Date": "quarter", "Rate": "value"}, inplace=True)
-
-    # Function to convert "Q1 2008" -> datetime (end of quarter)
-    def parse_quarter(q):
-        q = str(q).strip()
-        if "Q" not in q:
-            return pd.NaT
-        quarter, year = q.split()
-        month_map = {"Q1": 3, "Q2": 6, "Q3": 9, "Q4": 12}
-        month = month_map.get(quarter, 3)
-        return pd.Timestamp(year=int(year), month=month, day=1) + pd.offsets.MonthEnd(0)
-
-    df["date"] = df["quarter"].apply(parse_quarter)
-
-    # Keep only relevant columns
-    df = df[["date", "value"]]
-
-    # Convert value to numeric
-    df["value"] = pd.to_numeric(df["value"], errors="coerce")
-
-    # Drop invalid rows
-    df = df.dropna(subset=["date", "value"]).sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_euro_unemployment_rate_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "EURO_Unemployment_Rate.txt")
-    
-    # Read using regex for 2+ spaces
-    df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
+    return load_local_macro_data("EURO_Unemployment_Rate.txt", freq="monthly", value_col="Rate")
 
-    # Clean column names
-    df.columns = df.columns.str.strip()
-
-    # Rename columns for consistency
-    df.rename(columns={"Date": "date", "Rate": "value"}, inplace=True)
-
-    # Convert value to float
-    df['value'] = pd.to_numeric(df['value'], errors='coerce')
-
-    # Drop invalid rows
-    df = df.dropna(subset=['value'])
-
-    # Convert Month Year to datetime
-    df['date'] = pd.to_datetime(df['date'], format="%B %Y", errors='coerce')
-
-    # Drop rows with invalid dates
-    df = df.dropna(subset=['date'])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data   
+@st.cache_data
 def get_euro_10yr_yield_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "EURO_10_Year_Yield.txt")
-        
-    # Read tab or whitespace-delimited file
-    df = pd.read_csv(file_path, delim_whitespace=True)
+    return load_local_macro_data("EURO_10_Year_Yield.txt", freq="daily", value_col="Price")
 
-    # Strip column names
-    df.columns = df.columns.str.strip()
-
-    # Rename for consistency
-    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
-
-    # Convert date to datetime
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
-
-    # Drop invalid dates
-    df = df.dropna(subset=["date"])
-
-    # Ensure value is numeric
-    df["value"] = pd.to_numeric(df["value"], errors="coerce")
-
-    # Drop rows with missing values
-    df = df.dropna(subset=["value"])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
-
-@st.cache_data    
+@st.cache_data
 def get_euro_2yr_yield_data():
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "EURO_2_Year_Yield.txt")
-        
-    # Read tab or whitespace-delimited file
-    df = pd.read_csv(file_path, delim_whitespace=True)
-
-    # Strip column names
-    df.columns = df.columns.str.strip()
-
-    # Rename for consistency
-    df.rename(columns={"Date": "date", "Price": "value"}, inplace=True)
-
-    # Convert date to datetime
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
-
-    # Drop invalid dates
-    df = df.dropna(subset=["date"])
-
-    # Ensure value is numeric
-    df["value"] = pd.to_numeric(df["value"], errors="coerce")
-
-    # Drop rows with missing values
-    df = df.dropna(subset=["value"])
-
-    # Sort by date
-    df = df.sort_values("date").reset_index(drop=True)
-
-    return df
+    return load_local_macro_data("EURO_2_Year_Yield.txt", freq="daily", value_col="Price")
     
 # ---------------------------
 # Generic USA Data Loader
