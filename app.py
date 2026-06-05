@@ -977,7 +977,7 @@ def load_local_macro_data(file_name, freq="monthly", value_col="Rate"):
     file_path = os.path.join(base_dir, file_name)
 
     if freq == "daily":
-        df = pd.read_csv(file_path, delim_whitespace=True)
+        df = pd.read_csv(file_path, sep=r"\s+")
     else:
         df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
 
@@ -1104,7 +1104,7 @@ def load_usa_data(file_name: str, freq: str = "monthly", date_format: str = "%B 
 
     # Detect delimiter type
     if freq == "daily":
-        df = pd.read_csv(file_path, delim_whitespace=True)
+        df = pd.read_csv(file_path, sep=r"\s+")
     else:
         df = pd.read_csv(file_path, sep=r"\s{2,}", engine="python")
 
