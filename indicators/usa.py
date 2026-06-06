@@ -137,6 +137,20 @@ def get_usa_unit_labor_costs_data():
 def get_usa_real_hourly_compensation_data():
     return get_bls_series("PRS85006153", start_year=2000) 
 
+def get_usa_initial_jobless_claims_data():
+    return get_fred_series("ICSA")
+
+
+def get_usa_ism_manufacturing_pmi_data():
+    return load_usa_data("USA_ISM_Manufacturing_PMI.txt", freq="monthly")
+
+def get_usa_ism_services_pmi_data():
+    return load_usa_data("USA_ISM_Services_PMI.txt", freq="monthly")
+
+
+def get_usa_fed_balance_sheet_data():
+    return get_fred_series("WALCL")
+
 def get_usa_1mo_yield_data():
     return get_usa_yield_data("DGS1MO")
 

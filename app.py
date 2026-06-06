@@ -65,6 +65,10 @@ from indicators.usa import (
     get_usa_labor_productivity_data,
     get_usa_unit_labor_costs_data,
     get_usa_real_hourly_compensation_data,
+    get_usa_initial_jobless_claims_data,
+  ##  get_usa_ism_manufacturing_pmi_data,
+  ##  get_usa_ism_services_pmi_data,
+    get_usa_fed_balance_sheet_data,
     get_usa_1mo_yield_data,
     get_usa_3mo_yield_data,
     get_usa_6mo_yield_data,
@@ -223,7 +227,8 @@ def analyze_usa():
     """Compute latest value, slope, and relative position for all USA indicators."""
     usa_tickers = {
         # Monetary Policy
-        "Interest Rate": get_usa_interest_rate_data,
+        "Federal Funds Rate": get_usa_interest_rate_data,
+        "Fed Balance Sheet": get_usa_fed_balance_sheet_data,
 
         # Inflation
         "CPI YoY": get_usa_cpi_yoy_data,
@@ -244,6 +249,7 @@ def analyze_usa():
         "ECI Wages & Salaries YoY": get_usa_eci_wages_salaries_yoy_data,
         "JOLTS Job Openings": get_usa_jolts_job_openings_data,
         "Quits Rate": get_usa_quits_rate_data,
+        "Initial Jobless Claims": get_usa_initial_jobless_claims_data,
 
         # Growth / Consumer / Activity
         "GDP Growth Rate": get_usa_gdp_qoq_data,
@@ -269,6 +275,10 @@ def analyze_usa():
         # Sentiment & Conditions
         "Michigan Consumer Sentiment": get_usa_michigan_consumer_sentiment_data,
         "Chicago Fed NFCI": get_usa_chicago_fed_nfci_data,
+        
+        # Surveys
+   ##     "ISM Manufacturing PMI": get_usa_ism_manufacturing_pmi_data,
+   ##     "ISM Services PMI": get_usa_ism_services_pmi_data,
     }
 
     results = {}
@@ -538,7 +548,7 @@ asset_map = {
 # --- Asset display names ---
 display_names = {
     # USA Economic Indicators
-    "usa_rate": "USA Interest Rate",
+    "usa_rate": "USA Federal Funds Rate",
     "usa_cpi": "USA CPI YoY",
     "usa_core_cpi": "USA Core CPI YoY",
     "usa_gdp": "USA GDP QoQ",
@@ -547,8 +557,8 @@ display_names = {
     "usa_core_pce": "USA Core PCE YoY",
     "usa_core_ppi": "USA Core PPI YoY",
     "usa_housing": "USA Housing Starts MoM",
-    "usa_ism_manu": "USA ISM Manufacturing PMI",
-    "usa_ism_serv": "USA ISM Services PMI",
+ #   "usa_ism_manu": "USA ISM Manufacturing PMI",
+ #   "usa_ism_serv": "USA ISM Services PMI",
     "usa_jolts": "USA JOLTS Job Openings",
     "usa_michigan": "USA Michigan Consumer Sentiment",
     "usa_nfp": "USA Non-Farm Payrolls",
@@ -650,8 +660,8 @@ def load_indicator_data(code):
         "usa_core_pce": get_usa_core_pce_yoy_data,
         "usa_core_ppi": get_usa_core_ppi_yoy_data,
         "usa_housing": get_usa_housing_starts_mom_data,
-        "usa_ism_manu": get_usa_ism_manufacturing_pmi_data,
-        "usa_ism_serv": get_usa_ism_services_pmi_data,
+   #     "usa_ism_manu": get_usa_ism_manufacturing_pmi_data,
+   #     "usa_ism_serv": get_usa_ism_services_pmi_data,
         "usa_jolts": get_usa_jolts_job_openings_data,
         "usa_michigan": get_usa_michigan_consumer_sentiment_data,
         "usa_nfp": get_usa_nfp_data,
@@ -1981,8 +1991,9 @@ if page == "USA":
 
         # -------- Indicator Groups --------
         indicator_groups = {
-            "Monetary Policy": [
-                "Interest Rate"
+            "Monetary Policy & Liquidity": [
+                "Federal Funds Rate",
+                "Fed Balance Sheet",
             ],
 
             "Inflation": [
@@ -1993,21 +2004,22 @@ if page == "USA":
                 "PPI YoY",
                 "Core PPI YoY",
                 "Import Prices YoY",
-                "Export Prices YoY"
+                "Export Prices YoY",
             ],
 
             "Labor Market": [
                 "Unemployment Rate",
                 "Labor Force Participation Rate",
                 "Non Farm Payrolls",
+                "Initial Jobless Claims",
                 "Average Hourly Earnings YoY",
                 "JOLTS Job Openings",
                 "Quits Rate",
                 "ECI Total Compensation YoY",
-                "ECI Wages & Salaries YoY"
+                "ECI Wages & Salaries YoY",
             ],
 
-            "Growth": [
+            "Growth & Activity": [
                 "GDP Growth Rate",
                 "Personal Income MoM",
                 "Personal Consumption MoM",
@@ -2015,25 +2027,27 @@ if page == "USA":
                 "Industrial Production MoM",
                 "Capacity Utilization",
                 "Durable Goods Orders MoM",
-                "Trade Balance"
+             ##   "ISM Manufacturing PMI",
+             ##   "ISM Services PMI",
+                "Trade Balance",
             ],
 
             "Housing": [
                 "Housing Starts MoM",
                 "Building Permits MoM",
-                "New Home Sales MoM"
+                "New Home Sales MoM",
             ],
 
             "Productivity & Costs": [
                 "Labor Productivity",
                 "Unit Labor Costs",
-                "Real Hourly Compensation"
+                "Real Hourly Compensation",
             ],
 
-            "Sentiment & Conditions": [
+            "Sentiment & Financial Conditions": [
                 "Michigan Consumer Sentiment",
-                "Chicago Fed NFCI"
-            ]
+                "Chicago Fed NFCI",
+            ],
         }
 
         # Category dropdown
@@ -2054,7 +2068,7 @@ if page == "USA":
 
         # -------- Indicator Function Mapping --------
         indicator_map = {
-            "Interest Rate": (get_usa_interest_rate_data, "daily", "%b %Y"),
+            "Federal Funds Rate": (get_usa_interest_rate_data, "daily", "%b %Y"),
 
             "CPI YoY": (get_usa_cpi_yoy_data, "monthly", None),
             "Core CPI YoY": (get_usa_core_cpi_yoy_data, "monthly", None),
@@ -2092,7 +2106,12 @@ if page == "USA":
             "Real Hourly Compensation": (get_usa_real_hourly_compensation_data, "quarterly", None),
 
             "Michigan Consumer Sentiment": (get_usa_michigan_consumer_sentiment_data, "monthly", None),
-            "Chicago Fed NFCI": (get_usa_chicago_fed_nfci_data, "weekly", None)
+            "Chicago Fed NFCI": (get_usa_chicago_fed_nfci_data, "weekly", None),
+            
+            "Initial Jobless Claims": (get_usa_initial_jobless_claims_data, "weekly", None),
+        ##    "ISM Manufacturing PMI": (get_usa_ism_manufacturing_pmi_data, "monthly", None),
+         ##   "ISM Services PMI": (get_usa_ism_services_pmi_data, "monthly", None),
+            "Fed Balance Sheet": (get_usa_fed_balance_sheet_data, "weekly", None)
         }
 
         # Load data dynamically
@@ -2128,7 +2147,7 @@ if page == "USA":
     with col2:
         # -------- Commentary --------
         commentary = {
-            "Interest Rate": "The Federal Funds Rate is the benchmark short-term interest rate set by the Federal Reserve. It influences borrowing costs, financial conditions, and the stance of monetary policy.",
+            "Federal Funds Rate": "The Federal Funds Rate is the benchmark short-term interest rate set by the Federal Reserve. It influences borrowing costs, financial conditions, and the stance of monetary policy.",
 
             "CPI YoY": "CPI YoY measures the annual change in consumer prices across a broad basket of goods and services. It is one of the main gauges of household inflation pressure.",
             "Core CPI YoY": "Core CPI excludes food and energy prices to show underlying inflation trends. It is closely watched because it removes some of the most volatile components.",
@@ -2167,7 +2186,15 @@ if page == "USA":
             "Real Hourly Compensation": "Real hourly compensation measures worker compensation adjusted for inflation. It helps assess purchasing power and real wage trends.",
 
             "Michigan Consumer Sentiment": "The Michigan Consumer Sentiment Index measures household confidence in the economy, personal finances, and expectations. It can foreshadow changes in consumer spending.",
-            "Chicago Fed NFCI": "The Chicago Fed National Financial Conditions Index summarizes U.S. financial conditions across money markets, credit markets, and risk indicators."
+            "Chicago Fed NFCI": "The Chicago Fed National Financial Conditions Index summarizes U.S. financial conditions across money markets, credit markets, and risk indicators.",
+            
+            "Initial Jobless Claims": "Initial jobless claims measure the number of people filing for unemployment insurance for the first time. It is one of the highest-frequency labor-market indicators and can provide early signals of changes in employment conditions.",
+
+       ##     "ISM Manufacturing PMI": "The ISM Manufacturing PMI tracks activity across the U.S. manufacturing sector. Readings above 50 generally indicate expansion, while readings below 50 generally indicate contraction.",
+
+       ##     "ISM Services PMI": "The ISM Services PMI tracks activity across the U.S. services sector, which represents a large share of the U.S. economy. It is useful for monitoring demand, business activity, employment, and prices in services.",
+
+            "Fed Balance Sheet": "The Federal Reserve balance sheet shows total assets held by the Fed. It is often used as a broad liquidity indicator because changes can reflect quantitative easing, quantitative tightening, emergency lending, and other monetary operations."
         }
 
         render_commentary(commentary, indicator)
@@ -2193,7 +2220,7 @@ if page == "USA":
                          
         # -------- Dynamic Titles --------
         titles = {
-            "Interest Rate": "Federal Funds Rate (%)",
+            "Federal Funds Rate": "Federal Funds Rate (%)",
 
             "CPI YoY": "Consumer Price Index (YoY, %)",
             "Core CPI YoY": "Core Consumer Price Index (YoY, %)",
@@ -2231,7 +2258,12 @@ if page == "USA":
             "Real Hourly Compensation": "Real Hourly Compensation",
 
             "Michigan Consumer Sentiment": "Michigan Consumer Sentiment Index",
-            "Chicago Fed NFCI": "Chicago Fed National Financial Conditions Index"
+            "Chicago Fed NFCI": "Chicago Fed National Financial Conditions Index",
+            
+            "Initial Jobless Claims": "Initial Jobless Claims",
+       ##     "ISM Manufacturing PMI": "ISM Manufacturing PMI",
+       ##     "ISM Services PMI": "ISM Services PMI",
+            "Fed Balance Sheet": "Federal Reserve Balance Sheet: Total Assets"
         }
         
 
@@ -2274,7 +2306,7 @@ if page == "USA":
         )
         
         # -------- Fix Crowded X-Axis for Fed Funds Rate --------
-        if indicator == "Interest Rate":
+        if indicator == "Federal Funds Rate":
             max_ticks = 8  # show ~8 evenly spaced date labels
             if len(df_filtered) > max_ticks:
                 step = max(1, len(df_filtered) // max_ticks)
@@ -3637,8 +3669,8 @@ if page == "Compare":
                 "Core PCE YoY": "usa_core_pce",
                 "Core PPI YoY": "usa_core_ppi",
                 "Housing Starts MoM": "usa_housing",
-                "ISM Manufacturing PMI": "usa_ism_manu",
-                "ISM Services PMI": "usa_ism_serv",
+            ##    "ISM Manufacturing PMI": "usa_ism_manu",
+            ##    "ISM Services PMI": "usa_ism_serv",
                 "JOLTS Job Openings": "usa_jolts",
                 "Michigan Consumer Sentiment": "usa_michigan",
                 "Non Farm Payrolls": "usa_nfp",
@@ -6122,7 +6154,7 @@ if page == "Cycle":
         cpi = analyze_series(get_usa_cpi_yoy_data())
         unemp = analyze_series(get_usa_unemployment_rate_data())
         nfp = analyze_series(get_usa_nfp_data())
-        pmi = analyze_series(get_usa_ism_manufacturing_pmi_data())
+   ##     pmi = analyze_series(get_usa_ism_manufacturing_pmi_data())
         yc_2y = analyze_series(get_usa_2yr_yield_data())
         yc_10y = analyze_series(get_usa_10yr_yield_data())
 
