@@ -7,8 +7,7 @@ from data.bea import get_bea_nipa_series
 from data.transforms import calculate_yoy_from_index, calculate_mom_pct_change, calculate_diff
 
 def get_usa_interest_rate_data():
-    # Keep this as local/FRED for now if you haven't converted Fed Funds yet
-    return load_usa_data("USA_Interest_Rate.txt", freq="daily")
+    return get_fred_series("DFEDTARU")
 
 def get_usa_cpi_yoy_data():
     return calculate_yoy_from_index(
