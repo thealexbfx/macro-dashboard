@@ -19,7 +19,16 @@ import streamlit.components.v1 as components
 import calendar
 from openai import OpenAI
 
-
+# Modular data loaders - Phase 2A
+from data.fred import get_fred_series, get_usa_yield_data
+from data.bls import get_bls_series
+from data.bea import get_bea_nipa_series
+from data.transforms import (
+    calculate_yoy_from_index,
+    calculate_mom_pct_change,
+    calculate_diff,
+)
+from data.yahoo import get_fx_data_yahoo
 
 load_dotenv()  # loads .env file
 
@@ -27,6 +36,7 @@ FRED_API_KEY = os.getenv("FRED_API_KEY")
 ESTAT_API_KEY = os.getenv("ESTAT_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # fallback if not using Streamlit secrets
 BLS_API_KEY = os.getenv("BLS_API_KEY")        # fallback if not using Streamlit secrets
+BEA_API_KEY = os.getenv("BEA_API_KEY")
 
 # ------------------------------
 # Initialize OpenAI client
@@ -47,6 +57,11 @@ try:
 except Exception:
     # fallback to .env
     BLS_API_KEY = os.getenv("BLS_API_KEY")
+    
+try:
+    BEA_API_KEY = st.secrets["openai"]["BEA_API_KEY"]
+except Exception:
+    BEA_API_KEY = os.getenv("BEA_API_KEY")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -159,24 +174,53 @@ def render_commentary(commentary, indicator):
 def analyze_usa():
     """Compute latest value, slope, and relative position for all USA indicators."""
     usa_tickers = {
+        # Monetary Policy
         "Interest Rate": get_usa_interest_rate_data,
+
+        # Inflation
         "CPI YoY": get_usa_cpi_yoy_data,
-        "GDP Growth Rate": get_usa_gdp_qoq_data,
-        "Unemployment Rate": get_usa_unemployment_rate_data,
         "Core CPI YoY": get_usa_core_cpi_yoy_data,
-        "Average Hourly Earnings YoY": get_usa_average_hourly_earnings_yoy_data,
-        "Core PCE YoY": get_usa_core_pce_yoy_data,
-        "Core PPI YoY": get_usa_core_ppi_yoy_data,
-        "Housing Starts MoM": get_usa_housing_starts_mom_data,
-        "ISM Manufacturing PMI": get_usa_ism_manufacturing_pmi_data,
-        "ISM Services PMI": get_usa_ism_services_pmi_data,
-        "Jolts Job Openings": get_usa_jolts_job_openings_data,
-        "Michigan Consumer Sentiment": get_usa_michigan_consumer_sentiment_data,
-        "Non Farm Payrolls": get_usa_nfp_data,
         "PCE YoY": get_usa_pce_yoy_data,
+        "Core PCE YoY": get_usa_core_pce_yoy_data,
         "PPI YoY": get_usa_ppi_yoy_data,
+        "Core PPI YoY": get_usa_core_ppi_yoy_data,
+        "Import Prices YoY": get_usa_import_prices_yoy_data,
+        "Export Prices YoY": get_usa_export_prices_yoy_data,
+
+        # Labor Market
+        "Unemployment Rate": get_usa_unemployment_rate_data,
+        "Labor Force Participation Rate": get_usa_labor_force_participation_data,
+        "Non Farm Payrolls": get_usa_nfp_data,
+        "Average Hourly Earnings YoY": get_usa_average_hourly_earnings_yoy_data,
+        "ECI Total Compensation YoY": get_usa_eci_total_compensation_yoy_data,
+        "ECI Wages & Salaries YoY": get_usa_eci_wages_salaries_yoy_data,
+        "JOLTS Job Openings": get_usa_jolts_job_openings_data,
+        "Quits Rate": get_usa_quits_rate_data,
+
+        # Growth / Consumer / Activity
+        "GDP Growth Rate": get_usa_gdp_qoq_data,
+        "Personal Income MoM": get_usa_personal_income_mom_data,
+        "Personal Consumption MoM": get_usa_personal_consumption_mom_data,
         "Retail Sales MoM": get_usa_retail_sales_mom_data,
-        "Trade Balance": get_usa_trade_balance_data
+        "Industrial Production MoM": get_usa_industrial_production_mom_data,
+        "Capacity Utilization": get_usa_capacity_utilization_data,
+        "Durable Goods Orders MoM": get_usa_durable_goods_orders_mom_data,
+        "Trade Balance": get_usa_trade_balance_data,
+        "Saving Rate": get_usa_saving_rate_data,
+
+        # Housing
+        "Housing Starts MoM": get_usa_housing_starts_mom_data,
+        "Building Permits MoM": get_usa_building_permits_mom_data,
+        "New Home Sales MoM": get_usa_new_home_sales_mom_data,
+
+        # Productivity & Costs
+        "Labor Productivity": get_usa_labor_productivity_data,
+        "Unit Labor Costs": get_usa_unit_labor_costs_data,
+        "Real Hourly Compensation": get_usa_real_hourly_compensation_data,
+
+        # Sentiment & Conditions
+        "Michigan Consumer Sentiment": get_usa_michigan_consumer_sentiment_data,
+        "Chicago Fed NFCI": get_usa_chicago_fed_nfci_data,
     }
 
     results = {}
@@ -1264,86 +1308,264 @@ def get_bls_series(series_id: str, start_year: int = 2000):
 
     return df
     
-def calculate_yoy_from_index(df):
-    df = df.copy()
-    df["date"] = pd.to_datetime(df["date"])
-    df["year_ago_date"] = df["date"] - pd.DateOffset(years=1)
 
-    year_ago = df[["date", "value"]].rename(
-        columns={"date": "year_ago_date", "value": "value_year_ago"}
+    
+@st.cache_data(ttl=86400)
+def get_bea_nipa_series(table_name: str, line_number: int, frequency: str = "Q"):
+    """Fetch a BEA NIPA series and return date/value columns."""
+    url = "https://apps.bea.gov/api/data/"
+
+    params = {
+        "UserID": BEA_API_KEY,
+        "method": "GetData",
+        "DataSetName": "NIPA",
+        "TableName": table_name,
+        "Frequency": frequency,
+        "Year": "ALL",
+        "ResultFormat": "JSON",
+    }
+
+    r = requests.get(url, params=params)
+    r.raise_for_status()
+    data = r.json()
+
+    rows = data["BEAAPI"]["Results"]["Data"]
+
+    df = pd.DataFrame(rows)
+
+    df = df[df["LineNumber"].astype(int) == line_number].copy()
+
+    df["value"] = (
+        df["DataValue"]
+        .astype(str)
+        .str.replace(",", "", regex=False)
+        .replace("(NA)", np.nan)
     )
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
-    df = df.merge(year_ago, on="year_ago_date", how="left")
-    df["value"] = (df["value"] / df["value_year_ago"] - 1) * 100
+    def parse_bea_period(p):
+        p = str(p)
 
-    return df[["date", "value"]].dropna().reset_index(drop=True)
+        if "Q" in p:
+            year = int(p[:4])
+            quarter = int(p[-1])
+            month = {1: 3, 2: 6, 3: 9, 4: 12}[quarter]
+            return pd.Timestamp(year=year, month=month, day=1) + pd.offsets.MonthEnd(0)
 
-# ---------------------------
-# Indicator-Specific Wrappers
-# ---------------------------
+        if "M" in p:
+            year = int(p[:4])
+            month = int(p[-2:])
+            return pd.Timestamp(year=year, month=month, day=1) + pd.offsets.MonthEnd(0)
+
+        year = int(p[:4])
+        return pd.Timestamp(year=year, month=12, day=31)
+
+    df["date"] = df["TimePeriod"].apply(parse_bea_period)
+
+    df = df[["date", "value"]].dropna()
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+
+# ============================================================
+# USA INDICATOR LOADERS - MONETARY POLICY / RATES
+# ============================================================
+
 @st.cache_data
 def get_usa_interest_rate_data():
+    # Keep this as local/FRED for now if you haven't converted Fed Funds yet
     return load_usa_data("USA_Interest_Rate.txt", freq="daily")
+
+
+# ============================================================
+# USA INDICATOR LOADERS - INFLATION
+# Sources: BLS + BEA
+# ============================================================
+
 @st.cache_data
 def get_usa_cpi_yoy_data():
-    return calculate_yoy_from_index(get_bls_series("CUUR0000SA0", start_year=2000))
+    return calculate_yoy_from_index(
+        get_bls_series("CUUR0000SA0", start_year=2000)
+    )
+
+
 @st.cache_data
 def get_usa_core_cpi_yoy_data():
-    return calculate_yoy_from_index(get_bls_series("CUUR0000SA0L1E", start_year=2000))
+    return calculate_yoy_from_index(
+        get_bls_series("CUUR0000SA0L1E", start_year=2000)
+    )
+
+
 @st.cache_data
-def get_usa_gdp_qoq_data():
-    return load_usa_data("USA_GDP_Growth_Rate_QoQ.txt", freq="quarterly")
+def get_usa_pce_yoy_data():
+    df = get_bea_nipa_series("T20804", 1, frequency="M")
+    return calculate_yoy_from_index(df)
+
+
+@st.cache_data
+def get_usa_core_pce_yoy_data():
+    df = get_bea_nipa_series("T20804", 25, frequency="M")
+    return calculate_yoy_from_index(df)
+
+@st.cache_data
+def get_usa_ppi_yoy_data():
+    return calculate_yoy_from_index(
+        get_bls_series("WPUFD4", start_year=2000)
+    )
+
+@st.cache_data
+def get_usa_core_ppi_yoy_data():
+    return calculate_yoy_from_index(
+        get_bls_series("WPSFD4131", start_year=2000)
+    )
+
+@st.cache_data
+def get_usa_import_prices_yoy_data():
+    return calculate_yoy_from_index(
+        get_bls_series("EIUIR", start_year=2000)
+    )
+
+
+@st.cache_data
+def get_usa_export_prices_yoy_data():
+    return calculate_yoy_from_index(
+        get_bls_series("EIUIQ", start_year=2000)
+    )
+
+
+# ============================================================
+# USA INDICATOR LOADERS - LABOR MARKET / WAGES
+# Source: BLS
+# ============================================================
+
 @st.cache_data
 def get_usa_unemployment_rate_data():
     return get_bls_series("LNS14000000", start_year=2000)
+
+
 @st.cache_data
-def get_usa_average_hourly_earnings_yoy_data():
-    return calculate_yoy_from_index(get_bls_series("CES0500000003", start_year=2006))
-@st.cache_data
-def get_usa_core_pce_yoy_data():
-    return load_usa_data("USA_Core_PCE_YoY.txt", freq="monthly", date_format="%B %Y")
-@st.cache_data
-def get_usa_core_ppi_yoy_data():
-    return load_usa_data("USA_Core_PPI_YoY.txt", freq="monthly", date_format="%B %Y")
-@st.cache_data
-def get_usa_housing_starts_mom_data():
-    return load_usa_data("USA_Housing_Starts_MoM.txt", freq="monthly", date_format="%B %Y")
-@st.cache_data
-def get_usa_ism_manufacturing_pmi_data():
-    return load_usa_data("USA_ISM_Manufacturing_PMI.txt", freq="monthly", date_format="%B %Y")
-@st.cache_data    
-def get_usa_ism_services_pmi_data():
-    return load_usa_data("USA_ISM_Services_PMI.txt", freq="monthly", date_format="%B %Y")
-@st.cache_data
-def get_usa_michigan_consumer_sentiment_data():
-    return load_usa_data("USA_Michigan_Consumer_Sentiment_Index.txt", freq="monthly", date_format="%B %Y")
+def get_usa_labor_force_participation_data():
+    return get_bls_series("LNS11300000", start_year=2000)
+
+
 @st.cache_data
 def get_usa_nfp_data():
     df = get_bls_series("CES0000000001", start_year=2000)
     df["value"] = df["value"].diff()
     return df.dropna().reset_index(drop=True)
-@st.cache_data    
-def get_usa_pce_yoy_data():
-    return load_usa_data("USA_PCE_YoY.txt", freq="monthly", date_format="%B %Y")
-@st.cache_data    
-def get_usa_ppi_yoy_data():
-    return load_usa_data("USA_PPI_YoY.txt", freq="monthly", date_format="%B %Y")    
-@st.cache_data   
-def get_usa_retail_sales_mom_data():
-    return load_usa_data("USA_Retail_Sales_MoM.txt", freq="monthly", date_format="%B %Y")
-@st.cache_data   
-def get_usa_trade_balance_data():
-    return load_usa_data("USA_Trade_Balance.txt", freq="monthly", date_format="%B %Y")
+
+
 @st.cache_data
-def get_usa_labor_force_participation_data():
-    return get_bls_series("LNS11300000", start_year=2000)   
+def get_usa_average_hourly_earnings_yoy_data():
+    return calculate_yoy_from_index(
+        get_bls_series("CES0500000003", start_year=2006)
+    )
+
+
+@st.cache_data
+def get_usa_jolts_job_openings_data():
+    return get_bls_series("JTS000000000000000JOL", start_year=2000)
+
+
+@st.cache_data
+def get_usa_quits_rate_data():
+    return get_bls_series("JTS000000000000000QUR", start_year=2000)
+
+
 @st.cache_data
 def get_usa_eci_total_compensation_yoy_data():
-    return calculate_yoy_from_index(get_bls_series("CIU2010000000000A", start_year=2001))
+    return calculate_yoy_from_index(
+        get_bls_series("CIU2010000000000A", start_year=2001)
+    )
+
+
 @st.cache_data
 def get_usa_eci_wages_salaries_yoy_data():
-    return calculate_yoy_from_index(get_bls_series("CIU2020000000000A", start_year=2001))
+    return calculate_yoy_from_index(
+        get_bls_series("CIU2020000000000A", start_year=2001)
+    )
 
+
+# ============================================================
+# USA INDICATOR LOADERS - GROWTH / INCOME / CONSUMER
+# Source: BEA
+# ============================================================
+
+@st.cache_data
+def get_usa_gdp_qoq_data():
+    # Real GDP percent change from preceding period
+    return get_bea_nipa_series("T10101", 1, frequency="Q")
+
+
+@st.cache_data
+def get_usa_personal_income_mom_data():
+    return get_bea_nipa_series("T20600", 1, frequency="M")
+
+
+@st.cache_data
+def get_usa_personal_consumption_mom_data():
+    return get_bea_nipa_series("T20801", 1, frequency="M")
+
+
+@st.cache_data
+def get_usa_saving_rate_data():
+    return get_bea_nipa_series("T20600", 34, frequency="M")
+ 
+@st.cache_data
+def get_usa_michigan_consumer_sentiment_data():
+    return get_fred_series("UMCSENT")
+
+@st.cache_data
+def get_usa_chicago_fed_nfci_data():
+    return get_fred_series("NFCI")
+ 
+@st.cache_data
+def get_usa_housing_starts_mom_data():
+    df = get_fred_series("HOUST")
+    return calculate_mom_pct_change(df)
+
+
+@st.cache_data
+def get_usa_building_permits_mom_data():
+    df = get_fred_series("PERMIT")
+    return calculate_mom_pct_change(df)
+
+
+@st.cache_data
+def get_usa_new_home_sales_mom_data():
+    df = get_fred_series("HSN1F")
+    return calculate_mom_pct_change(df)
+    
+@st.cache_data
+def get_usa_retail_sales_mom_data():
+    df = get_fred_series("RSAFS")
+    return calculate_mom_pct_change(df)
+    
+@st.cache_data
+def get_usa_trade_balance_data():
+    return get_fred_series("BOPGSTB")
+    
+@st.cache_data
+def get_usa_industrial_production_mom_data():
+    df = get_fred_series("INDPRO")
+    return calculate_mom_pct_change(df)
+
+
+@st.cache_data
+def get_usa_capacity_utilization_data():
+    return get_fred_series("TCU")
+
+
+@st.cache_data
+def get_usa_durable_goods_orders_mom_data():
+    df = get_fred_series("DGORDER")
+    return calculate_mom_pct_change(df)
+
+
+# ============================================================
+# USA INDICATOR LOADERS - PRODUCTIVITY & COST PRESSURES
+# Source: BLS
+# ============================================================
 
 @st.cache_data
 def get_usa_labor_productivity_data():
@@ -1357,27 +1579,7 @@ def get_usa_unit_labor_costs_data():
 
 @st.cache_data
 def get_usa_real_hourly_compensation_data():
-    return get_bls_series("PRS85006153", start_year=2000)
-
-
-@st.cache_data
-def get_usa_import_prices_yoy_data():
-    return calculate_yoy_from_index(get_bls_series("EIUIR", start_year=2000))
-
-
-@st.cache_data
-def get_usa_export_prices_yoy_data():
-    return calculate_yoy_from_index(get_bls_series("EIUIQ", start_year=2000))
-
-
-@st.cache_data
-def get_usa_jolts_job_openings_data():
-    return get_bls_series("JTS000000000000000JOL", start_year=2000)
-
-
-@st.cache_data
-def get_usa_quits_rate_data():
-    return get_bls_series("JTS000000000000000QUR", start_year=2000)   
+    return get_bls_series("PRS85006153", start_year=2000) 
     
 @st.cache_data
 def get_usa_yield_data(series_id: str):
@@ -2193,47 +2395,58 @@ if page == "USA":
 
         # -------- Indicator Groups --------
         indicator_groups = {
-            "Labor Market": [
-                "Unemployment Rate",
-                "Labor Force Participation Rate",
-                "Average Hourly Earnings YoY",
-                "ECI Total Compensation YoY",
-                "JOLTS Job Openings",
-                "Quits Rate",
-                "Non Farm Payrolls"
+            "Monetary Policy": [
+                "Interest Rate"
             ],
-            
-            "Growth": [
-                "GDP Growth Rate",
-                "Retail Sales MoM",
-                "Housing Starts MoM",
-                "Trade Balance"
-            ],
-            
-            "Productivity & Costs": [
-                "Labor Productivity",
-                "Unit Labor Costs",
-                "Real Hourly Compensation"
-            ],
-            
+
             "Inflation": [
                 "CPI YoY",
                 "Core CPI YoY",
                 "PCE YoY",
                 "Core PCE YoY",
                 "PPI YoY",
-                "Core PPI YoY"
+                "Core PPI YoY",
                 "Import Prices YoY",
                 "Export Prices YoY"
             ],
-            
-            "Surveys": [
-                "ISM Manufacturing PMI",
-                "ISM Services PMI",
-                "Michigan Consumer Sentiment"
+
+            "Labor Market": [
+                "Unemployment Rate",
+                "Labor Force Participation Rate",
+                "Non Farm Payrolls",
+                "Average Hourly Earnings YoY",
+                "JOLTS Job Openings",
+                "Quits Rate",
+                "ECI Total Compensation YoY",
+                "ECI Wages & Salaries YoY"
             ],
-            "Monetary Policy": [
-                "Interest Rate"
+
+            "Growth": [
+                "GDP Growth Rate",
+                "Personal Income MoM",
+                "Personal Consumption MoM",
+                "Retail Sales MoM",
+                "Industrial Production MoM",
+                "Capacity Utilization",
+                "Durable Goods Orders MoM",
+                "Trade Balance"
+            ],
+
+            "Housing": [
+                "Housing Starts MoM",
+                "Building Permits MoM",
+                "New Home Sales MoM"
+            ],
+
+            "Productivity & Costs": [
+                "Labor Productivity",
+                "Unit Labor Costs",
+                "Real Hourly Compensation"
+            ],
+
+            "Sentiment & Conditions": [
+                "Michigan Consumer Sentiment",
+                "Chicago Fed NFCI"
             ]
         }
 
@@ -2256,31 +2469,44 @@ if page == "USA":
         # -------- Indicator Function Mapping --------
         indicator_map = {
             "Interest Rate": (get_usa_interest_rate_data, "daily", "%b %Y"),
+
             "CPI YoY": (get_usa_cpi_yoy_data, "monthly", None),
-            "GDP Growth Rate": (get_usa_gdp_qoq_data, "quarterly", None),
-            "Unemployment Rate": (get_usa_unemployment_rate_data, "monthly", None),
             "Core CPI YoY": (get_usa_core_cpi_yoy_data, "monthly", None),
-            "Average Hourly Earnings YoY": (get_usa_average_hourly_earnings_yoy_data, "monthly", None),
-            "Core PCE YoY": (get_usa_core_pce_yoy_data, "monthly", None),
-            "Core PPI YoY": (get_usa_core_ppi_yoy_data, "monthly", None),
-            "Housing Starts MoM": (get_usa_housing_starts_mom_data, "monthly", None),
-            "ISM Manufacturing PMI": (get_usa_ism_manufacturing_pmi_data, "monthly", None),
-            "ISM Services PMI": (get_usa_ism_services_pmi_data, "monthly", None),
-            "JOLTS Job Openings": (get_usa_jolts_job_openings_data, "monthly", None),
-            "Michigan Consumer Sentiment": (get_usa_michigan_consumer_sentiment_data, "monthly", None),
-            "Non Farm Payrolls": (get_usa_nfp_data, "monthly", None),
             "PCE YoY": (get_usa_pce_yoy_data, "monthly", None),
+            "Core PCE YoY": (get_usa_core_pce_yoy_data, "monthly", None),
             "PPI YoY": (get_usa_ppi_yoy_data, "monthly", None),
-            "Retail Sales MoM": (get_usa_retail_sales_mom_data, "monthly", None),
-            "Trade Balance": (get_usa_trade_balance_data, "monthly", None),
+            "Core PPI YoY": (get_usa_core_ppi_yoy_data, "monthly", None),
+            "Import Prices YoY": (get_usa_import_prices_yoy_data, "monthly", None),
+            "Export Prices YoY": (get_usa_export_prices_yoy_data, "monthly", None),
+
+            "Unemployment Rate": (get_usa_unemployment_rate_data, "monthly", None),
             "Labor Force Participation Rate": (get_usa_labor_force_participation_data, "monthly", None),
+            "Non Farm Payrolls": (get_usa_nfp_data, "monthly", None),
+            "Average Hourly Earnings YoY": (get_usa_average_hourly_earnings_yoy_data, "monthly", None),
+            "JOLTS Job Openings": (get_usa_jolts_job_openings_data, "monthly", None),
+            "Quits Rate": (get_usa_quits_rate_data, "monthly", None),
             "ECI Total Compensation YoY": (get_usa_eci_total_compensation_yoy_data, "quarterly", None),
+            "ECI Wages & Salaries YoY": (get_usa_eci_wages_salaries_yoy_data, "quarterly", None),
+
+            "GDP Growth Rate": (get_usa_gdp_qoq_data, "quarterly", None),
+            "Personal Income MoM": (get_usa_personal_income_mom_data, "monthly", None),
+            "Personal Consumption MoM": (get_usa_personal_consumption_mom_data, "monthly", None),
+            "Retail Sales MoM": (get_usa_retail_sales_mom_data, "monthly", None),
+            "Industrial Production MoM": (get_usa_industrial_production_mom_data, "monthly", None),
+            "Capacity Utilization": (get_usa_capacity_utilization_data, "monthly", None),
+            "Durable Goods Orders MoM": (get_usa_durable_goods_orders_mom_data, "monthly", None),
+            "Trade Balance": (get_usa_trade_balance_data, "monthly", None),
+
+            "Housing Starts MoM": (get_usa_housing_starts_mom_data, "monthly", None),
+            "Building Permits MoM": (get_usa_building_permits_mom_data, "monthly", None),
+            "New Home Sales MoM": (get_usa_new_home_sales_mom_data, "monthly", None),
+
             "Labor Productivity": (get_usa_labor_productivity_data, "quarterly", None),
             "Unit Labor Costs": (get_usa_unit_labor_costs_data, "quarterly", None),
             "Real Hourly Compensation": (get_usa_real_hourly_compensation_data, "quarterly", None),
-            "Import Prices YoY": (get_usa_import_prices_yoy_data, "monthly", None),
-            "Export Prices YoY": (get_usa_export_prices_yoy_data, "monthly", None),
-            "Quits Rate": (get_usa_quits_rate_data, "monthly", None),
+
+            "Michigan Consumer Sentiment": (get_usa_michigan_consumer_sentiment_data, "monthly", None),
+            "Chicago Fed NFCI": (get_usa_chicago_fed_nfci_data, "weekly", None)
         }
 
         # Load data dynamically
@@ -2316,121 +2542,46 @@ if page == "USA":
     with col2:
         # -------- Commentary --------
         commentary = {
-            # Monetary Policy
-            "Interest Rate": (
-                "The Federal Funds Rate is the benchmark interest rate set by the Federal Reserve. "
-                "It directly influences short-term borrowing costs for banks, which affects mortgages, loans, and business investment. "
-                "Changes in the Fed’s rate are closely watched by global markets as signals of monetary tightening or easing."
-            ),
+            "Interest Rate": "The Federal Funds Rate is the benchmark short-term interest rate set by the Federal Reserve. It influences borrowing costs, financial conditions, and the stance of monetary policy.",
 
-            # Inflation
-            "CPI YoY": (
-                "The Consumer Price Index (CPI YoY) tracks the annual percentage change in the cost of a basket of goods and services. "
-                "It is a key measure of inflation and influences interest rate decisions, wages, and investment strategies."
-            ),
-            "Core CPI YoY": (
-                "Core CPI excludes volatile food and energy prices, providing a clearer view of underlying inflation trends. "
-                "Policymakers use it to assess persistent price pressures in the economy."
-            ),
-            "PCE YoY": (
-                "The Personal Consumption Expenditures Price Index (PCE YoY) measures the annual change in consumer prices based on actual spending patterns. "
-                "It is the Fed’s preferred inflation gauge, reflecting household consumption costs more accurately than CPI."
-            ),
-            "Core PCE YoY": (
-                "Core PCE excludes food and energy prices to highlight underlying inflation trends. "
-                "It is closely monitored by the Fed when making monetary policy decisions."
-            ),
-            "PPI YoY": (
-                "The Producer Price Index (PPI YoY) measures annual changes in prices received by producers of goods and services. "
-                "Rising producer prices can indicate future increases in consumer prices."
-            ),
-            "Core PPI YoY": (
-                "Core PPI excludes food and energy prices to focus on underlying producer price trends. "
-                "It helps identify inflationary pressures before they reach consumers."
-            ),
+            "CPI YoY": "CPI YoY measures the annual change in consumer prices across a broad basket of goods and services. It is one of the main gauges of household inflation pressure.",
+            "Core CPI YoY": "Core CPI excludes food and energy prices to show underlying inflation trends. It is closely watched because it removes some of the most volatile components.",
+            "PCE YoY": "PCE YoY measures annual inflation based on personal consumption expenditures. It is important because the Federal Reserve places significant weight on PCE inflation.",
+            "Core PCE YoY": "Core PCE excludes food and energy and is widely viewed as the Fed’s preferred underlying inflation measure.",
+            "PPI YoY": "PPI measures producer-level inflation. It can signal pipeline price pressures before they appear in consumer prices.",
+            "Core PPI YoY": "Core PPI excludes more volatile components and helps identify underlying producer price pressure.",
+            "Import Prices YoY": "Import prices measure inflation pressure from goods and services purchased abroad. They are influenced by global supply chains, commodity prices, and exchange rates.",
+            "Export Prices YoY": "Export prices measure changes in prices received for U.S. goods and services sold abroad. They help assess external demand and U.S. pricing power.",
 
-            # Growth
-            "GDP Growth Rate": (
-                "The GDP Growth Rate measures the pace at which the U.S. economy is expanding or contracting. "
-                "It reflects trends in production, investment, government spending, and trade."
-            ),
-            "Retail Sales MoM": (
-                "Retail Sales MoM tracks monthly changes in consumer spending. "
-                "It is a key driver of economic growth, as consumer spending accounts for roughly two-thirds of U.S. GDP."
-            ),
-            "Housing Starts MoM": (
-                "Housing Starts measure the number of new residential construction projects that have begun during the month, reported as a seasonally adjusted annual rate (SAAR) in millions. "
-                "It includes single-family homes and multi-unit buildings, providing insight into housing demand, construction employment, and overall economic momentum."
-            ),
-            "Trade Balance": (
-                "The U.S. Trade Balance shows the difference between exports and imports of goods and services. "
-                "A deficit occurs when imports exceed exports, and a surplus when exports exceed imports, reflecting global demand and competitiveness."
-            ),
+            "Unemployment Rate": "The unemployment rate measures the share of the labor force that is actively looking for work but unemployed. It is a key indicator of labor-market slack.",
+            "Labor Force Participation Rate": "Labor force participation measures the share of the population either working or actively looking for work. It helps separate true labor-market improvement from people leaving the workforce.",
+            "Non Farm Payrolls": "Non-farm payrolls measure the monthly change in employment across most sectors of the economy. It is one of the most market-moving U.S. labor indicators.",
+            "Average Hourly Earnings YoY": "Average hourly earnings track wage growth. Rising wage growth can support consumption but may also contribute to inflation pressure if productivity does not keep pace.",
+            "ECI Total Compensation YoY": "The Employment Cost Index tracks changes in total compensation, including wages, salaries, and benefits. It is valued because it controls for changes in workforce composition.",
+            "ECI Wages & Salaries YoY": "ECI wages and salaries measure labor-cost growth excluding benefits. It gives a cleaner read on wage inflation than some payroll-based measures.",
+            "JOLTS Job Openings": "JOLTS job openings measure labor demand by showing the number of unfilled positions across the economy. High openings can indicate tight labor-market conditions.",
+            "Quits Rate": "The quits rate measures voluntary job separations. A higher quits rate can signal worker confidence and labor-market tightness.",
 
-            # Labor Market
-            "Unemployment Rate": (
-                "The unemployment rate measures the percentage of the labor force that is actively seeking work but is jobless. "
-                "It is a primary indicator of labor market health, influencing consumer spending and economic policy."
-            ),
-            "Average Hourly Earnings YoY": (
-                "Average Hourly Earnings YoY tracks annual growth in workers’ wages. "
-                "Rising wages support consumer spending but may contribute to inflation if growth exceeds productivity."
-            ),
-            "JOLTS Job Openings": (
-                "The JOLTS Job Openings report measures the number of unfilled positions across the economy. "
-                "High job openings relative to unemployed workers signal a tight labor market and potential upward pressure on wages."
-            ),
-            "Non Farm Payrolls": (
-                "Non-Farm Payrolls measure the monthly change in employment across most sectors, excluding farming. "
-                "It is closely watched as a timely indicator of labor market strength and economic activity."
-            ),
+            "GDP Growth Rate": "Real GDP growth measures the pace of overall economic expansion or contraction. It summarizes changes in output across consumption, investment, government spending, and trade.",
+            "Personal Income MoM": "Personal income tracks monthly changes in household income. It helps assess consumer purchasing power and the sustainability of spending.",
+            "Personal Consumption MoM": "Personal consumption measures monthly changes in household spending. Since consumption is the largest part of GDP, it is central to growth analysis.",
+            "Retail Sales MoM": "Retail sales measure monthly changes in spending at retailers. It is a timely signal of consumer demand and goods-sector momentum.",
+            "Industrial Production MoM": "Industrial production tracks monthly output from manufacturing, mining, and utilities. It is useful for monitoring the goods-producing side of the economy.",
+            "Capacity Utilization": "Capacity utilization measures how much of industrial capacity is being used. High utilization can indicate supply constraints and inflation pressure.",
+            "Durable Goods Orders MoM": "Durable goods orders measure demand for longer-lasting manufactured goods. They help assess business investment and manufacturing momentum.",
+            "Trade Balance": "The trade balance shows the difference between exports and imports. It helps evaluate external demand, domestic import demand, and the trade contribution to GDP.",
+            "Saving Rate": "The personal saving rate measures saving as a share of disposable income. It helps assess household balance-sheet pressure and spending capacity.",
 
-            # Surveys
-            "ISM Manufacturing PMI": (
-                "The ISM Manufacturing PMI surveys purchasing managers in the manufacturing sector. "
-                "A reading above 50 signals expansion, while below 50 signals contraction, offering insight into economic trends."
-            ),
-            "ISM Services PMI": (
-                "The ISM Services PMI tracks activity in the services sector, the largest component of the U.S. economy. "
-                "Values above 50 indicate growth, and below 50 indicate contraction."
-            ),
-            "Michigan Consumer Sentiment": (
-                "The Michigan Consumer Sentiment Index measures household confidence in the economy, financial conditions, and expectations. "
-                "Shifts in sentiment can foreshadow changes in consumer spending and economic activity."
-            ),
-            
-            "Labor Force Participation Rate": (
-                "The labor force participation rate measures the share of the working-age population that is either employed or actively looking for work. "
-                "It helps assess labor supply conditions and whether changes in unemployment reflect true labor-market improvement or people leaving the workforce."
-            ),
-            "ECI Total Compensation YoY": (
-                "The Employment Cost Index measures changes in total labor compensation, including wages, salaries, and benefits. "
-                "It is closely watched because it controls for shifts in workforce composition and gives a cleaner read on labor-cost inflation."
-            ),
-            "Labor Productivity": (
-                "Labor productivity measures output per hour worked in the nonfarm business sector. "
-                "Higher productivity can support stronger growth without the same degree of inflation pressure."
-            ),
-            "Unit Labor Costs": (
-                "Unit labor costs measure labor compensation adjusted for productivity. "
-                "They help show whether wage growth is being offset by productivity gains or translating into inflation pressure."
-            ),
-            "Real Hourly Compensation": (
-                "Real hourly compensation measures worker compensation adjusted for inflation. "
-                "It provides insight into household purchasing power and the relationship between wages and prices."
-            ),
-            "Import Prices YoY": (
-                "Import prices track changes in the prices of goods and services purchased from abroad. "
-                "They help capture global inflation pressures, exchange-rate effects, and imported goods disinflation or inflation."
-            ),
-            "Export Prices YoY": (
-                "Export prices measure changes in the prices received for U.S. goods and services sold abroad. "
-                "They provide insight into external demand, commodity exposure, and U.S. pricing power in global trade."
-            ),
-            "Quits Rate": (
-                "The quits rate measures voluntary separations as a share of employment. "
-                "A higher quits rate can signal worker confidence and labor-market tightness, while a lower rate may indicate reduced mobility or caution."
-            ),
+            "Housing Starts MoM": "Housing starts measure new residential construction activity. They are a key signal for housing demand, construction employment, and interest-rate sensitivity.",
+            "Building Permits MoM": "Building permits measure authorized future construction. They often lead housing starts and provide insight into upcoming residential investment.",
+            "New Home Sales MoM": "New home sales track purchases of newly built homes. They are sensitive to mortgage rates, affordability, and household demand.",
+
+            "Labor Productivity": "Labor productivity measures output per hour worked. Higher productivity can support stronger growth without the same inflation pressure.",
+            "Unit Labor Costs": "Unit labor costs measure labor compensation adjusted for productivity. They are important for assessing whether wage growth is translating into inflation pressure.",
+            "Real Hourly Compensation": "Real hourly compensation measures worker compensation adjusted for inflation. It helps assess purchasing power and real wage trends.",
+
+            "Michigan Consumer Sentiment": "The Michigan Consumer Sentiment Index measures household confidence in the economy, personal finances, and expectations. It can foreshadow changes in consumer spending.",
+            "Chicago Fed NFCI": "The Chicago Fed National Financial Conditions Index summarizes U.S. financial conditions across money markets, credit markets, and risk indicators."
         }
 
         render_commentary(commentary, indicator)
@@ -2456,42 +2607,45 @@ if page == "USA":
                          
         # -------- Dynamic Titles --------
         titles = {
-            # Monetary Policy
             "Interest Rate": "Federal Funds Rate (%)",
 
-            # Inflation
-            "CPI YoY": "Consumer Price Index (CPI YoY, %)",
+            "CPI YoY": "Consumer Price Index (YoY, %)",
             "Core CPI YoY": "Core Consumer Price Index (YoY, %)",
-            "PCE YoY": "Personal Consumption Expenditures (PCE YoY, %)",
-            "Core PCE YoY": "Core Personal Consumption Expenditures (YoY, %)",
-            "PPI YoY": "Producer Price Index (PPI YoY, %)",
+            "PCE YoY": "Personal Consumption Expenditures Price Index (YoY, %)",
+            "Core PCE YoY": "Core PCE Price Index (YoY, %)",
+            "PPI YoY": "Producer Price Index: Final Demand (YoY, %)",
             "Core PPI YoY": "Core Producer Price Index (YoY, %)",
-
-            # Growth
-            "GDP Growth Rate": "GDP Growth Rate (%)",
-            "Retail Sales MoM": "Retail Sales (MoM, %)",
-            "Housing Starts MoM": "Housing Starts (Millions)",
-            "Trade Balance": "Trade Balance (Billions USD)",
-
-            # Labor Market
-            "Unemployment Rate": "Unemployment Rate (%)",
-            "Average Hourly Earnings YoY": "Average Hourly Earnings (YoY, %)",
-            "JOLTS Job Openings": "Job Openings (JOLTS, Millions)",
-            "Non Farm Payrolls": "Non-Farm Payrolls (Change, Thousands)",
-
-            # Surveys
-            "ISM Manufacturing PMI": "ISM Manufacturing PMI (Index)",
-            "ISM Services PMI": "ISM Services PMI (Index)",
-            "Michigan Consumer Sentiment": "Michigan Consumer Sentiment (Index)",
-            
-            "Labor Force Participation Rate": "Labor Force Participation Rate (%)",
-            "ECI Total Compensation YoY": "Employment Cost Index: Total Compensation (YoY, %)",
-            "Labor Productivity": "Labor Productivity (Index)",
-            "Unit Labor Costs": "Unit Labor Costs (Index)",
-            "Real Hourly Compensation": "Real Hourly Compensation (Index)",
             "Import Prices YoY": "Import Price Index (YoY, %)",
             "Export Prices YoY": "Export Price Index (YoY, %)",
-            "Quits Rate": "JOLTS Quits Rate (%)",
+
+            "Unemployment Rate": "Unemployment Rate (%)",
+            "Labor Force Participation Rate": "Labor Force Participation Rate (%)",
+            "Non Farm Payrolls": "Non-Farm Payrolls (Monthly Change, Thousands)",
+            "Average Hourly Earnings YoY": "Average Hourly Earnings (YoY, %)",
+            "JOLTS Job Openings": "JOLTS Job Openings",
+            "Quits Rate": "JOLTS Quits Rate",
+            "ECI Total Compensation YoY": "Employment Cost Index: Total Compensation (YoY, %)",
+            "ECI Wages & Salaries YoY": "Employment Cost Index: Wages & Salaries (YoY, %)",
+
+            "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized, %)",
+            "Personal Income MoM": "Personal Income (MoM, %)",
+            "Personal Consumption MoM": "Personal Consumption Expenditures (MoM, %)",
+            "Retail Sales MoM": "Retail Sales (MoM, %)",
+            "Industrial Production MoM": "Industrial Production (MoM, %)",
+            "Capacity Utilization": "Capacity Utilization (%)",
+            "Durable Goods Orders MoM": "Durable Goods Orders (MoM, %)",
+            "Trade Balance": "Trade Balance",
+
+            "Housing Starts MoM": "Housing Starts (MoM, %)",
+            "Building Permits MoM": "Building Permits (MoM, %)",
+            "New Home Sales MoM": "New Home Sales (MoM, %)",
+
+            "Labor Productivity": "Labor Productivity",
+            "Unit Labor Costs": "Unit Labor Costs",
+            "Real Hourly Compensation": "Real Hourly Compensation",
+
+            "Michigan Consumer Sentiment": "Michigan Consumer Sentiment Index",
+            "Chicago Fed NFCI": "Chicago Fed National Financial Conditions Index"
         }
         
 
