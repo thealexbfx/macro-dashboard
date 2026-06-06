@@ -4,6 +4,8 @@ import requests
 import streamlit as st
 from config import BLS_API_KEY
 
+
+@st.cache_data(ttl=604800)
 def get_bls_series(series_id: str, start_year: int = 2000):
     """Fetch a BLS time series in chunks and return date/value columns."""
     url = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
@@ -25,15 +27,20 @@ def get_bls_series(series_id: str, start_year: int = 2000):
         if BLS_API_KEY:
             payload["registrationkey"] = BLS_API_KEY
 
-        r = requests.post(url, json=payload)
+        r = requests.post(url, json=payload, timeout=30)
         r.raise_for_status()
         data = r.json()
 
         if data.get("status") != "REQUEST_SUCCEEDED":
-            st.warning(f"BLS request failed for {series_id}: {data.get('message')}")
-            continue
+            message = data.get("message", ["Unknown BLS error"])
+            raise RuntimeError(f"BLS request failed for {series_id}: {message}")
 
-        series = data["Results"]["series"][0]["data"]
+        series_list = data.get("Results", {}).get("series", [])
+
+        if not series_list:
+            return pd.DataFrame(columns=["date", "value"])
+
+        series = series_list[0].get("data", [])
 
         for item in series:
             period = item["period"]
@@ -59,13 +66,7 @@ def get_bls_series(series_id: str, start_year: int = 2000):
 
             elif period.startswith("Q"):
                 quarter = int(period.replace("Q", ""))
-                quarter_month_map = {
-                    1: 3,
-                    2: 6,
-                    3: 9,
-                    4: 12
-                }
-                month = quarter_month_map.get(quarter)
+                month = {1: 3, 2: 6, 3: 9, 4: 12}.get(quarter)
 
                 if month is None:
                     continue
