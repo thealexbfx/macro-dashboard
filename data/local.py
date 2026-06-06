@@ -4,7 +4,7 @@ import streamlit as st
 
 def load_local_macro_data(file_name, freq="monthly", value_col="Rate"):
     base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "data", file_name)
+    file_path = os.path.join(base_dir, file_name)
 
     if freq == "daily":
         df = pd.read_csv(file_path, sep=r"\s+")
@@ -52,7 +52,7 @@ def load_usa_data(file_name: str, freq: str = "monthly", date_format: str = "%B 
         date_format (str): Format to parse date column (default '%B %Y' for 'January 2008').
     """
     base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "data", file_name)
+    file_path = os.path.join(base_dir, file_name)
 
     # Detect delimiter type
     if freq == "daily":
