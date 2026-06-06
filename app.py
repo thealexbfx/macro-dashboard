@@ -82,6 +82,16 @@ from indicators.usa import (
     get_usa_30yr_yield_data,
 )
 
+from indicators.euro import (
+    get_euro_unemployment_rate_data,
+    get_euro_gdp_qoq_data,
+    get_euro_gdp_yoy_data,
+    get_euro_hicp_yoy_data,
+    get_euro_core_hicp_yoy_data,
+    get_euro_retail_sales_mom_data,
+    get_euro_industrial_production_mom_data,
+)
+
 load_dotenv()  # loads .env file
 
 FRED_API_KEY = os.getenv("FRED_API_KEY")
@@ -372,13 +382,41 @@ def analyze_uk():
 
 @st.cache_data(ttl=1800)
 def analyze_euro():
-    """Compute latest value, slope, and relative position for all euro indicators."""
+    """Compute latest value and trend for Euro Area indicators."""
     euro_tickers = {
         "Interest Rate": get_euro_interest_rate_data,
-        "CPI YoY": get_euro_cpi_yoy_data,
-        "GDP Growth Rate": get_euro_gdp_qoq_data,
-        "Unemployment Rate": get_euro_unemployment_rate_data
+        "HICP YoY": get_euro_hicp_yoy_data,
+        "Core HICP YoY": get_euro_core_hicp_yoy_data,
+        "GDP QoQ": get_euro_gdp_qoq_data,
+        "GDP YoY": get_euro_gdp_yoy_data,
+        "Unemployment Rate": get_euro_unemployment_rate_data,
+        "Retail Sales MoM": get_euro_retail_sales_mom_data,
     }
+
+    results = {}
+    for name, func in euro_tickers.items():
+        try:
+            df = func().dropna()
+            if len(df) < 12:
+                continue
+
+            df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
+            latest = df_1y["value"].iloc[-1]
+            start = df_1y["value"].iloc[0]
+
+            if latest > start:
+                trend = "up"
+            elif latest < start:
+                trend = "down"
+            else:
+                trend = "flat"
+
+            results[name] = {"latest": latest, "trend": trend}
+
+        except Exception as e:
+            st.warning(f"⚠️ Could not process {name}: {e}")
+
+    return results
 
     results = {}
     for name, func in euro_tickers.items():
@@ -701,7 +739,7 @@ def load_indicator_data(code):
 
         # Euro
         "eu_rate": get_euro_interest_rate_data,
-        "eu_cpi": get_euro_cpi_yoy_data,
+        "eu_cpi": get_euro_hicp_yoy_data,
         "eu_gdp": get_euro_gdp_qoq_data,
         "eu_unemp": get_euro_unemployment_rate_data,
         "eu_10y": get_euro_10yr_yield_data,
@@ -1177,17 +1215,17 @@ def get_uk_2yr_yield_data():
 def get_euro_interest_rate_data():
     return load_local_macro_data("EURO_Interest_Rate.txt", freq="daily", value_col="Rate")
 
-@st.cache_data
-def get_euro_cpi_yoy_data():
-    return load_local_macro_data("EURO_CPI_YoY.txt", freq="monthly", value_col="Rate")
+## @st.cache_data
+## def get_euro_cpi_yoy_data():
+##    return load_local_macro_data("EURO_CPI_YoY.txt", freq="monthly", value_col="Rate")
 
-@st.cache_data
-def get_euro_gdp_qoq_data():
-    return load_local_macro_data("EURO_GDP_Growth_Rate_QoQ.txt", freq="quarterly", value_col="Rate")
+## @st.cache_data
+## def get_euro_gdp_qoq_data():
+##    return load_local_macro_data("EURO_GDP_Growth_Rate_QoQ.txt", freq="quarterly", value_col="Rate")
 
-@st.cache_data
-def get_euro_unemployment_rate_data():
-    return load_local_macro_data("EURO_Unemployment_Rate.txt", freq="monthly", value_col="Rate")
+##@st.cache_data
+##def get_euro_unemployment_rate_data():
+##    return load_local_macro_data("EURO_Unemployment_Rate.txt", freq="monthly", value_col="Rate")
 
 @st.cache_data
 def get_euro_10yr_yield_data():
@@ -2397,13 +2435,14 @@ if page == "USA":
             return generate_usa_llm_summary(results)
 
         # ---- Run analysis ----
-        if "usa_macro_summary" not in st.session_state:
-            with st.spinner("Generating usa market summary..."):
-                results = analyze_usa()
-                st.session_state.usa_macro_summary = generate_usa_llm_summary_cached(results)
+        st.info("USA Economy Summary temporarily disabled during development to reduce BLS API usage.")
+
+        usa_macro_summary = (
+            "USA economy summary is temporarily disabled while BLS caching is being tested."
+        )
 
         # Use cached summary
-        usa_macro_summary = st.session_state.usa_macro_summary
+      ###  usa_macro_summary = st.session_state.usa_macro_summary
 
         # Add USA summary to global collector
         summary_label = f"🇺🇸 USA Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
@@ -3039,10 +3078,10 @@ if page == "EURO":
 
         # -------- Indicator Groups --------
         indicator_groups = {
+            "Monetary Policy": ["Interest Rate"],
+            "Inflation": ["HICP YoY", "Core HICP YoY"],
             "Labor Market": ["Unemployment Rate"],
-            "Growth": ["GDP Growth Rate"],
-            "Inflation": ["CPI YoY"],
-            "Monetary Policy": ["Interest Rate"]
+            "Growth": ["GDP QoQ", "GDP YoY", "Retail Sales MoM", "Industrial Production MoM"],
         }
 
         # Category dropdown
@@ -3064,9 +3103,13 @@ if page == "EURO":
         # -------- Indicator Function Mapping --------
         indicator_map = {
             "Interest Rate": (get_euro_interest_rate_data, "daily", "%b %Y"),
-            "CPI YoY": (get_euro_cpi_yoy_data, "monthly", None),
-            "GDP Growth Rate": (get_euro_gdp_qoq_data, "quarterly", None),
-            "Unemployment Rate": (get_euro_unemployment_rate_data, "monthly", None)
+            "HICP YoY": (get_euro_hicp_yoy_data, "monthly", None),
+            "Core HICP YoY": (get_euro_core_hicp_yoy_data, "monthly", None),
+            "Unemployment Rate": (get_euro_unemployment_rate_data, "monthly", None),
+            "GDP QoQ": (get_euro_gdp_qoq_data, "quarterly", None),
+            "GDP YoY": (get_euro_gdp_yoy_data, "quarterly", None),
+            "Retail Sales MoM": (get_euro_retail_sales_mom_data, "monthly", None),
+            "Industrial Production MoM": (get_euro_industrial_production_mom_data, "monthly", None),
         }
 
         # Load data dynamically
@@ -3110,22 +3153,42 @@ if page == "EURO":
             ),
 
             # Inflation
-            "CPI YoY": (
-                "The Consumer Price Index (CPI YoY) tracks the annual percentage change in the cost of a representative basket of goods and services in the Euro area. "
-                "It is a primary measure of inflation and informs ECB monetary policy, wage negotiations, and investment strategies."
+            "HICP YoY": (
+                "The Harmonised Index of Consumer Prices (HICP YoY) measures annual inflation across the Euro Area using a standardized EU methodology. "
+                "It is the ECB's main inflation reference and is central to monetary policy decisions, bond markets, and real income analysis."
             ),
 
-            # Growth
-            "GDP Growth Rate": (
-                "The GDP Growth Rate measures how fast the Eurozone economy is expanding or contracting. "
-                "It reflects trends in consumption, investment, government spending, and trade among member countries."
+            "Core HICP YoY": (
+                "Core HICP YoY strips out volatile items such as energy and food to give a cleaner view of underlying inflation pressure. "
+                "It is closely watched by the ECB because persistent core inflation can signal more durable price pressures."
             ),
 
             # Labor Market
             "Unemployment Rate": (
-                "The unemployment rate represents the percentage of the labor force in the Eurozone actively seeking work but currently without a job. "
-                "It is a key indicator of labor market health, affecting consumer spending, social policies, and economic planning."
-            )
+                "The unemployment rate represents the percentage of the Euro Area labor force actively seeking work but currently without a job. "
+                "It is a key indicator of labor market slack, household income pressure, and the broader economic cycle."
+            ),
+
+            # Growth
+            "GDP QoQ": (
+                "Euro Area GDP QoQ measures the quarter-over-quarter change in real economic output. "
+                "It captures short-term momentum in consumption, investment, government spending, and net trade across the currency bloc."
+            ),
+
+            "GDP YoY": (
+                "Euro Area GDP YoY measures real economic growth compared with the same quarter one year earlier. "
+                "It gives a smoother view of the underlying growth trend than quarter-over-quarter data."
+            ),
+
+            "Retail Sales MoM": (
+                "Retail Sales MoM tracks the monthly change in retail trade volumes across the Euro Area. "
+                "It is a useful gauge of household consumption momentum and consumer demand."
+            ),
+            
+            "Industrial Production MoM": (
+                "Industrial Production measures changes in the output of factories, utilities, and mining across the Euro Area. "
+                "It is a key indicator of economic activity and manufacturing momentum, often providing an early signal of changes in growth and business conditions."
+            ),
         }
 
         render_commentary(commentary, indicator)
@@ -3152,9 +3215,13 @@ if page == "EURO":
         # -------- Dynamic Titles --------
         titles = {
             "Interest Rate": "ECB Policy Rate (%)",
-            "CPI YoY": "Consumer Price Index (YoY, %)",
-            "GDP Growth Rate": "GDP Growth Rate (QoQ Annualized %)",
-            "Unemployment Rate": "Unemployment Rate (%)"
+            "HICP YoY": "Euro Area HICP Inflation (YoY, %)",
+            "Core HICP YoY": "Euro Area Core HICP Inflation (YoY, %)",
+            "Unemployment Rate": "Euro Area Unemployment Rate (%)",
+            "GDP QoQ": "Euro Area Real GDP Growth (QoQ, %)",
+            "GDP YoY": "Euro Area Real GDP Growth (YoY, %)",
+            "Retail Sales MoM": "Euro Area Retail Sales Volume (MoM, %)",
+            "Industrial Production MoM": "Industrial Production (MoM, %)",
         }
 
         # Detect quarterly data
@@ -3166,7 +3233,7 @@ if page == "EURO":
 
         fig = plot_chart(
             df_filtered,
-            titles[indicator],
+            titles.get(indicator, indicator),
             chart_type,
             hover_style=hover_style,
             delta_type=delta_type_arg,
