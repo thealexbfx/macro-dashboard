@@ -28,7 +28,55 @@ from data.transforms import (
     calculate_mom_pct_change,
     calculate_diff,
 )
+
 from data.yahoo import get_fx_data_yahoo
+from indicators.usa import (
+    get_usa_interest_rate_data,
+    get_usa_cpi_yoy_data,
+    get_usa_core_cpi_yoy_data,
+    get_usa_pce_yoy_data,
+    get_usa_core_pce_yoy_data,
+    get_usa_ppi_yoy_data,
+    get_usa_core_ppi_yoy_data,
+    get_usa_import_prices_yoy_data,
+    get_usa_export_prices_yoy_data,
+    get_usa_unemployment_rate_data,
+    get_usa_labor_force_participation_data,
+    get_usa_nfp_data,
+    get_usa_average_hourly_earnings_yoy_data,
+    get_usa_jolts_job_openings_data,
+    get_usa_quits_rate_data,
+    get_usa_eci_total_compensation_yoy_data,
+    get_usa_eci_wages_salaries_yoy_data,
+    get_usa_gdp_qoq_data,
+    get_usa_personal_income_mom_data,
+    get_usa_personal_consumption_mom_data,
+    get_usa_saving_rate_data,
+    get_usa_michigan_consumer_sentiment_data,
+    get_usa_chicago_fed_nfci_data,
+    get_usa_housing_starts_mom_data,
+    get_usa_building_permits_mom_data,
+    get_usa_new_home_sales_mom_data,
+    get_usa_retail_sales_mom_data,
+    get_usa_trade_balance_data,
+    get_usa_industrial_production_mom_data,
+    get_usa_capacity_utilization_data,
+    get_usa_durable_goods_orders_mom_data,
+    get_usa_labor_productivity_data,
+    get_usa_unit_labor_costs_data,
+    get_usa_real_hourly_compensation_data,
+    get_usa_1mo_yield_data,
+    get_usa_3mo_yield_data,
+    get_usa_6mo_yield_data,
+    get_usa_1yr_yield_data,
+    get_usa_2yr_yield_data,
+    get_usa_3yr_yield_data,
+    get_usa_5yr_yield_data,
+    get_usa_7yr_yield_data,
+    get_usa_10yr_yield_data,
+    get_usa_20yr_yield_data,
+    get_usa_30yr_yield_data,
+)
 
 load_dotenv()  # loads .env file
 
@@ -1197,265 +1245,6 @@ def load_usa_data(file_name: str, freq: str = "monthly", date_format: str = "%B 
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-
-   
-
-    
-
-
-# ============================================================
-# USA INDICATOR LOADERS - MONETARY POLICY / RATES
-# ============================================================
-
-@st.cache_data
-def get_usa_interest_rate_data():
-    # Keep this as local/FRED for now if you haven't converted Fed Funds yet
-    return load_usa_data("USA_Interest_Rate.txt", freq="daily")
-
-
-# ============================================================
-# USA INDICATOR LOADERS - INFLATION
-# Sources: BLS + BEA
-# ============================================================
-
-@st.cache_data
-def get_usa_cpi_yoy_data():
-    return calculate_yoy_from_index(
-        get_bls_series("CUUR0000SA0", start_year=2000)
-    )
-
-
-@st.cache_data
-def get_usa_core_cpi_yoy_data():
-    return calculate_yoy_from_index(
-        get_bls_series("CUUR0000SA0L1E", start_year=2000)
-    )
-
-
-@st.cache_data
-def get_usa_pce_yoy_data():
-    df = get_bea_nipa_series("T20804", 1, frequency="M")
-    return calculate_yoy_from_index(df)
-
-
-@st.cache_data
-def get_usa_core_pce_yoy_data():
-    df = get_bea_nipa_series("T20804", 25, frequency="M")
-    return calculate_yoy_from_index(df)
-
-@st.cache_data
-def get_usa_ppi_yoy_data():
-    return calculate_yoy_from_index(
-        get_bls_series("WPUFD4", start_year=2000)
-    )
-
-@st.cache_data
-def get_usa_core_ppi_yoy_data():
-    return calculate_yoy_from_index(
-        get_bls_series("WPSFD4131", start_year=2000)
-    )
-
-@st.cache_data
-def get_usa_import_prices_yoy_data():
-    return calculate_yoy_from_index(
-        get_bls_series("EIUIR", start_year=2000)
-    )
-
-
-@st.cache_data
-def get_usa_export_prices_yoy_data():
-    return calculate_yoy_from_index(
-        get_bls_series("EIUIQ", start_year=2000)
-    )
-
-
-# ============================================================
-# USA INDICATOR LOADERS - LABOR MARKET / WAGES
-# Source: BLS
-# ============================================================
-
-@st.cache_data
-def get_usa_unemployment_rate_data():
-    return get_bls_series("LNS14000000", start_year=2000)
-
-
-@st.cache_data
-def get_usa_labor_force_participation_data():
-    return get_bls_series("LNS11300000", start_year=2000)
-
-
-@st.cache_data
-def get_usa_nfp_data():
-    df = get_bls_series("CES0000000001", start_year=2000)
-    df["value"] = df["value"].diff()
-    return df.dropna().reset_index(drop=True)
-
-
-@st.cache_data
-def get_usa_average_hourly_earnings_yoy_data():
-    return calculate_yoy_from_index(
-        get_bls_series("CES0500000003", start_year=2006)
-    )
-
-
-@st.cache_data
-def get_usa_jolts_job_openings_data():
-    return get_bls_series("JTS000000000000000JOL", start_year=2000)
-
-
-@st.cache_data
-def get_usa_quits_rate_data():
-    return get_bls_series("JTS000000000000000QUR", start_year=2000)
-
-
-@st.cache_data
-def get_usa_eci_total_compensation_yoy_data():
-    return calculate_yoy_from_index(
-        get_bls_series("CIU2010000000000A", start_year=2001)
-    )
-
-
-@st.cache_data
-def get_usa_eci_wages_salaries_yoy_data():
-    return calculate_yoy_from_index(
-        get_bls_series("CIU2020000000000A", start_year=2001)
-    )
-
-
-# ============================================================
-# USA INDICATOR LOADERS - GROWTH / INCOME / CONSUMER
-# Source: BEA
-# ============================================================
-
-@st.cache_data
-def get_usa_gdp_qoq_data():
-    # Real GDP percent change from preceding period
-    return get_bea_nipa_series("T10101", 1, frequency="Q")
-
-
-@st.cache_data
-def get_usa_personal_income_mom_data():
-    return get_bea_nipa_series("T20600", 1, frequency="M")
-
-
-@st.cache_data
-def get_usa_personal_consumption_mom_data():
-    return get_bea_nipa_series("T20801", 1, frequency="M")
-
-
-@st.cache_data
-def get_usa_saving_rate_data():
-    return get_bea_nipa_series("T20600", 34, frequency="M")
- 
-@st.cache_data
-def get_usa_michigan_consumer_sentiment_data():
-    return get_fred_series("UMCSENT")
-
-@st.cache_data
-def get_usa_chicago_fed_nfci_data():
-    return get_fred_series("NFCI")
- 
-@st.cache_data
-def get_usa_housing_starts_mom_data():
-    df = get_fred_series("HOUST")
-    return calculate_mom_pct_change(df)
-
-
-@st.cache_data
-def get_usa_building_permits_mom_data():
-    df = get_fred_series("PERMIT")
-    return calculate_mom_pct_change(df)
-
-
-@st.cache_data
-def get_usa_new_home_sales_mom_data():
-    df = get_fred_series("HSN1F")
-    return calculate_mom_pct_change(df)
-    
-@st.cache_data
-def get_usa_retail_sales_mom_data():
-    df = get_fred_series("RSAFS")
-    return calculate_mom_pct_change(df)
-    
-@st.cache_data
-def get_usa_trade_balance_data():
-    return get_fred_series("BOPGSTB")
-    
-@st.cache_data
-def get_usa_industrial_production_mom_data():
-    df = get_fred_series("INDPRO")
-    return calculate_mom_pct_change(df)
-
-
-@st.cache_data
-def get_usa_capacity_utilization_data():
-    return get_fred_series("TCU")
-
-
-@st.cache_data
-def get_usa_durable_goods_orders_mom_data():
-    df = get_fred_series("DGORDER")
-    return calculate_mom_pct_change(df)
-
-
-# ============================================================
-# USA INDICATOR LOADERS - PRODUCTIVITY & COST PRESSURES
-# Source: BLS
-# ============================================================
-
-@st.cache_data
-def get_usa_labor_productivity_data():
-    return get_bls_series("PRS85006093", start_year=2000)
-
-
-@st.cache_data
-def get_usa_unit_labor_costs_data():
-    return get_bls_series("PRS85006103", start_year=2000)
-
-
-@st.cache_data
-def get_usa_real_hourly_compensation_data():
-    return get_bls_series("PRS85006153", start_year=2000) 
-    
-
-
-# ---------------------------
-# Specific US Treasury Yields
-# ---------------------------
-@st.cache_data
-def get_usa_1mo_yield_data():
-    return get_usa_yield_data("DGS1MO")
-@st.cache_data
-def get_usa_3mo_yield_data():
-    return get_usa_yield_data("DGS3MO")
-@st.cache_data
-def get_usa_6mo_yield_data():
-    return get_usa_yield_data("DGS6MO")
-@st.cache_data
-def get_usa_1yr_yield_data():
-    return get_usa_yield_data("DGS1")
-@st.cache_data
-def get_usa_2yr_yield_data():
-    return get_usa_yield_data("DGS2")
-@st.cache_data
-def get_usa_3yr_yield_data():
-    return get_usa_yield_data("DGS3")
-@st.cache_data
-def get_usa_5yr_yield_data():
-    return get_usa_yield_data("DGS5")
-@st.cache_data
-def get_usa_7yr_yield_data():
-    return get_usa_yield_data("DGS7")
-@st.cache_data
-def get_usa_10yr_yield_data():
-    return get_usa_yield_data("DGS10")
-@st.cache_data
-def get_usa_20yr_yield_data():
-    return get_usa_yield_data("DGS20")
-@st.cache_data
-def get_usa_30yr_yield_data():
-    return get_usa_yield_data("DGS30")
-
 
     
 @st.cache_data
