@@ -108,3 +108,31 @@ def get_euro_retail_sales_mom_data():
             "freq": "M",
         }
     )
+
+def get_euro_trade_balance_data():
+    return get_eurostat_series(
+        "tet00066",
+        {
+            "freq": "A",
+            "indic_et": "MIO_BAL_VAL",
+            "sitc06": "TOTAL",
+            "geo": "EA20",
+            "partner": "EXT_EA20",
+        }
+    )
+
+if __name__ == "__main__":
+    print("=== TESTING EURO TRADE BALANCE ===")
+
+    try:
+        df = get_euro_trade_balance_data()
+
+        print("SUCCESS")
+        print("Shape:", df.shape)
+        print("Columns:", df.columns.tolist())
+
+        print(df.head())
+        print(df.tail())
+
+    except Exception as e:
+        print("ERROR:", e)

@@ -93,6 +93,20 @@ from indicators.euro import (
     get_euro_industrial_production_mom_data,
 )
 
+from indicators.uk import (
+    get_uk_interest_rate_data,
+    get_uk_cpi_yoy_data,
+    get_uk_core_cpi_yoy_data,
+    get_uk_gdp_qoq_data,
+    get_uk_unemployment_rate_data,
+    get_uk_retail_sales_mom_data,
+    get_uk_average_weekly_earnings_yoy_data,
+    get_uk_industrial_production_mom_data,
+    get_uk_trade_balance_data,
+    get_uk_house_prices_yoy_data,
+    get_uk_vacancies_data,
+)
+
 load_dotenv()  # loads .env file
 
 FRED_API_KEY = os.getenv("FRED_API_KEY")
@@ -1186,22 +1200,6 @@ def get_japan_10yr_yield_data():
 def get_japan_2yr_yield_data():
     return load_local_macro_data("Japan_2_Year_Yield.txt", freq="daily", value_col="Price")
 
-
-@st.cache_data
-def get_uk_interest_rate_data():
-    return load_local_macro_data("UK_Interest_Rate.txt", freq="daily", value_col="Rate")
-
-@st.cache_data
-def get_uk_cpi_yoy_data():
-    return load_local_macro_data("UK_CPI_YoY.txt", freq="monthly", value_col="Rate")
-
-@st.cache_data
-def get_uk_gdp_qoq_data():
-    return load_local_macro_data("UK_GDP_Growth_Rate_QoQ.txt", freq="quarterly", value_col="Rate")
-
-@st.cache_data
-def get_uk_unemployment_rate_data():
-    return load_local_macro_data("UK_Unemployment_Rate.txt", freq="monthly", value_col="Rate")
 
 @st.cache_data
 def get_uk_10yr_yield_data():
@@ -3144,7 +3142,7 @@ if page == "EURO":
         commentary = {
             # Monetary Policy
             "Interest Rate": (
-                "The European Central Bank (ECB) policy rate is the benchmark interest rate set by the ECB. "
+                "The European Central Bank (ECB) main refinancing rate is shown using the official ECB effective date of rate changes."
                 "It directly affects short-term borrowing costs for banks, which influences loans, mortgages, and business investment across the Eurozone. "
                 "Changes in the ECB rate are closely watched by global markets as signals of monetary tightening or easing."
             ),
@@ -3211,7 +3209,7 @@ if page == "EURO":
 
         # -------- Dynamic Titles --------
         titles = {
-            "Interest Rate": "ECB Policy Rate (%)",
+            "Interest Rate": "ECB Main Refinancing Rate — Effective Date (%)",
             "HICP YoY": "Euro Area HICP Inflation (YoY, %)",
             "Core HICP YoY": "Euro Area Core HICP Inflation (YoY, %)",
             "Unemployment Rate": "Euro Area Unemployment Rate (%)",

@@ -1,51 +1,34 @@
 import pandas as pd
-import requests
 import streamlit as st
 
 
-ECB_BASE_URL = "https://data-api.ecb.europa.eu/service/data"
-
-
 @st.cache_data(ttl=86400)
-def get_ecb_series(flow_ref: str, key: str) -> pd.DataFrame:
+def get_ecb_main_refinancing_rate_data():
     """
-    Fetch ECB SDW data and return standardized dataframe:
-    date, value
+    ECB Main Refinancing Rate
+    Official ECB Data Portal
     """
-    url = f"{ECB_BASE_URL}/{flow_ref}/{key}"
 
-    params = {
-        "format": "csvdata",
-    }
+    url = (
+        "https://data-api.ecb.europa.eu/service/data/"
+        "FM/B.U2.EUR.4F.KR.MRR_FR.LEV?format=csvdata"
+    )
 
-    response = requests.get(url, params=params, timeout=30)
-    response.raise_for_status()
+    df = pd.read_csv(url)
 
-    df = pd.read_csv(pd.io.common.StringIO(response.text))
+    df = df[["TIME_PERIOD", "OBS_VALUE"]].copy()
 
-    if df.empty:
-        return pd.DataFrame(columns=["date", "value"])
+    df = df.rename(
+        columns={
+            "TIME_PERIOD": "date",
+            "OBS_VALUE": "value"
+        }
+    )
 
-    date_col = "TIME_PERIOD"
-    value_col = "OBS_VALUE"
-
-    df = df.rename(columns={date_col: "date", value_col: "value"})
-    df = df[["date", "value"]].copy()
-
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    df["date"] = pd.to_datetime(df["date"])
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
-    df = df.dropna(subset=["date", "value"])
+    df = df.dropna()
     df = df.sort_values("date").reset_index(drop=True)
 
     return df
-
-
-def get_ecb_main_refinancing_rate_data() -> pd.DataFrame:
-    """
-    ECB Main Refinancing Operations fixed rate / tender rate.
-    """
-    return get_ecb_series(
-        "FM",
-        "B.U2.EUR.4F.KR.MRR_FR.LEV"
-    )
