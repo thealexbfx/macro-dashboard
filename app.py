@@ -83,6 +83,7 @@ from indicators.usa import (
 )
 
 from indicators.euro import (
+    get_euro_interest_rate_data,
     get_euro_unemployment_rate_data,
     get_euro_gdp_qoq_data,
     get_euro_gdp_yoy_data,
@@ -1210,10 +1211,6 @@ def get_uk_10yr_yield_data():
 def get_uk_2yr_yield_data():
     return load_local_macro_data("UK_2_Year_Yield.txt", freq="daily", value_col="Price")
 
-
-@st.cache_data
-def get_euro_interest_rate_data():
-    return load_local_macro_data("EURO_Interest_Rate.txt", freq="daily", value_col="Rate")
 
 ## @st.cache_data
 ## def get_euro_cpi_yoy_data():
@@ -8041,7 +8038,7 @@ if page == "ESI":
     # Include net sentiment in prompt (human-readable)
     net_sent_readable = ", ".join([f"{k}: {v}" for k,v in net_sentiment.items()])
 
-    client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+    client = OpenAI(api_key=OPENAI_API_KEY)
 
     # Build friendly label list for the AI prompt (Stocks + FX names)
     ai_market_labels = ["Stocks"] + fx_cols

@@ -1,7 +1,11 @@
 from data.eurostat import get_eurostat_series
+from data.ecb import get_ecb_main_refinancing_rate_data
 
 
 EURO_AREA_GEO = "EA21"
+
+def get_euro_interest_rate_data():
+    return get_ecb_main_refinancing_rate_data()
 
 
 def get_euro_unemployment_rate_data():
