@@ -11,4 +11,5 @@ streamlit-option-menu
 scikit-learn
 openai
 statsmodels
-
+openpyxl
+lxml
