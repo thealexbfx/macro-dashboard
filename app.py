@@ -107,6 +107,12 @@ from indicators.uk import (
     get_uk_vacancies_data,
 )
 
+from indicators.japan import (
+    get_japan_cpi_yoy_data,
+    get_japan_gdp_qoq_data,
+    get_japan_unemployment_rate_data,
+)
+
 load_dotenv()  # loads .env file
 
 FRED_API_KEY = os.getenv("FRED_API_KEY")
@@ -364,21 +370,45 @@ def analyze_japan():
 
 @st.cache_data(ttl=1800)
 def analyze_uk():
-    """Compute latest value, slope, and relative position for all uk indicators."""
+    """Compute latest value and 1-year trend for key UK indicators."""
+
     uk_tickers = {
-        "Interest Rate": get_uk_interest_rate_data,
+        # Monetary Policy
+        "Bank Rate": get_uk_interest_rate_data,
+
+        # Inflation
         "CPI YoY": get_uk_cpi_yoy_data,
-        "GDP Growth Rate": get_uk_gdp_qoq_data,
-        "Unemployment Rate": get_uk_unemployment_rate_data
+        "Core CPI YoY": get_uk_core_cpi_yoy_data,
+        "House Prices YoY": get_uk_house_prices_yoy_data,
+
+        # Growth / Activity
+        "GDP QoQ": get_uk_gdp_qoq_data,
+        "Retail Sales MoM": get_uk_retail_sales_mom_data,
+        "Industrial Production MoM": get_uk_industrial_production_mom_data,
+
+        # Labor Market
+        "Unemployment Rate": get_uk_unemployment_rate_data,
+        "Average Weekly Earnings YoY": get_uk_average_weekly_earnings_yoy_data,
+        "Vacancies": get_uk_vacancies_data,
+
+        # External Sector
+        "Trade Balance": get_uk_trade_balance_data,
     }
 
     results = {}
+
     for name, func in uk_tickers.items():
         try:
             df = func().dropna()
-            if len(df) < 12:
+
+            if len(df) < 4:
                 continue
+
             df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
+
+            if len(df_1y) < 2:
+                continue
+
             latest = df_1y["value"].iloc[-1]
             start = df_1y["value"].iloc[0]
 
@@ -389,10 +419,14 @@ def analyze_uk():
             else:
                 trend = "flat"
 
-            results[name] = {"latest": latest, "trend": trend}
+            results[name] = {
+                "latest": latest,
+                "trend": trend,
+            }
 
         except Exception as e:
             st.warning(f"⚠️ Could not process {name}: {e}")
+
     return results
 
 @st.cache_data(ttl=1800)
@@ -1180,17 +1214,6 @@ def load_local_macro_data(file_name, freq="monthly", value_col="Rate"):
 def get_japan_interest_rate_data():
     return load_local_macro_data("Japan_Interest_Rate.txt", freq="daily", value_col="Rate")
 
-@st.cache_data
-def get_japan_cpi_yoy_data():
-    return load_local_macro_data("Japan_CPI_YoY.txt", freq="monthly", value_col="Rate")
-
-@st.cache_data
-def get_japan_gdp_qoq_data():
-    return load_local_macro_data("Japan_GDP_Growth_Rate_QoQ.txt", freq="quarterly", value_col="Rate")
-
-@st.cache_data
-def get_japan_unemployment_rate_data():
-    return load_local_macro_data("Japan_Unemployment_Rate.txt", freq="monthly", value_col="Rate")
 
 @st.cache_data
 def get_japan_10yr_yield_data():
@@ -2781,10 +2804,27 @@ if page == "UK":
 
         # -------- Indicator Groups --------
         indicator_groups = {
-            "Labor Market": ["Unemployment Rate"],
-            "Growth": ["GDP Growth Rate"],
-            "Inflation": ["CPI YoY"],
-            "Monetary Policy": ["Interest Rate"]
+            "Labor Market": [
+                "Unemployment Rate",
+                "Average Weekly Earnings YoY",
+                "Vacancies"
+            ],
+            "Growth": [
+                "GDP QoQ",
+                "Retail Sales MoM",
+                "Industrial Production MoM"
+            ],
+            "Inflation": [
+                "CPI YoY",
+                "Core CPI YoY",
+                "House Prices YoY"
+            ],
+            "Monetary Policy": [
+                "Bank Rate"
+            ],
+            "External Sector": [
+                "Trade Balance"
+            ]
         }
 
         # Category dropdown
@@ -2805,10 +2845,23 @@ if page == "UK":
 
         # -------- Indicator Function Mapping --------
         indicator_map = {
-            "Interest Rate": (get_uk_interest_rate_data, "daily", "%b %Y"),
+            "Bank Rate": (get_uk_interest_rate_data, "daily", "%b %Y"),
+
             "CPI YoY": (get_uk_cpi_yoy_data, "monthly", None),
-            "GDP Growth Rate": (get_uk_gdp_qoq_data, "quarterly", None),
-            "Unemployment Rate": (get_uk_unemployment_rate_data, "monthly", None)
+            "Core CPI YoY": (get_uk_core_cpi_yoy_data, "monthly", None),
+            "House Prices YoY": (get_uk_house_prices_yoy_data, "monthly", None),
+
+            "GDP QoQ": (get_uk_gdp_qoq_data, "quarterly", None),
+            "Retail Sales MoM": (get_uk_retail_sales_mom_data, "monthly", None),
+            "Industrial Production MoM": (get_uk_industrial_production_mom_data, "monthly", None),
+
+            "Unemployment Rate": (get_uk_unemployment_rate_data, "monthly", None),
+            "Average Weekly Earnings YoY": (get_uk_average_weekly_earnings_yoy_data, "monthly", None),
+            "Vacancies": (get_uk_vacancies_data, "monthly", None),
+
+            "Trade Balance": (get_uk_trade_balance_data, "monthly", None),
+
+            
         }
 
         # Load data dynamically
@@ -2845,29 +2898,76 @@ if page == "UK":
         # -------- Commentary --------
         commentary = {
             # Monetary Policy
-            "Interest Rate": (
-                "The Bank of England (BoE) policy rate is the benchmark interest rate set by the BoE. "
-                "It directly affects short-term borrowing costs for banks, which in turn influence mortgages, loans, and business investment. "
-                "Changes in the BoE rate are closely monitored by global markets as signals of monetary tightening or easing."
+            "Bank Rate": (
+                "The Bank Rate is the Bank of England's main policy interest rate. "
+                "It influences borrowing costs across the economy, including mortgages, consumer credit, business loans, and money-market pricing. "
+                "Markets watch this indicator closely because it signals the stance of UK monetary policy and the balance between inflation control and growth support."
             ),
 
             # Inflation
             "CPI YoY": (
-                "The Consumer Price Index (CPI YoY) measures the annual percentage change in the cost of a typical basket of goods and services in the UK. "
-                "It is a key gauge of inflation and informs BoE interest rate decisions, wage adjustments, and investment strategies."
+                "Consumer Price Inflation measures the annual change in the price of a broad basket of goods and services purchased by UK households. "
+                "It is the headline inflation measure most closely followed by households, policymakers, and markets. "
+                "Higher CPI inflation can increase pressure on the Bank of England to keep policy restrictive, while falling inflation may support expectations for easier policy."
+            ),
+
+            "Core CPI YoY": (
+                "Core CPI excludes more volatile components such as energy, food, alcohol, and tobacco. "
+                "It helps identify the underlying trend in inflation, which is important for judging whether price pressures are becoming embedded. "
+                "The Bank of England and financial markets often place significant weight on core inflation because it can be stickier than headline CPI."
+            ),
+
+            "House Prices YoY": (
+                "House price growth measures the annual change in UK residential property prices. "
+                "It provides insight into housing-market momentum, household wealth effects, mortgage affordability, and credit conditions. "
+                "Rising house prices can support consumer confidence and balance sheets, while slowing or falling prices may signal pressure from higher interest rates or weaker demand."
             ),
 
             # Growth
-            "GDP Growth Rate": (
-                "The GDP Growth Rate captures the pace at which the UK economy is expanding or contracting. "
-                "It reflects trends in consumption, investment, government spending, and trade, providing insight into overall economic health."
+            "GDP QoQ": (
+                "GDP growth measures the quarterly change in the total output of the UK economy. "
+                "It captures the broad direction of economic activity across consumption, investment, government spending, and trade. "
+                "Positive GDP growth suggests expansion, while weak or negative growth can indicate stagnation or recession risk."
+            ),
+
+            "Retail Sales MoM": (
+                "Retail sales measure the monthly change in the volume of goods sold by retailers. "
+                "This is an important gauge of household consumption, which is a major driver of UK economic growth. "
+                "Stronger retail sales can point to resilient consumer demand, while declines may indicate pressure from inflation, interest rates, or weaker real incomes."
+            ),
+
+            "Industrial Production MoM": (
+                "Industrial production measures the monthly change in output from manufacturing, mining, energy, and related production industries. "
+                "It provides insight into the goods-producing side of the UK economy and can be sensitive to global demand, energy costs, and supply-chain conditions. "
+                "Although services dominate the UK economy, industrial production remains useful for tracking cyclical momentum."
             ),
 
             # Labor Market
             "Unemployment Rate": (
-                "The unemployment rate measures the percentage of the UK labor force that is actively seeking work but is currently jobless. "
-                "It is a primary indicator of labor market conditions and has implications for consumer spending and economic policy."
+                "The unemployment rate measures the share of the UK labour force that is actively seeking work but currently unemployed. "
+                "It is a key indicator of labour-market slack and household income risk. "
+                "A low unemployment rate usually points to tight labour conditions, while a rising rate can signal weakening demand for workers."
+            ),
+
+            "Average Weekly Earnings YoY": (
+                "Average weekly earnings measure annual wage growth across the UK labour market. "
+                "This indicator is important because wage growth affects household purchasing power, services inflation, and the Bank of England's inflation outlook. "
+                "Strong wage growth can support consumption but may also make inflation more persistent if it outpaces productivity."
+            ),
+
+            "Vacancies": (
+                "Job vacancies measure the number of open positions employers are trying to fill. "
+                "They provide a forward-looking view of labour demand and hiring appetite. "
+                "Falling vacancies can suggest cooling labour-market conditions, while elevated vacancies may indicate that firms still face difficulty finding workers."
+            ),
+
+            # External Sector
+            "Trade Balance": (
+                "The trade balance measures the difference between UK exports and imports of goods and services. "
+                "A deficit means imports exceed exports, while a surplus means exports exceed imports. "
+                "This indicator helps assess external demand, domestic import demand, currency sensitivity, and the contribution of net trade to overall economic growth."
             )
+
         }
 
 
@@ -2894,10 +2994,23 @@ if page == "UK":
 
         # -------- Dynamic Titles --------
         titles = {
-            "Interest Rate": "Bank of England Policy Rate (%)",
-            "CPI YoY": "Consumer Price Index (YoY, %)",
-            "GDP Growth Rate": "GDP Growth Rate (QoQ Annualized %)",
-            "Unemployment Rate": "Unemployment Rate (%)"
+            "Bank Rate": "Bank of England Bank Rate (%)",
+
+            "CPI YoY": "Consumer Price Inflation (YoY %)",
+            "Core CPI YoY": "Core Consumer Price Inflation (YoY %)",
+            "House Prices YoY": "House Price Growth (YoY %)",
+
+            "GDP QoQ": "GDP Growth (QoQ %)",
+            "Retail Sales MoM": "Retail Sales (MoM %)",
+            "Industrial Production MoM": "Industrial Production (MoM %)",
+
+            "Unemployment Rate": "Unemployment Rate (%)",
+            "Average Weekly Earnings YoY": "Average Weekly Earnings (YoY %)",
+            "Vacancies": "Job Vacancies (Thousands)",
+
+            "Trade Balance": "Trade Balance (£ Millions)"
+
+            
         }
 
         # Detect quarterly data

@@ -34,7 +34,11 @@ def get_uk_bank_rate_data():
 
     df = df.rename(columns={date_col: "date", value_col: "value"})
 
-    df["date"] = pd.to_datetime(df["date"], errors="coerce", dayfirst=True)
+    df["date"] = pd.to_datetime(
+    df["date"].astype(str).str.strip(),
+    format="%d %b %y",
+    errors="coerce"
+    )
     df["date"] = df["date"].apply(fix_boe_year)
 
     df["value"] = (
