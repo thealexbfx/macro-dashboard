@@ -23,6 +23,17 @@ from app_pages.japan import render_japan_page
 from app_pages.uk import render_uk_page
 from app_pages.euro import render_euro_page
 
+IS_PROD = os.getenv("APP_ENV", "dev") == "prod"
+
+def safe_render(render_func, section_name):
+    try:
+        render_func()
+    except Exception as e:
+        if IS_PROD:
+            st.error(f"{section_name} is temporarily unavailable. Please try again later.")
+        else:
+            st.exception(e)
+
 from components.charts import plot_chart, plot_scenario_chart
 
 # Modular data loaders - Phase 2A
@@ -1766,18 +1777,16 @@ def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatilit
 
 
 if page == "USA":
-    render_usa_page()
-          
+    safe_render(render_usa_page, "USA")         
         
 if page == "Japan":
-    render_japan_page()
-       
-if page == "UK":
-    render_uk_page()
+    safe_render(render_japan_page, "Japan")
 
-              
+if page == "UK":
+    safe_render(render_uk_page, "UK")
+
 if page == "EURO":
-    render_euro_page()
+    safe_render(render_euro_page, "Euro Area")
 
                 
 # -------- FX Rates Tab --------

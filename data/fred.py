@@ -4,7 +4,7 @@ import streamlit as st
 from config import FRED_API_KEY
 
 
-@st.cache_data(ttl=86400)
+@st.cache_data(ttl=86400, show_spinner=False)
 def get_fred_series(series_id: str):
     """Fetch a single time series from FRED and return date/value columns."""
     url = "https://api.stlouisfed.org/fred/series/observations"
@@ -41,7 +41,7 @@ def get_fred_series(series_id: str):
     return df
 
 
-@st.cache_data(ttl=86400)
+@st.cache_data(ttl=86400, show_spinner=False)
 def get_usa_yield_data(series_id: str):
     """Alias for FRED Treasury yield series."""
     return get_fred_series(series_id)
