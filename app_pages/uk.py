@@ -381,8 +381,21 @@ def render_uk_page():
             "Vacancies": "Job Vacancies (Thousands)",
 
             "Trade Balance": "Trade Balance (£ Millions)"
-
-            
+          
+        }
+        
+        source_map = {
+            "Interest Rate": "Source: Bank of England (BOE)",
+            "CPI YoY": "Source: Office for National Statistics (ONS)",
+            "Core CPI YoY": "Source: Office for National Statistics (ONS)",
+            "GDP Growth Rate": "Source: Office for National Statistics (ONS)",
+            "Unemployment Rate": "Source: Office for National Statistics (ONS)",
+            "Retail Sales MoM": "Source: Office for National Statistics (ONS)",
+            "Average Weekly Earnings YoY": "Source: Office for National Statistics (ONS)",
+            "Industrial Production MoM": "Source: Office for National Statistics (ONS)",
+            "Trade Balance": "Source: Office for National Statistics (ONS)",
+            "House Prices YoY": "Source: Office for National Statistics (ONS)",
+            "Vacancies": "Source: Office for National Statistics (ONS)",
         }
 
         # Detect quarterly data
@@ -415,6 +428,21 @@ def render_uk_page():
                 font_color="black",
                 font_family="Arial"
             )
+        )
+        
+        fig.add_annotation(
+            text=source_map.get(indicator, "Source: MacroLens Research"),
+            xref="paper",
+            yref="paper",
+            x=0,
+            y=-0.24,
+            showarrow=False,
+            font=dict(size=12, color="gray"),
+            align="left"
+        )
+
+        fig.update_layout(
+            margin=dict(b=80)
         )
 
         # -------- Display Chart --------

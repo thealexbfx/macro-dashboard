@@ -295,6 +295,13 @@ def render_japan_page():
             "GDP Growth Rate": "GDP Growth Rate (QoQ Annualized %)",
             "Unemployment Rate": "Unemployment Rate (%)"
         }
+        
+        source_map = {
+            "Interest Rate": "Source: Bank of Japan (BOJ)",
+            "CPI YoY": "Source: Statistics Bureau of Japan / e-Stat",
+            "GDP Growth Rate": "Source: Cabinet Office of Japan / e-Stat",
+            "Unemployment Rate": "Source: Statistics Bureau of Japan / e-Stat",
+        }
 
         # Detect quarterly data
         quarterly = (date_format == "quarterly")
@@ -326,6 +333,21 @@ def render_japan_page():
                 font_color="black",
                 font_family="Arial"
             )
+        )
+        
+        fig.add_annotation(
+            text=source_map.get(indicator, "Source: MacroLens Research"),
+            xref="paper",
+            yref="paper",
+            x=0,
+            y=-0.24,
+            showarrow=False,
+            font=dict(size=12, color="gray"),
+            align="left"
+        )
+
+        fig.update_layout(
+            margin=dict(b=80)
         )
 
         # -------- Display Chart --------
