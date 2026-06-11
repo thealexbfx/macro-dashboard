@@ -451,6 +451,49 @@ def render_usa_page():
             "Fed Balance Sheet": "Federal Reserve Balance Sheet: Total Assets"
         }
         
+        source_map = {
+            "Federal Funds Rate": "Source: Federal Reserve Economic Data (FRED)",
+            "Fed Balance Sheet": "Source: Federal Reserve Economic Data (FRED)",
+
+            "CPI YoY": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Core CPI YoY": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "PPI YoY": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Core PPI YoY": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Import Prices YoY": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Export Prices YoY": "Source: U.S. Bureau of Labor Statistics (BLS)",
+
+            "PCE YoY": "Source: U.S. Bureau of Economic Analysis (BEA)",
+            "Core PCE YoY": "Source: U.S. Bureau of Economic Analysis (BEA)",
+            "GDP Growth Rate": "Source: U.S. Bureau of Economic Analysis (BEA)",
+            "Personal Income MoM": "Source: U.S. Bureau of Economic Analysis (BEA)",
+            "Personal Consumption MoM": "Source: U.S. Bureau of Economic Analysis (BEA)",
+
+            "Unemployment Rate": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Labor Force Participation Rate": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Non Farm Payrolls": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Initial Jobless Claims": "Source: Federal Reserve Economic Data (FRED)",
+            "Average Hourly Earnings YoY": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "JOLTS Job Openings": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Quits Rate": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "ECI Total Compensation YoY": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "ECI Wages & Salaries YoY": "Source: U.S. Bureau of Labor Statistics (BLS)",
+
+            "Retail Sales MoM": "Source: Federal Reserve Economic Data (FRED)",
+            "Industrial Production MoM": "Source: Federal Reserve Economic Data (FRED)",
+            "Capacity Utilization": "Source: Federal Reserve Economic Data (FRED)",
+            "Durable Goods Orders MoM": "Source: Federal Reserve Economic Data (FRED)",
+            "Trade Balance": "Source: Federal Reserve Economic Data (FRED)",
+            "Housing Starts MoM": "Source: Federal Reserve Economic Data (FRED)",
+            "Building Permits MoM": "Source: Federal Reserve Economic Data (FRED)",
+            "New Home Sales MoM": "Source: Federal Reserve Economic Data (FRED)",
+
+            "Labor Productivity": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Unit Labor Costs": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Real Hourly Compensation": "Source: U.S. Bureau of Labor Statistics (BLS)",
+
+            "Michigan Consumer Sentiment": "Source: University of Michigan via FRED",
+            "Chicago Fed NFCI": "Source: Federal Reserve Bank of Chicago via FRED",
+        }
 
         # Detect quarterly data
         quarterly = (date_format == "quarterly")
@@ -500,6 +543,21 @@ def render_usa_page():
                 fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
 
 
+        fig.add_annotation(
+            text=source_map.get(indicator, "Source: MacroLens Research"),
+            xref="paper",
+            yref="paper",
+            x=0,
+            y=-0.24,
+            showarrow=False,
+            font=dict(size=12, color="gray"),
+            align="left"
+        )
+
+        fig.update_layout(
+            margin=dict(b=80)
+        )
+
         # -------- Display Chart --------
         st.plotly_chart(
             fig,
@@ -511,6 +569,7 @@ def render_usa_page():
                 "modeBarButtonsToRemove": ["lasso2d", "select2d"]
             }
         )
+        
         
         
 
