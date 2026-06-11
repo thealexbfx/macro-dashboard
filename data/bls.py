@@ -9,7 +9,7 @@ from config import BLS_API_KEY
 
 
 CACHE_DIR = Path("data_cache") / "bls"
-CACHE_TTL_DAYS = 7
+CACHE_TTL_DAYS = 1
 
 
 def _cache_path(series_id: str, start_year: int) -> Path:
@@ -38,7 +38,7 @@ def _write_cached_series(df: pd.DataFrame, path: Path) -> None:
     df.to_csv(path, index=False)
 
 
-@st.cache_data(ttl=604800)
+@st.cache_data(ttl=3600)
 def get_bls_series(series_id: str, start_year: int = 2000):
     """Fetch a BLS time series with persistent CSV cache."""
     cache_file = _cache_path(series_id, start_year)
