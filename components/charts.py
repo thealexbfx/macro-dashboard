@@ -5,7 +5,8 @@ import plotly.express as px
 # -------- Helper Functions --------
 def plot_chart(df, title, chart_type, height=450, date_format="daily",
                yaxis_suffix='', reference_lines=None, shaded_regions=None,
-               tickformat_override=None, hover_style="delta", delta_type="cumulative", show_markers=False):
+               tickformat_override=None, hover_style="delta", delta_type="cumulative",
+               show_markers=False, decimals=2):
 
     df = df.copy()
     chart_color = '#1f77b4'
@@ -63,7 +64,7 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
             linewidth=2,
             ticks='outside',
             tickfont=dict(size=14, family="Arial Bold", color="black"),
-            tickformat=f',.2f{yaxis_suffix}'
+            tickformat=f',.{decimals}f{yaxis_suffix}'
         ),
         hoverlabel=dict(
             font_size=16,
@@ -114,7 +115,7 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
                 customdata=df[['hover_label', 'delta_str', 'delta_color']],
                 hovertemplate=(
                     "<span style='color:black'><b>%{customdata[0]}</b></span><br>"   # Quarter
-                    "<span style='color:black'>%{y:,.2f}" + yaxis_suffix + "</span><br>"  # Value
+                    f"<span style='color:black'>%{{y:,.{decimals}f}}" + yaxis_suffix + "</span><br>"  # Value
                     "<span style='color:%{customdata[2]}; font-weight:bold'>%{customdata[1]}</span>"
                     "<extra></extra>"
                 )
@@ -125,7 +126,7 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
                 customdata=df[['delta_str', 'delta_color']],
                 hovertemplate=(
                     "<span style='color:black'><b>%{x|" + hover_date_format + "}</b></span><br>"
-                    "<span style='color:black'>%{y:,.2f}" + yaxis_suffix + "</span><br>"
+                    f"<span style='color:black'>%{{y:,.{decimals}f}}" + yaxis_suffix + "</span><br>"
                     "<span style='color:%{customdata[1]}; font-weight:bold'>%{customdata[0]}</span>"
                     "<extra></extra>"
                 )
@@ -136,7 +137,7 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
             df['hover_label'] = df['date'].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
             fig.update_traces(
                 customdata=df['hover_label'],
-                hovertemplate="<b>%{customdata}</b><br>%{y:,.2f}" + yaxis_suffix + "<extra></extra>"
+                hovertemplate=f"<b>%{{customdata}}</b><br>%{{y:,.{decimals}f}}" + yaxis_suffix + "<extra></extra>"
             )
             tickvals = df[df['date'].dt.quarter == 4]['date']
             ticktext = df[df['date'].dt.quarter == 4]['hover_label']
@@ -144,7 +145,7 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
         else:
             hovertemplate = (
                 "<span style='color:black'><b>%{x|" + hover_date_format + "}</b></span><br>"
-                "<span style='color:black'>%{y:,.2f}" + yaxis_suffix + "</span><extra></extra>"
+                f"<span style='color:black'>%{{y:,.{decimals}f}}" + yaxis_suffix + "</span><extra></extra>"
             )
 
             fig.update_traces(hovertemplate=hovertemplate)

@@ -370,6 +370,26 @@ def render_euro_page():
         # -------- Plot Chart --------
         delta_type_arg = None if delta_type == "Off" else delta_type.lower()
         hover_style = "delta" if delta_type_arg is not None else "none"
+        
+        def get_decimal_places(indicator):
+            if indicator == "Interest Rate":
+                return 2
+
+            elif indicator in [
+                "HICP YoY",
+                "Core HICP YoY",
+                "Unemployment Rate",
+                "GDP QoQ",
+                "GDP YoY",
+                "Retail Sales MoM",
+                "Industrial Production MoM",
+            ]:
+                return 1
+
+            else:
+                return 2
+
+        decimals = get_decimal_places(indicator)
 
         fig = plot_chart(
             df_filtered,
@@ -379,7 +399,8 @@ def render_euro_page():
             delta_type=delta_type_arg,
             date_format="quarterly" if quarterly else date_format,
             tickformat_override=tickformat_override,
-            show_markers=False
+            show_markers=False,
+            decimals=decimals
         )
 
         if quarterly and not is_interest_rate:

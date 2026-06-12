@@ -417,7 +417,7 @@ def render_uk_page():
             "Bank Rate": "Source: Bank of England (BOE)",
             "CPI YoY": "Source: Office for National Statistics (ONS)",
             "Core CPI YoY": "Source: Office for National Statistics (ONS)",
-            "GDP Growth Rate": "Source: Office for National Statistics (ONS)",
+            "GDP QoQ": "Source: Office for National Statistics (ONS)",
             "Unemployment Rate": "Source: Office for National Statistics (ONS)",
             "Retail Sales MoM": "Source: Office for National Statistics (ONS)",
             "Average Weekly Earnings YoY": "Source: Office for National Statistics (ONS)",
@@ -433,6 +433,33 @@ def render_uk_page():
         # -------- Plot Chart --------
         delta_type_arg = None if delta_type == "Off" else delta_type.lower()
         hover_style = "delta" if delta_type_arg is not None else "none"
+        
+        def get_decimal_places(indicator):
+            if indicator in ["Bank Rate"]:
+                return 2
+
+            elif indicator in [
+                "CPI YoY",
+                "Core CPI YoY",
+                "House Prices YoY",
+                "GDP QoQ",
+                "Retail Sales MoM",
+                "Industrial Production MoM",
+                "Unemployment Rate",
+                "Average Weekly Earnings YoY",
+            ]:
+                return 1
+
+            elif indicator in [
+                "Vacancies",
+                "Trade Balance",
+            ]:
+                return 0
+
+            else:
+                return 2
+
+        decimals = get_decimal_places(indicator)
 
         fig = plot_chart(
             df_filtered,
@@ -442,7 +469,8 @@ def render_uk_page():
             delta_type=delta_type_arg,
             date_format="quarterly" if quarterly else date_format,
             tickformat_override=tickformat_override,
-            show_markers=False
+            show_markers=False,
+            decimals=decimals
         )
 
         if quarterly:

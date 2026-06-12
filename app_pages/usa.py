@@ -534,6 +534,39 @@ def render_usa_page():
 
         # If delta_type is Off, disable hover delta
         hover_style = "delta" if delta_type_arg is not None else "none"
+        
+        def get_decimal_places(indicator):
+            if indicator in ["Federal Funds Rate"]:
+                return 2
+
+            elif indicator in [
+                "CPI YoY", "Core CPI YoY", "PCE YoY", "Core PCE YoY",
+                "PPI YoY", "Core PPI YoY", "Import Prices YoY", "Export Prices YoY",
+                "Unemployment Rate", "Labor Force Participation Rate",
+                "Average Hourly Earnings YoY", "Quits Rate",
+                "ECI Total Compensation YoY", "ECI Wages & Salaries YoY",
+                "GDP Growth Rate", "Personal Income MoM", "Personal Consumption MoM",
+                "Retail Sales MoM", "Industrial Production MoM", "Capacity Utilization",
+                "Durable Goods Orders MoM", "Housing Starts MoM",
+                "Building Permits MoM", "New Home Sales MoM",
+                "Labor Productivity", "Unit Labor Costs", "Real Hourly Compensation",
+                "Michigan Consumer Sentiment"
+            ]:
+                return 1
+
+            elif indicator in [
+                "Trade Balance", "Non Farm Payrolls", "Initial Jobless Claims",
+                "Fed Balance Sheet"
+            ]:
+                return 0
+
+            elif indicator in ["JOLTS Job Openings", "Chicago Fed NFCI"]:
+                return 2
+
+            else:
+                return 2
+
+        decimals = get_decimal_places(indicator)
 
         fig = plot_chart(
             df_filtered,
@@ -543,7 +576,8 @@ def render_usa_page():
             delta_type=delta_type_arg,  # None if Off
             date_format="quarterly" if quarterly else date_format,
             tickformat_override=tickformat_override,
-            show_markers=False
+            show_markers=False,
+            decimals=decimals
         )
 
 
