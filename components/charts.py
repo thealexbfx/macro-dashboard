@@ -156,6 +156,12 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
                     tickvals=df['date'],
                     ticktext=df['tick_label']
                 )
+    if chart_type == "Step":
+        fig.update_xaxes(
+            tickformat="%Y",
+            dtick="M60",
+            tickangle=0
+        )
 
     return fig
 
@@ -258,5 +264,6 @@ def plot_scenario_chart(df, threshold_pct=4.0, window=30, window_unit='days',
         table_df = pd.DataFrame(trigger_rows)
     else:
         table_df = pd.DataFrame(columns=['Trigger Date', 'Move %', f'{window} {window_unit} Return %'])
+        
 
     return fig, table_df

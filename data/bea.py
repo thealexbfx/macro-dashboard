@@ -7,7 +7,6 @@ import requests
 import streamlit as st
 
 from config import BEA_API_KEY
-print("BEA_API_KEY =", BEA_API_KEY)
 
 
 CACHE_DIR = Path("data_cache") / "bea"

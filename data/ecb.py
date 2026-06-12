@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 
-@st.cache_data(ttl=86400)
+@st.cache_data(ttl=60)
 def get_ecb_main_refinancing_rate_data():
     """
     ECB Main Refinancing Rate

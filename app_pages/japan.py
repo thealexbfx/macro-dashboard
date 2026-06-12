@@ -177,10 +177,10 @@ def render_japan_page():
 
         # -------- Indicator Groups --------
         indicator_groups = {
+            "Monetary Policy": ["Interest Rate"],
             "Labor Market": ["Unemployment Rate"],
             "Growth": ["GDP Growth Rate"],
-            "Inflation": ["CPI YoY"],
-            "Monetary Policy": ["Interest Rate"]
+            "Inflation": ["CPI YoY"]
         }
 
         # Category dropdown
@@ -192,16 +192,26 @@ def render_japan_page():
         # -------- Chart Type + Timeframe side by side --------
         ct_col, tf_col = st.columns(2)
         with ct_col:
-            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
+            is_interest_rate = indicator in ["Federal Funds Rate", "Interest Rate", "Bank Rate"]
+
+            chart_type = st.selectbox(
+                "Chart Type",
+                ["Line", "Area", "Bar", "Step"],
+                index=3 if is_interest_rate else 0
+            )
         with tf_col:
-            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+            timeframe = st.selectbox(
+                "Time Frame",
+                ["1Y", "3Y", "5Y", "10Y", "MAX"],
+                index=2 if is_interest_rate else 0
+            )
 
         # Delta Type (allow turning it off)
         delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
 
         # -------- Indicator Function Mapping --------
         indicator_map = {
-            "Interest Rate": (get_japan_interest_rate_data, "daily", "%b %Y"),
+            "Interest Rate": (get_japan_interest_rate_data, "daily", None),
             "CPI YoY": (get_japan_cpi_yoy_data, "monthly", None),
             "GDP Growth Rate": (get_japan_gdp_qoq_data, "quarterly", None),
             "Unemployment Rate": (get_japan_unemployment_rate_data, "monthly", None)
@@ -211,6 +221,26 @@ def render_japan_page():
         func, date_format, tickformat_override = indicator_map[indicator]
         df = func()
         df = df.dropna()
+
+        if is_interest_rate and not df.empty:
+            today = pd.Timestamp.today().normalize()
+            last_date = df["date"].max()
+            last_value = df["value"].iloc[-1]
+
+            if last_date < today:
+                df = pd.concat(
+                    [
+                        df,
+                        pd.DataFrame(
+                            {
+                                "date": [today],
+                                "value": [last_value]
+                            }
+                        )
+                    ],
+                    ignore_index=True
+                )
+
         if df.empty:
             st.error("No data available.")
             st.stop()
@@ -346,8 +376,19 @@ def render_japan_page():
             align="left"
         )
 
+        fig.add_annotation(
+            text="macrolensresearch.com",
+            xref="paper",
+            yref="paper",
+            x=1,
+            y=-0.24,
+            showarrow=False,
+            font=dict(size=12, color="gray"),
+            align="right"
+        )
+
         fig.update_layout(
-            margin=dict(b=80)
+            margin=dict(b=95)
         )
 
         # -------- Display Chart --------
