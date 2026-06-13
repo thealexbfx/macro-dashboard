@@ -126,7 +126,7 @@ def render_euro_page():
                 color: #111;
                 z-index: 10;
             ">
-                {"EURO"}
+                {"Euro Area"}
             </div>
         """, unsafe_allow_html=True)
         

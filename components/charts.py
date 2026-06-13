@@ -1,6 +1,6 @@
 import pandas as pd
 import plotly.express as px
-
+import plotly.graph_objects as go
 
 # -------- Helper Functions --------
 def plot_chart(df, title, chart_type, height=450, date_format="daily",
@@ -8,7 +8,29 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
                tickformat_override=None, hover_style="delta", delta_type="cumulative",
                show_markers=False, decimals=2):
 
+    # Safety checks
+    if df is None:
+        return None
+
+    if not isinstance(df, pd.DataFrame):
+        return None
+
+    if df.empty:
+        return None
+
+    if "date" not in df.columns:
+        return None
+
+    if "value" not in df.columns:
+        return None
+
     df = df.copy()
+
+    df = df.dropna(subset=["date", "value"])
+
+    if df.empty:
+        return None
+
     chart_color = '#1f77b4'
 
     # -------------------- Hover Formatting --------------------

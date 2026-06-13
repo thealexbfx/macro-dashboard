@@ -127,7 +127,7 @@ def render_uk_page():
                 color: #111;
                 z-index: 10;
             ">
-                {"UK"}
+                {"United Kingdom"}
             </div>
         """, unsafe_allow_html=True)
         

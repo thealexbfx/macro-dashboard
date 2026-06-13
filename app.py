@@ -24,6 +24,8 @@ from app_pages.uk import render_uk_page
 from app_pages.euro import render_euro_page
 
 IS_PROD = os.getenv("APP_ENV", "dev") == "prod"
+if IS_PROD:
+    st.set_option("client.showErrorDetails", False)
 
 def safe_render(render_func, section_name):
     try:
@@ -351,7 +353,10 @@ def analyze_usa():
             results[name] = {"latest": latest, "trend": trend}
 
         except Exception as e:
-            st.warning(f"⚠️ Could not process {name}: {e}")
+            if IS_PROD:
+                st.warning(f"{name} data is temporarily unavailable.")
+            else:
+                st.warning(f"⚠️ Could not process {name}: {e}")
     return results
 
 @st.cache_data(ttl=1800)
@@ -384,7 +389,10 @@ def analyze_japan():
             results[name] = {"latest": latest, "trend": trend}
 
         except Exception as e:
-            st.warning(f"⚠️ Could not process {name}: {e}")
+            if IS_PROD:
+                st.warning(f"{name} data is temporarily unavailable.")
+            else:
+                st.warning(f"⚠️ Could not process {name}: {e}")
     return results
 
 @st.cache_data(ttl=1800)
@@ -444,7 +452,10 @@ def analyze_uk():
             }
 
         except Exception as e:
-            st.warning(f"⚠️ Could not process {name}: {e}")
+            if IS_PROD:
+                st.warning(f"{name} data is temporarily unavailable.")
+            else:
+                st.warning(f"⚠️ Could not process {name}: {e}")
 
     return results
 
@@ -482,7 +493,10 @@ def analyze_euro():
             results[name] = {"latest": latest, "trend": trend}
 
         except Exception as e:
-            st.warning(f"⚠️ Could not process {name}: {e}")
+            if IS_PROD:
+                st.warning(f"{name} data is temporarily unavailable.")
+            else:
+                st.warning(f"⚠️ Could not process {name}: {e}")
 
     return results
 
@@ -506,7 +520,10 @@ def analyze_euro():
             results[name] = {"latest": latest, "trend": trend}
 
         except Exception as e:
-            st.warning(f"⚠️ Could not process {name}: {e}")
+            if IS_PROD:
+                st.warning(f"{name} data is temporarily unavailable.")
+            else:
+                st.warning(f"⚠️ Could not process {name}: {e}")
     return results
     
 # -----------------------------
@@ -547,7 +564,10 @@ def analyze_asset_class(tickers_dict):
                 "position": position
             }
         except Exception as e:
-            st.warning(f"⚠️ Could not process {name}: {e}")
+            if IS_PROD:
+                st.warning(f"{name} data is temporarily unavailable.")
+            else:
+                st.warning(f"⚠️ Could not process {name}: {e}")
     return results
 
 
@@ -1161,13 +1181,14 @@ html, body {
     z-index: 9999;
     background-color: #F9F9F9;
     width: 100%;
-    padding: 1rem 2rem;
+    height: 64px;
+    padding: 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 
-    /* Default = thin border */
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 2px solid #DCDCDC;
+
     transition: box-shadow 0.2s ease, border-bottom 0.2s ease;
 }
 
@@ -1178,6 +1199,8 @@ html, body {
 }
 
 .custom-header .logo {
+    position: absolute;
+    left: 32px;
     font-weight: bold;
     font-size: 1.2rem;
 }
@@ -1186,9 +1209,7 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 2rem;
-    flex: 1;              /* evenly spaces between logo and edges */
-    margin: 0 auto;       /* centers horizontally */
+    gap: 3rem;
 }
 
 
@@ -1212,8 +1233,8 @@ html, body {
 .dropdown-btn {
     background: none;
     border: none;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 1.15rem;
+    font-weight: 600;
     cursor: pointer;
     color: black;
 
@@ -1227,17 +1248,44 @@ html, body {
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+
+    left: 50%;
+    transform: translateX(-50%);
+
+    background-color: #ffffff;
+
+    width: max-content;
+    min-width: 100%;
+
+    border: 2.5px solid #d1d5db;
+    border-radius: 10px;
+
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.08);
     z-index: 1;
+
+    overflow: hidden;
+}
+
+.dropdown-content {
+    padding: 0 16px;
 }
 
 .dropdown-content a {
     color: black;
-    padding: 10px 14px;
+    padding: 12px 4px;
+    font-size: 17px !important;
+    font-weight: 650 !important;
+    white-space: nowrap;
+
     text-decoration: none;
     display: block;
+    
+
+    border-bottom: 1.5px solid #cbd5e1;
+}
+
+.dropdown-content a:last-child {
+    border-bottom: none;
 }
 
 .dropdown-content a:hover {
@@ -1286,38 +1334,32 @@ st.markdown("""
     </div>
     <div class="menu">
         <div class="dropdown">
-            <button class="dropdown-btn">Countries ▾</button>
+            <button class="dropdown-btn">Economies ▾</button>
             <div class="dropdown-content">
-                <a href="?page=USA" target="_self">USA</a>
-                <a href="?page=EURO" target="_self">Euro Area</a>
-                <a href="?page=UK" target="_self">UK</a>
+                <a href="?page=UnitedStates" target="_self">United States</a>
+                <a href="?page=EuroArea" target="_self">Euro Area</a>
+                <a href="?page=UnitedKingdom" target="_self">United Kingdom</a>
                 <a href="?page=Japan" target="_self">Japan</a>
             </div>
         </div>
         <div class="dropdown">
-            <button class="dropdown-btn">Asset Classes ▾</button>
-            <div class="dropdown-content">
-                <a href="?page=FX%20Rates" target="_self">FX Rates</a>
+            <button class="dropdown-btn">Markets ▾</button>
+            <div class="dropdown-content">                              
+                <a href="?page=RatesBonds" target="_self">Rates & Bonds</a>
                 <a href="?page=Equities" target="_self">Equities</a>
-                <a href="?page=Bonds" target="_self">Bonds</a>
                 <a href="?page=Commodities" target="_self">Commodities</a>
-                <a href="?page=Stocks" target="_self">Stocks</a>
+                <a href="?page=FX" target="_self">FX</a> 
                 <a href="?page=Crypto" target="_self">Crypto</a>
             </div>
         </div>
         <div class="dropdown">
-            <button class="dropdown-btn">Tools + Features ▾</button>
+            <button class="dropdown-btn">Research ▾</button>
             <div class="dropdown-content">
-                <a href="?page=ESI" target="_self">ESI</a>
-                <a href="?page=Compare" target="_self">Compare</a>
-                <a href="?page=Seasonality" target="_self">Seasonality</a>
-                <a href="?page=Cycle" target="_self">Cycle</a>
-                <a href="?page=Scenarios" target="_self">Scenarios</a>
-                <a href="?page=Yield Curve" target="_self">Yield Curve</a>
-                <a href="?page=Curve Regimes" target="_self">Curve Regimes</a>
-                <a href="?page=Calendar" target="_self">Calendar</a>
-                <a href="?page=Summary" target="_self">Summary</a>
-                <a href="?page=Reports" target="_self">Reports</a>
+                <a href="?page=GlobalMacroView" target="_self">Global Macro View</a>
+                <a href="?page=CentralBankWatch" target="_self">Central Bank Watch</a>
+                <a href="?page=RegimeMonitor" target="_self">Regime Monitor</a> 
+                <a href="?page=ResearchNotes" target="_self">Research Notes</a>                
+                <a href="?page=Calendar" target="_self">Calendar</a>               
             </div>    
         </div>
     </div>    
@@ -1340,6 +1382,26 @@ window.addEventListener('scroll', function() {
 
 query_params = st.query_params
 page = query_params.get("page", "Home")  # default to Home if not specified
+
+page_titles = {
+    "Home": "Home",
+    "UnitedStates": "United States",
+    "EuroArea": "Euro Area",
+    "UnitedKingdom": "United Kingdom",
+    "Japan": "Japan",
+    "RatesBonds": "Rates & Bonds",
+    "Equities": "Equities",
+    "Commodities": "Commodities",
+    "FX": "FX",
+    "Crypto": "Crypto",
+    "GlobalMacroView": "Global Macro View",
+    "CentralBankWatch": "Central Bank Watch",
+    "RegimeMonitor": "Regime Monitor",
+    "ResearchNotes": "Research Notes",
+    "Calendar": "Calendar",
+}
+
+page_title = page_titles.get(page, page)
 
 # --- Main content wrapper to start scroll below header ---
 st.markdown('<div class="main-content">', unsafe_allow_html=True)
@@ -1405,392 +1467,230 @@ div[data-baseweb="input"]:hover {
 if page == "Home":
 
     st.markdown("""
-        <style>
-                /* Reset page spacing */
-        html, body {
-            margin: 0;
-            padding: 0;
+    <style>
+    .hero {
+        padding: 34px 38px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #0b1320 0%, #132238 55%, #0a9396 140%);
+        color: white;
+        margin-bottom: 22px;
+    }
+    .hero h1 {
+        font-size: 44px;
+        font-weight: 850;
+        margin-bottom: 8px;
+    }
+    .hero p {
+        font-size: 17px;
+        color: #d6e2ea;
+        max-width: 850px;
+    }
+    .section-label {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #0a9396;
+        margin-bottom: 8px;
+    }
+    .card {
+        background: #ffffff;
+        border: 1px solid #e6e8eb;
+        border-radius: 15px;
+        padding: 20px 22px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.035);
+        min-height: 150px;
+    }
+    .card h3 {
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0 0 12px 0;
+        color: #111827;
+    }
+    .card p, .card li {
+        font-size: 14.5px;
+        line-height: 1.55;
+        color: #374151;
+    }
+    .regime-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+    .regime-box {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 16px;
+    }
+    .regime-box span {
+        display: block;
+        font-size: 12px;
+        color: #6b7280;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+    .regime-box b {
+        font-size: 18px;
+        color: #111827;
+    }
+    .market-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+    .market-tile {
+        background: #111827;
+        color: white;
+        border-radius: 12px;
+        padding: 14px 16px;
+    }
+    .market-tile span {
+        display: block;
+        color: #9ca3af;
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+    .market-tile b {
+        font-size: 16px;
+    }
+    .footer {
+        margin-top: 22px;
+        padding: 20px;
+        border-top: 1px solid #e5e7eb;
+        text-align: center;
+        font-size: 13px;
+        color: #6b7280;
+    }
+    @media (max-width: 900px) {
+        .regime-grid, .market-row {
+            grid-template-columns: repeat(2, 1fr);
         }
-
-        /* Sticky top navigation bar */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            margin: 0;
-            padding: 0.75rem 1rem;  /* adjust to taste */
-            background-color: #fff; /* or your theme color */
-            border-bottom: 1px solid #eee;
-        }
-
-        /* Push content down so it doesn’t overlap navbar */
-        .main-content {
-            margin-top: 4rem;  /* same height as navbar */
-        }
-
-        /* Hero section (dashboard title) */
-        .hero {
-            padding: 0;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-            background: none;
-            text-align: center;
-            margin: 0 0 2rem 0; /* remove top margin */
-        }
-
         .hero h1 {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin: 0.2rem 0 0.5rem 0;  /* kill default top gap */
-            color: #111;
-            line-height: 1.2;
+            font-size: 34px;
         }
+    }
+    </style>
 
+    <div class="hero">
+        <div class="section-label">Independent Macro Research Platform</div>
+        <h1>Macro Lens Research</h1>
+        <p>
+            A macro research dashboard built to track economic regimes, policy cycles,
+            cross-asset market signals, and the data that drives global macro decisions.
+        </p>
+    </div>
 
-        .hero p {
-            font-size: 1.15rem;
-            color: #444;
-            margin-bottom: 1.8rem;
-        }
+    <div class="regime-grid">
+        <div class="regime-box"><span>Growth</span><b>Slowing</b></div>
+        <div class="regime-box"><span>Inflation</span><b>Sticky</b></div>
+        <div class="regime-box"><span>Labor</span><b>Cooling</b></div>
+        <div class="regime-box"><span>Policy</span><b>Restrictive</b></div>
+    </div>
 
-        .section {
-            margin-top: 3rem;
-        }
-
-        .section h2 {
-            font-size: 1.6rem;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 0.4rem;
-            margin-bottom: 1.2rem;
-            color: #222;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .feature-box {
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            padding: 1.2rem 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.03);
-        }
-
-        .feature-box h3 {
-            margin-top: 0;
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
-            color: #000;
-        }
-
-        .feature-box p {
-            font-size: 0.95rem;
-            color: #555;
-        }
-
-        .hr-separator {
-            margin: 3rem 0;
-            border: none;
-            border-top: 2px solid #eee;
-        }
-
-        .chart-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            text-align: center;
-            margin: 1rem 0 0.5rem;
-        }
-
-        .footer {
-            margin-top: 4rem;
-            padding-top: 2rem;
-            border-top: 1px solid #eee;
-            font-size: 0.9rem;
-            color: #666;
-            text-align: center;
-        }
-
-        .footer a {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-        .calendar-snippet-container {
-            max-width: 700px;
-            margin: 0 auto 2rem auto;
-            background: none;
-            border: none;
-            border-radius: 0;
-        padding: 0;
-            box-shadow: none;
-            text-align: center;
-        }
-
-
-        .calendar-snippet-container h3 {
-            font-weight: 700;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #222;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 0.5rem;
-        }
-
-        .calendar-event {
-            display: inline-block;
-            white-space: nowrap;
-            font-size: 1rem;
-            margin: 0.25rem 0;
-            padding: 6px 12px;
-            border-radius: 6px;
-            background-color: transparent;
-            ##border: 1px solid #ccc;
-            ##box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .calendar-event > span {
-            margin: 0 6px;
-        }
-
-        .impact-high {
-            color: #ff4d4d;
-            font-weight: 700;
-        }
-
-        .impact-medium {
-            color: #ffa500;
-            font-weight: 700;
-        }
-
-        .impact-low {
-            color: #32cd32;
-            font-weight: 700;
-        }
-        </style>
-        
-        <div class="hero">
-            <h1>Macro Lens Research</h1>
-            <p>Monitor global economic and market dynamics — updated daily with interactive data and professional-grade insights.</p>
-        </div>
-        <hr class="hr-separator"/>
+    <div class="market-row">
+        <div class="market-tile"><span>DXY</span><b>In Progress</b></div>
+        <div class="market-tile"><span>US 10Y</span><b>In Progress</b></div>
+        <div class="market-tile"><span>S&P 500</span><b>In Progress</b></div>
+        <div class="market-tile"><span>Gold</span><b>In Progress</b></div>
+        <div class="market-tile"><span>WTI Crude</span><b>In Progress</b></div>
+    </div>
     """, unsafe_allow_html=True)
 
-    # Load and show today's economic events
-    try:
-        cal_df = pd.read_csv("economic_calendar.csv", parse_dates=["Date"])
-    except Exception as e:
-        st.error(f"Error loading economic calendar data: {e}")
-        cal_df = pd.DataFrame()
+    col1, col2, col3 = st.columns([1.2, 1, 1])
 
-    if not cal_df.empty:
-        today = pd.to_datetime(dt.date.today())
-        todays_events = cal_df[cal_df['Date'] == today]
-
-        if not todays_events.empty:
-            calendar_html = (
-                '<div class="calendar-snippet-container">'
-                '<h3>📅 Today\'s Economic Events</h3>'
-            )
-
-            for _, row in todays_events.iterrows():
-                impact_class = {
-                    "🔴 High": "impact-high",
-                    "🟠 Medium": "impact-medium",
-                    "🟢 Low": "impact-low"
-                }.get(row['Impact'], "")
-
-                calendar_html += (
-                    f'<div class="calendar-event">'
-                    f'<b>Date:</b> {row["Date"].strftime("%A %d %B")}'
-                    f'<span>|</span><b>Time:</b> {row["Time"]}'
-                    f'<span>|</span><b>Country:</b> {row["Country"]}'
-                    f'<span>|</span><b>Event:</b> {row["Event"]}'
-                    f'<span>|</span><span class="{impact_class}">{row["Impact"]}</span>'
-                    f'</div>'
-                )
-
-            calendar_html += '</div>'
-            st.markdown(calendar_html, unsafe_allow_html=True)
-        else:
-            st.info("No economic events scheduled for today.")
-
-    # Show DXY chart below the calendar snippet
-    dxy_df = get_fx_data_yahoo("DX-Y.NYB", start_date=dt.date.today() - dt.timedelta(days=365), end_date=dt.date.today())
-    dxy_chart = plot_chart(dxy_df, "DXY (US Dollar Index)", chart_type="Line")
-
-    
-    st.plotly_chart(dxy_chart, use_container_width=True)
-
-    # Features and footer
-    st.markdown("""
-        <div class="section">
-            <h2>🔍 What You Can Explore</h2>
-            <div class="grid">
-                <div class="feature-box">
-                    <h3>🌍 Countries</h3>
-                    <p>Dive into economic data for the USA, Japan, UK, and Euro Area — interest rates, GDP, inflation, jobs, and more.</p>
-                </div>
-                <div class="feature-box">
-                    <h3>💹 Asset Classes</h3>
-                    <p>Track Equities, Bonds, Commodities, FX Rates, and Crypto — all in one place, with charts and comparisons.</p>
-                </div>
-                <div class="feature-box">
-                    <h3>📈 Yield Curve & Regimes</h3>
-                    <p>Visualize yield curves across countries, spot steepening/inverting regimes, and analyze market signals.</p>
-                </div>
-                <div class="feature-box">
-                    <h3>⚖️ Compare</h3>
-                    <p>Overlay any two indicators (e.g., U.S. CPI vs EUR/USD, 10Y yields vs GDP) with dual axes for deeper analysis.</p>
-                </div>
-                <div class="feature-box">
-                    <h3>📅 Calendar</h3>
-                    <p>Stay on top of daily global economic events — with impact levels clearly highlighted.</p>
-                </div>
-                <div class="feature-box">
-                    <h3>🔄 Cycle</h3>
-                    <p>Assess the U.S. economic cycle using real-time indicators. View the current macro “season”, scoring table and cycle wave</p>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="section">
-            <h2>🚀 How to Use This Dashboard</h2>
-            <ul>
-                <li><b>Navigate using the top bar</b> — choose a <b>Country</b> (USA, Japan, UK, Euro Area) or an <b>Asset Class</b> (Equities, Bonds, Commodities, FX, Crypto).</li>
-                <li><b>Explore Yield Curves & Regimes</b> to track steepening, flattening, or inversion phases across global markets.</li>
-                <li><b>Use Compare</b> to overlay any two indicators with dual y-axes for deeper macro insights.</li>
-                <li><b>Check the Calendar</b> daily for upcoming economic events, highlighted by impact level.</li>
-                <li><b>Visit the Cycle page</b> to assess the current <b>U.S. economic phase</b>, view cycle scores, and read AI-generated summaries.</li>
-                <li><b>Adjust chart types and timeframes</b> as needed — everything updates instantly and interactively.</li>
-            </ul>
-        </div>
-
-
-
-        <div class="section">
-            <h2>📡 Data Sources</h2>
-            <ul>
-                <li><b>Asset Classes (Equities, Bonds, Commodities, FX, Crypto):</b> Yahoo Finance</li>
-                <li><b>U.S. Yield Curve Data:</b> Federal Reserve Economic Data (FRED)</li>
-                <li><b>Economic Indicators (USA, Japan, UK, Euro Area):</b> FXStreet + manually maintained datasets (updated daily)</li>
-            </ul>
-            <p style="font-size:0.9rem; color:#555; margin-top:0.5rem;">
-                <i>Note: All data is updated daily. Some indicators are manually curated for accuracy and completeness.</i>
-            </p>
-        </div>
-
-
-        <div class="footer">
-            <p>Built by <b>Macro Lens Research</b> • All data updates daily</p>
+    with col1:
+        st.markdown("""
+        <div class="card">
+            <h3>Macro Outlook</h3>
             <p>
-                Contact: <a href="https://www.linkedin.com/in/alex-ballinger-059919302/" target="_blank">LinkedIn</a> |
-                <a href="https://youtube.com/@macrolensresearch" target="_blank">YouTube</a> |
-                <a href="https://www.instagram.com/themacrolens_/" target="_blank">Instagram</a>
+                The global economy remains in a late-cycle environment. Growth momentum is
+                moderating, inflation is no longer accelerating broadly, and central banks
+                remain cautious as restrictive policy continues to weigh on activity.
             </p>
-            <p>&copy; 2025 Macro Lens Research. All rights reserved.</p>
         </div>
-    """, unsafe_allow_html=True)
-    
-def get_country_summary(key_name, country_prompt, data_text):
-    """
-    Checks if a summary exists for a country, otherwise generates one using your AI summarizer.
-    """
-    if key_name in st.session_state:
-        return st.session_state[key_name]
-    else:
-        prompt = f"""
-        Summarize the macroeconomic situation for {country_prompt} based on the following data and analysis.
-        Focus on growth trends, inflation, labor markets, and financial conditions.
-        Keep it concise, professional, and under 150 words.
+        """, unsafe_allow_html=True)
 
-        --- Data & Context ---
-        {data_text}
-        """
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-            max_completion_tokens=250,
-            temperature=0
-        )
-        summary = response.choices[0].message.content.strip()
-        st.session_state[key_name] = summary
-        return summary
-
-
-# Global AI Summary Collector (used across all pages)
-if "ai_summaries" not in st.session_state:
-    st.session_state["ai_summaries"] = []
-    
-    
-
-def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-    if position_pct >= 90 and slope > 0:
-        status, color, emoji = "Extreme High", "#e63946", "🚨"
-        message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-    elif position_pct <= 10 and slope < 0:
-        status, color, emoji = "Extreme Low", "#1d3557", "⚠️"
-        message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-    elif position_pct >= 70:
-        status, color, emoji = "High", "#f77f00", "🔺"
-        message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-    elif position_pct <= 30:
-        status, color, emoji = "Low", "#2a9d8f", "🔻"
-        message = f"{indicator_name} is below normal levels. Could indicate caution."
-    else:
-        status, color, emoji = "Normal", "#06b606", "✅"
-        message = f"{indicator_name} is within normal historical range."
-
-    st.markdown(f"""
-    <div style="
-        width: 100%;
-        background-color:{color}1A;
-        border-left: 6px solid {color};
-        border-radius: 8px;
-        padding: 18px 24px;
-        margin-top: 18px;
-        margin-bottom: 24px;
-        font-family:'Inter','Segoe UI','Arial',sans-serif;
-        box-shadow:0 2px 6px rgba(0,0,0,0.05);
-    ">
-        <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-            {emoji} {indicator_name}: {status}
+    with col2:
+        st.markdown("""
+        <div class="card">
+            <h3>Key Developments</h3>
+            <ul>
+                <li>Growth momentum is softening.</li>
+                <li>Labor markets are cooling.</li>
+                <li>Inflation remains above target.</li>
+                <li>Policy easing expectations are rising.</li>
+            </ul>
         </div>
-        <div style="font-size:14px; line-height:1.5; color:#111;">
-            Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+        <div class="card">
+            <h3>Current Risks</h3>
+            <p><b>Upside:</b> Growth reaccelerates while markets price easier policy.</p>
+            <p><b>Downside:</b> Labor deterioration becomes more visible.</p>
+            <p><b>Watch:</b> Core inflation, claims, curves, and credit.</p>
         </div>
-        <div style="margin-top:6px; font-size:14px; color:#333;">
-            {message}
+        """, unsafe_allow_html=True)
+
+    col4, col5 = st.columns([1, 1])
+
+    with col4:
+        st.markdown("""
+        <div class="card">
+            <h3>Research Focus</h3>
+            <p>
+                MacroLens focuses on growth, inflation, labor markets, central banks,
+                fiscal policy, liquidity, currencies, rates, commodities, and equity-market
+                implications.
+            </p>
         </div>
+        """, unsafe_allow_html=True)
+
+    with col5:
+        st.markdown("""
+        <div class="card">
+            <h3>Latest Research</h3>
+            <p>
+                No published research note selected yet. This area can later feature your
+                latest monthly macro review, market note, or country-specific regime update.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="footer">
+        <p>Built by <b>Macro Lens Research</b> • Independent macro research dashboard</p>
+        <p>
+            <a href="https://www.linkedin.com/in/alex-ballinger-059919302/" target="_blank">LinkedIn</a> |
+            <a href="https://youtube.com/@macrolensresearch" target="_blank">YouTube</a> |
+            <a href="https://www.instagram.com/themacrolens_/" target="_blank">Instagram</a>
+        </p>
+        <p>&copy; 2026 Macro Lens Research. All rights reserved.</p>
     </div>
     """, unsafe_allow_html=True)
 
 
-if page == "USA":
+if page == "UnitedStates":
     safe_render(render_usa_page, "USA")         
         
 if page == "Japan":
     safe_render(render_japan_page, "Japan")
 
-if page == "UK":
+if page == "UnitedKingdom":
     safe_render(render_uk_page, "UK")
 
-if page == "EURO":
+if page == "EuroArea":
     safe_render(render_euro_page, "Euro Area")
 
                 
 # -------- FX Rates Tab --------
-if page == "FX Rates":
+if page == "FX":
 
     col1, col2 = st.columns([1.5, 5])
 
@@ -1808,7 +1708,7 @@ if page == "FX Rates":
                 color: #111;
                 z-index: 10;
             ">
-                {page}
+                {page_title}
             </div>
         """, unsafe_allow_html=True)
         
@@ -1994,713 +1894,7 @@ if page == "FX Rates":
                 "modeBarButtonsToRemove": ["lasso2d", "select2d"]
             }
         )
-
-            
-
-        # -------- Call it after plotting chart --------
-        display_indicator_alert(
-            latest_val=latest_val,
-            mean_val=mean_val,
-            position_pct=position_pct,
-            slope=slope,
-            volatility=volatility,
-            indicator_name=indicator
-        )
-        
-        # ==============================
-        # 🧠 FX Market Macro Summary (LLM-enhanced)
-        # ==============================
-
-   
-       
-
-        # ---- Streamlit Section Header ----
-        st.markdown("### FX Market Summary (Based on the last 3 Years)")
-
-        @st.cache_data(ttl=3600)
-        def get_fx_data(ticker: str):
-            """Wrapper for your existing get_fx_data_yahoo function."""
-            # Replace this with your actual data loader
-            df = get_fx_data_yahoo(ticker, start_date=dt.date(2018, 1, 1), end_date=dt.date.today())
-            return df.dropna()
-  
-
-        def generate_llm_summary(results: dict):
-            if not results:
-                return "No data available to summarize."
-
-            context_text = "\n".join(
-                [f"{name}: latest={data['latest']:.2f}, trend={data['trend']}, position={data['position']:.1f}%"
-                 for name, data in results.items()]
-            )
-
-            prompt = f"""
-            You are a senior macro-financial strategist writing a concise, data-driven **condition of fx summary**.
-            You are given the latest 3-year data snapshot for several major fx.
-
-            Here are the data points:
-            {context_text}
-
-            Write one short paragraph (5–7 sentences) summarizing the **overall condition of fx** based on these numbers.
-
-            Guidelines:
-            - Focus on patterns and contrasts across the fx — e.g., which are leading, lagging, or showing extreme positions.
-            - Do NOT add information not in the data.
-            - Use a neutral, analytical tone (no adjectives like “impressive” or “strong”), but use clear concise english.
-            - Output only one paragraph.
-            - Keep it natural and varied in structure — not repetitive, like a normal person is saying it.
-            - Mention the key data points selectively to illustrate your points.
-            """
-
-
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
-                    messages=[{"role": "user", "content": prompt}],
-                    max_completion_tokens=250,
-                    temperature=0
-                )
-
-                summary_text = response.choices[0].message.content.strip()
-                if not summary_text:
-                    summary_text = "⚠️ LLM returned an empty response."
-
-            except Exception as e:
-                summary_text = f"⚠️ LLM generation failed: {e}"
-
-            return summary_text
-
-        # ---- Cached LLM Summary Function ----
-        @st.cache_data
-        def generate_llm_summary_cached(results: dict):
-            return generate_llm_summary(results)
-
-
-        # ---- Run analysis ----
-        if "fx_macro_summary" not in st.session_state:
-            with st.spinner("Generating summary..."):
-                results = analyze_fx()
-                # ✅ use the cached version here
-                st.session_state.fx_macro_summary = generate_llm_summary_cached(results)
-
-        # Use cached summary
-        fx_macro_summary = st.session_state.fx_macro_summary
-        
-        # Add FX summary to global collector
-        summary_label = f"FX Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
-        entry = f"{summary_label}:\n{fx_macro_summary}"
-
-        # Prevent duplicates (so it doesn’t re-add every rerun)
-        if entry not in st.session_state["ai_summaries"]:
-            st.session_state["ai_summaries"].append(entry)
-
-
-        # ---- Display Narrative Card ----
-        st.markdown(f"""
-        <div style="
-            background-color:#f8f9fa;
-            border-left:6px solid #4a4e69;
-            border-radius:10px;
-            padding:18px 24px;
-            margin-top:10px;
-            font-size:15px;
-            font-family:'Inter','Segoe UI','Arial',sans-serif;
-            line-height:1.6;
-        ">
-        {fx_macro_summary}
-        </div>
-        """, unsafe_allow_html=True)
-        
-        
-        
-        
-# ==============================
-# 📊 COMPARE TAB (Enhanced Hover + Delta Type + Bold Axis + Black Lines)
-# ==============================
-if page == "Compare":
-    col1, col2 = st.columns([1.5, 5])
-
-    with col1:
-        st.markdown(f"""
-            <div style="
-                position: absolute;
-                top: 0px;
-                width: 100%;
-                text-align: center;
-                font-size: 28px;
-                font-weight: 700;
-                font-family: 'Inter','Segoe UI','Arial',sans-serif;
-                color: #111;
-                z-index: 10;
-            ">
-                {page}
-            </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
-
-        # --------------------------
-        # Indicator selection
-        # --------------------------
-        indicator_groups = {
-            "USA": {
-                "Interest Rate": "usa_rate",
-                "CPI YoY %": "usa_cpi",
-                "Core CPI YoY": "usa_core_cpi",
-                "GDP QoQ %": "usa_gdp",
-                "Unemployment Rate": "usa_unemp",
-                "Average Hourly Earnings YoY": "usa_ahe",
-                "Core PCE YoY": "usa_core_pce",
-                "Core PPI YoY": "usa_core_ppi",
-                "Housing Starts MoM": "usa_housing",
-            ##    "ISM Manufacturing PMI": "usa_ism_manu",
-            ##    "ISM Services PMI": "usa_ism_serv",
-                "JOLTS Job Openings": "usa_jolts",
-                "Michigan Consumer Sentiment": "usa_michigan",
-                "Non Farm Payrolls": "usa_nfp",
-                "PCE YoY": "usa_pce",
-                "PPI YoY": "usa_ppi",
-                "Retail Sales MoM": "usa_retail",
-                "Trade Balance": "usa_trade"
-            },
-            "UK": {
-                "Interest Rate": "uk_rate",
-                "CPI YoY %": "uk_cpi",
-                "GDP QoQ %": "uk_gdp",
-                "Unemployment Rate": "uk_unemp"
-                
-            },
-            "Japan": {
-                "Interest Rate": "jp_rate",
-                "CPI YoY %": "jp_cpi",
-                "GDP QoQ %": "jp_gdp",
-                "Unemployment Rate": "jp_unemp"
-                
-            },
-            "Euro": {
-                "Interest Rate": "eu_rate",
-                "CPI YoY %": "eu_cpi",
-                "GDP QoQ %": "eu_gdp",
-                "Unemployment Rate": "eu_unemp"
-                
-            },
-
-            "FX": {"EUR/USD": "eurusd", "GBP/USD": "gbpusd", "USD/JPY": "usdjpy", "DXY": "dxy"},
-            
-            "Equities": {
-                "S&P 500": "eq_sp500",
-                "NASDAQ": "eq_nasdaq",
-                "Dow Jones": "eq_dow",
-                "FTSE 100": "eq_ftse",
-                "Nikkei 225": "eq_nikkei",
-                "DAX": "eq_dax",
-                "MSCI Emerging Markets ETF": "eq_msci_em",
-                "VIX": "eq_vix"
-            },
-            "Stocks": {
-                "Apple": "st_aapl",
-                "Amazon": "st_amzn",
-                "Meta": "st_meta",
-                "Alphabet (Google)": "st_googl",
-                "Nvidia": "st_nvda",
-                "Microsoft": "st_msft",
-                "Tesla": "st_tsla"
-            },
-            "Commodities": {
-                "Gold": "cmd_gold",
-                "Silver": "cmd_silver",
-                "Crude Oil (WTI)": "cmd_wti",
-                "Brent Oil": "cmd_brent",
-                "Natural Gas": "cmd_ng",
-                "Wheat": "cmd_wheat",
-                "Copper": "cmd_copper",
-                "Corn": "cmd_corn",
-                "Soybeans": "cmd_soy"
-            },
-            "Bonds": {
-                # U.S. Treasuries
-                "US 1M Yield": "usa_1m",
-                "US 3M Yield": "usa_3m",
-                "US 6M Yield": "usa_6m",
-                "US 1Y Yield": "usa_1y",
-                "US 2Y Yield": "usa_2y",
-                "US 3Y Yield": "usa_3y",
-                "US 5Y Yield": "usa_5y",
-                "US 7Y Yield": "usa_7y",
-                "US 10Y Yield": "usa_10y",
-                "US 20Y Yield": "usa_20y",
-                "US 30Y Yield": "usa_30y",
-
-                # UK Gilts
-                "UK 2Y Gilt Yield": "uk_2y",
-                "UK 10Y Gilt Yield": "uk_10y",
-
-                # Japan JGBs
-                "Japan 2Y JGB Yield": "jp_2y",
-                "Japan 10Y JGB Yield": "jp_10y",
-
-                # Euro Area Bonds
-                "Euro 2Y Bond Yield": "eu_2y",
-                "Euro 10Y Bond Yield": "eu_10y"
-            },
-            "Crypto": {
-                "Bitcoin": "crypto_btc",
-                "Ethereum": "crypto_eth"
-            }
-        }
-
-        # --------------------------
-        # Group selection side by side
-        # --------------------------
-        group_col1, group_col2 = st.columns(2)
-
-        with group_col1:
-            group1 = st.selectbox("Indicator 1 Group", list(indicator_groups.keys()), key="group1")
-            indicator1_label = st.selectbox("Indicator 1", list(indicator_groups[group1].keys()), key="indicator1")
-            indicator1_code = indicator_groups[group1][indicator1_label]
-
-        with group_col2:
-            group2 = st.selectbox("Indicator 2 Group", list(indicator_groups.keys()), key="group2")
-            indicator2_options = list(indicator_groups[group2].keys())
-            if group1 == group2:
-                indicator2_options = [opt for opt in indicator2_options if opt != indicator1_label]
-            indicator2_label = st.selectbox("Indicator 2", indicator2_options, key="indicator2")
-            indicator2_code = indicator_groups[group2][indicator2_label]
-
-
-        # --------------------------
-        # Delta Type + Timeframe side by side
-        # --------------------------
-        dt_col, tf_col = st.columns(2)
-        with dt_col:
-            delta_type_option = st.selectbox(
-                "Delta Type",
-                ["Off", "Daily % Change", "Cumulative % Change"],
-                index=0
-            )
-        with tf_col:
-            timeframe = st.selectbox(
-                "Time Frame",
-                ["1Y", "3Y", "5Y", "10Y", "Max"],
-                index=2
-            )
-        
-        df1 = load_indicator_data(indicator1_code).dropna()
-        df2 = load_indicator_data(indicator2_code).dropna()
-        df1 = df1.rename(columns={df1.columns[0]: "date", df1.columns[1]: "value"})
-        df2 = df2.rename(columns={df2.columns[0]: "date", df2.columns[1]: "value"})
-        df1['date'] = pd.to_datetime(df1['date'], errors='coerce')
-        df2['date'] = pd.to_datetime(df2['date'], errors='coerce')
-        df1 = df1.dropna(subset=['date'])
-        df2 = df2.dropna(subset=['date'])
-
-        # --------------------------
-        # Timeframe & Start/End Dates side by side
-        # --------------------------
-        df1_min, df1_max = df1['date'].min().date(), df1['date'].max().date()
-        df2_min, df2_max = df2['date'].min().date(), df2['date'].max().date()
-        latest_date = max(df1_max, df2_max)
-        earliest_start = min(df1_min, df2_min)
-
-        if timeframe == "1Y": default_start_date = latest_date - dt.timedelta(days=365)
-        elif timeframe == "3Y": default_start_date = latest_date - dt.timedelta(days=365*3)
-        elif timeframe == "5Y": default_start_date = latest_date - dt.timedelta(days=365*5)
-        elif timeframe == "10Y": default_start_date = latest_date - dt.timedelta(days=365*10)
-        else: default_start_date = earliest_start
-        default_start_date = max(earliest_start, default_start_date)
-
-        date_col1, date_col2 = st.columns(2)
-        with date_col1:
-            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_start, max_value=latest_date)
-        with date_col2:
-            end_date = st.date_input("End Date", latest_date, min_value=earliest_start, max_value=latest_date)
-
-        if start_date > end_date:
-            st.warning("Start date cannot be after end date.")
-            st.stop()
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-
-    with col2:
-        # --------------------------
-        # Filter by date
-        # --------------------------
-        df1_filtered = df1[(df1['date'] >= pd.to_datetime(start_date)) & (df1['date'] <= pd.to_datetime(end_date))]
-        df2_filtered = df2[(df2['date'] >= pd.to_datetime(start_date)) & (df2['date'] <= pd.to_datetime(end_date))]
-        if df1_filtered.empty or df2_filtered.empty:
-            st.warning("Not enough data for this date range.")
-            st.stop()
-        # ---- Align zero baselines when both data sets cross 0 ----
-        if not df1_filtered.empty and not df2_filtered.empty:
-            y1_min, y1_max = df1_filtered["value"].min(), df1_filtered["value"].max()
-            y2_min, y2_max = df2_filtered["value"].min(), df2_filtered["value"].max()
-
-            # Only apply common-zero alignment if both series cross or center around 0
-            crosses_zero = (y1_min < 0 < y1_max) and (y2_min < 0 < y2_max)
-            if crosses_zero:
-                # Expand both ranges so that 0 is at the same relative position
-                max_abs = max(abs(y1_min), abs(y1_max), abs(y2_min), abs(y2_max))
-                y1_range = [-max_abs, max_abs]
-                y2_range = [-max_abs, max_abs]
-            else:
-                y1_range, y2_range = None, None
-        else:
-            y1_range, y2_range = None, None
-
-
-        latest_val_1 = df1_filtered.iloc[-1]['value']
-        latest_val_2 = df2_filtered.iloc[-1]['value']
-        def format_val(v): return f"{v:.4f}" if isinstance(v, float) else str(v)
-        title_str = (f"{group1}: {indicator1_label} (Latest: {format_val(latest_val_1)}) "
-                     f"vs {group2}: {indicator2_label} (Latest: {format_val(latest_val_2)})")
-
-        # --------------------------
-        # Detect quarterly/monthly/daily
-        # --------------------------
-        def is_quarterly(df):
-            if df.shape[0] > 1:
-                avg_days = df['date'].diff().dropna().dt.days.mean()
-                return avg_days >= 80
-            return False
-        quarterly = is_quarterly(df1_filtered) or is_quarterly(df2_filtered)
-
-        def is_monthly(df):
-            if df.shape[0] > 1:
-                avg_days = df['date'].diff().dropna().dt.days.mean()
-                return 27 <= avg_days <= 32
-            return False
-        monthly = is_monthly(df1_filtered) or is_monthly(df2_filtered)
-
-        # --------------------------
-        # Detect if indicators are same type
-        # --------------------------
-        def same_type(ind1, ind2): return ind1.split()[1:] == ind2.split()[1:]
-        same_group = group1 == group2
-        unify_axis = False
-
-
-        # --------------------------
-        # Calculate delta safely
-        # --------------------------
-
-        if delta_type_option == "Daily % Change":
-            for df_ in [df1_filtered, df2_filtered]:
-                df_['delta'] = df_['value'].pct_change() * 100
-                df_['delta_str'] = df_['delta'].apply(lambda x: f"▲ {x:.2f}%" if x > 0 else (f"▼ {abs(x):.2f}%" if pd.notnull(x) and x < 0 else "— 0.00%"))
-                df_['delta_color'] = df_['delta'].apply(lambda x: "green" if x > 0 else ("red" if x < 0 else "gray"))
-        elif delta_type_option == "Cumulative % Change":
-            for df_ in [df1_filtered, df2_filtered]:
-                df_['delta'] = np.where(df_['value'].iloc[0] == 0, 0, (df_['value'] / df_['value'].iloc[0] - 1) * 100)
-                df_['delta_str'] = df_['delta'].apply(lambda x: f"▲ {x:.2f}%" if x > 0 else (f"▼ {abs(x):.2f}%" if pd.notnull(x) and x < 0 else "— 0.00%"))
-                df_['delta_color'] = df_['delta'].apply(lambda x: "green" if x > 0 else ("red" if x < 0 else "gray"))
-        elif delta_type_option == "Off":
-            for df_ in [df1_filtered, df2_filtered]:
-                df_['delta'] = None
-                df_['delta_str'] = ""
-                df_['delta_color'] = "gray"
-
-
-        # --------------------------
-        # Hover label formatting
-        # --------------------------
-        for df_ in [df1_filtered, df2_filtered]:
-            if 'hover_label' not in df_:
-                df_['hover_label'] = df_['date'].dt.strftime("%d %b %Y")
-
-        # --------------------------
-        # Plotting
-        # --------------------------
-        
-
-        fig = go.Figure()
-
-        # Decide if dual-axis needed
-        #same_group = group1 == group2
-        #unify_axis = same_group and group1 not in ["FX", "Equities", "Stocks", "Commodities", "Crypto"]
-
-        # Plot traces
-        if delta_type_option == "Daily Delta Spread":
-            # Only one trace needed
-            fig.add_trace(go.Scatter(
-                x=df1_filtered['date'],
-                y=df1_filtered['value'],
-                mode="lines",
-                name=f"{group1}: {indicator1_label} - {group2}: {indicator2_label} (Spread)",
-                customdata=df1_filtered[['hover_label', 'delta_str', 'delta_color']],
-                hovertemplate=(
-                    "<span style='color:black; font-size:16px'><b>%{customdata[0]}</b></span><br>"
-                    "<span style='color:black; font-size:16px'>%{y:.2f}</span><br>"
-                    "<span style='color:%{customdata[2]}; font-weight:bold; font-size:16px'>%{customdata[1]}</span>"
-                    "<extra></extra>"
-                )
-            ))
-        else:
-            # Two normal traces
-            for idx, (df_, name, axis) in enumerate([
-                (df1_filtered, f"{group1}: {indicator1_label}", "y1"),
-                (df2_filtered, f"{group2}: {indicator2_label}", "y1" if unify_axis else "y2")
-            ]):
-                fig.add_trace(go.Scatter(
-                    x=df_['date'],
-                    y=df_['value'],
-                    mode="lines",
-                    name=name,
-                    yaxis=axis,
-                    customdata=df_[['hover_label', 'delta_str', 'delta_color']],
-                    hovertemplate=(
-                        "<span style='color:black; font-size:16px'><b>%{customdata[0]}</b></span><br>"
-                        "<span style='color:black; font-size:16px'>%{y:.2f}</span><br>"
-                        "<span style='color:%{customdata[2]}; font-weight:bold; font-size:16px'>%{customdata[1]}</span>"
-                        "<extra></extra>"
-                    )
-                ))
-
-        # --------------------------
-        # Layout
-        # --------------------------
-        axis_tickfont = dict(size=14, family="Arial Bold", color="black")
-        axis_title_font = dict(size=16, family="Arial Bold", color="black")
-
-        if unify_axis or delta_type_option == "Daily Delta Spread":
-            fig.update_layout(
-                title=dict(
-                    text=f"{group1}: {indicator1_label} vs {group2}: {indicator2_label}",
-                    x=0.5,
-                    xanchor='center',
-                    y=0.90,           # lower it slightly from the very top
-                    yanchor='top',     # aligns top of title at y
-                    font=dict(size=20, family="Arial Bold", color="black")
-                ),
-                margin=dict(t=150, l=20, r=80, b=80),
-                xaxis=dict(
-                    title="",
-                    tickfont=axis_tickfont,
-                    linecolor='black',
-                    linewidth=2,
-                    showline=True,
-                    ticks="outside",
-                    ticklen=8,
-                    tickson="labels",
-                    title_font=axis_title_font,
-                    showgrid=False,
-                    gridcolor="lightgray",
-                    gridwidth=1.2
-                ),
-                yaxis=dict(
-                    title=f"{group1}: {indicator1_label}",
-                    side="left",
-                    tickfont=axis_tickfont,
-                    title_font=axis_title_font,
-                    range=y1_range if crosses_zero else None,
-                    zeroline=False,
-                    showgrid=True,
-                    gridcolor="lightgray",
-                    gridwidth=1.2,
-                    linecolor='black',
-                    linewidth=2,
-                    showline=True
-                ),
-                yaxis2=dict(
-                    title=f"{group2}: {indicator2_label}",
-                    overlaying="y",
-                    side="right",
-                    tickfont=axis_tickfont,
-                    title_font=axis_title_font,
-                    range=y2_range if crosses_zero else None,
-                    zeroline=False,
-                    showgrid=False,
-                    linecolor='black',   # makes right axis line visible like left
-                    linewidth=2,
-                    showline=True
-                ),
-                template="plotly_white",
-                font=dict(color="black"),
-                legend=dict(x=0.01, y=1.1, orientation="h"),
-                height=525
-            )
-
-        else:
-            fig.update_layout(
-                title=dict(
-                    text=f"{group1}: {indicator1_label} vs {group2}: {indicator2_label}",
-                    x=0.5,
-                    xanchor='center',
-                    y=0.90,           # lower it slightly from the very top
-                    yanchor='top',     # aligns top of title at y
-                    font=dict(size=20, family="Arial Bold", color="black")
-                ),
-                margin=dict(t=150, l=20, r=80, b=80),
-                xaxis=dict(
-                    title="",
-                    tickfont=axis_tickfont,
-                    linecolor='black',
-                    linewidth=2,
-                    showline=True,
-                    ticks="outside",
-                    ticklen=8,
-                    tickson="labels",
-                    title_font=axis_title_font,
-                    showgrid=False,
-                    gridcolor="lightgray",
-                    gridwidth=1.2
-                ),
-                yaxis=dict(
-                    title=f"{group1}: {indicator1_label}",
-                    side="left",
-                    tickfont=axis_tickfont,
-                    title_font=axis_title_font,
-                    range=y1_range if crosses_zero else None,
-                    zeroline=False,
-                    showgrid=True,
-                    gridcolor="lightgray",
-                    gridwidth=1.2,
-                    linecolor='black',
-                    linewidth=2,
-                    showline=True
-                ),
-                yaxis2=dict(
-                    title=f"{group2}: {indicator2_label}",
-                    overlaying="y",
-                    side="right",
-                    tickfont=axis_tickfont,
-                    title_font=axis_title_font,
-                    range=y2_range if crosses_zero else None,
-                    zeroline=False,
-                    showgrid=False,
-                    linecolor='black',   # makes right axis line visible like left
-                    linewidth=2,
-                    showline=True
-                ),
-                template="plotly_white",
-                font=dict(color="black"),
-                legend=dict(x=0.01, y=1.1, orientation="h"),
-                height=525
-            )
-
-
-
-        st.plotly_chart(
-            fig,
-            use_container_width=True,
-            config={
-                "displayModeBar": True,
-                "displaylogo": False,
-                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
-                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
-            }
-        )
-
-
-# -------- Economic Calendar Tab --------
-if page == "Calendar":
-
-    st.header("📅 Economic Calendar")
-
-    # Load CSV
-    df = pd.read_csv("economic_calendar.csv", parse_dates=["Date"])
-
-    # Convert Country and Impact to string if not already
-    df['Country'] = df['Country'].astype(str)
-    df['Impact'] = df['Impact'].astype(str)
-
-    # Extract months available for filtering
-    df['Month'] = df['Date'].dt.strftime("%B %Y")
-    months = df['Month'].unique().tolist()
-
-    # Filter widgets
-    selected_month = st.selectbox("Select Month", options=["All"] + months, index=0)
-    selected_country = st.multiselect("Filter by Country", options=sorted(df['Country'].unique()), default=sorted(df['Country'].unique()))
-    selected_impact = st.multiselect("Filter by Impact Level", options=sorted(df['Impact'].unique()), default=sorted(df['Impact'].unique()))
-    view_mode = st.selectbox("View Mode", ["Daily", "Weekly", "Monthly"])
-
-    # Filter dataframe based on selections
-    filtered_df = df.copy()
-    if selected_month != "All":
-        filtered_df = filtered_df[filtered_df['Month'] == selected_month]
-
-    filtered_df = filtered_df[
-        (filtered_df['Country'].isin(selected_country)) &
-        (filtered_df['Impact'].isin(selected_impact))
-    ]
-
-    if filtered_df.empty:
-        st.warning("No events found for the selected filters.")
-        st.stop()
-
-    # Function to render event card
-    def render_event_card(row):
-        date_str = row['Date'].strftime("%A %d %B")
-        time_str = row['Time']
-        country_str = row['Country']
-        event_str = row['Event']
-        impact_str = row['Impact']
-        forecast = row['Forecast']
-        previous = row['Previous']
-        notes = row['Notes']
-
-        impact_color = {
-            "🔴 High": "#ff4d4d",
-            "🟠 Medium": "#ffa500",
-            "🟢 Low": "#32cd32"
-        }.get(impact_str, "#888")
-
-        card_html = f"""
-        <div style="
-            border: 1px solid #ddd;
-            border-left: 6px solid {impact_color};
-            padding: 15px 20px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-            background-color: #fafafa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            ">
-            <div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 10px; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                <span style="margin-right: 12px;"><b>Date:</b> {date_str}</span> |
-                <span style="margin: 0 12px;"><b>Time:</b> {time_str}</span> |
-                <span style="margin: 0 12px;"><b>Country:</b> {country_str}</span> |
-                <span style="margin: 0 12px; max-width: 300px; display: inline-block; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{event_str}"><b>Event:</b> {event_str}</span> |
-                <span style="margin-left: 12px; color:{impact_color}; font-weight:bold;"><b>Impact:</b> {impact_str}</span>
-            </div>
-            <div style="font-size: 0.9rem; color: #444; margin-bottom: 4px;">
-                <b>Forecast:</b> {forecast} &nbsp;&nbsp; <b>Previous:</b> {previous}
-            </div>
-            <div style="font-size: 0.9rem; color: #555;">
-                <b>Notes:</b> {notes}
-            </div>
-        </div>
-        """
-        st.markdown(card_html, unsafe_allow_html=True)
-
-    # Group and display by view mode
-    if view_mode == "Daily":
-        grouped = filtered_df.sort_values("Date").groupby("Date")
-
-        for date, group in grouped:
-            st.subheader(date.strftime("%A, %d %B %Y"))
-            for _, row in group.iterrows():
-                render_event_card(row)
-
-    elif view_mode == "Weekly":
-        filtered_df['YearWeek'] = filtered_df['Date'].dt.strftime('%Y-%U')
-        grouped = filtered_df.sort_values("Date").groupby("YearWeek")
-
-        for yearweek, group in grouped:
-            year, week_num = map(int, yearweek.split('-'))
-            first_day = pd.to_datetime(f'{year}-W{week_num}-1', format='%Y-W%U-%w')
-            last_day = first_day + pd.Timedelta(days=6)
-            st.subheader(f"Week {week_num}, {year} ({first_day.strftime('%d %b')} - {last_day.strftime('%d %b')})")
-            for _, row in group.iterrows():
-                render_event_card(row)
-
-    elif view_mode == "Monthly":
-        grouped = filtered_df.sort_values("Date").groupby("Month")
-
-        for month, group in grouped:
-            st.subheader(month)
-            for _, row in group.iterrows():
-                render_event_card(row)
+              
  
 # -------- Equities Tab --------
 if page == "Equities":
@@ -2720,7 +1914,7 @@ if page == "Equities":
                 color: #111;
                 z-index: 10;
             ">
-                {page}
+                {page_title}
             </div>
         """, unsafe_allow_html=True)
         
@@ -2908,431 +2102,8 @@ if page == "Equities":
             }
         )
 
-                
-
-        # -------- Call it after plotting chart --------
-        display_indicator_alert(
-            latest_val=latest_val,
-            mean_val=mean_val,
-            position_pct=position_pct,
-            slope=slope,
-            volatility=volatility,
-            indicator_name=indicator
-        )
-        
-        # ==============================
-        # 🧠 Equities Market Macro Summary (LLM-enhanced)
-        # ==============================
-
-  
-        
-
-        # ---- Streamlit Section Header ----
-        st.markdown("### Equities Market Summary (Based on the last 3 Years)")
-
-        @st.cache_data(ttl=3600)
-        def get_equities_data(ticker: str):
-            """Wrapper for your existing get_fx_data_yahoo function."""
-            # Replace this with your actual data loader
-            df = get_fx_data_yahoo(ticker, start_date=dt.date(2018, 1, 1), end_date=dt.date.today())
-            return df.dropna()
-
-
-        def generate_llm_summary(results: dict):
-            if not results:
-                return "No data available to summarize."
-
-            context_text = "\n".join(
-                [f"{name}: latest={data['latest']:.2f}, trend={data['trend']}, position={data['position']:.1f}%"
-                 for name, data in results.items()]
-            )
-
-            prompt = f"""
-            You are a senior macro-financial strategist writing a concise, data-driven **condition of equities summary**.
-            You are given the latest 3-year data snapshot for several major equities.
-
-            Here are the data points:
-            {context_text}
-
-            Write one short paragraph (5–7 sentences) summarizing the **overall condition of equities** based on these numbers.
-
-            Guidelines:
-            - Focus on patterns and contrasts across the equities — e.g., which are leading, lagging, or showing extreme positions.
-            - Do NOT add information not in the data.
-            - Use a neutral, analytical tone (no adjectives like “impressive” or “strong”), but use clear concise english.
-            - Output only one paragraph.
-            - Keep it natural and varied in structure — not repetitive, like a normal person is saying it.
-            - Mention the key data points selectively to illustrate your points.
-            """
-
-
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
-                    messages=[{"role": "user", "content": prompt}],
-                    max_completion_tokens=250,
-                    temperature=0
-                )
-
-                summary_text = response.choices[0].message.content.strip()
-                if not summary_text:
-                    summary_text = "⚠️ LLM returned an empty response."
-
-            except Exception as e:
-                summary_text = f"⚠️ LLM generation failed: {e}"
-
-            return summary_text
-
-        # ---- Cached LLM Summary Function ----
-        @st.cache_data
-        def generate_llm_summary_cached(results: dict):
-            return generate_llm_summary(results)
-
-
-        # ---- Run analysis ----
-        if "equities_macro_summary" not in st.session_state:
-            with st.spinner("Generating summary..."):
-                results = analyze_equities()
-                # ✅ use the cached version here
-                st.session_state.equities_macro_summary = generate_llm_summary_cached(results)
-
-        # Use cached summary
-        equities_macro_summary = st.session_state.equities_macro_summary
-        
-        # Add Equities summary to global collector
-        summary_label = f"Equities Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
-        entry = f"{summary_label}:\n{equities_macro_summary}"
-
-        # Prevent duplicates (so it doesn’t re-add every rerun)
-        if entry not in st.session_state["ai_summaries"]:
-            st.session_state["ai_summaries"].append(entry)
-
-        # ---- Display Narrative Card ----
-        st.markdown(f"""
-        <div style="
-            background-color:#f8f9fa;
-            border-left:6px solid #4a4e69;
-            border-radius:10px;
-            padding:18px 24px;
-            margin-top:10px;
-            font-size:15px;
-            font-family:'Inter','Segoe UI','Arial',sans-serif;
-            line-height:1.6;
-        ">
-        {equities_macro_summary}
-        </div>
-        """, unsafe_allow_html=True)
-
-        
-# -------- Stocks Tab --------
-if page == "Stocks":
-    
-    col1, col2 = st.columns([1.5, 5])
-
-    with col1:
-        # ---------- Centered Page Title ----------
-        st.markdown(f"""
-            <div style="
-                position: absolute;
-                top: 0px;  /* keeps it at the top of col1 */
-                width: 100%;
-                text-align: center;
-                font-size: 28px;
-                font-weight: 700;
-                font-family: 'Inter','Segoe UI','Arial',sans-serif;
-                color: #111;
-                z-index: 10;
-            ">
-                {page}
-            </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("<div style='margin-top:110px;'>", unsafe_allow_html=True)
-
-        # Select indicator and chart type
-        indicator = st.selectbox("Select Indicator", [
-            "Apple", "Amazon", "Meta", "Alphabet (Google)", "Nvidia", "Microsoft", "Tesla"
-        ])
-        chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
-
-        # Toggle for delta type
-        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
-
-        # Map indicator to Yahoo ticker and chart title
-        stock_tickers = {
-            "Apple": ("AAPL", "Apple"),
-            "Amazon": ("AMZN", "Amazon"),
-            "Meta": ("META", "Meta"),
-            "Alphabet (Google)": ("GOOGL", "Alphabet (Google)"),
-            "Nvidia": ("NVDA", "Nvidia"),
-            "Microsoft": ("MSFT", "Microsoft"),
-            "Tesla":     ("TSLA", "Tesla")    
-        }
-        ticker, title = stock_tickers[indicator]
-
-        # Load FX data
-        df = get_fx_data_yahoo(ticker, start_date=dt.date(1980, 1, 1), end_date=dt.date.today())
-        df = df.dropna()
-        if df.empty:
-            st.error("No data available.")
-            st.stop()
-
-        # Time frame selector
-        earliest_date = df['date'].min().date()
-        latest_date = df['date'].max().date()
-        timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
-        if timeframe != "MAX":
-            years = int(timeframe.replace("Y", ""))
-            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
-        else:
-            default_start_date = earliest_date
-
-        # Date inputs
-        # Date inputs side-by-side
-        col_start, col_end = st.columns(2)
-        with col_start:
-            start_date = st.date_input(
-                "Start Date", 
-                default_start_date, 
-                min_value=earliest_date, 
-                max_value=latest_date
-            )
-        with col_end:
-            end_date = st.date_input(
-                "End Date", 
-                latest_date, 
-                min_value=earliest_date, 
-                max_value=latest_date
-            )
-
-        # Validation
-        if start_date > end_date:
-            st.warning("Start date must be before end date.")
-            st.stop()
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with col2:
-        # Commentary for each indicator
-        commentary = {
-            "Apple": (
-                "Apple Inc. is a leading technology company known for its consumer electronics, software, and services, including the iPhone, Mac, and App Store. "
-                "Its stock performance is influenced by product launches, innovation cycles, global consumer demand, and supply chain dynamics."
-            ),
-
-            "Amazon": (
-                "Amazon.com Inc. is a global e-commerce and cloud computing leader. "
-                "Its equity is sensitive to online retail trends, Amazon Web Services growth, consumer spending, and regulatory developments."
-            ),
-
-            "Meta": (
-                "Meta Platforms Inc. (formerly Facebook) operates leading social media platforms, including Facebook, Instagram, and WhatsApp. "
-                "Its performance is driven by advertising revenue, user engagement metrics, and developments in virtual/augmented reality."
-            ),
-
-            "Alphabet (Google)": (
-                "Alphabet Inc., the parent company of Google, dominates global online search, digital advertising, and cloud computing. "
-                "Its stock reacts to ad revenue trends, regulatory scrutiny, innovation in AI and cloud services, and overall internet usage growth."
-            ),
-
-            "Nvidia": (
-                "Nvidia Corporation specializes in graphics processing units (GPUs) and AI computing technologies. "
-                "Its stock is highly influenced by demand in gaming, AI, data centers, and broader semiconductor industry trends."
-            ),
-
-            "Microsoft": (
-                "Microsoft Corporation is a leading technology company offering software, cloud computing, and hardware products. "
-                "Key drivers include Windows and Office adoption, Azure cloud growth, enterprise demand, and AI integration."
-            ),
-
-            "Tesla": (
-                "Tesla Inc. is a leading electric vehicle and clean energy company. "
-                "Its stock performance is influenced by EV production and deliveries, technological innovation, regulatory incentives, and global adoption of sustainable energy solutions."
-            )
-        }
-
-        render_commentary(commentary, indicator)
-
-        # -------- Filter Data by Date --------
-        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
-                         (df['date'] <= pd.to_datetime(end_date))]
-        
         
        
-
-        # ======== Summary Stats ========
-
-        stats = calculate_summary_stats(df_filtered)
-        render_summary_bar(stats)
-
-        latest_val = stats["latest_val"]
-        mean_val = stats["mean_val"]
-        position_pct = stats["position_pct"]
-        slope = stats["slope"]
-        volatility = stats["volatility"]
-
-
-        # Detect if quarterly data
-        quarterly = False
-        if df_filtered.shape[0] > 1:
-            avg_days = (df_filtered['date'].diff().dropna().dt.days.mean())
-            if avg_days >= 80:  # ~quarter
-                quarterly = True
-
-        # Handle delta type
-        if delta_type == "Off":
-            hover_style = "none"
-            delta_type_arg = None
-        else:
-            hover_style = "delta"
-            delta_type_arg = delta_type.lower()
-
-        # Plot chart with dynamic delta and hover
-        fig = plot_chart(
-            df_filtered,
-            title,
-            chart_type,
-            hover_style=hover_style,
-            delta_type=delta_type_arg,
-            date_format="quarterly" if quarterly else "daily",
-            show_markers=False
-        )
-
-
-        # For quarterly charts, show only Q4 labels
-        if quarterly:
-            tickvals = df_filtered[df_filtered['date'].dt.quarter == 4]['date']
-            ticktext = df_filtered[df_filtered['date'].dt.quarter == 4].dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
-            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
-
-        # Display chart with clean modebar
-        st.plotly_chart(
-            fig,
-            use_container_width=True,
-            config={
-                "displayModeBar": True,
-                "displaylogo": False,
-                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
-                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
-            }
-        )
-
-                
-
-        # -------- Call it after plotting chart --------
-        display_indicator_alert(
-            latest_val=latest_val,
-            mean_val=mean_val,
-            position_pct=position_pct,
-            slope=slope,
-            volatility=volatility,
-            indicator_name=indicator
-        )
-
-        # ==============================
-        # 🧠 Stock Market Macro Summary (LLM-enhanced)
-        # ==============================
-
-     
-
-        # ---- Streamlit Section Header ----
-        st.markdown("### Stock Market Summary (Based on the last 3 Years)")
-
-        @st.cache_data(ttl=3600)
-        def get_stock_data(ticker: str):
-            """Wrapper for your existing get_fx_data_yahoo function."""
-            # Replace this with your actual data loader
-            df = get_fx_data_yahoo(ticker, start_date=dt.date(2018, 1, 1), end_date=dt.date.today())
-            return df.dropna()
-
-
-
-        def generate_llm_summary(results: dict):
-            if not results:
-                return "No data available to summarize."
-
-            context_text = "\n".join(
-                [f"{name}: latest={data['latest']:.2f}, trend={data['trend']}, position={data['position']:.1f}%"
-                 for name, data in results.items()]
-            )
-
-            prompt = f"""
-            You are a senior macro-financial strategist writing a concise, data-driven **condition of stocks summary**.
-            You are given the latest 3-year data snapshot for several major stocks.
-
-            Here are the data points:
-            {context_text}
-
-            Write one short paragraph (5–7 sentences) summarizing the **overall condition of stocks** based on these numbers.
-
-            Guidelines:
-            - Focus on patterns and contrasts across the stocks — e.g., which are leading, lagging, or showing extreme positions.
-            - Do NOT add information not in the data.
-            - Use a neutral, analytical tone (no adjectives like “impressive” or “strong”), but use clear concise english.
-            - Output only one paragraph.
-            - Keep it natural and varied in structure — not repetitive, like a normal person is saying it.
-            - Mention the key data points selectively to illustrate your points.
-            """
-
-
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
-                    messages=[{"role": "user", "content": prompt}],
-                    max_completion_tokens=250,
-                    temperature=0
-                )
-
-                summary_text = response.choices[0].message.content.strip()
-                if not summary_text:
-                    summary_text = "⚠️ LLM returned an empty response."
-
-            except Exception as e:
-                summary_text = f"⚠️ LLM generation failed: {e}"
-
-            return summary_text
-
-        # ---- Cached LLM Summary Function ----
-        @st.cache_data
-        def generate_llm_summary_cached(results: dict):
-            return generate_llm_summary(results)
-
-
-        # ---- Run analysis ----
-        if "stock_macro_summary" not in st.session_state:
-            with st.spinner("Generating summary..."):
-                results = analyze_stocks()
-                # ✅ use the cached version here
-                st.session_state.stock_macro_summary = generate_llm_summary_cached(results)
-
-        # Use cached summary
-        stock_macro_summary = st.session_state.stock_macro_summary
-        
-        # Add Stocks summary to global collector
-        summary_label = f"Stocks Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
-        entry = f"{summary_label}:\n{stock_macro_summary}"
-
-        # Prevent duplicates (so it doesn’t re-add every rerun)
-        if entry not in st.session_state["ai_summaries"]:
-            st.session_state["ai_summaries"].append(entry)
-
-
-        # ---- Display Narrative Card ----
-        st.markdown(f"""
-        <div style="
-            background-color:#f8f9fa;
-            border-left:6px solid #4a4e69;
-            border-radius:10px;
-            padding:18px 24px;
-            margin-top:10px;
-            font-size:15px;
-            font-family:'Inter','Segoe UI','Arial',sans-serif;
-            line-height:1.6;
-        ">
-        {stock_macro_summary}
-        </div>
-        """, unsafe_allow_html=True)
-
         
 # -------- Commodities Tab --------
 if page == "Commodities":
@@ -3352,7 +2123,7 @@ if page == "Commodities":
                 color: #111;
                 z-index: 10;
             ">
-                {page}
+                {page_title}
             </div>
         """, unsafe_allow_html=True)
         
@@ -3547,124 +2318,10 @@ if page == "Commodities":
             }
         )
 
-                
-
-        # -------- Call it after plotting chart --------
-        display_indicator_alert(
-            latest_val=latest_val,
-            mean_val=mean_val,
-            position_pct=position_pct,
-            slope=slope,
-            volatility=volatility,
-            indicator_name=indicator
-        )
-
-        # ==============================
-        # 🧠 Commodities Market Macro Summary (LLM-enhanced)
-        # ==============================
-
-  
-        
-
-        # ---- Streamlit Section Header ----
-        st.markdown("### Commodities Market Summary (Based on the last 3 Years)")
-
-        @st.cache_data(ttl=3600)
-        def get_commodities_data(ticker: str):
-            """Wrapper for your existing get_fx_data_yahoo function."""
-            # Replace this with your actual data loader
-            df = get_fx_data_yahoo(ticker, start_date=dt.date(2018, 1, 1), end_date=dt.date.today())
-            return df.dropna()
-
-        
-        def generate_llm_summary(results: dict):
-            if not results:
-                return "No data available to summarize."
-
-            context_text = "\n".join(
-                [f"{name}: latest={data['latest']:.2f}, trend={data['trend']}, position={data['position']:.1f}%"
-                 for name, data in results.items()]
-            )
-
-            prompt = f"""
-            You are a senior macro-financial strategist writing a concise, data-driven **condition of commodities summary**.
-            You are given the latest 3-year data snapshot for several major commodities.
-
-            Here are the data points:
-            {context_text}
-
-            Write one short paragraph (5–7 sentences) summarizing the **overall condition of commodities** based on these numbers.
-
-            Guidelines:
-            - Focus on patterns and contrasts across the commodities — e.g., which are leading, lagging, or showing extreme positions.
-            - Do NOT add information not in the data.
-            - Use a neutral, analytical tone (no adjectives like “impressive” or “strong”), but use clear concise english.
-            - Output only one paragraph.
-            - Keep it natural and varied in structure — not repetitive, like a normal person is saying it.
-            - Mention the key data points selectively to illustrate your points.
-            """
-
-
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
-                    messages=[{"role": "user", "content": prompt}],
-                    max_completion_tokens=250,
-                    temperature=0
-                )
-
-                summary_text = response.choices[0].message.content.strip()
-                if not summary_text:
-                    summary_text = "⚠️ LLM returned an empty response."
-
-            except Exception as e:
-                summary_text = f"⚠️ LLM generation failed: {e}"
-
-            return summary_text
-
-        # ---- Cached LLM Summary Function ----
-        @st.cache_data
-        def generate_llm_summary_cached(results: dict):
-            return generate_llm_summary(results)
-
-
-        # ---- Run analysis ----
-        if "commodities_macro_summary" not in st.session_state:
-            with st.spinner("Generating summary..."):
-                results = analyze_commodities()
-                # ✅ use the cached version here
-                st.session_state.commodities_macro_summary = generate_llm_summary_cached(results)
-
-        # Use cached summary
-        commodities_macro_summary = st.session_state.commodities_macro_summary
-        
-        # Add commodities summary to global collector
-        summary_label = f"Commodities Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
-        entry = f"{summary_label}:\n{commodities_macro_summary}"
-
-        # Prevent duplicates (so it doesn’t re-add every rerun)
-        if entry not in st.session_state["ai_summaries"]:
-            st.session_state["ai_summaries"].append(entry)
-
-        # ---- Display Narrative Card ----
-        st.markdown(f"""
-        <div style="
-            background-color:#f8f9fa;
-            border-left:6px solid #4a4e69;
-            border-radius:10px;
-            padding:18px 24px;
-            margin-top:10px;
-            font-size:15px;
-            font-family:'Inter','Segoe UI','Arial',sans-serif;
-            line-height:1.6;
-        ">
-        {commodities_macro_summary}
-        </div>
-        """, unsafe_allow_html=True)
-
+               
         
 # -------- Bonds Tab --------
-if page == "Bonds":
+if page == "RatesBonds":
     col1, col2 = st.columns([1.5, 5])
 
     with col1:
@@ -3681,7 +2338,7 @@ if page == "Bonds":
                 color: #111;
                 z-index: 10;
             ">
-                {page}
+                {page_title}
             </div>
         """, unsafe_allow_html=True)
         
@@ -3870,107 +2527,6 @@ if page == "Bonds":
             }
         )
 
-                
-
-        # -------- Call it after plotting chart --------
-        display_indicator_alert(
-            latest_val=latest_val,
-            mean_val=mean_val,
-            position_pct=position_pct,
-            slope=slope,
-            volatility=volatility,
-            indicator_name=indicator
-        )
-
-        # ==============================
-        # 🧠 Bonds Market Macro Summary (LLM-enhanced)
-        # ==============================
-
-       
-        
-        st.markdown("### Bond Market Summary (Based on the last 3 Years)")
-
-        
-        def generate_bonds_llm_summary(results: dict):
-            if not results:
-                return "No data available to summarize."
-
-            context_text = "\n".join(
-                [f"{name}: latest={data['latest']:.2f}%, trend={data['trend']}, position={data['position']:.1f}%"
-                 for name, data in results.items()]
-            )
-
-            prompt = f"""
-            You are a senior macro-financial strategist writing a concise, data-driven **condition of global bond markets summary**.
-            You are given the latest 3-year snapshot for yields of various government bonds.
-
-            Here are the data points:
-            {context_text}
-
-            Write one short paragraph (5–7 sentences) summarizing the **overall condition of bond markets** based on these numbers.
-
-            Guidelines:
-            - Focus on patterns, contrasts, and relative positioning across countries and maturities.
-            - Mention short-term vs long-term yield trends where relevant.
-            - Do NOT add information not in the data.
-            - Use a neutral, analytical tone (no adjectives like “strong” or “weak”), but clear and concise English.
-            - Output only one paragraph.
-            - Keep the paragraph natural and varied, like a professional commentary.
-            """
-
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
-                    messages=[{"role": "user", "content": prompt}],
-                    max_completion_tokens=250,
-                    temperature=0
-                )
-                summary_text = response.choices[0].message.content.strip()
-                if not summary_text:
-                    summary_text = "⚠️ LLM returned an empty response."
-            except Exception as e:
-                summary_text = f"⚠️ LLM generation failed: {e}"
-
-            return summary_text
-
-        @st.cache_data
-        def generate_bonds_llm_summary_cached(results: dict):
-            return generate_bonds_llm_summary(results)
-
-        # ---- Run analysis ----
-        if "bonds_macro_summary" not in st.session_state:
-            with st.spinner("Generating bond market summary..."):
-                results = analyze_bonds()
-                st.session_state.bonds_macro_summary = generate_bonds_llm_summary_cached(results)
-
-        # Use cached summary
-        bonds_macro_summary = st.session_state.bonds_macro_summary
-        
-        # Add Bonds summary to global collector
-        summary_label = f"Bonds Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
-        entry = f"{summary_label}:\n{bonds_macro_summary}"
-
-        # Prevent duplicates (so it doesn’t re-add every rerun)
-        if entry not in st.session_state["ai_summaries"]:
-            st.session_state["ai_summaries"].append(entry)
-
-        # ---- Display Narrative Card ----
-        st.markdown(f"""
-        <div style="
-            background-color:#f8f9fa;
-            border-left:6px solid #4a4e69;
-            border-radius:10px;
-            padding:18px 24px;
-            margin-top:10px;
-            font-size:15px;
-            font-family:'Inter','Segoe UI','Arial',sans-serif;
-            line-height:1.6;
-        ">
-        {bonds_macro_summary}
-        </div>
-        """, unsafe_allow_html=True)
-
-
      
 # -------- Crypto Tab --------
 if page == "Crypto":
@@ -3990,7 +2546,7 @@ if page == "Crypto":
                 color: #111;
                 z-index: 10;
             ">
-                {page}
+                {page_title}
             </div>
         """, unsafe_allow_html=True)
         
@@ -4118,2393 +2674,3 @@ if page == "Crypto":
             }
         )
 
-                
-
-        # -------- Call it after plotting chart --------
-        display_indicator_alert(
-            latest_val=latest_val,
-            mean_val=mean_val,
-            position_pct=position_pct,
-            slope=slope,
-            volatility=volatility,
-            indicator_name=indicator
-        )
-        
-        # ==============================
-        # 🧠 Crypto Market Macro Summary (LLM-enhanced)
-        # ==============================
-
-
-       
-
-        # ---- Streamlit Section Header ----
-        st.markdown("### Crypto Market Summary (Based on the last 3 Years)")
-
-        @st.cache_data(ttl=3600)
-        def get_crypto_data(ticker: str):
-            """Wrapper for your existing get_fx_data_yahoo function."""
-            # Replace this with your actual data loader
-            df = get_fx_data_yahoo(ticker, start_date=dt.date(2018, 1, 1), end_date=dt.date.today())
-            return df.dropna()
-
-        def generate_llm_summary(results: dict):
-            if not results:
-                return "No data available to summarize."
-
-            context_text = "\n".join(
-                [f"{name}: latest={data['latest']:.2f}, trend={data['trend']}, position={data['position']:.1f}%"
-                 for name, data in results.items()]
-            )
-
-            prompt = f"""
-            You are a senior macro-financial strategist writing a concise, data-driven **condition of crypto summary**.
-            You are given the latest 3-year data snapshot for several major crypto.
-
-            Here are the data points:
-            {context_text}
-
-            Write one short paragraph (5–7 sentences) summarizing the **overall condition of crypto** based on these numbers.
-
-            Guidelines:
-            - Focus on patterns and contrasts across the commodities — e.g., which are leading, lagging, or showing extreme positions.
-            - Do NOT add information not in the data.
-            - Use a neutral, analytical tone (no adjectives like “impressive” or “strong”), but use clear concise english.
-            - Output only one paragraph.
-            - Keep it natural and varied in structure — not repetitive, like a normal person is saying it.
-            - Mention the key data points selectively to illustrate your points.
-            """
-
-
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
-                    messages=[{"role": "user", "content": prompt}],
-                    max_completion_tokens=250,
-                    temperature=0
-                )
-
-                summary_text = response.choices[0].message.content.strip()
-                if not summary_text:
-                    summary_text = "⚠️ LLM returned an empty response."
-
-            except Exception as e:
-                summary_text = f"⚠️ LLM generation failed: {e}"
-
-            return summary_text
-
-        # ---- Cached LLM Summary Function ----
-        @st.cache_data
-        def generate_llm_summary_cached(results: dict):
-            return generate_llm_summary(results)
-
-
-        # ---- Run analysis ----
-        if "crypto_macro_summary" not in st.session_state:
-            with st.spinner("Generating summary..."):
-                results = analyze_crypto()
-                # ✅ use the cached version here
-                st.session_state.crypto_macro_summary = generate_llm_summary_cached(results)
-
-        # Use cached summary
-        crypto_macro_summary = st.session_state.crypto_macro_summary
-        
-        # Add Crypto summary to global collector
-        summary_label = f"Crypto Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
-        entry = f"{summary_label}:\n{crypto_macro_summary}"
-
-        # Prevent duplicates (so it doesn’t re-add every rerun)
-        if entry not in st.session_state["ai_summaries"]:
-            st.session_state["ai_summaries"].append(entry)
-
-        # ---- Display Narrative Card ----
-        st.markdown(f"""
-        <div style="
-            background-color:#f8f9fa;
-            border-left:6px solid #4a4e69;
-            border-radius:10px;
-            padding:18px 24px;
-            margin-top:10px;
-            font-size:15px;
-            font-family:'Inter','Segoe UI','Arial',sans-serif;
-            line-height:1.6;
-        ">
-        {crypto_macro_summary}
-        </div>
-        """, unsafe_allow_html=True)
-
-
-       
-# -------- Yield Curve Tab --------
-if page == "Yield Curve":
-
-    col1, col2 = st.columns([1.5, 5])
-
-    with col1:
-        # ---------- Centered Page Title ----------
-        st.markdown(f"""
-            <div style="
-                position: absolute;
-                top: 0px;  /* keeps it at the top of col1 */
-                width: 100%;
-                text-align: center;
-                font-size: 28px;
-                font-weight: 700;
-                font-family: 'Inter','Segoe UI','Arial',sans-serif;
-                color: #111;
-                z-index: 10;
-            ">
-                {page}
-            </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
-
-        # -------- Country Selection --------
-        country = st.selectbox("Select Country", ["US", "UK", "Japan", "Euro"])
-
-        # -------- Chart Type + Timeframe side by side --------
-        ct_col, tf_col = st.columns(2)
-        with ct_col:
-            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
-        with tf_col:
-            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
-
-        # -------- Delta Type --------
-        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
-
-        # -------- Maturity Functions --------
-        yield_funcs = {
-            "US": {"1M": get_usa_1mo_yield_data, "3M": get_usa_3mo_yield_data, "6M": get_usa_6mo_yield_data,
-                   "1Y": get_usa_1yr_yield_data, "2Y": get_usa_2yr_yield_data, "3Y": get_usa_3yr_yield_data,
-                   "5Y": get_usa_5yr_yield_data, "7Y": get_usa_7yr_yield_data, "10Y": get_usa_10yr_yield_data,
-                   "20Y": get_usa_20yr_yield_data, "30Y": get_usa_30yr_yield_data},
-            "UK": {"2Y": get_uk_2yr_yield_data, "10Y": get_uk_10yr_yield_data},
-            "Japan": {"2Y": get_japan_2yr_yield_data, "10Y": get_japan_10yr_yield_data},
-            "Euro": {"2Y": get_euro_2yr_yield_data, "10Y": get_euro_10yr_yield_data}
-        }
-
-        # Sort maturities numerically
-        def maturity_to_months(m):
-            return int(m[:-1]) * 12 if m.endswith("Y") else int(m[:-1])
-
-        maturities = sorted(list(yield_funcs[country].keys()), key=maturity_to_months)
-
-        # Default selections
-        default_long = "10Y" if "10Y" in maturities else maturities[-1]
-        default_short = "2Y" if "2Y" in maturities else maturities[0]
-
-        maturity_short = st.selectbox("Short-term Maturity", maturities,
-                                      index=maturities.index(default_short))
-
-        long_options = [m for m in maturities if maturity_to_months(m) > maturity_to_months(maturity_short)]
-        if not long_options:
-            long_options = [maturity_short]
-        maturity_long = st.selectbox("Long-term Maturity", long_options,
-                                     index=long_options.index(default_long) if default_long in long_options else 0)
-
-        # -------- Load Data --------
-        df_long = yield_funcs[country][maturity_long]().dropna().rename(columns={'value': f'yield_{maturity_long}'})
-        df_short = yield_funcs[country][maturity_short]().dropna().rename(columns={'value': f'yield_{maturity_short}'})
-        df = pd.merge(df_long, df_short, on='date')
-        df['spread'] = df[f'yield_{maturity_long}'] - df[f'yield_{maturity_short}']
-
-        # -------- Time Frame Logic --------
-        earliest_date = df['date'].min().date()
-        latest_date = df['date'].max().date()
-        if timeframe != "MAX":
-            years = int(timeframe.replace("Y", ""))
-            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365*years))
-        else:
-            default_start_date = earliest_date
-
-        # -------- Start & End Dates side by side --------
-        date_col1, date_col2 = st.columns(2)
-        with date_col1:
-            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        with date_col2:
-            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
-
-        if start_date > end_date:
-            st.warning("Start date cannot be after end date.")
-            st.stop()
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with col2:
-        # -------- Commentary --------
-        commentary = f"{country} {maturity_long}-{maturity_short} spread indicates yield curve shape and market expectations."
-        st.markdown(
-            f"""
-            <div style="
-                position: relative;
-                top: -10px;
-                margin-left: 30px;
-                font-size:19px;
-                font-family: 'Arial Bold';
-                font-weight:normal;
-                color:#333;
-            ">
-                {commentary}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        # -------- Filter Data by Date --------
-        df_filtered = df[(df['date'] >= pd.to_datetime(start_date)) &
-                         (df['date'] <= pd.to_datetime(end_date))]
-        
-    
-        
-
-        # ======== Summary Stats ========
-
-        stats = calculate_summary_stats(df_filtered)
-        render_summary_bar(stats)
-
-        latest_val = stats["latest_val"]
-        mean_val = stats["mean_val"]
-        position_pct = stats["position_pct"]
-        slope = stats["slope"]
-        volatility = stats["volatility"]
-
-        df_plot = df_filtered[['date', 'spread']].rename(columns={'spread': 'value'})
-
-        # -------- Plot Chart --------
-        delta_type_arg = None if delta_type == "Off" else delta_type.lower()
-        hover_style = "delta" if delta_type_arg else "none"
-
-        fig = plot_chart(
-            df_plot,
-            title=f"{country} {maturity_long}-{maturity_short} Yield Spread",
-            chart_type=chart_type,
-            hover_style=hover_style,
-            delta_type=delta_type_arg,
-            date_format="daily",
-            show_markers=False
-        )
-
-        fig.add_hline(
-            y=0,
-            line=dict(color="black", width=3, dash="solid"),
-            annotation_text="0",
-            annotation_position="top left",
-            opacity=0.8
-        )
-
-        fig.update_layout(
-            hoverlabel=dict(font_size=13, font_color="black", font_family="Arial")
-        )
-
-        # -------- Display Chart --------
-        st.plotly_chart(
-            fig,
-            use_container_width=True,
-            config={
-                "displayModeBar": True,
-                "displaylogo": False,
-                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
-                "modeBarButtonsToRemove": ["lasso2d", "select2d"]
-            }
-        )
-
-                
-
-        # -------- Call it after plotting chart --------
-        display_indicator_alert(
-            latest_val=latest_val,
-            mean_val=mean_val,
-            position_pct=position_pct,
-            slope=slope,
-            volatility=volatility,
-            indicator_name=f"{country} {maturity_long}-{maturity_short} Yield Spread"
-        )
-
-
-
-
-# -------- Regime Yield Curve Tab (All Maturities + Line Chart Only) --------
-if page == "Curve Regimes":
-
-    # Outer columns: left for controls + table, right for chart
-    outer_col1, outer_col2 = st.columns([3, 5])
-
-    with outer_col1:
-        # Select country
-        country = st.selectbox("Select Country", ["US", "UK", "Japan", "Euro"])
-
-        # Periods for delta table
-        period_offsets = {
-            "1M": pd.DateOffset(months=1),
-            "3M": pd.DateOffset(months=3),
-            "1Y": pd.DateOffset(years=1)
-        }
-
-        # Map country to all yield maturities
-        yield_funcs = {
-            "US": {
-                "1M": get_usa_1mo_yield_data,
-                "3M": get_usa_3mo_yield_data,
-                "1Y": get_usa_1yr_yield_data,
-                "2Y": get_usa_2yr_yield_data,
-                "3Y": get_usa_3yr_yield_data,
-                "5Y": get_usa_5yr_yield_data,
-                "7Y": get_usa_7yr_yield_data,
-                "10Y": get_usa_10yr_yield_data,
-                "20Y": get_usa_20yr_yield_data,
-                "30Y": get_usa_30yr_yield_data
-            },
-            "UK": {"2Y": get_uk_2yr_yield_data, "10Y": get_uk_10yr_yield_data},
-            "Japan": {"2Y": get_japan_2yr_yield_data, "10Y": get_japan_10yr_yield_data},
-            "Euro": {"2Y": get_euro_2yr_yield_data, "10Y": get_euro_10yr_yield_data}
-        }
-
-        # Load all maturities for the country
-        dfs = []
-        for mat, func in yield_funcs[country].items():
-            df_temp = func().dropna().rename(columns={'value': mat})
-            dfs.append(df_temp)
-        df = dfs[0]
-        for df_next in dfs[1:]:
-            df = pd.merge(df, df_next, on='date')
-
-        # Latest date
-        latest_date = df['date'].max()
-        df_now = df[df['date'] == latest_date].iloc[0]
-
-        # Build vertical delta table: maturities as rows, periods as columns
-        maturities = [m for m in df.columns if m != 'date']
-        table_data = {}
-        table_data["Now"] = [df_now[m] for m in maturities]
-
-        for label, offset in period_offsets.items():
-            ref_date = latest_date - offset
-            idx = (df['date'] - ref_date).abs().idxmin()
-            row = df.loc[idx]
-            table_data[label] = [df_now[m] - row[m] for m in maturities]
-
-        df_table = pd.DataFrame(table_data, index=maturities)
-        df_table.index.name = "Maturity"
-
-        # HTML table rendering with color coding, unbold cell values, centered
-        # HTML table rendering with color coding, unbold cell values, centered, first row & column highlighted
-        def render_html_table(df):
-            html = '<table style="border-collapse: collapse; width:100%;">'
-            # Header row
-            html += '<tr>'
-            html += f'<th style="font-weight:bold; color:black; border: 1px solid black; padding:4px; text-align:center; background-color:#F9F9F9;">Maturity</th>'
-            for col in df.columns:
-                html += f'<th style="font-weight:bold; color:black; border: 1px solid black; padding:4px; text-align:center; background-color:#F9F9F9;">{col}</th>'
-            html += '</tr>'
-            # Rows
-            for idx in df.index:
-                html += f'<tr>'
-                # First column (maturity)
-                html += f'<th style="font-weight:bold; color:black; border: 1px solid black; padding:4px; text-align:center; background-color:#F9F9F9;">{idx}</th>'
-                # Other columns
-                for col in df.columns:
-                    val = df.loc[idx, col]
-                    if col == "Now":
-                        color = "black"
-                    else:
-                        if val > 0:
-                            color = "green"
-                        elif val < 0:
-                            color = "red"
-                        else:
-                            color = "black"
-                    html += f'<td style="color:{color}; font-weight:normal; border: 1px solid black; padding:4px; text-align:center;">{val:+.2f}%</td>'
-                html += '</tr>'
-            html += '</table>'
-            return html
-
-        st.markdown(render_html_table(df_table), unsafe_allow_html=True)
-
-
-    with outer_col2:
-        # Regime calculation (short vs long 2Y vs 10Y)
-        if "2Y" in df.columns and "10Y" in df.columns:
-            ref_date_1m = latest_date - pd.DateOffset(months=1)
-            idx_1m = (df['date'] - ref_date_1m).abs().idxmin()
-            delta_2y = df_now['2Y'] - df.loc[idx_1m, '2Y']
-            delta_10y = df_now['10Y'] - df.loc[idx_1m, '10Y']
-
-            if delta_2y < 0 and delta_10y < 0:
-                regime = "Bull Flattener" if abs(delta_10y) > abs(delta_2y) else "Bull Steepener"
-            elif delta_2y > 0 and delta_10y > 0:
-                regime = "Bear Flattener" if abs(delta_2y) > abs(delta_10y) else "Bear Steepener"
-            elif delta_2y < 0 and delta_10y > 0:
-                regime = "Bull Steepener"
-            elif delta_2y > 0 and delta_10y < 0:
-                regime = "Bear Steepener"
-            else:
-                regime = "Indeterminate"
-        else:
-            regime = "N/A"
-        st.markdown(f"**Current Regime (Now vs 1M): {regime}**")
-
-        # -------- Line Chart (all maturities, historical periods) --------
-        df_plot_rows = []
-        for label, offset in {"Now": None, **period_offsets}.items():
-            if label == "Now":
-                row = df_now.copy()
-            else:
-                ref_date = latest_date - offset
-                idx = (df['date'] - ref_date).abs().idxmin()
-                row = df.loc[idx].copy()
-            row['Period'] = label
-            df_plot_rows.append(row)
-
-        df_plot = pd.DataFrame(df_plot_rows)
-        df_melt = df_plot.melt(id_vars="Period", value_vars=maturities,
-                               var_name="Maturity", value_name="Yield")
-
-        fig = go.Figure()
-        for period in df_plot['Period']:
-            temp = df_melt[df_melt['Period'] == period]
-            fig.add_trace(go.Scatter(
-                x=temp['Maturity'],
-                y=temp['Yield'],
-                mode="lines+markers",
-                name=period,
-                hovertemplate="<b>%{x}</b><br>Yield: %{y:.2f}%<extra></extra>"
-            ))
-
-        axis_tickfont = dict(size=14, family="Arial Bold", color="black")
-        axis_title_font = dict(size=16, family="Arial Bold", color="black")
-
-        fig.update_layout(
-            title=f"{country} Yield Curve (All Maturities)",
-            xaxis=dict(title="Maturity", tickfont=axis_tickfont, linecolor='black', linewidth=2, showline=True,
-                       title_font=axis_title_font),
-            yaxis=dict(title="Yield (%)", tickfont=axis_tickfont, title_font=axis_title_font,
-                       linecolor='black', linewidth=2, showline=True),
-            template="plotly_white",
-            font=dict(color="black"),
-            legend=dict(x=0.01, y=1.1, orientation="h"),
-            height=500,
-            hoverlabel=dict(bgcolor="#F9F9F9")
-        )
-
-        st.plotly_chart(fig, use_container_width=True,
-                        config={"displayModeBar": True, "displaylogo": False,
-                                "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
-                                "modeBarButtonsToRemove": ["lasso2d", "select2d"]})
-
-
-# -------- USA Economic Cycle Tab (Professional Upgrade) --------
-if page == "Cycle":
-    # --- Centered Header + Black Text ---
-    st.markdown("""
-    <div style="text-align:center; font-size:30px; font-weight:700; color:#000000; margin-bottom:20px;">
-        US Economic Cycle
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <div style="color:#000000; font-size:16px; line-height:1.6; text-align:justify;">
-        The <b>US Economic Cycle</b> assesses the current phase of the US economy using real-time data.  
-        It aggregates key indicators across <b>growth (GDP, PMI)</b>, <b>inflation (CPI level & trend)</b>, 
-        <b>labor markets (unemployment, NFP)</b>, and <b>financial conditions (yield curve)</b>, assigning each 
-        a positive or negative score based on its level and trend.
-        <br><br>
-        • <b>Spring (Recovery):</b> Early rebound with improving growth and labor conditions; inflation remains contained. (+1.0 to +2.9)<br>
-        • <b>Summer (Expansion):</b> Broad economic strength; output, employment, and demand are robust, often with rising inflation. (≥ +3.0)<br>
-        • <b>Fall (Slowdown):</b> Growth momentum slows, hiring softens, inflation remains elevated; policy conditions may ease. (−1.0 to +0.9)<br>
-        • <b>Winter (Contraction):</b> Economic activity contracts; unemployment rises, inflation moderates, and risk sentiment weakens. (≤ −1.1)
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
-    
-   
-
-    # ---- Helper: Analyze a series ----
-    def analyze_series(df, window=4):
-        if df is None or df.empty:
-            return {"latest_value": None, "trend_slope": 0}
-        df = df.dropna(subset=["value"])
-        latest_value = df["value"].iloc[-1]
-        slope = 0
-        if len(df) >= window:
-            recent = df.tail(window)
-            slope = np.polyfit(np.arange(len(recent)), recent["value"], 1)[0]
-        return {"latest_value": latest_value, "trend_slope": slope}
-
-    # ---- USA Cycle Classifier ----
-    def classify_usa_cycle():
-        # --- Load data ---
-        gdp = analyze_series(get_usa_gdp_qoq_data())
-        cpi = analyze_series(get_usa_cpi_yoy_data())
-        unemp = analyze_series(get_usa_unemployment_rate_data())
-        nfp = analyze_series(get_usa_nfp_data())
-   ##     pmi = analyze_series(get_usa_ism_manufacturing_pmi_data())
-        yc_2y = analyze_series(get_usa_2yr_yield_data())
-        yc_10y = analyze_series(get_usa_10yr_yield_data())
-
-        # --- Compute derived metrics ---
-        gdp_change = get_usa_gdp_qoq_data().tail(4)["value"].diff().sum()
-        cpi_val = cpi["latest_value"]
-        cpi_slope = cpi["trend_slope"]
-        unemp_val = unemp["latest_value"]
-        unemp_slope = unemp["trend_slope"]
-        nfp_avg = get_usa_nfp_data().tail(4)["value"].mean()
-        pmi_val = pmi["latest_value"]
-        pmi_slope = pmi["trend_slope"]
-        yc_spread = yc_10y["latest_value"] - yc_2y["latest_value"] if yc_10y["latest_value"] and yc_2y["latest_value"] else None
-
-        # --- Scoring & details ---
-        details, scores = {}, {}
-
-        # GDP
-        scores["GDP Trend"] = 1 if gdp_change > 0 else -1
-        details["GDP Trend"] = ("Improving" if scores["GDP Trend"] > 0 else "Weakening", scores["GDP Trend"])
-
-        # CPI Level & Trend
-        scores["CPI Level"] = 1 if cpi_val > 4 else -1 if cpi_val < 1.5 else 0
-        details["CPI Level"] = (f"{cpi_val:.1f}%" + (" (High)" if scores["CPI Level"] > 0 else " (Low)" if scores["CPI Level"] < 0 else ""), scores["CPI Level"])
-        scores["CPI Trend"] = 1 if cpi_slope > 0 else -1 if cpi_slope < 0 else 0
-        details["CPI Trend"] = ("Rising" if scores["CPI Trend"] > 0 else "Falling" if scores["CPI Trend"] < 0 else "Flat", scores["CPI Trend"])
-
-        # Labor
-        if unemp_val:
-            if unemp_slope > 0.02:
-                scores["Unemployment"] = -1
-                details["Unemployment"] = (f"{unemp_val:.1f}% (Rising)", -1)
-            elif unemp_val < 4 and unemp_slope <= 0:
-                scores["Unemployment"] = 1
-                details["Unemployment"] = (f"{unemp_val:.1f}% (Stable)", 1)
-            else:
-                scores["Unemployment"] = 0
-                details["Unemployment"] = (f"{unemp_val:.1f}% (Neutral)", 0)
-        scores["NFP Avg"] = 1 if nfp_avg > 200 else -1 if nfp_avg < 50 else 0
-        details["NFP Avg"] = (f"{nfp_avg:.0f}k" + (" (Strong)" if scores["NFP Avg"] > 0 else " (Weak)" if scores["NFP Avg"] < 0 else ""), scores["NFP Avg"])
-
-        # PMI
-        scores["PMI"] = 1 if pmi_val >= 55 else -1 if pmi_val < 50 else 0
-        details["PMI"] = (f"{pmi_val:.1f}" + (" (Strong)" if scores["PMI"] > 0 else " (Weak)" if scores["PMI"] < 0 else ""), scores["PMI"])
-        scores["PMI Trend"] = 0.5 if pmi_slope > 0 else -0.5 if pmi_slope < 0 else 0
-        details["PMI Trend"] = ("Improving" if pmi_slope > 0 else "Falling" if pmi_slope < 0 else "Flat", scores["PMI Trend"])
-
-        # Yield Curve
-        if yc_spread is not None:
-            scores["Yield Curve"] = -1 if yc_spread < 0 else 1 if yc_spread > 1 else 0
-            details["Yield Curve"] = (f"{yc_spread:.2f}" + (" (Inverted)" if scores["Yield Curve"] < 0 else " (Steep)" if scores["Yield Curve"] > 0 else ""), scores["Yield Curve"])
-
-        # --- Weighted total ---
-        weights = {"growth": 1.2, "inflation": 1.0, "labor": 1.3, "financials": 0.8}
-        weighted_total = (
-            (scores.get("GDP Trend", 0) + scores.get("PMI", 0) + scores.get("PMI Trend", 0)) * weights["growth"] +
-            (scores.get("CPI Trend", 0) + scores.get("CPI Level", 0)) * weights["inflation"] +
-            (scores.get("Unemployment", 0) + scores.get("NFP Avg", 0)) * weights["labor"] +
-            scores.get("Yield Curve", 0) * weights["financials"]
-        )
-
-        # --- Classify macro season ---
-        def classify_macro_season(score):
-            if score <= -1.5: return "❄️ Winter (Recession)"
-            elif -1.5 < score <= -0.5: return "Fall (Slowdown)"
-            elif -0.5 < score <= 0.5: return "Late Fall (Weak Momentum)"
-            elif 0.5 < score <= 1.5: return "Early Spring (Fragile Recovery)"
-            elif 1.5 < score <= 2.5: return "Late Spring (Broad Recovery)"
-            elif 2.5 < score <= 3.5: return "Early Summer (Expansion)"
-            else: return "Late Summer (Peak Growth)"
-
-        season = classify_macro_season(weighted_total)
-        return season, details, round(weighted_total, 2)
-
-    # ---- Get current USA position ----
-    # ---- Get current USA position ----
-    usa_position, details, total_score = classify_usa_cycle()
-
-    st.markdown(f"""
-    <div style="text-align:center; margin-bottom:30px;">
-        <div style="font-size:22px; font-weight:550; color:#000000;">
-            USA Macro Season = {usa_position}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # ---- Asset Position Logic (Matches ESI Rules) ----
-    def asset_signal(indicator_name, score):
-        # Default
-        if score > 0:
-            stocks = "Bullish"
-            dxy = "Bullish"
-            gold = "Bearish"
-        elif score < 0:
-            stocks = "Bearish"
-            dxy = "Bearish"
-            gold = "Bullish"
-        else:
-            stocks = dxy = gold = "Neutral"
-
-        # --- Override logic based on indicator category ---
-
-        # Labor market
-        if indicator_name in ["Unemployment", "NFP Avg"]:
-            if score < 0:   # weak labor
-                stocks, dxy, gold = "Bullish", "Bearish", "Bullish"
-            elif score > 0:  # strong labor
-                stocks, dxy, gold = "Bearish", "Bullish", "Bearish"
-
-        # Inflation (CPI, PPI)
-        if indicator_name in ["CPI Level", "CPI Trend"]:
-            if score > 0:  # rising inflation
-                stocks, dxy, gold = "Bearish", "Bullish", "Bearish"
-            elif score < 0:  # falling inflation
-                stocks, dxy, gold = "Bullish", "Bearish", "Bullish"
-
-        # PMI (growth sentiment)
-        if indicator_name in ["PMI", "PMI Trend"]:
-            if score > 0:  # strong PMI
-                stocks, dxy, gold = "Bullish", "Bullish", "Bearish"
-            elif score < 0:  # weak PMI
-                stocks, dxy, gold = "Bearish", "Bearish", "Bullish"
-
-        # Yield curve inversion
-        if indicator_name == "Yield Curve":
-            if score < 0:  # inverted
-                stocks, dxy, gold = "Bearish", "Bearish", "Bullish"
-
-        return stocks, dxy, gold
-        
-    def total_asset_signal(details):
-        bullish_count = 0
-        bearish_count = 0
-        
-        # Count individual signals
-        for indicator_name, (val, score) in details.items():
-            stocks_sig, dxy_sig, gold_sig = asset_signal(indicator_name, score)
-            
-            if stocks_sig == "Bullish":
-                bullish_count += 1
-            elif stocks_sig == "Bearish":
-                bearish_count += 1
-
-        # Decide TOTAL signals
-        if bullish_count > bearish_count:
-            total_stocks = "Bullish"
-        elif bearish_count > bullish_count:
-            total_stocks = "Bearish"
-        else:
-            total_stocks = "Neutral"
-
-        # For simplicity, DXY and Gold can be neutral or you can do similar majority logic
-        total_dxy = "Neutral"
-        total_gold = "Neutral"
-
-        return total_stocks, total_dxy, total_gold
-
-
-
-    # ---- Professional HTML Table ----
-    def render_cycle_html_table(details, total_score):
-        html = '<table style="border-collapse: collapse; width:100%; font-family: Arial;">'
-
-        # Header
-        html += '<tr>'
-        for h in ["Indicator", "Value", "Score", "Stocks", "DXY", "Gold"]:
-            html += f'''
-            <th style="font-weight:bold; border:1px solid black; padding:6px;
-            text-align:center; background-color:#d9d9d9;">{h}</th>'''
-        html += '</tr>'
-
-
-        # ---- Color helper ----
-        def signal_color(sig):
-            if sig == "Bullish": return "#b6f0c3"   # same green as score
-            if sig == "Bearish": return "#f7b6b6"   # same red as score
-            return "#f0f0f0"                        # same neutral grey
-
-
-        # Rows
-        for k, (val, scr) in details.items():
-
-            # Score color
-            if scr > 0: score_color = "#b6f0c3"
-            elif scr < 0: score_color = "#f7b6b6"
-            else: score_color = "#f0f0f0"
-
-            # Asset signals
-            stocks_sig, dxy_sig, gold_sig = asset_signal(k, scr)
-
-            html += '<tr>'
-
-            html += f'''
-            <td style="font-weight:bold; border:1px solid black; padding:6px;
-            text-align:center; background-color:#F0F0F0;">{k}</td>'''
-
-            html += f'''
-            <td style="border:1px solid black; padding:6px; text-align:center;
-            background-color:{score_color};">{val}</td>'''
-
-            html += f'''
-            <td style="border:1px solid black; padding:6px; text-align:center;
-            background-color:{score_color};">{scr:+.2f}</td>'''
-
-            # Stocks
-            html += f'''
-            <td style="border:1px solid black; padding:6px; text-align:center;
-            background-color:{signal_color(stocks_sig)};">{stocks_sig}</td>'''
-
-            # DXY
-            html += f'''
-            <td style="border:1px solid black; padding:6px; text-align:center;
-            background-color:{signal_color(dxy_sig)};">{dxy_sig}</td>'''
-
-            # Gold
-            html += f'''
-            <td style="border:1px solid black; padding:6px; text-align:center;
-            background-color:{signal_color(gold_sig)};">{gold_sig}</td>'''
-
-            html += '</tr>'
-
-
-        # ---- TOTAL row ----
-        if total_score > 0: total_color = "#b6f0c3"
-        elif total_score < 0: total_color = "#f7b6b6"
-        else: total_color = "#f0f0f0"
-
-        total_stocks, total_dxy, total_gold = total_asset_signal(details)
-
-        html += '<tr>'
-        html += f'''
-        <td colspan="2" style="font-weight:bold; border:1px solid black;
-        padding:6px; text-align:center; background-color:#d9d9d9;">TOTAL</td>'''
-
-        html += f'''
-        <td style="font-weight:bold; border:1px solid black; padding:6px;
-        text-align:center; background-color:{total_color};">{total_score:+.2f}</td>'''
-
-        # Total signals (colored)
-        html += f'''
-        <td style="border:1px solid black; padding:6px; text-align:center;
-        background-color:{signal_color(total_stocks)};">{total_stocks}</td>'''
-
-        html += f'''
-        <td style="border:1px solid black; padding:6px; text-align:center;
-        background-color:{signal_color(total_dxy)};">{total_dxy}</td>'''
-
-        html += f'''
-        <td style="border:1px solid black; padding:6px; text-align:center;
-        background-color:{signal_color(total_gold)};">{total_gold}</td>'''
-
-        html += '</tr>'
-
-        html += '</table>'
-        return html
-
-
-
-    # Display table
-    st.markdown(render_cycle_html_table(details, total_score), unsafe_allow_html=True)
-    st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
-
-
- 
-    # ---- Wave-style Cycle Chart ----
-    def build_cycle_wave(phase):
-   
-        import plotly.graph_objects as go
-
-        # Base sine wave
-        x = np.linspace(0, 2 * np.pi, 400)
-        y = np.sin(x)
-
-        # --- Figure ---
-        fig = go.Figure()
-
-        # --- Season background bands ---
-        seasons = [
-            {"name": "Spring", "x0": 0, "x1": np.pi/2, "color": "rgba(144,238,144,0.18)"},
-            {"name": "Summer", "x0": np.pi/2, "x1": np.pi, "color": "rgba(255,215,0,0.18)"},
-            {"name": "Fall",   "x0": np.pi, "x1": 3*np.pi/2, "color": "rgba(255,165,0,0.15)"},
-            {"name": "Winter", "x0": 3*np.pi/2, "x1": 2*np.pi, "color": "rgba(173,216,230,0.18)"}
-        ]
-
-        # Draw season backgrounds + text + vertical dotted lines
-        for s in seasons:
-            fig.add_vrect(
-                x0=s["x0"], x1=s["x1"],
-                fillcolor=s["color"], opacity=0.5, line_width=0
-            )
-            # Add centered bold season text
-            fig.add_annotation(
-                x=(s["x0"] + s["x1"]) / 2,
-                y=1.25,
-                text=f"<b>{s['name']}</b>",
-                showarrow=False,
-                font=dict(size=16, color="rgba(0,0,0,0.65)")
-            )
-
-            # Add vertical dotted divider line (except before first season)
-            if s["x0"] != 0:
-                fig.add_shape(
-                    type="line",
-                    x0=s["x0"], x1=s["x0"],
-                    y0=-1.2, y1=1.2,
-                    line=dict(color="black", width=0.5, dash="dot")
-                )
-
-        # --- Add dotted horizontal 0-line manually ---
-        fig.add_shape(
-            type="line",
-            x0=0, x1=2*np.pi,
-            y0=0, y1=0,
-            line=dict(color="black", width=1)
-        )
-
-        # --- Wave line (thinner) ---
-        fig.add_trace(go.Scatter(
-            x=x, y=y,
-            mode="lines",
-            line=dict(color="black", width=2),
-            hoverinfo="none"
-        ))
-
-        # --- Phase position marker ---
-        mapping = {
-            "Early Spring (Fragile Recovery)": np.pi/4,
-            "Late Spring (Broad Recovery)": np.pi/3,
-            "Early Summer (Expansion)": 3*np.pi/4,
-            "Late Summer (Peak Growth)": np.pi,
-            "Fall (Slowdown)": 5*np.pi/4,
-            "Late Fall (Weak Momentum)": 3*np.pi/2 - 0.4,
-            "Winter (Recession)": 7*np.pi/4
-        }
-        xpos = mapping.get(phase, 0)
-        ypos = np.sin(xpos)
-
-        fig.add_trace(go.Scatter(
-            x=[xpos], y=[ypos],
-            mode="markers+text",
-            text=["<b>USA</b>"],
-            textposition="top center",
-            textfont=dict(color="black", size=14),
-            marker=dict(
-                size=18,
-                color="red",
-                line=dict(color="black", width=2),
-                symbol="circle"
-            ),
-            hoverinfo="none"
-        ))
-
-        # --- Layout styling ---
-        fig.update_layout(
-            title=dict(
-                text="<b>US Economic Cycle</b>",
-                x=0.5, xanchor="center", font=dict(size=20)
-            ),
-            xaxis=dict(
-                visible=False,
-                showline=True,
-                linewidth=3,
-                linecolor="black",
-                mirror=True
-            ),
-            yaxis=dict(
-                visible=False,
-                showline=True,
-                linewidth=3,
-                linecolor="black",
-                mirror=True
-            ),
-            plot_bgcolor="white",
-            paper_bgcolor="white",
-            height=500,
-            margin=dict(l=40, r=40, t=60, b=40),
-            showlegend=False
-        )
-
-        # --- Border around chart ---
-        fig.add_shape(
-            type="rect",
-            x0=0, x1=2*np.pi,
-            y0=-1.5, y1=1.5,
-            line=dict(color="black", width=3)
-        )
-
-        return fig
-
-
-    st.plotly_chart(build_cycle_wave(usa_position), use_container_width=True)
-    
-    # ----------- Macro Cycle Summary (AI-Generated) -----------
-
-    st.markdown("### US Economic Cycle Summary")
-
-    # Prepare structured data context for LLM
-    cycle_data_summary = "\n".join(
-        [f"{indicator}: value={val[0]}, score={val[1]:+.1f}" for indicator, val in details.items()]
-    )
-
-
-    prompt = f"""
-    You are a senior macroeconomic strategist writing a concise professional summary of the **U.S. economic cycle** 
-    based on the following indicators and scores.
-
-    Indicators (Level, Trend, Score):
-    {cycle_data_summary}
-
-    The overall cycle score is {total_score:.1f}, classified as **{usa_position}**.
-
-    Write one paragraph (5–7 sentences) describing the current macroeconomic environment of the U.S., 
-    interpreting the data holistically.
-
-    Guidelines:
-    - Keep it analytical and neutral — like an economist briefing a portfolio manager.
-    - Summarize the growth, inflation, labor, and financial conditions implied by the data.
-    - Avoid adjectives like “strong” or “weak” unless implied by score/trend.
-    - Mention the current phase ({usa_position}) naturally.
-    - Use professional, natural English (no lists or bullet points).
-    - Output a single paragraph, no headings.
-    """
-
-    @st.cache_data(ttl=3600)
-    def generate_cycle_summary():
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                max_completion_tokens=250,
-                temperature=0.2
-            )
-            return response.choices[0].message.content.strip()
-        except Exception as e:
-            return f"⚠️ LLM generation failed: {e}"
-
-    # Generate and display
-    with st.spinner("Generating cycle summary..."):
-        cycle_summary_text = generate_cycle_summary()
-        
-        # Add Cycle summary to global collector
-        summary_label = f"Cycle Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
-        entry = f"{summary_label}:\n{cycle_summary_text}"
-
-        # Prevent duplicates (so it doesn’t re-add every rerun)
-        if entry not in st.session_state["ai_summaries"]:
-            st.session_state["ai_summaries"].append(entry)
-
-    st.markdown(f"""
-    <div style="
-        background-color:#f8f9fa;
-        border-left:6px solid #1d3557;
-        border-radius:10px;
-        padding:18px 24px;
-        margin-top:10px;
-        font-size:15px;
-        font-family:'Inter','Segoe UI','Arial',sans-serif;
-        line-height:1.6;
-        color:#111;
-    ">
-    {cycle_summary_text}
-    </div>
-    """, unsafe_allow_html=True)
-
-    
-    
-# -------- Macro Reports Tab --------
-if page == "Reports":
-    import os
-    import base64
-    from pathlib import Path
-
-    # --- Title ---
-    st.markdown("""
-    <div style="text-align:center; font-size:32px; font-weight:800; color:#000000; margin-bottom:10px;">
-        Macro Reports
-    </div>
-    """, unsafe_allow_html=True)
-
-    # --- Intro text ---
-    st.markdown("""
-    <div style="color:#000000; font-size:16px; line-height:1.6; text-align:justify; margin-bottom:15px;">
-        Welcome to the <b>Macro Lens Research Reports</b> section — a growing archive of weekly macroeconomic insights.
-        Each report explores key developments in growth, inflation, financial markets, and global policy shifts,
-        helping readers understand the forces shaping economies and investor sentiment worldwide.
-        Select a report from the left to view it in full on the right.
-    </div>
-    """, unsafe_allow_html=True)
-
-    # --- Reports folder setup ---
-    reports_folder = Path("reports")
-    pdf_files = sorted([f for f in reports_folder.glob("*.pdf")], reverse=True)
-
-    if not pdf_files:
-        st.info("No reports found yet. Add PDFs to the `reports/` folder.")
-    else:
-        # Adjust column width ratio (more space for the report)
-        col1, col2 = st.columns([0.7, 1.5])
-
-        # --- Custom button styling ---
-        st.markdown("""
-        <style>
-        div.stButton > button {
-            border-radius: 10px;
-            border: 2px solid #cccccc;
-            background-color: #ffffff;
-            color: #000000;
-            padding: 10px 18px;
-            margin-bottom: 8px;
-            font-size: 17px;
-            font-weight: 700;
-            text-align: center;
-            transition: all 0.15s ease-in-out;
-        }
-        div.stButton > button:hover {
-            border-color: #0072ff;
-            color: #0072ff;
-            background-color: #f9fbff;
-            transform: scale(1.01);
-        }
-        div.stButton > button:focus:not(:active) {
-            border-color: #0072ff;
-            color: #0072ff;
-            background-color: #f9fbff;
-            transform: scale(1.01);
-        }
-        </style>
-        """, unsafe_allow_html=True)
-
-        # --- Month name map ---
-        month_map = {
-            "01": "January", "02": "February", "03": "March", "04": "April",
-            "05": "May", "06": "June", "07": "July", "08": "August",
-            "09": "September", "10": "October", "11": "November", "12": "December"
-        }
-
-        # --- Build report button list ---
-        report_buttons = []
-        for pdf_path in pdf_files:
-            file_name = pdf_path.name.replace(".pdf", "")
-            parts = file_name.split("_")[0].split("-")
-
-            if len(parts) == 3:
-                year, month, day = parts
-                month_name = month_map.get(month, month)
-                display_name = f"{month_name} {int(day)}, {year} Report"
-            else:
-                year, month = parts
-                month_name = month_map.get(month, month)
-                display_name = f"{month_name} {year} Report"
-
-            report_buttons.append((display_name, pdf_path))
-
-        # --- Default selection ---
-        if "selected_report" not in st.session_state:
-            st.session_state.selected_report = report_buttons[0][1]
-
-        # --- Left column (buttons) ---
-        with col1:
-            st.markdown("### Weekly Reports")
-
-            for display_name, pdf_path in report_buttons:
-                is_selected = pdf_path == st.session_state.selected_report
-                if is_selected:
-                    st.markdown(
-                        f"""
-                        <div style="
-                            border:2px solid #0072ff;
-                            border-radius:10px;
-                            padding:12px 18px;
-                            margin-bottom:8px;
-                            font-size:17px;
-                            font-weight:700;
-                            color:#0072ff;
-                            background-color:#f9fbff;
-                            text-align:center;
-                        ">
-                            {display_name}
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-                else:
-                    if st.button(display_name, use_container_width=True, key=display_name):
-                        st.session_state.selected_report = pdf_path
-
-        # --- Right column (PDF viewer) ---
-        selected_pdf = st.session_state.selected_report
-        with open(selected_pdf, "rb") as f:
-            pdf_bytes = f.read()
-        pdf_base64 = base64.b64encode(pdf_bytes).decode("utf-8")
-        pdf_data_uri = f"data:application/pdf;base64,{pdf_base64}"
-
-        file_name = selected_pdf.name.replace(".pdf", "")
-        parts = file_name.split("_")[0].split("-")
-        if len(parts) == 3:
-            year, month, day = parts
-            month_name = month_map.get(month, month)
-            display_title = f"{month_name} {int(day)}, {year} Report"
-        else:
-            year, month = parts
-            month_name = month_map.get(month, month)
-            display_title = f"{month_name} {year} Report"
-
-        with col2:
-            st.markdown(f"### 📈 {display_title}", unsafe_allow_html=True)
-            st.download_button(
-                label="⬇️ Download PDF",
-                data=pdf_bytes,
-                file_name=selected_pdf.name,
-                mime="application/pdf",
-            )
-
-            st.markdown(
-                f'<iframe src="{pdf_data_uri}" width="100%" height="450px" '
-                f'style="border:none; margin-top:-10px; border-radius:10px; transform:scale(0.98); '
-                f'transform-origin:top center;"></iframe>',
-                unsafe_allow_html=True
-            )
-
-    # --- Footer ---
-    st.markdown("""
-    <div style="text-align:center; margin-top:35px; font-size:14px; color:#666;">
-        © 2025 Macro Lens Research | Weekly Global Macro Insights
-    </div>
-    """, unsafe_allow_html=True)
-
-
-
-# -------- Scenario Testing (Professional Edition) --------
-if page == "Scenarios":
-
-    st.markdown("""
-    <div style="text-align:center; font-size:30px; font-weight:700; color:#000; margin-bottom:12px;">
-        Scenario Testing — Daily Move Triggers
-    </div>
-    <div style="text-align:center; color:#444; margin-bottom:18px;">
-        Highlight every day the asset’s daily move exceeded a selected % (colored markers). Analyze forward returns after custom periods.
-    </div>
-    """, unsafe_allow_html=True)
-
-    col1, col2 = st.columns([1.8, 5])
-
-    # --- Asset display names ---
-    display_names = {
-        # FX
-        "eurusd": "EUR/USD",
-        "gbpusd": "GBP/USD",
-        "usdjpy": "USD/JPY",
-        "dxy": "US Dollar Index (DXY)",
-
-        # Equities / Indices
-        "eq_sp500": "S&P 500",
-        "eq_nasdaq": "Nasdaq 100",
-        "eq_dow": "Dow Jones Industrial",
-        "eq_ftse": "FTSE 100",
-        "eq_nikkei": "Nikkei 225",
-        "eq_dax": "DAX",
-        "eq_msci_em": "MSCI Emerging Markets",
-        "eq_vix": "VIX",
-
-        # Stocks
-        "st_aapl": "Apple",
-        "st_amzn": "Amazon",
-        "st_meta": "Meta",
-        "st_googl": "Google",
-        "st_nvda": "Nvidia",
-        "st_msft": "Microsoft",
-        "st_tsla": "Tesla",
-
-        # Commodities
-        "cmd_gold": "Gold",
-        "cmd_silver": "Silver",
-        "cmd_wti": "WTI Crude",
-        "cmd_brent": "Brent Crude",
-        "cmd_ng": "Natural Gas",
-        "cmd_wheat": "Wheat",
-        "cmd_copper": "Copper",
-        "cmd_corn": "Corn",
-        "cmd_soy": "Soy",
-
-        # Crypto
-        "crypto_btc": "Bitcoin",
-        "crypto_eth": "Ethereum",
-    }
-
-    # --- Reverse map for dropdown ---
-    dropdown_map = {v: k for k, v in display_names.items()}
-
-    with col1:
-        st.markdown("<div style='margin-top:40px;'>", unsafe_allow_html=True)
-
-        # --- Asset selection ---
-        asset_map = {
-            "FX": ["eurusd","gbpusd","usdjpy","dxy"],
-            "Equities": ["eq_sp500","eq_nasdaq","eq_dow","eq_ftse","eq_nikkei","eq_dax","eq_msci_em","eq_vix"],
-            "Stocks": ["st_aapl","st_amzn","st_meta","st_googl","st_nvda","st_msft","st_tsla"],
-            "Commodities": ["cmd_gold","cmd_silver","cmd_wti","cmd_brent","cmd_ng","cmd_wheat","cmd_copper","cmd_corn","cmd_soy"],
-            "Crypto": ["crypto_btc","crypto_eth"]
-        }
-
-        group = st.selectbox("Select Category", list(asset_map.keys()), index=1)
-
-        # display names in dropdown
-        asset_names_for_dropdown = [display_names.get(a, a) for a in asset_map[group]]
-        selected_name = st.selectbox("Select Asset", asset_names_for_dropdown)
-
-        # convert back to code for data
-        code = dropdown_map.get(selected_name, selected_name)
-
-        # --- User inputs ---
-        direction = st.selectbox("Direction", ["Up", "Down"], index=0)
-        threshold = st.number_input("Daily % Move Threshold", min_value=0.1, max_value=100.0, value=5.0, step=0.1)
-        forward_unit = st.selectbox("Forward Unit", ["days","weeks","months","years"], index=0)
-        forward_period = st.number_input(f"Forward Period ({forward_unit})", min_value=1, max_value=3650, value=30)
-
-        # --- Load data ---
-        df = load_indicator_data(code)
-        if df.empty:
-            st.error("No data available for this asset.")
-            st.stop()
-
-        df = df.rename(columns={c.lower(): c for c in df.columns})
-        if 'date' not in df.columns:
-            df = df.reset_index().rename(columns={'index':'date'})
-        if 'adj close' in df.columns:
-            df['value'] = df['adj close']
-        elif 'close' in df.columns:
-            df['value'] = df['close']
-        elif 'value' not in df.columns:
-            st.error("Data format not recognized.")
-            st.stop()
-
-        df = df[['date','value']].dropna()
-        df['date'] = pd.to_datetime(df['date'])
-
-        # --- Date range setup ---
-        earliest_date = df['date'].min().date()
-        latest_date = df['date'].max().date()
-        timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"], index=3)
-
-        if timeframe != "MAX":
-            years = int(timeframe.replace("Y", ""))
-            default_start_date = max(earliest_date, latest_date - dt.timedelta(days=365 * years))
-        else:
-            default_start_date = earliest_date
-
-        date_col1, date_col2 = st.columns(2)
-        with date_col1:
-            start_date = st.date_input("Start Date", default_start_date, min_value=earliest_date, max_value=latest_date)
-        with date_col2:
-            end_date = st.date_input("End Date", latest_date, min_value=earliest_date, max_value=latest_date)
-
-        if start_date > end_date:
-            st.warning("⚠️ Start date cannot be after end date.")
-            st.stop()
-
-        df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))].reset_index(drop=True)
-
-    with col2:
-        # --- Compute daily % changes and triggers ---
-        df['pct_change'] = df['value'].pct_change() * 100
-        if direction == "Up":
-            df['is_trigger'] = df['pct_change'] >= threshold
-        else:
-            df['is_trigger'] = df['pct_change'] <= -threshold
-
-        triggers = df[df['is_trigger']].copy().reset_index().rename(columns={'index':'df_index'})
-
-        ticker_display = display_names.get(code, code)
-
-        # --- Plotly chart (highlight triggers) ---
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=df['date'], y=df['value'],
-            mode='lines', line=dict(color='#1f77b4', width=2),
-            name=code.upper()
-        ))
-
-        fig.add_trace(go.Scatter(
-            x=triggers['date'], y=triggers['value'],
-            mode='markers',
-            marker=dict(color='orange', size=8, line=dict(color='black', width=1)),
-            customdata=triggers['pct_change'],
-            hovertemplate="<b>Date:</b> %{x|%d %b %Y}<br><b>Value:</b> %{y:,.2f}<br><b>Move:</b> %{customdata:+.2f}%<extra></extra>",
-            name="Trigger"
-        ))
-
-        fig.update_layout(
-            title=dict(
-                text=f"<b>{ticker_display}</b>",
-                x=0.5,
-                xanchor='center',
-                y=0.95,  # moved up
-                yanchor='top',
-                font=dict(size=22, family="Inter, Arial Black", color="#000"),
-            ),
-            margin=dict(l=40, r=30, t=80, b=40),  # increased top margin
-            xaxis=dict(showline=True, linecolor='black', showgrid=False),
-            yaxis=dict(showline=True, linecolor='black', gridcolor='LightGrey', gridwidth=0.4, tickformat=',.2f'),
-            plot_bgcolor='white',
-            hovermode='x unified',
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
-            font=dict(family="Inter, Arial", color="#000")
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-        # --- Forward outcome calculations ---
-        results = []
-        for _, tr in triggers.iterrows():
-            trigger_date = tr['date']
-            start_val = tr['value']
-            daily_move = tr['pct_change']
-
-            # Compute forward date
-            if forward_unit == 'days':
-                target = trigger_date + pd.Timedelta(days=forward_period)
-            elif forward_unit == 'weeks':
-                target = trigger_date + pd.Timedelta(weeks=forward_period)
-            elif forward_unit == 'months':
-                target = trigger_date + pd.DateOffset(months=forward_period)
-            elif forward_unit == 'years':
-                target = trigger_date + pd.DateOffset(years=forward_period)
-            else:
-                target = trigger_date
-
-            next_row = df[df['date'] >= target].head(1)
-            if not next_row.empty:
-                end_val = float(next_row['value'].iloc[0])
-                forward_ret = (end_val / start_val - 1) * 100
-                forward_date = next_row['date'].iloc[0].date()
-            else:
-                end_val, forward_ret, forward_date = np.nan, np.nan, ""
-
-            results.append({
-                "Trigger Date": trigger_date.date(),
-                "Daily Move (%)": round(daily_move, 2),
-                "Start Value": round(start_val, 2),
-                f"End Value (after {forward_period} {forward_unit})": (round(end_val, 2) if not np.isnan(end_val) else ""),
-                "Forward Return (%)": (round(forward_ret, 2) if not np.isnan(forward_ret) else ""),
-                "Forward Date Used": forward_date
-            })
-
-        results_df = pd.DataFrame(results)
-
-        # --- Summary Stats ---
-        if "Forward Return (%)" in results_df.columns and not results_df.empty:
-            valid_forward = pd.to_numeric(results_df["Forward Return (%)"], errors='coerce').dropna()
-            count_triggers = len(results_df)
-            mean_forward = valid_forward.mean() if not valid_forward.empty else np.nan
-        else:
-            valid_forward = pd.Series(dtype=float)
-            count_triggers = len(results_df)
-            mean_forward = np.nan
-
-        st.markdown("<h4 style='margin-top:18px;'>Trigger Outcomes</h4>", unsafe_allow_html=True)
-
-        def render_scenario_html_table(df_results, total_count, mean_forward_val):
-            header_bg = "#d9d9d9"
-            html = '<table style="border-collapse: collapse; width:100%; font-family: Inter, Arial; font-size:14px;">'
-            html += '<thead><tr>'
-            for col in df_results.columns:
-                html += f'<th style="font-weight:700; border:1px solid #ddd; padding:8px; text-align:center; background-color:{header_bg};">{col}</th>'
-            html += '</tr></thead><tbody>'
-            for _, row in df_results.iterrows():
-                html += '<tr>'
-                for col in df_results.columns:
-                    val = row[col]
-                    if col == "Forward Return (%)":
-                        if val == "":
-                            html += "<td style='border:1px solid #ddd; padding:8px; background-color:#f0f0f0;'></td>"
-                        else:
-                            color = "#b6f0c3" if float(val) > 0 else "#f7b6b6" if float(val) < 0 else "#f0f0f0"
-                            html += f"<td style='border:1px solid #ddd; padding:8px; text-align:center; background-color:{color};'>{float(val):+.2f}%</td>"
-                    elif col == "Daily Move (%)":
-                        html += f"<td style='border:1px solid #ddd; text-align:center;'>{float(val):+.2f}%</td>"
-                    else:
-                        html += f"<td style='border:1px solid #ddd; text-align:center;'>{val}</td>"
-                html += '</tr>'
-            html += '</tbody>'
-            html += f"<tfoot><tr><td colspan='{len(df_results.columns)-2}' style='padding:8px; font-weight:700; background-color:#f8f8f8;'>Count: {total_count} | Mean Forward Return:</td>"
-            mean_disp = f"{mean_forward_val:+.2f}%" if not np.isnan(mean_forward_val) else "N/A"
-            html += f"<td colspan='2' style='padding:8px; text-align:center; font-weight:700; background-color:#f8f8f8;'>{mean_disp}</td></tr></tfoot></table>"
-            return html
-
-        if results_df.empty:
-            st.info("No triggers found for this range or threshold.")
-        else:
-            # --- Scrollable trigger outcomes table container ---
-            st.markdown("""
-            <style>
-            .trigger-table-container {
-                max-height: 350px;          /* Controls scroll area height */
-                overflow-y: auto;           /* Enables vertical scrolling */
-                overflow-x: hidden;         /* Optional: hide horizontal scroll */
-                border: 1px solid #ddd;     /* Subtle border */
-                border-radius: 8px;
-                padding: 4px;
-                background-color: #fafafa;  /* Soft background */
-                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            }
-            .trigger-table-container::-webkit-scrollbar {
-                width: 6px;
-            }
-            .trigger-table-container::-webkit-scrollbar-thumb {
-                background-color: #bbb;
-                border-radius: 3px;
-            }
-            .trigger-table-container::-webkit-scrollbar-thumb:hover {
-                background-color: #999;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-
-            st.markdown(
-                f"""
-                <div class="trigger-table-container">
-                    {render_scenario_html_table(results_df, count_triggers, mean_forward)}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-       
-               # ----------- AI Summary for Scenario Testing (Auto Refresh) -----------
-
-        if not results_df.empty:
-            st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
-            st.markdown("### Scenario Summary")
-
-            
-            # --- Summarize the scenario results for AI context ---
-            scenario_summary_data = "\n".join([
-                f"Trigger on {row['Trigger Date']}: daily move {row['Daily Move (%)']:+.2f}%, "
-                f"forward return {row['Forward Return (%)']}% after {forward_period} {forward_unit}"
-                for _, row in results_df.iterrows()
-                if row['Forward Return (%)'] != ""
-            ])
-
-            ticker_display = display_names.get(code, code)
-
-            prompt = f"""
-            You are a professional macro and market strategist writing a concise report-style summary
-            of a scenario test.
-
-            Asset: {ticker_display}
-            Direction tested: {direction} moves beyond {threshold}%
-            Forward horizon: {forward_period} {forward_unit}
-            Number of triggers: {count_triggers}
-            Average forward return: {mean_forward:+.2f}%
-
-            Historical trigger outcomes:
-            {scenario_summary_data}
-
-            Write a single paragraph (4–6 sentences) that:
-            - Describes how this asset tends to behave after similar daily {direction.lower()} moves.
-            - Explains whether these events usually lead to trend continuation or mean reversion.
-            - Comments briefly on the statistical strength or limitations of the findings.
-            - Keeps the tone professional, objective, and suitable for an institutional macro research dashboard.
-            - Do not use bullet points or markdown formatting — write one cohesive paragraph.
-            """
-
-            # --- Cache summary with parameter dependencies ---
-            @st.cache_data(ttl=3600, show_spinner=False)
-            def generate_scenario_summary(asset, direction, threshold, forward_period, forward_unit, data_text):
-                try:
-                    response = client.chat.completions.create(
-                        model="gpt-4o-mini",
-                        messages=[{"role": "user", "content": prompt}],
-                        max_completion_tokens=250,
-                        temperature=0.25
-                    )
-                    return response.choices[0].message.content.strip()
-                except Exception as e:
-                    return f"⚠️ AI summary generation failed: {e}"
-
-            with st.spinner("Generating AI summary..."):
-                scenario_summary_text = generate_scenario_summary(
-                    code,
-                    direction,
-                    threshold,
-                    forward_period,
-                    forward_unit,
-                    scenario_summary_data
-                )
-                
-                # Add Scenario summary to global collector
-                summary_label = f"Scenario Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
-                entry = f"{summary_label}:\n{scenario_summary_text}"
-
-                # Prevent duplicates (so it doesn’t re-add every rerun)
-                if entry not in st.session_state["ai_summaries"]:
-                    st.session_state["ai_summaries"].append(entry)
-
-            # --- Styled display ---
-            st.markdown(f"""
-            <div style="
-                background-color:#f8f9fa;
-                border-left:6px solid #1d3557;
-                border-radius:10px;
-                padding:18px 24px;
-                margin-top:10px;
-                font-size:15px;
-                font-family:'Inter','Segoe UI','Arial',sans-serif;
-                line-height:1.6;
-                color:#111;
-            ">
-            {scenario_summary_text}
-            </div>
-            """, unsafe_allow_html=True)
-
-
-# -------- Seasonality Tab --------
-if page == "Seasonality":
-    st.markdown("""
-    <div style="text-align:center; font-size:30px; font-weight:700; color:#000; margin-bottom:12px;">
-        Seasonality Analysis
-    </div>
-    <div style="text-align:center; color:#444; margin-bottom:18px;">
-        Compare a given asset's YTD monthly returns vs its historical average for a selected timeframe.
-    </div>
-    """, unsafe_allow_html=True)
-
-    col1, col2 = st.columns([2, 5])
-
-    # --- Asset categories & mapping ---
-    asset_map = {
-        "FX": ["eurusd","gbpusd","usdjpy","dxy"],
-        "Equities": ["eq_sp500","eq_nasdaq","eq_dow","eq_ftse","eq_nikkei","eq_dax","eq_msci_em","eq_vix"],
-        "Stocks": ["st_aapl","st_amzn","st_meta","st_googl","st_nvda","st_msft","st_tsla"],
-        "Commodities": ["cmd_gold","cmd_silver","cmd_wti","cmd_brent","cmd_ng","cmd_wheat","cmd_copper","cmd_corn","cmd_soy"],
-        "Crypto": ["crypto_btc","crypto_eth"]
-    }
-
-    display_names = {
-        "eurusd": "EUR/USD", "gbpusd": "GBP/USD", "usdjpy": "USD/JPY", "dxy": "US Dollar Index (DXY)",
-        "eq_sp500": "S&P 500", "eq_nasdaq": "Nasdaq 100", "eq_dow": "Dow Jones Industrial", "eq_ftse": "FTSE 100",
-        "eq_nikkei": "Nikkei 225", "eq_dax": "DAX", "eq_msci_em": "MSCI Emerging Markets", "eq_vix": "VIX",
-        "st_aapl": "Apple", "st_amzn": "Amazon", "st_meta": "Meta", "st_googl": "Google", "st_nvda": "Nvidia",
-        "st_msft": "Microsoft", "st_tsla": "Tesla",
-        "cmd_gold": "Gold", "cmd_silver": "Silver", "cmd_wti": "WTI Crude", "cmd_brent": "Brent Crude", "cmd_ng": "Natural Gas",
-        "cmd_wheat": "Wheat", "cmd_copper": "Copper", "cmd_corn": "Corn", "cmd_soy": "Soy",
-        "crypto_btc": "Bitcoin", "crypto_eth": "Ethereum"
-    }
-
-    dropdown_map = {v: k for k, v in display_names.items()}
-
-    with col1:
-        cat1 = st.selectbox("Select Category", list(asset_map.keys()), index=1)
-        cat2_options = asset_map[cat1]
-        cat2 = st.selectbox("Select Asset", [display_names[a] for a in cat2_options])
-        code = dropdown_map.get(cat2, cat2)
-
-        timeframe = st.selectbox("Select Timeframe", ["1Y","3Y","5Y","10Y","MAX"], index=3)
-
-        if timeframe != "MAX":
-            years = int(timeframe.replace("Y",""))
-            end_date = pd.Timestamp.today().date()
-            start_date = end_date - pd.DateOffset(years=years)
-        else:
-            df_temp = load_indicator_data(code)
-            start_date = df_temp['date'].min().date()
-            end_date = df_temp['date'].max().date()
-
-        d1, d2 = st.columns(2)
-        with d1:
-            start_date = st.date_input("Start Date", start_date, min_value=start_date, max_value=end_date)
-        with d2:
-            end_date = st.date_input("End Date", end_date, min_value=start_date, max_value=end_date)
-
-        # --- Chart type selection ---
-        c1, c2 = st.columns(2)
-        with c1:
-            avg_chart_type = st.selectbox("Historical Avg Chart", ["Line", "Bar"], index=0)
-        with c2:
-            ytd_chart_type = st.selectbox("YTD Chart", ["Bar", "Line"], index=0)
-
-    # --- Load & prep data ---
-    df = load_indicator_data(code)
-    if df.empty:
-        st.error("No data available for this asset.")
-        st.stop()
-
-    df['date'] = pd.to_datetime(df['date'])
-    df['value'] = df.get('adj close', df.get('close', df.get('value', np.nan)))
-    df = df[['date','value']].dropna()
-    df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))].reset_index(drop=True)
-
-    def calc_monthly_returns(df):
-        df = df.copy()
-        df['year'] = df['date'].dt.year
-        df['month'] = df['date'].dt.month
-        monthly = []
-        for (y, m), g in df.groupby(['year','month']):
-            g = g.sort_values('date')
-            if len(g) > 1 and g['value'].iloc[0] != 0:
-                ret = ((g['value'].iloc[-1] / g['value'].iloc[0]) - 1) * 100
-                monthly.append({'year': y, 'month': m, 'return': ret})
-        return pd.DataFrame(monthly)
-
-    monthly_df = calc_monthly_returns(df)
-    avg_df = monthly_df.groupby('month')['return'].mean().reset_index().rename(columns={'return':'avg_return'})
-    current_year = pd.Timestamp.today().year
-    # Exclude the current (incomplete) month from YTD data
-    current_year = pd.Timestamp.today().year
-    current_month = pd.Timestamp.today().month
-
-    ytd_df = monthly_df[
-        (monthly_df['year'] == current_year) &
-        (monthly_df['month'] < current_month)
-    ][['month', 'return']].rename(columns={'return': 'ytd_return'})
-
-
-    chart_df = pd.DataFrame({'month':range(1,13)})
-    chart_df = chart_df.merge(avg_df, on='month', how='left').merge(ytd_df, on='month', how='left')
-    chart_df['month_name'] = chart_df['month'].apply(lambda x: pd.Timestamp(2000, x, 1).strftime('%b'))
-
-    # --- Plotly chart ---
-    import plotly.graph_objects as go
-    fig = go.Figure()
-
-    # Historical Average
-    if avg_chart_type == "Line":
-        fig.add_trace(go.Scatter(
-            x=chart_df['month_name'],
-            y=chart_df['avg_return'].round(1),
-            name='Historical Average',
-            mode='lines+markers+text',
-            line=dict(color='#ffb703', width=3, dash='dot'),
-            # 💫 Yellow markers with subtle black outline
-            marker=dict(size=8, color='#ffb703', line=dict(color='black', width=0.8)),
-            text=[f"{v:.1f}%" if not pd.isna(v) else "" for v in chart_df['avg_return']],
-            textposition="top center",
-            # 🟡 Bold yellow text labels
-            textfont=dict(color='#ffb703', size=11, family='Arial', weight='bold'),
-            hovertemplate='%{y:.1f}%%<extra></extra>'
-        ))
-    else:
-        fig.add_trace(go.Bar(
-            x=chart_df['month_name'],
-            y=chart_df['avg_return'].round(1),
-            name='Historical Average',
-            marker=dict(color='#ffb703', line=dict(color='black', width=1.2)),
-            text=[f"{v:.1f}%" if not pd.isna(v) else "" for v in chart_df['avg_return']],
-            textposition="outside",
-            # 🟡 Bold yellow text labels
-            textfont=dict(color='#ffb703', size=11, family='Arial', weight='bold'),
-            opacity=0.7,
-            hovertemplate='%{y:.1f}%%<extra></extra>'
-        ))
-
-    # YTD
-    if ytd_chart_type == "Bar":
-        fig.add_trace(go.Bar(
-            x=chart_df['month_name'],
-            y=chart_df['ytd_return'].round(1),
-            name=f'YTD {current_year}',
-            marker=dict(color='#1f77b4', line=dict(color='black', width=1.2)),
-            text=[f"{v:.1f}%" if not pd.isna(v) else "" for v in chart_df['ytd_return']],
-            textposition="outside",
-            textfont=dict(color='black', size=11, family='Arial', weight='bold'),
-            hovertemplate='%{y:.1f}%%<extra></extra>'
-        ))
-    else:
-        fig.add_trace(go.Scatter(
-            x=chart_df['month_name'],
-            y=chart_df['ytd_return'].round(1),
-            name=f'YTD {current_year}',
-            mode='lines+markers+text',
-            line=dict(color='#1f77b4', width=3),
-            marker=dict(size=7, color='#1f77b4', line=dict(color='black', width=1)),
-            text=[f"{v:.1f}%" if not pd.isna(v) else "" for v in chart_df['ytd_return']],
-            textposition="top center",
-            textfont=dict(color='#1f77b4', size=11, family='Arial', weight='bold'),
-            hovertemplate='%{y:.1f}%%<extra></extra>'
-        ))
-
-    # --- Fix bar overlap and ensure labels visible ---
-    fig.update_layout(
-        barmode='group',  # group bars side by side instead of stacking
-        bargap=0.2,       # spacing between groups
-        uniformtext_minsize=8,
-        uniformtext_mode='hide'
-    )
-
-    # --- Layout styling ---
-    fig.update_layout(
-        title=f"{cat2} - Monthly Seasonality",
-        xaxis=dict(
-            title=dict(
-                text="Month",
-                font=dict(color='black', size=13, family='Arial')
-            ),
-            showgrid=False,
-            tickfont=dict(color='black', size=12, family='Arial'),
-        ),
-        yaxis=dict(
-            title=dict(
-                text="Return (%)",
-                font=dict(color='black', size=13, family='Arial')
-            ),
-            showgrid=True,
-            gridcolor='LightGrey',
-            tickfont=dict(color='black', size=12, family='Arial'),
-        ),
-        plot_bgcolor='white',
-        paper_bgcolor='white',
-        height=520,
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="center",
-            x=0.5
-        ),
-        hoverlabel=dict(
-            bgcolor='white',
-            font=dict(color='black', size=13, family='Arial'),
-            bordercolor='black'
-        ),
-        font=dict(color='black', family='Arial')
-    )
-
-    with col2:
-        st.plotly_chart(fig, use_container_width=True)
-
-        
-        
-
-    # ----------- AI Summary for Seasonality -----------
-
-    st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
-    st.markdown("### Seasonality Summary")
-
-   
-
-    # --- Prepare structured context ---
-    seasonality_data_summary = "\n".join([
-        f"{row['month_name']}: avg_return={row['avg_return']:.2f}%, ytd_return={row['ytd_return'] if not np.isnan(row['ytd_return']) else 'N/A'}%"
-        for _, row in chart_df.iterrows()
-    ])
-
-    from datetime import datetime
-    current_month = datetime.now().month
-    current_month_name = datetime.now().strftime("%B")
-
-    prompt = f"""
-    You are a financial analyst writing a concise professional summary of a seasonality analysis.
-
-    Asset: {cat2}
-    Timeframe: {timeframe}
-    Today's date: {datetime.now().strftime('%B %d, %Y')}
-    Current month number: {current_month}
-
-    Data summary (monthly average vs YTD returns):
-    {seasonality_data_summary}
-
-    Instructions:
-    - Compare each completed month’s YTD return against its historical monthly average.
-    - Treat months before {current_month_name} as completed.
-    - Mention any statistics you think is necessary.
-    - Do NOT mention “missing data” for months that have not yet occurred (November and December).
-    - Instead, phrase future months as “historically strong/weak” if relevant, but not “lacking data.”
-    - September and October should be analyzed if YTD data is available.
-    - Keep it one professional paragraph (4–6 sentences).
-    - Use an analytical tone suitable for an investment research brief.
-    """
-
-
-
-
-    def generate_seasonality_summary():
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                max_completion_tokens=250,
-                temperature=0.2
-            )
-            return response.choices[0].message.content.strip()
-        except Exception as e:
-            return f"⚠️ AI summary generation failed: {e}"
-
-    # --- Generate and display ---
-    with st.spinner("Generating summary..."):
-        seasonality_summary_text = generate_seasonality_summary()
-        
-        # Add Seasonality summary to global collector
-        summary_label = f"Seasonality Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
-        entry = f"{summary_label}:\n{seasonality_summary_text}"  # <-- fixed variable name
-
-        # Prevent duplicates
-        if entry not in st.session_state["ai_summaries"]:
-            st.session_state["ai_summaries"].append(entry)
-
-
-    st.markdown(f"""
-    <div style="
-        background-color:#f8f9fa;
-        border-left:6px solid #1d3557;
-        border-radius:10px;
-        padding:18px 24px;
-        margin-top:10px;
-        font-size:15px;
-        font-family:'Inter','Segoe UI','Arial',sans-serif;
-        line-height:1.6;
-        color:#111;
-    ">
-    {seasonality_summary_text}
-    </div>
-    """, unsafe_allow_html=True)
-
-
-from copy import deepcopy
-import os
-
-# -----------------------------
-# Initialize OpenAI client
-# -----------------------------
-try:
-    OPENAI_API_KEY = st.secrets["openai"]["api_key"]
-except Exception:
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-if not OPENAI_API_KEY:
-    st.error("❌ OpenAI API key not found!")
-    st.stop()
-
-client = OpenAI(api_key=OPENAI_API_KEY)
-
-# -----------------------------
-# Helper: Generate LLM Summary
-# -----------------------------
-def generate_country_llm_summary(results: dict, country_name: str) -> str:
-    """
-    Generate a concise macro summary for a country based on indicator data.
-    """
-    if not results:
-        return f"No data available for {country_name}."
-
-    # Convert to LLM-readable text
-    context_text = "\n".join(
-        [f"{name}: latest={data['latest']:.2f}%, trend={data['trend']}" 
-         for name, data in results.items()]
-    )
-
-    prompt = f"""
-    You are a senior macro financial strategist writing a concise, data-driven
-    condition of the {country_name} economy. You are given the latest 1-year snapshot
-    of various economic indicators.
-
-    Data points:
-    {context_text}
-
-    Write one short paragraph (5–7 sentences) summarizing the overall condition
-    of the {country_name} economy. Focus on patterns, contrasts, and relative positions.
-    Use only the data provided. Keep it professional, concise, and analytical.
-    """
-
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-            max_completion_tokens=250,
-            temperature=0
-        )
-        summary_text = response.choices[0].message.content.strip()
-        if not summary_text:
-            summary_text = "⚠️ LLM returned an empty response."
-    except Exception as e:
-        summary_text = f"⚠️ LLM generation failed: {e}"
-
-    return summary_text
-
-# -----------------------------
-# --- Helper Functions for Summaries ---
-# -----------------------------
-def generate_asset_llm_summary(results, asset_name):
-    """
-    Calls the existing country summary function but strips any trailing % formatting
-    or instructs LLM to avoid percentages in output.
-    """
-    # Option A: just call it and return text as-is
-    summary = generate_country_llm_summary(results, asset_name)
-
-    # Option B (safer): if your summary sometimes adds % values, replace/remove them
-    import re
-    summary = re.sub(r'(\d+\.?\d*)%', r'\1', summary)
-
-    return summary
-
-def get_country_summary_from_indicator_data(country_name: str, analyze_fn) -> str:
-    """
-    Uses the analyze function for a country to compute indicator results
-    and generate (or fetch cached) summary.
-    """
-    key_name = f"{country_name.lower()}_macro_summary"
-
-    if key_name not in st.session_state:
-        with st.spinner(f"Generating {country_name} market summary..."):
-            results = analyze_fn()
-            summary = generate_country_llm_summary(results, country_name)
-            st.session_state[key_name] = summary
-    return st.session_state[key_name]
-
-def get_asset_summary_from_indicator_data(asset_name: str, analyze_fn) -> str:
-    key_name = f"{asset_name.lower()}_summary"
-
-    if key_name not in st.session_state:
-        with st.spinner(f"Generating {asset_name} summary..."):
-            results = analyze_fn()
-            summary = generate_asset_llm_summary(results, asset_name)  # <--- updated line
-            st.session_state[key_name] = summary
-    return st.session_state[key_name]
-
-
-# -----------------------------
-# --- Summary Page ---
-# -----------------------------
-if page == "Summary":
-    # --- Page Title ---
-    st.markdown(
-        "<h1 style='text-align:center; color:black; font-weight:bold; font-size:32px;'>Global Macro Summary</h1>",
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "<p style='text-align:center; color:black; font-size:16px;'>A concise professional overview of key country and asset class trends to guide market decisions.</p>",
-        unsafe_allow_html=True
-    )
-
-    # --- 1. Country Summaries ---
-    usa_summary = get_country_summary_from_indicator_data("United States", analyze_usa)
-    uk_summary = get_country_summary_from_indicator_data("United Kingdom", analyze_uk)
-    euro_summary = get_country_summary_from_indicator_data("Euro Area", analyze_euro)
-    japan_summary = get_country_summary_from_indicator_data("Japan", analyze_japan)
-
-    combined_country_summaries = f"""
-United States:
-{usa_summary}
-
-United Kingdom:
-{uk_summary}
-
-Euro Area:
-{euro_summary}
-
-Japan:
-{japan_summary}
-    """
-
-    st.markdown("<h3 style='color:black; font-weight:bold;'>Individual Country Summaries</h3>", unsafe_allow_html=True)
-    st.text_area("Collected Summaries", combined_country_summaries, height=300)
-
-    # --- 2. Asset Class Summaries ---
-    equities_summary = get_asset_summary_from_indicator_data("Equities", analyze_equities)
-    stocks_summary = get_asset_summary_from_indicator_data("Stocks", analyze_stocks)
-    commodities_summary = get_asset_summary_from_indicator_data("Commodities", analyze_commodities)
-    bonds_summary = get_asset_summary_from_indicator_data("Bonds", analyze_bonds)
-    fx_summary = get_asset_summary_from_indicator_data("FX", analyze_fx)
-    crypto_summary = get_asset_summary_from_indicator_data("Crypto", analyze_crypto)
-
-    combined_asset_summaries = f"""
-Equities:
-{equities_summary}
-
-Stocks:
-{stocks_summary}
-
-Commodities:
-{commodities_summary}
-
-Bonds:
-{bonds_summary}
-
-FX:
-{fx_summary}
-
-Crypto:
-{crypto_summary}
-    """
-
-    st.markdown("<h3 style='color:black; font-weight:bold;'>Individual Asset Class Summaries</h3>", unsafe_allow_html=True)
-    st.text_area("Collected Asset Summaries", combined_asset_summaries, height=300)
-
-    # --- 3. Global Synthesis ---
-    synthesis_prompt = f"""
-You are a senior global macro strategist. Combine the following regional and asset class summaries
-into one unified, professional market commentary. Identify overarching trends,
-divergences, risks, and opportunities. Keep it under 3 paragraphs and analytical.
-
---- Country Summaries ---
-{combined_country_summaries}
-
---- Asset Summaries ---
-{combined_asset_summaries}
-    """
-
-    with st.spinner("Synthesizing global market summary..."):
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": synthesis_prompt}],
-            max_completion_tokens=600,
-            temperature=0
-        )
-
-    global_summary = response.choices[0].message.content.strip()
-
-    st.markdown("<h3 style='color:black; font-weight:bold;'>Global Market Commentary</h3>", unsafe_allow_html=True)
-    st.markdown(f"""
-    <div style="
-        background-color:#f8f9fa;
-        border-left:6px solid #0a9396;
-        border-radius:10px;
-        padding:18px 24px;
-        margin-top:10px;
-        font-size:15px;
-        font-family:'Inter','Segoe UI','Arial',sans-serif;
-        line-height:1.6;
-        color:black;
-    ">
-    {global_summary}
-    </div>
-    """, unsafe_allow_html=True)
-
-# -------- Economic Surprise Index (ESI) --------
-if page == "ESI":
-
-    st.markdown("""
-    <div style="text-align:center; font-size:30px; font-weight:700; color:#000; margin-bottom:12px;">
-        Economic Surprise Index (ESI)
-    </div>
-    <div style="text-align:center; color:#444; margin-bottom:18px;">
-        Calculates the surprise between actual and forecasted economic data, highlighting beats and misses for each indicator.
-    </div>
-    """, unsafe_allow_html=True)
-
-
-   
-
-    # --- Load CSV ---
-    esi = pd.read_csv("ESI.csv")
-
-    # --- Calculate raw surprise ---
-    esi['Surprise'] = esi['Actual'] - esi['Forecast']
-
-    # --- Adjust for directionality ---
-    reverse_indicators = ["Unemployment Rate (%)"]
-    esi['Adjusted_Surprise'] = esi.apply(
-        lambda row: -row['Surprise'] if row['Indicator'] in reverse_indicators else row['Surprise'], axis=1
-    )
-
-    # --- Country Selector ---
-    countries = esi['Country'].unique()
-    selected_country = st.selectbox("Select Country", countries)
-
-    # --- Filter & sort by adjusted surprise ---
-    filtered_df = esi[esi['Country'] == selected_country].sort_values(
-        'Adjusted_Surprise', ascending=False
-    ).reset_index(drop=True)
-
-    # --- FX mapping per country (order matters for display) ---
-    fx_map = {
-        "USA": ["DXY", "Gold"],
-        "United States": ["DXY", "Gold"],
-        "US": ["DXY", "Gold"],
-
-        "United Kingdom": ["GBPUSD"],
-        "UK": ["GBPUSD"],
-
-        "Euro Area": ["EURUSD"],
-        "Euro area": ["EURUSD"],
-        "Eurozone": ["EURUSD"],
-        "Euro Zone": ["EURUSD"],
-        "EURO": ["EURUSD"],
-
-        "Japan": ["USDJPY"]
-    }
-
-
-    # Choose FX cols for the selected country (default to DXY/Gold for safety)
-    fx_cols = fx_map.get(selected_country, [])
-
-    # --- Market sentiment mapping (now accepts country and adapts FX behavior) ---
-    def market_sentiment(indicator, surprise, country):
-        """
-        Returns a tuple with Stocks and 1 or 2 FX sentiments depending on country.
-        For Japan, USDJPY should be reversed: a positive surprise for Japan -> JPY stronger -> USDJPY Bearish.
-        """
-        # Base default
-        stocks_base = fx_base = "Neutral"
-
-        # Generic directional logic (most indicators: actual < forecast => positive (surprise < 0)?)
-        # NOTE: here 'surprise' is Already Adjusted_Surprise (directional adjustments applied).
-        if surprise < 0:
-            stocks_base, fx_base = "Bullish", "Bearish"
-        elif surprise > 0:
-            stocks_base, fx_base = "Bearish", "Bullish"
-        else:
-            stocks_base, fx_base = "Neutral", "Neutral"
-
-        # Indicator-specific overrides
-        if indicator in ["Non Farm Employment Change (Thousands)", "JOLTS Job Openings"]:
-            # Strong labor prints (surprise > 0) typically tighten -> negative for stocks
-            if surprise < 0:
-                stocks_base, fx_base = "Bullish", "Bearish"
-            elif surprise > 0:
-                stocks_base, fx_base = "Bearish", "Bullish"
-
-        elif indicator == "Unemployment Rate (%)":
-            # Lower unemployment than expected -> positive for markets
-            if surprise < 0:
-                stocks_base, fx_base = "Bullish", "Bearish"
-            elif surprise > 0:
-                stocks_base, fx_base = "Bearish", "Bullish"
-
-        elif indicator == "Average Hourly Earnings YoY (%)":
-            # Higher wages than expected -> inflationary -> negative
-            if surprise < 0:
-                stocks_base, fx_base = "Bullish", "Bearish"
-            elif surprise > 0:
-                stocks_base, fx_base = "Bearish", "Bullish"
-
-        elif indicator in ["CPI YoY (%)", "PPI YoY (%)"]:
-            if surprise < 0:
-                stocks_base, fx_base = "Bullish", "Bearish"
-            elif surprise > 0:
-                stocks_base, fx_base = "Bearish", "Bullish"
-
-        elif indicator in ["Manufacturing PMI", "ISM Services PMI"]:
-            # PMI above expectations = growth surprise -> positive for stocks & local FX (usually)
-            if surprise > 0:
-                stocks_base, fx_base = "Bullish", "Bullish"
-            elif surprise < 0:
-                stocks_base, fx_base = "Bearish", "Bearish"
-
-        elif indicator in ["GDP QoQ (%)", "Retail Sales MoM (%)", "UoM Consumer Sentiment"]:
-            if surprise > 0:
-                stocks_base, fx_base = "Bullish", "Bullish"
-            elif surprise < 0:
-                stocks_base, fx_base = "Bearish", "Bearish"
-
-        # Compute FX final sentiment, with special handling for Japan
-        fx_final = fx_base
-
-        # For Japan: a positive surprise for Japan strengthens JPY -> USDJPY falls (Bearish for USDJPY)
-        if country in ["Japan"]:
-            # invert fx sentiment for USDJPY specifically
-            if fx_base == "Bullish":
-                fx_final = "Bearish"
-            elif fx_base == "Bearish":
-                fx_final = "Bullish"
-            else:
-                fx_final = "Neutral"
-
-        # Return appropriate tuple depending on how many fx columns are used for country
-        if len(fx_cols) == 2:
-            # For USA: we will use the same fx_final for both DXY and Gold (Gold uses similar mapping here).
-            # You may refine Gold logic separately if desired.
-            # Keep Gold inverse for risk-off scenarios? For simplicity use fx_final for DXY and inverse for Gold:
-            # But to remain consistent with prior behaviour, we map:
-            # - If fx_final bullish -> DXY bullish, Gold bearish (risk-on)
-            # - If fx_final bearish -> DXY bearish, Gold bullish
-            if fx_final == "Bullish":
-                dxy_sent, gold_sent = "Bullish", "Bearish"
-            elif fx_final == "Bearish":
-                dxy_sent, gold_sent = "Bearish", "Bullish"
-            else:
-                dxy_sent, gold_sent = "Neutral", "Neutral"
-            return stocks_base, dxy_sent, gold_sent
-
-        elif len(fx_cols) == 1:
-            # Single FX column (e.g., GBPUSD, EURUSD, USDJPY)
-            return stocks_base, fx_final
-
-        else:
-            # fallback: only stocks
-            return (stocks_base,)
-
-    # --- Add sentiment columns dynamically ---
-    def apply_sentiment_row(row):
-        res = market_sentiment(row['Indicator'], row['Adjusted_Surprise'], selected_country)
-        # Normalize to a consistent-length series depending on fx_cols
-        if len(fx_cols) == 2:
-            return pd.Series([res[0], res[1], res[2]])
-        elif len(fx_cols) == 1:
-            return pd.Series([res[0], res[1]])
-        else:
-            return pd.Series([res[0]])
-
-    # Compose column names for sentiment assignment
-    sentiment_columns = ['Stocks'] + fx_cols
-    # Apply sentiments
-    filtered_df[sentiment_columns] = filtered_df.apply(apply_sentiment_row, axis=1)
-
-    # --- Compute Net Market Sentiment dynamically ---
-    def compute_net_sentiment_dynamic(df, columns):
-        totals = {}
-        for col in columns:
-            counts = df[col].value_counts()
-            bulls = counts.get('Bullish', 0)
-            bears = counts.get('Bearish', 0)
-            if bulls > bears:
-                totals[col] = "Bullish"
-            elif bears > bulls:
-                totals[col] = "Bearish"
-            else:
-                totals[col] = "Neutral"
-        return totals
-
-    net_sentiment = compute_net_sentiment_dynamic(filtered_df, sentiment_columns)
-
-    # --- Table rendering (dynamic columns) ---
-    def render_esi_table(df, fx_columns, net_sent):
-        # Build columns to show
-        cols = ['Indicator','Actual','Forecast','Adjusted_Surprise','Stocks'] + fx_columns
-        # Safe guard: if any of those cols are missing, intersect
-        cols = [c for c in cols if c in df.columns]
-        df_display = df[cols].copy()
-        df_display.rename(columns={'Adjusted_Surprise':'Surprise'}, inplace=True)
-        df_display = df_display.sort_values('Surprise', ascending=False).reset_index(drop=True)
-
-        positive_count = (df_display['Surprise']>0).sum()
-        negative_count = (df_display['Surprise']<0).sum()
-        total_surprise = positive_count - negative_count
-
-        total_label_color = "#f5f5f5"
-        total_value_color = "#c5f2ce" if total_surprise>0 else "#f8c9c9" if total_surprise<0 else "#f0f0f0"
-
-        html = f"""
-        <style>
-        .esi-table {{ border-collapse:collapse; width:100%; font-family:Inter, Arial, sans-serif; color:#000; font-size:12px; }}
-        .esi-table th {{ border:1px solid #000; border-bottom:2px solid #000; padding:6px; text-align:center; background-color:#f5f5f5; font-weight:700; position:sticky; top:0; z-index:2; font-size:12px; }}
-        .esi-table td {{ border:1px solid #000; padding:6px; text-align:center; color:#000; font-size:12px; }}
-        .total-label {{ font-weight:700; background-color:{total_label_color}; text-align:center; border-top:2px solid #000; font-size:12px; }}
-        .total-value {{ font-weight:700; background-color:{total_value_color}; text-align:center; border-top:2px solid #000; font-size:12px; }}
-        </style>
-
-        <table class="esi-table">
-        <thead><tr>"""
-        for col in df_display.columns:
-            html += f"<th>{col}</th>"
-        html += "</tr></thead><tbody>"
-
-        for _, row in df_display.iterrows():
-            html += "<tr>"
-            for col in df_display.columns:
-                val = row[col]
-                # Surprise coloring
-                if col == "Surprise":
-                    color = "#c5f2ce" if val>0 else "#f8c9c9" if val<0 else "#f0f0f0"
-                    html += f"<td style='background-color:{color}; font-weight:600;'>{val:+.2f}</td>"
-                # Market sentiment coloring for Stocks + FXs
-                elif col in ['Stocks'] + fx_columns:
-                    color = "#c5f2ce" if val == "Bullish" else "#f8c9c9" if val == "Bearish" else "#f0f0f0"
-                    html += f"<td style='background-color:{color}; font-weight:600;'>{val}</td>"
-                # Numeric formatting
-                elif isinstance(val, (int, float)):
-                    html += f"<td>{val:.2f}</td>"
-                else:
-                    html += f"<td>{val}</td>"
-            html += "</tr>"
-
-        # Total Surprise row
-        colspan_after = max(0, len(df_display.columns) - 4)
-        html += f"""
-        <tr>
-            <td colspan="3" class="total-label">Total Surprise</td>
-            <td class="total-value">{total_surprise:+d}</td>
-            <td colspan="{colspan_after}"></td>
-        </tr>
-        """
-
-        # Net Market Sentiment row
-        html += "<tr>"
-        html += f"<td colspan='4' class='total-label'>Net Market Sentiment</td>"
-        # For each sentiment column, display net_sent value
-        for col in ['Stocks'] + fx_columns:
-            val = net_sent.get(col, "Neutral")
-            color = "#c5f2ce" if val=="Bullish" else "#f8c9c9" if val=="Bearish" else "#f0f0f0"
-            html += f"<td style='background-color:{color}; font-weight:700; text-align:center;'>{val}</td>"
-        html += "</tr>"
-
-        html += "</tbody></table>"
-        return html
-
-    st.markdown(render_esi_table(filtered_df, fx_cols, net_sentiment), unsafe_allow_html=True)
-
-    # --- AI Summary ---
-    st.markdown("<hr class='hr-separator'/>", unsafe_allow_html=True)
-    st.markdown("### ESI Summary")
-
-    # Ensure 'Surprise' exists for sorting (we renamed in the rendering step, but filtered_df still has Adjusted_Surprise)
-    top_pos = filtered_df.sort_values('Adjusted_Surprise', ascending=False).head(3)
-    top_neg = filtered_df.sort_values('Adjusted_Surprise').head(3)
-
-    def format_records_with_markets_dynamic(df, fx_columns):
-        records = []
-        for _, row in df.iterrows():
-            rec = {
-                'Indicator': row['Indicator'],
-                'Surprise': f"{row['Adjusted_Surprise']:+.2f}",
-                'Stocks': row['Stocks']
-            }
-            # Add any FX columns present
-            for fx in fx_columns:
-                rec[fx] = row.get(fx, "Neutral")
-            records.append(rec)
-        return records
-
-    top_pos_records = format_records_with_markets_dynamic(top_pos, fx_cols)
-    top_neg_records = format_records_with_markets_dynamic(top_neg, fx_cols)
-
-    # Build short summary text for the prompt
-    summary_text = f"Top positive surprises: {top_pos_records}. Top negative surprises: {top_neg_records}."
-
-    # Include net sentiment in prompt (human-readable)
-    net_sent_readable = ", ".join([f"{k}: {v}" for k,v in net_sentiment.items()])
-
-    client = OpenAI(api_key=OPENAI_API_KEY)
-
-    # Build friendly label list for the AI prompt (Stocks + FX names)
-    ai_market_labels = ["Stocks"] + fx_cols
-
-    prompt = f"""
-    You are a professional macro strategist summarizing economic surprises for a macro dashboard.
-
-    Country: {selected_country}
-    Markets considered: {', '.join(ai_market_labels)}
-    Net market sentiment: {net_sent_readable}
-
-    Data summary: {summary_text}
-
-    Write a concise 4–6 sentence paragraph describing which indicators beat or missed expectations, highlighting the most notable surprises. 
-    For each indicator mentioned, also include the expected market reactions for {', '.join(ai_market_labels)}. Keep the tone professional and analytical, suitable for a macro research dashboard.
-    Do not mention units (points/percent) or exact data sources. Each indicator should be mentioned once and labeled as either a positive surprise or negative surprise. Avoid contradictory statements.
-    """
-
-    @st.cache_data(ttl=3600, show_spinner=False)
-    def generate_esi_summary(prompt_text):
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt_text}],
-                max_completion_tokens=350,
-                temperature=0.25
-            )
-            return response.choices[0].message.content.strip()
-        except Exception as e:
-            return f"⚠️ Summary generation failed: {e}"
-
-    with st.spinner("Generating ESI summary with market reactions..."):
-        esi_summary = generate_esi_summary(prompt)
-
-    st.markdown(f"""
-    <div style="
-        background-color:#f8f9fa;
-        border-left:6px solid #1d3557;
-        border-radius:10px;
-        padding:18px 24px;
-        margin-top:10px;
-        font-size:15px;
-        font-family:'Inter','Segoe UI','Arial',sans-serif;
-        line-height:1.6;
-        color:#111;
-    ">
-    {esi_summary}
-    </div>
-    """, unsafe_allow_html=True)
