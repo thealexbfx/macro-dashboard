@@ -49,7 +49,7 @@ def calculate_summary_stats(df_filtered):
         "slope": slope,
     }
 
-def render_summary_bar(stats):
+def render_summary_bar(stats, decimals):
     change_color = (
         "#06b606" if stats["change_since_start"] > 0
         else "#e63946" if stats["change_since_start"] < 0
@@ -70,7 +70,7 @@ def render_summary_bar(stats):
         padding:10px 18px;
         text-align:center;
         font-family:'Inter','Segoe UI','Arial',sans-serif;
-        font-size:13px;
+        font-size:16px;
         color:#111;
         font-weight:500;
         margin-top:5px;
@@ -81,13 +81,11 @@ def render_summary_bar(stats):
         gap:18px;
         box-shadow:0 1px 3px rgba(0,0,0,0.04);
     ">
-        <div>Data Points: <b>{stats["n_obs"]}</b></div>
-        <div>Mean: <b>{stats["mean_val"]:.2f}</b></div>
-        <div>Latest: <b>{stats["latest_val"]:.2f}</b></div>
-        <div>Change: <b style='color:{change_color};'>{stats["change_since_start"]:+.2f}</b></div>
+        <div>Latest: <b>{stats["latest_val"]:.{decimals}f}</b></div>
+        <div>Average: <b>{stats["mean_val"]:.{decimals}f}</b></div>
+        <div>Change: <b style='color:{change_color};'>{stats["change_since_start"]:+.{decimals}f}</b></div>
         <div>Trend: <b>{stats["trend"]}</b></div>
         <div>Position: <b>{stats["position_pct"]:.0f}% ({position_label})</b></div>
-        <div>Volatility: <b>{stats["volatility"]:.1f}%</b></div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -108,47 +106,6 @@ def render_commentary(commentary, indicator):
         """,
         unsafe_allow_html=True
     )
-def display_indicator_alert(latest_val, mean_val, position_pct, slope, volatility, indicator_name):
-    if position_pct >= 90 and slope > 0:
-        status, color, emoji = "Extreme High", "#e63946", "🚨"
-        message = f"{indicator_name} is at a historical high and trending upward. Investigate potential risks or causes."
-    elif position_pct <= 10 and slope < 0:
-        status, color, emoji = "Extreme Low", "#1d3557", "⚠️"
-        message = f"{indicator_name} is at a historical low and trending downward. This could signal weakness."
-    elif position_pct >= 70:
-        status, color, emoji = "High", "#f77f00", "🔺"
-        message = f"{indicator_name} is above normal levels. Monitor for emerging trends."
-    elif position_pct <= 30:
-        status, color, emoji = "Low", "#2a9d8f", "🔻"
-        message = f"{indicator_name} is below normal levels. Could indicate caution."
-    else:
-        status, color, emoji = "Normal", "#06b606", "✅"
-        message = f"{indicator_name} is within normal historical range."
-
-    st.markdown(f"""
-    <div style="
-        width: 100%;
-        background-color:{color}1A;
-        border-left: 6px solid {color};
-        border-radius: 8px;
-        padding: 18px 24px;
-        margin-top: 18px;
-        margin-bottom: 24px;
-        font-family:'Inter','Segoe UI','Arial',sans-serif;
-        box-shadow:0 2px 6px rgba(0,0,0,0.05);
-    ">
-        <div style="font-size:18px; font-weight:700; margin-bottom:6px;">
-            {emoji} {indicator_name}: {status}
-        </div>
-        <div style="font-size:14px; line-height:1.5; color:#111;">
-            Latest: <b>{latest_val:.2f}</b> | Mean: <b>{mean_val:.2f}</b> | Position: <b>{position_pct:.0f}%</b> | Volatility: <b>{volatility:.1f}%</b>
-        </div>
-        <div style="margin-top:6px; font-size:14px; color:#333;">
-            {message}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
 
 
 # -------- Japan Tab --------
@@ -309,7 +266,6 @@ def render_japan_page():
         # ======== Summary Stats ========
 
         stats = calculate_summary_stats(df_filtered)
-        render_summary_bar(stats)
 
         latest_val = stats["latest_val"]
         mean_val = stats["mean_val"]
@@ -355,7 +311,8 @@ def render_japan_page():
                 return 2
 
         decimals = get_decimal_places(indicator)
-
+        render_summary_bar(stats, decimals)
+        
         fig = plot_chart(
             df_filtered,
             titles[indicator],
@@ -370,9 +327,18 @@ def render_japan_page():
 
         if quarterly:
             tickvals = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date']
-            ticktext = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date'] \
-                .dt.to_period('Q').apply(lambda x: f"Q{x.quarter} {x.year}")
-            fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
+
+            if len(tickvals) > 12:
+                step = max(1, len(tickvals) // 12)
+                tickvals = tickvals.iloc[::step]
+
+            ticktext = [d.strftime("%Y") for d in tickvals]
+
+            fig.update_xaxes(
+                tickmode='array',
+                tickvals=tickvals,
+                ticktext=ticktext
+            )
 
         fig.update_layout(
             hoverlabel=dict(
@@ -422,101 +388,4 @@ def render_japan_page():
 
            
 
-        # -------- Call it after plotting chart --------
-        display_indicator_alert(
-            latest_val=latest_val,
-            mean_val=mean_val,
-            position_pct=position_pct,
-            slope=slope,
-            volatility=volatility,
-            indicator_name=indicator
-        )
-
-        # ==============================
-        # 🧠 Japanese Economy Macro Summary (LLM-enhanced)
-        # ==============================
-
-        
-        
-        st.markdown("### Japanese Economy Summary (Based on the last 12 Months)")
-
-        def generate_japan_llm_summary(results: dict):
-            if not results:
-                return "No data available to summarize."
-
-            context_text = "\n".join(
-                [f"{name}: latest={data['latest']:.2f}%, trend={data['trend']}"
-                 for name, data in results.items()]
-            )
-
-            prompt = f"""
-            You are a senior macro-financial strategist writing a concise, data-driven **condition of the Japanese economy summary**.
-            You are given the latest 1-year snapshot for the Japanese economy of various economic indicators.
-
-            Here are the data points:
-            {context_text}
-
-            Write one short paragraph (5–7 sentences) summarizing the **overall condition of the Japanese economy** based on these numbers.
-
-            Guidelines:
-            - Focus on patterns, contrasts, and relative positioning across indicators.
-            - Mention current trends where relevant.
-            - Make sure to use the right units for each indicator.
-            - Do NOT add information not in the data.
-            - Use a neutral, analytical tone (no adjectives like “strong” or “weak”), but clear and concise English.
-            - Output only one paragraph.
-            - Keep the paragraph natural and varied, like a professional commentary.
-            """
-
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",  # or "gpt-5-mini" if available
-                    messages=[{"role": "user", "content": prompt}],
-                    max_completion_tokens=250,
-                    temperature=0
-                )
-                summary_text = response.choices[0].message.content.strip()
-                if not summary_text:
-                    summary_text = "⚠️ LLM returned an empty response."
-            except Exception as e:
-                summary_text = f"⚠️ LLM generation failed: {e}"
-
-            return summary_text
-
-        @st.cache_data
-        def generate_japan_llm_summary_cached(results: dict):
-            return generate_japan_llm_summary(results)
-
-        # ---- Run analysis ----
-        if "japan_macro_summary" not in st.session_state:
-            st.session_state.japan_macro_summary = (
-                "Japan macro summary temporarily disabled during page refactor."
-            )
-
-        # Use cached summary
-        japan_macro_summary = st.session_state.japan_macro_summary
-        
-        # Add Japan summary to global collector
-        summary_label = f"Japan Summary ({pd.Timestamp.now().strftime('%Y-%m-%d')})"
-        entry = f"{summary_label}:\n{japan_macro_summary}"
-
-        # Prevent duplicates (so it doesn’t re-add every rerun)
-        if entry not in st.session_state["ai_summaries"]:
-            st.session_state["ai_summaries"].append(entry)
-
-
-        # ---- Display Narrative Card ----
-        st.markdown(f"""
-        <div style="
-            background-color:#f8f9fa;
-            border-left:6px solid #4a4e69;
-            border-radius:10px;
-            padding:18px 24px;
-            margin-top:10px;
-            font-size:15px;
-            font-family:'Inter','Segoe UI','Arial',sans-serif;
-            line-height:1.6;
-        ">
-        {japan_macro_summary}
-        </div>
-        """, unsafe_allow_html=True)
+      
