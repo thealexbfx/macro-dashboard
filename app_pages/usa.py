@@ -83,9 +83,9 @@ def render_usa_page():
             ],
 
             "Productivity & Costs": [
-                "Labor Productivity",
-                "Unit Labor Costs",
-                "Real Hourly Compensation",
+                "Labor Productivity YoY %",
+                "Unit Labor Costs YoY %",
+                "Real Hourly Compensation YoY %",
             ],
 
             "Sentiment & Financial Conditions": [
@@ -155,9 +155,9 @@ def render_usa_page():
             "Building Permits MoM": (get_usa_building_permits_mom_data, "monthly", None),
             "New Home Sales MoM": (get_usa_new_home_sales_mom_data, "monthly", None),
 
-            "Labor Productivity": (get_usa_labor_productivity_data, "quarterly", None),
-            "Unit Labor Costs": (get_usa_unit_labor_costs_data, "quarterly", None),
-            "Real Hourly Compensation": (get_usa_real_hourly_compensation_data, "quarterly", None),
+            "Labor Productivity YoY %": (get_usa_labor_productivity_data, "quarterly", None),
+            "Unit Labor Costs YoY %": (get_usa_unit_labor_costs_data, "quarterly", None),
+            "Real Hourly Compensation YoY %": (get_usa_real_hourly_compensation_data, "quarterly", None),
 
             "Michigan Consumer Sentiment": (get_usa_michigan_consumer_sentiment_data, "monthly", None),
             "Chicago Fed NFCI": (get_usa_chicago_fed_nfci_data, "weekly", None),
@@ -255,9 +255,9 @@ def render_usa_page():
             "Building Permits MoM": "Building permits measure authorized future construction. They often lead housing starts and provide insight into upcoming residential investment.",
             "New Home Sales MoM": "New home sales track purchases of newly built homes. They are sensitive to mortgage rates, affordability, and household demand.",
 
-            "Labor Productivity": "Labor productivity measures output per hour worked. Higher productivity can support stronger growth without the same inflation pressure.",
-            "Unit Labor Costs": "Unit labor costs measure labor compensation adjusted for productivity. They are important for assessing whether wage growth is translating into inflation pressure.",
-            "Real Hourly Compensation": "Real hourly compensation measures worker compensation adjusted for inflation. It helps assess purchasing power and real wage trends.",
+            "Labor Productivity YoY %": "Labor productivity measures output per hour worked. Higher productivity can support stronger growth without the same inflation pressure.",
+            "Unit Labor Costs YoY %": "Unit labor costs measure labor compensation adjusted for productivity. They are important for assessing whether wage growth is translating into inflation pressure.",
+            "Real Hourly Compensation YoY %": "Real hourly compensation measures worker compensation adjusted for inflation. It helps assess purchasing power and real wage trends.",
 
             "Michigan Consumer Sentiment": "The Michigan Consumer Sentiment Index measures household confidence in the economy, personal finances, and expectations. It can foreshadow changes in consumer spending.",
             "Chicago Fed NFCI": "The Chicago Fed National Financial Conditions Index summarizes U.S. financial conditions across money markets, credit markets, and risk indicators.",
@@ -326,9 +326,9 @@ def render_usa_page():
             "Building Permits MoM": "Building Permits (MoM, %)",
             "New Home Sales MoM": "New Home Sales (MoM, %)",
 
-            "Labor Productivity": "Labor Productivity",
-            "Unit Labor Costs": "Unit Labor Costs",
-            "Real Hourly Compensation": "Real Hourly Compensation",
+            "Labor Productivity YoY %": "Labor Productivity YoY %",
+            "Unit Labor Costs YoY %": "Unit Labor Costs YoY %",
+            "Real Hourly Compensation YoY %": "Real Hourly Compensation YoY %",
 
             "Michigan Consumer Sentiment": "Michigan Consumer Sentiment Index",
             "Chicago Fed NFCI": "Chicago Fed National Financial Conditions Index",
@@ -375,9 +375,9 @@ def render_usa_page():
             "Building Permits MoM": "Source: Federal Reserve Economic Data (FRED)",
             "New Home Sales MoM": "Source: Federal Reserve Economic Data (FRED)",
 
-            "Labor Productivity": "Source: U.S. Bureau of Labor Statistics (BLS)",
-            "Unit Labor Costs": "Source: U.S. Bureau of Labor Statistics (BLS)",
-            "Real Hourly Compensation": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Labor Productivity YoY %": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Unit Labor Costs YoY %": "Source: U.S. Bureau of Labor Statistics (BLS)",
+            "Real Hourly Compensation YoY %": "Source: U.S. Bureau of Labor Statistics (BLS)",
 
             "Michigan Consumer Sentiment": "Source: University of Michigan via FRED",
             "Chicago Fed NFCI": "Source: Federal Reserve Bank of Chicago via FRED",
@@ -407,7 +407,7 @@ def render_usa_page():
                 "Retail Sales MoM", "Industrial Production MoM", "Capacity Utilization",
                 "Durable Goods Orders MoM", "Housing Starts MoM",
                 "Building Permits MoM", "New Home Sales MoM",
-                "Labor Productivity", "Unit Labor Costs", "Real Hourly Compensation",
+                "Labor Productivity YoY %", "Unit Labor Costs YoY %", "Real Hourly Compensation YoY %",
                 "Michigan Consumer Sentiment"
             ]:
                 return 1

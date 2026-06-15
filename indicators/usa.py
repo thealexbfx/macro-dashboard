@@ -84,7 +84,8 @@ def get_usa_gdp_qoq_data():
     return get_bea_nipa_series("T10101", 1, frequency="Q")
 
 def get_usa_personal_income_mom_data():
-    return get_bea_nipa_series("T20600", 1, frequency="M")
+    df = get_bea_nipa_series("T20600", 1, frequency="M")
+    return calculate_mom_pct_change(df)
 
 def get_usa_personal_consumption_mom_data():
     return get_bea_nipa_series("T20801", 1, frequency="M")
@@ -129,13 +130,16 @@ def get_usa_durable_goods_orders_mom_data():
     return calculate_mom_pct_change(df)
 
 def get_usa_labor_productivity_data():
-    return get_bls_series("PRS85006093", start_year=2000)
+    df = get_bls_series("PRS85006093", start_year=2000)
+    return calculate_yoy_from_index(df)
 
 def get_usa_unit_labor_costs_data():
-    return get_bls_series("PRS85006103", start_year=2000)
+    df = get_bls_series("PRS85006103", start_year=2000)
+    return calculate_yoy_from_index(df)
 
 def get_usa_real_hourly_compensation_data():
-    return get_bls_series("PRS85006153", start_year=2000) 
+    df = get_bls_series("PRS85006153", start_year=2000)
+    return calculate_yoy_from_index(df)
 
 def get_usa_initial_jobless_claims_data():
     return get_fred_series("ICSA")
