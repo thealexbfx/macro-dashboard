@@ -1092,10 +1092,11 @@ def prepare_df(df: pd.DataFrame, label: str) -> pd.DataFrame:
 
 # --- Streamlit page config (tab title + favicon + layout) ---
 st.set_page_config(
-    page_title="Macro Lens Research",      # Browser tab title
-    page_icon="logo_favicon.png",                  # Your logo file (32x32px recommended)
-    layout="wide",                         # Keeps your wide layout
-    initial_sidebar_state="auto"           # Optional: auto expand/collapse sidebar
+    page_title="Macro Lens Research",
+    page_icon="logo_favicon.png",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+    menu_items={}
 )
 
 # --- Umami Analytics (add right here) ---

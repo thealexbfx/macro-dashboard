@@ -258,11 +258,15 @@ def plot_chart(
 
     elif date_format in ["daily", "monthly"]:
         fig.update_xaxes(
-            tickformat="%b\n%Y",
-            nticks=5,
+            tickformat="%Y",
+            dtick="M12",
             tickangle=0,
             automargin=True,
-            tickfont=dict(size=10, family="Arial", color="black"),
+            tickfont=dict(
+                size=10,
+                family="Arial",
+                color="black"
+            ),
         )
 
     elif date_format == "quarterly":
@@ -271,7 +275,7 @@ def plot_chart(
         if quarter_ticks.empty:
             fig.update_xaxes(
                 tickformat="%Y",
-                nticks=5,
+                nticks=3,
                 tickangle=0,
                 automargin=True,
                 tickfont=dict(size=10, family="Arial", color="black"),
