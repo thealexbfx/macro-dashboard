@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import numpy as np
 
 
 # -------- Helper Functions --------
@@ -115,7 +116,7 @@ def plot_chart(
 
     # -------------------- Base Layout --------------------
     fig.update_layout(
-        margin=dict(l=40, r=30, t=70, b=55),
+        margin=dict(l=40, r=30, t=70, b=105),
         hovermode="closest",
         dragmode=False,
         title=dict(
@@ -131,7 +132,7 @@ def plot_chart(
             ticks="outside",
             ticklen=8,
             tickwidth=1.5,
-            tickfont=dict(size=11, family="Arial", color="black"),
+            tickfont=dict(size=14, family="Arial Bold", color="black"),
             automargin=True,
         ),
         yaxis=dict(
@@ -142,7 +143,7 @@ def plot_chart(
             linecolor="black",
             linewidth=2,
             ticks="outside",
-            tickfont=dict(size=12, family="Arial", color="black"),
+            tickfont=dict(size=14, family="Arial Bold", color="black"),
             tickformat=f",.{decimals}f{yaxis_suffix}",
             automargin=True,
         ),
@@ -249,58 +250,54 @@ def plot_chart(
 
     # -------------------- X-Axis Tick Formatting --------------------
     if tickformat_override:
-        df["tick_label"] = df["date"].dt.strftime(tickformat_override)
+        tick_df = df.copy()
+        tick_df["tick_label"] = tick_df["date"].dt.strftime(tickformat_override)
+
+        if len(tick_df) > 5:
+            tick_df = tick_df.iloc[
+                np.linspace(0, len(tick_df) - 1, 5).round().astype(int)
+            ]
+
         fig.update_xaxes(
             tickmode="array",
-            tickvals=df["date"],
-            ticktext=df["tick_label"],
-        )
-
-    elif date_format in ["daily", "monthly"]:
-        fig.update_xaxes(
-            tickformat="%Y",
-            dtick="M12",
+            tickvals=tick_df["date"],
+            ticktext=tick_df["tick_label"],
             tickangle=0,
             automargin=True,
-            tickfont=dict(
-                size=10,
-                family="Arial",
-                color="black"
-            ),
+            tickfont=dict(size=14, family="Arial Bold", color="black"),
         )
 
-    elif date_format == "quarterly":
-        quarter_ticks = df[df["date"].dt.quarter == 4]
+    else:
+        tick_df = df.iloc[
+            np.linspace(0, len(df) - 1, min(5, len(df))).round().astype(int)
+        ]
 
-        if quarter_ticks.empty:
-            fig.update_xaxes(
-                tickformat="%Y",
-                nticks=3,
-                tickangle=0,
-                automargin=True,
-                tickfont=dict(size=10, family="Arial", color="black"),
+        if date_format == "quarterly":
+            tick_labels = tick_df["date"].dt.to_period("Q").apply(
+                lambda x: f"Q{x.quarter} {x.year}"
             )
         else:
-            fig.update_xaxes(
-                tickmode="array",
-                tickvals=quarter_ticks["date"],
-                ticktext=quarter_ticks["date"].dt.strftime("%Y"),
-                tickangle=0,
-                automargin=True,
-                tickfont=dict(size=10, family="Arial", color="black"),
-            )
+            tick_labels = tick_df["date"].dt.strftime("%b %Y")
 
-    # -------------------- Final Mobile-Friendly Layout --------------------
+        fig.update_xaxes(
+            tickmode="array",
+            tickvals=tick_df["date"],
+            ticktext=tick_labels,
+            tickangle=0,
+            automargin=True,
+            tickfont=dict(size=14, family="Arial Bold", color="black"),
+        )
+
+    # -------------------- Final Layout --------------------
     fig.update_layout(
-        margin=dict(l=35, r=20, t=85, b=70),
+        margin=dict(l=40, r=30, t=70, b=105),
         title=dict(
-            font=dict(size=17, family="Arial Bold"),
+            font=dict(size=19, family="Arial Bold"),
             x=0.5,
             xanchor="center",
         ),
     )
 
-    # Hide Plotly logo in modebar
     fig.update_layout(modebar=dict(remove=["toImage"]))
 
     return fig
@@ -418,13 +415,14 @@ def plot_scenario_chart(
 
     fig.update_layout(
         title=f"{threshold_pct}% Daily Move (Highlighted in Orange)",
-        margin=dict(l=40, r=30, t=60, b=20),
+        margin=dict(l=40, r=30, t=60, b=80),
         hovermode="x unified",
         xaxis=dict(
             showgrid=False,
             showline=True,
             linecolor="black",
             linewidth=2,
+            tickfont=dict(size=14, family="Arial Bold", color="black"),
         ),
         yaxis=dict(
             showgrid=True,
@@ -434,6 +432,7 @@ def plot_scenario_chart(
             linecolor="black",
             linewidth=2,
             tickformat=f",.2f{yaxis_suffix}",
+            tickfont=dict(size=14, family="Arial Bold", color="black"),
         ),
     )
 

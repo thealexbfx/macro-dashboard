@@ -62,46 +62,35 @@ def filter_by_dates(df, start_date, end_date):
     ]
     
 def display_market_chart(fig, source_text=None, site_text="macrolensresearch.com"):
+    if fig is None:
+        return
+
     if source_text:
         fig.add_annotation(
             text=source_text,
             xref="paper",
             yref="paper",
-            x=0.01,
+            x=0,
             y=-0.22,
             showarrow=False,
-            font=dict(size=12, color="gray"),
-            align="left",
-            xanchor="left"
+            xanchor="left",
+            font=dict(size=11, color="gray"),
         )
 
-    if site_text:
         fig.add_annotation(
             text=site_text,
             xref="paper",
             yref="paper",
-            x=0.99,
-            y=-0.22,
+            x=0,
+            y=-0.32,
             showarrow=False,
-            font=dict(size=12, color="gray"),
-            align="right",
-            xanchor="right"
+            xanchor="left",
+            font=dict(size=11, color="gray"),
         )
 
-    fig.update_layout(
-        margin=dict(b=90)
-    )
+    fig.update_layout(margin=dict(l=40, r=30, t=70, b=110))
 
-    st.plotly_chart(
-        fig,
-        use_container_width=True,
-        config={
-            "displayModeBar": True,
-            "displaylogo": False,
-            "modeBarButtonsToAdd": ["toImage", "resetScale2d", "zoom2d", "pan2d"],
-            "modeBarButtonsToRemove": ["lasso2d", "select2d"],
-        }
-    )
+    st.plotly_chart(fig, use_container_width=True)
     
 def build_market_chart(df_filtered, title, chart_type, delta_type, quarterly=False):
     delta_type_arg = None if delta_type == "Off" else delta_type.lower()

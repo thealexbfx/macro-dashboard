@@ -287,6 +287,7 @@ def render_euro_page():
             x=0,
             y=-0.24,
             showarrow=False,
+            xanchor="left",
             font=dict(size=12, color="gray"),
             align="left"
         )
@@ -295,11 +296,16 @@ def render_euro_page():
             text="macrolensresearch.com",
             xref="paper",
             yref="paper",
-            x=1,
-            y=-0.24,
+            x=0,
+            y=-0.34,
             showarrow=False,
+            xanchor="left",
             font=dict(size=12, color="gray"),
-            align="right"
+            align="left"
+        )
+
+        fig.update_layout(
+            margin=dict(b=115)
         )
 
         fig.update_layout(
