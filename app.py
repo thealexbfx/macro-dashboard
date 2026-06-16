@@ -1186,8 +1186,30 @@ html, body {
     padding: 0;
 }
 
-/* Hide default Streamlit UI */
-#MainMenu, header, footer {visibility: hidden;}
+/* Hide Streamlit chrome */
+#MainMenu,
+header,
+footer,
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+[data-testid="stStatusWidget"],
+.stStatusWidget {
+    visibility: hidden !important;
+    display: none !important;
+}
+/* Remove top padding Streamlit leaves behind */
+[data-testid="stHeader"] {
+    height: 0px !important;
+    display: none !important;
+}
+
+[data-testid="stToolbar"] {
+    display: none !important;
+}
+
+button[kind="header"] {
+    display: none !important;
+}
 .block-container {padding-top: 0rem !important;}
 
 /* Fixed Top Bar */
