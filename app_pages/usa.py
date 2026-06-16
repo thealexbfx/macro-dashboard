@@ -440,30 +440,6 @@ def render_usa_page():
         )
 
 
-
-        # For quarterly, show only Q4 labels
-        if quarterly:
-            tickvals = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date']
-
-            if len(tickvals) > 12:
-                step = max(1, len(tickvals) // 12)
-                tickvals = tickvals.iloc[::step]
-
-            ticktext = [d.strftime("%Y") for d in tickvals]
-
-            fig.update_xaxes(
-                tickmode='array',
-                tickvals=tickvals,
-                ticktext=ticktext
-            )
-            
-        fig.update_layout(
-            hoverlabel=dict(
-                font_size=13,       # optional
-                font_color="black", # change text color to black
-                font_family="Arial" # optional
-            )
-        )
         
         # -------- Fix Crowded X-Axis for Fed Funds Rate --------
         if indicator == "Federal Funds Rate":
@@ -492,7 +468,7 @@ def render_usa_page():
             xref="paper",
             yref="paper",
             x=0,
-            y=-0.34,
+            y=-0.30,
             showarrow=False,
             xanchor="left",
             font=dict(size=12, color="gray"),

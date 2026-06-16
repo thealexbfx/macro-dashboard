@@ -265,20 +265,6 @@ def render_euro_page():
             decimals=decimals
         )
 
-        if quarterly and not is_interest_rate:
-            tickvals = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date']
-
-            if len(tickvals) > 12:
-                step = max(1, len(tickvals) // 12)
-                tickvals = tickvals.iloc[::step]
-
-            ticktext = [d.strftime("%Y") for d in tickvals]
-
-            fig.update_xaxes(
-                tickmode='array',
-                tickvals=tickvals,
-                ticktext=ticktext
-            )
 
         fig.add_annotation(
             text=source_map.get(indicator, "Source: MacroLens Research"),
@@ -297,7 +283,7 @@ def render_euro_page():
             xref="paper",
             yref="paper",
             x=0,
-            y=-0.34,
+            y=-0.30,
             showarrow=False,
             xanchor="left",
             font=dict(size=12, color="gray"),

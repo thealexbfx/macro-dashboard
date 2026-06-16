@@ -335,31 +335,6 @@ def render_uk_page():
             decimals=decimals
         )
 
-        if quarterly:
-            tickvals = df_filtered.loc[df_filtered['date'].dt.quarter == 4, 'date']
-
-            if len(tickvals) > 12:
-                step = max(1, len(tickvals) // 12)
-                tickvals = tickvals.iloc[::step]
-
-            ticktext = [
-                d.strftime("%Y")
-                for d in tickvals
-            ]
-
-            fig.update_xaxes(
-                tickmode='array',
-                tickvals=tickvals,
-                ticktext=ticktext
-            )
-
-        fig.update_layout(
-            hoverlabel=dict(
-                font_size=13,
-                font_color="black",
-                font_family="Arial"
-            )
-        )
         
         fig.add_annotation(
             text=source_map.get(indicator, "Source: MacroLens Research"),
@@ -378,7 +353,7 @@ def render_uk_page():
             xref="paper",
             yref="paper",
             x=0,
-            y=-0.34,
+            y=-0.30,
             showarrow=False,
             xanchor="left",
             font=dict(size=12, color="gray"),
