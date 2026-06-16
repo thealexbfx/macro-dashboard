@@ -277,7 +277,7 @@ def plot_chart(
                 lambda x: f"Q{x.quarter} {x.year}"
             )
         else:
-            tick_labels = tick_df["date"].dt.strftime("%b %Y")
+            tick_labels = tick_df["date"].dt.strftime("%Y")
 
         fig.update_xaxes(
             tickmode="array",

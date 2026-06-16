@@ -440,16 +440,6 @@ def render_usa_page():
         )
 
 
-        
-        # -------- Fix Crowded X-Axis for Fed Funds Rate --------
-        if indicator == "Federal Funds Rate":
-            max_ticks = 8  # show ~8 evenly spaced date labels
-            if len(df_filtered) > max_ticks:
-                step = max(1, len(df_filtered) // max_ticks)
-                tickvals = df_filtered['date'].iloc[::step]
-                ticktext = [d.strftime('%b %Y') for d in tickvals]
-                fig.update_xaxes(tickmode='array', tickvals=tickvals, ticktext=ticktext)
-
 
         fig.add_annotation(
             text=source_map.get(indicator, "Source: MacroLens Research"),
@@ -479,9 +469,6 @@ def render_usa_page():
             margin=dict(b=115)
         )
 
-        fig.update_layout(
-            margin=dict(b=95)
-        )
 
         # -------- Display Chart --------
         st.plotly_chart(
