@@ -16,7 +16,7 @@ def fix_boe_year(d):
     return d
 
 
-@st.cache_data(ttl=86400)
+@st.cache_data(ttl=1800)
 def get_uk_bank_rate_data():
     url = "https://www.bankofengland.co.uk/boeapps/database/Bank-Rate.asp"
 

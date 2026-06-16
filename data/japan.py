@@ -22,7 +22,7 @@ def parse_estat_month_code(time_code: str):
     return pd.Timestamp(year=year, month=month, day=1)
 
 
-@st.cache_data(ttl=86400, show_spinner=False)
+@st.cache_data(ttl=1800, show_spinner=False)
 def get_estat_series(
     stats_data_id: str,
     cd_tab: str | None = None,
@@ -97,7 +97,7 @@ def get_estat_series(
 from io import BytesIO
 
 
-@st.cache_data(ttl=86400, show_spinner=False)
+@st.cache_data(ttl=1800, show_spinner=False)
 def get_japan_unemployment_sa_excel():
     url = "https://www.e-stat.go.jp/en/stat-search/file-download?statInfId=000031831365&fileKind=0"
 
@@ -136,7 +136,7 @@ def parse_japan_lfs_year(value, current_year=None):
     return current_year
 
 
-@st.cache_data(ttl=86400, show_spinner=False)
+@st.cache_data(ttl=1800, show_spinner=False)
 def get_japan_unemployment_rate_data():
     df = get_japan_unemployment_sa_excel()
 
@@ -175,7 +175,7 @@ def get_japan_unemployment_rate_data():
         .reset_index(drop=True)
     )
 
-@st.cache_data(ttl=86400, show_spinner=False)
+@st.cache_data(ttl=1800, show_spinner=False)
 def get_japan_gdp_qoq_data():
     url = "https://www.e-stat.go.jp/en/stat-search/file-download?statInfId=000040457275&fileKind=1"
 

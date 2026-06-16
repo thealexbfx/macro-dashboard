@@ -959,7 +959,7 @@ def analyze_series(df: pd.DataFrame, window: int = 12):
 
 
     
-@st.cache_data
+@st.cache_data(ttl=1800)
 def load_local_macro_data(file_name, freq="monthly", value_col="Rate"):
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "data", file_name)
@@ -1000,50 +1000,11 @@ def load_local_macro_data(file_name, freq="monthly", value_col="Rate"):
 
     return df
     
-
-
-@st.cache_data
-def get_japan_10yr_yield_data():
-    return load_local_macro_data("Japan_10_Year_Yield.txt", freq="daily", value_col="Price")
-
-@st.cache_data
-def get_japan_2yr_yield_data():
-    return load_local_macro_data("Japan_2_Year_Yield.txt", freq="daily", value_col="Price")
-
-
-@st.cache_data
-def get_uk_10yr_yield_data():
-    return load_local_macro_data("UK_10_Year_Yield.txt", freq="daily", value_col="Price")
-
-@st.cache_data
-def get_uk_2yr_yield_data():
-    return load_local_macro_data("UK_2_Year_Yield.txt", freq="daily", value_col="Price")
-
-
-## @st.cache_data
-## def get_euro_cpi_yoy_data():
-##    return load_local_macro_data("EURO_CPI_YoY.txt", freq="monthly", value_col="Rate")
-
-## @st.cache_data
-## def get_euro_gdp_qoq_data():
-##    return load_local_macro_data("EURO_GDP_Growth_Rate_QoQ.txt", freq="quarterly", value_col="Rate")
-
-##@st.cache_data
-##def get_euro_unemployment_rate_data():
-##    return load_local_macro_data("EURO_Unemployment_Rate.txt", freq="monthly", value_col="Rate")
-
-@st.cache_data
-def get_euro_10yr_yield_data():
-    return load_local_macro_data("EURO_10_Year_Yield.txt", freq="daily", value_col="Price")
-
-@st.cache_data
-def get_euro_2yr_yield_data():
-    return load_local_macro_data("EURO_2_Year_Yield.txt", freq="daily", value_col="Price")
     
 # ---------------------------
 # Generic USA Data Loader
 # ---------------------------
-@st.cache_data
+@st.cache_data(ttl=1800)
 def load_usa_data(file_name: str, freq: str = "monthly", date_format: str = "%B %Y"):
     """
     Generic function to load USA macro data from text files.

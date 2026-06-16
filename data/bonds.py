@@ -5,7 +5,7 @@ from io import StringIO
 
 from data.fred import get_usa_yield_data
 
-@st.cache_data(ttl=86400, show_spinner=False)
+@st.cache_data(ttl=1800, show_spinner=False)
 def get_boe_yield_series(series_code):
     url = (
         "https://www.bankofengland.co.uk/boeapps/database/fromshowcolumns.asp"
@@ -58,7 +58,7 @@ def clean_boe_yield_csv(df):
         .reset_index(drop=True)
     )
     
-@st.cache_data(ttl=86400, show_spinner=False)
+@st.cache_data(ttl=1800, show_spinner=False)
 def get_japan_yield_data(maturity):
     historical_url = "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/historical/jgbcme_all.csv"
     current_url = "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/jgbcme.csv"
@@ -86,7 +86,7 @@ def get_japan_yield_data(maturity):
         .reset_index(drop=True)
     )
     
-@st.cache_data(ttl=86400, show_spinner=False)
+@st.cache_data(ttl=1800, show_spinner=False)
 def get_euro_yield_data(maturity):
     url = (
         "https://data-api.ecb.europa.eu/service/data/YC/"

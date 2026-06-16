@@ -7,7 +7,7 @@ from io import StringIO
 BOJ_IR01_CSV_URL = "https://www.stat-search.boj.or.jp/ssi/mtshtml/csv/ir01_d_1_en.csv"
 
 
-@st.cache_data(ttl=86400)
+@st.cache_data(ttl=1800)
 def get_boj_ir01_data():
     """
     Official BOJ IR01 series:
@@ -42,7 +42,7 @@ def get_boj_ir01_data():
     )
 
 
-@st.cache_data(ttl=86400)
+@st.cache_data(ttl=1800)
 def get_japan_policy_rate_proxy_data():
     """
     BOJ policy-rate proxy derived from official BOJ IR01 series.
