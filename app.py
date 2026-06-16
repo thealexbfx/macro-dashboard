@@ -38,6 +38,8 @@ def safe_render(render_func, section_name):
 
 from components.charts import plot_chart, plot_scenario_chart
 
+from app_pages.global_macro_view import render_global_macro_view
+
 # Modular data loaders - Phase 2A
 from data.fred import get_fred_series, get_usa_yield_data
 from data.bls import get_bls_series
@@ -1149,6 +1151,51 @@ st.markdown("""
         padding: 0.5rem 0.5rem !important;
     }
 
+    .custom-header {
+        height: auto !important;
+        min-height: 84px !important;
+        padding: 8px 0 10px 0 !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    .custom-header .logo {
+        position: static !important;
+        left: auto !important;
+        font-size: 1.05rem !important;
+        margin-bottom: 8px !important;
+        text-align: center !important;
+    }
+
+    .custom-header .menu {
+        gap: 1.1rem !important;
+        flex-wrap: nowrap !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+
+    .dropdown-btn {
+        font-size: 0.95rem !important;
+    }
+
+    .dropdown-content {
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        max-width: 92vw !important;
+        z-index: 10000 !important;
+    }
+
+    .dropdown-content a {
+        font-size: 14px !important;
+        padding: 10px 4px !important;
+    }
+
+    .main-content {
+        margin-top: 108px !important;
+        padding: 0 0.25rem !important;
+    }
+
     .stSelectbox label, .stDateInput label {
         font-size: 0.9rem !important;
     }
@@ -1712,3 +1759,6 @@ if page == "RatesBonds":
      
 if page == "Crypto":
     safe_render(render_crypto_page, "Crypto")
+    
+if page == "GlobalMacroView":
+    render_global_macro_view()

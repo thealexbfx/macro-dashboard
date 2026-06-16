@@ -6,7 +6,7 @@ import streamlit as st
 EUROSTAT_BASE_URL = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
 
 
-@st.cache_data(ttl=86400, show_spinner=False)
+@st.cache_data(ttl=1800, show_spinner=False)
 def get_eurostat_raw(dataset: str, params: dict) -> dict:
     """
     Fetch raw Eurostat JSON data.
@@ -67,7 +67,7 @@ def eurostat_json_to_df(data: dict) -> pd.DataFrame:
     return df
 
 
-@st.cache_data(ttl=86400, show_spinner=False)
+@st.cache_data(ttl=1800, show_spinner=False)
 def get_eurostat_series(dataset: str, params: dict) -> pd.DataFrame:
     """
     Fetch Eurostat data and return standardized dataframe:
@@ -75,3 +75,5 @@ def get_eurostat_series(dataset: str, params: dict) -> pd.DataFrame:
     """
     data = get_eurostat_raw(dataset, params)
     return eurostat_json_to_df(data)
+    
+    

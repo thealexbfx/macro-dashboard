@@ -186,6 +186,22 @@ def plot_chart(df, title, chart_type, height=450, date_format="daily",
             tickangle=0
         )
 
+    # -------------------- Mobile-Friendly Axis Cleanup --------------------
+    fig.update_xaxes(
+        nticks=6,
+        tickangle=0,
+        automargin=True
+    )
+
+    fig.update_layout(
+        margin=dict(l=35, r=20, t=75, b=45),
+        title=dict(
+            font=dict(size=18, family="Arial Bold"),
+            x=0.5,
+            xanchor="center"
+        )
+    )
+
     return fig
 
 
