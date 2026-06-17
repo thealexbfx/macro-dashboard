@@ -136,6 +136,15 @@ from indicators.japan import (
     get_japan_unemployment_rate_data,
 )
 
+from models.country_analysis import (
+    analyze_usa,
+    analyze_uk,
+    analyze_euro,
+    analyze_japan,
+)
+
+from app_pages.under_construction import render_under_construction_page
+
 from app_pages.fx import render_fx_page
 
 from app_pages.equities import render_equities_page
@@ -285,259 +294,6 @@ def render_commentary(commentary, indicator):
     )
 
 
-# --------- Global Analysis Functions ---------
-@st.cache_data(ttl=1800)
-def analyze_usa():
-    """Compute latest value, slope, and relative position for all USA indicators."""
-    usa_tickers = {
-        # Monetary Policy
-        "Federal Funds Rate": get_usa_interest_rate_data,
-        "Fed Balance Sheet": get_usa_fed_balance_sheet_data,
-
-        # Inflation
-        "CPI YoY": get_usa_cpi_yoy_data,
-        "Core CPI YoY": get_usa_core_cpi_yoy_data,
-        "PCE YoY": get_usa_pce_yoy_data,
-        "Core PCE YoY": get_usa_core_pce_yoy_data,
-        "PPI YoY": get_usa_ppi_yoy_data,
-        "Core PPI YoY": get_usa_core_ppi_yoy_data,
-        "Import Prices YoY": get_usa_import_prices_yoy_data,
-        "Export Prices YoY": get_usa_export_prices_yoy_data,
-
-        # Labor Market
-        "Unemployment Rate": get_usa_unemployment_rate_data,
-        "Labor Force Participation Rate": get_usa_labor_force_participation_data,
-        "Non Farm Payrolls": get_usa_nfp_data,
-        "Average Hourly Earnings YoY": get_usa_average_hourly_earnings_yoy_data,
-        "ECI Total Compensation YoY": get_usa_eci_total_compensation_yoy_data,
-        "ECI Wages & Salaries YoY": get_usa_eci_wages_salaries_yoy_data,
-        "JOLTS Job Openings": get_usa_jolts_job_openings_data,
-        "Quits Rate": get_usa_quits_rate_data,
-        "Initial Jobless Claims": get_usa_initial_jobless_claims_data,
-
-        # Growth / Consumer / Activity
-        "GDP Growth Rate": get_usa_gdp_qoq_data,
-        "Personal Income MoM": get_usa_personal_income_mom_data,
-        "Personal Consumption MoM": get_usa_personal_consumption_mom_data,
-        "Retail Sales MoM": get_usa_retail_sales_mom_data,
-        "Industrial Production MoM": get_usa_industrial_production_mom_data,
-        "Capacity Utilization": get_usa_capacity_utilization_data,
-        "Durable Goods Orders MoM": get_usa_durable_goods_orders_mom_data,
-        "Trade Balance": get_usa_trade_balance_data,
-        "Saving Rate": get_usa_saving_rate_data,
-
-        # Housing
-        "Housing Starts MoM": get_usa_housing_starts_mom_data,
-        "Building Permits MoM": get_usa_building_permits_mom_data,
-        "New Home Sales MoM": get_usa_new_home_sales_mom_data,
-
-        # Productivity & Costs
-        "Labor Productivity": get_usa_labor_productivity_data,
-        "Unit Labor Costs": get_usa_unit_labor_costs_data,
-        "Real Hourly Compensation": get_usa_real_hourly_compensation_data,
-
-        # Sentiment & Conditions
-        "Michigan Consumer Sentiment": get_usa_michigan_consumer_sentiment_data,
-        "Chicago Fed NFCI": get_usa_chicago_fed_nfci_data,
-        
-        # Surveys
-   ##     "ISM Manufacturing PMI": get_usa_ism_manufacturing_pmi_data,
-   ##     "ISM Services PMI": get_usa_ism_services_pmi_data,
-    }
-
-    results = {}
-    for name, func in usa_tickers.items():
-        try:
-            df = func().dropna()
-            if len(df) < 12:
-                continue
-            df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
-            latest = df_1y["value"].iloc[-1]
-            start = df_1y["value"].iloc[0]
-
-            if latest > start:
-                trend = "up"
-            elif latest < start:
-                trend = "down"
-            else:
-                trend = "flat"
-
-            results[name] = {"latest": latest, "trend": trend}
-
-        except Exception as e:
-            if IS_PROD:
-                st.warning(f"{name} data is temporarily unavailable.")
-            else:
-                st.warning(f"⚠️ Could not process {name}: {e}")
-    return results
-
-@st.cache_data(ttl=1800)
-def analyze_japan():
-    """Compute latest value, slope, and relative position for all japan indicators."""
-    japan_tickers = {
-        "Interest Rate": get_japan_interest_rate_data,
-        "CPI YoY": get_japan_cpi_yoy_data,
-        "GDP Growth Rate": get_japan_gdp_qoq_data,
-        "Unemployment Rate": get_japan_unemployment_rate_data
-    }
-
-    results = {}
-    for name, func in japan_tickers.items():
-        try:
-            df = func().dropna()
-            if len(df) < 12:
-                continue
-            df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
-            latest = df_1y["value"].iloc[-1]
-            start = df_1y["value"].iloc[0]
-
-            if latest > start:
-                trend = "up"
-            elif latest < start:
-                trend = "down"
-            else:
-                trend = "flat"
-
-            results[name] = {"latest": latest, "trend": trend}
-
-        except Exception as e:
-            if IS_PROD:
-                st.warning(f"{name} data is temporarily unavailable.")
-            else:
-                st.warning(f"⚠️ Could not process {name}: {e}")
-    return results
-
-@st.cache_data(ttl=1800)
-def analyze_uk():
-    """Compute latest value and 1-year trend for key UK indicators."""
-
-    uk_tickers = {
-        # Monetary Policy
-        "Bank Rate": get_uk_interest_rate_data,
-
-        # Inflation
-        "CPI YoY": get_uk_cpi_yoy_data,
-        "Core CPI YoY": get_uk_core_cpi_yoy_data,
-        "House Prices YoY": get_uk_house_prices_yoy_data,
-
-        # Growth / Activity
-        "GDP QoQ": get_uk_gdp_qoq_data,
-        "Retail Sales MoM": get_uk_retail_sales_mom_data,
-        "Industrial Production MoM": get_uk_industrial_production_mom_data,
-
-        # Labor Market
-        "Unemployment Rate": get_uk_unemployment_rate_data,
-        "Average Weekly Earnings YoY": get_uk_average_weekly_earnings_yoy_data,
-        "Vacancies": get_uk_vacancies_data,
-
-        # External Sector
-        "Trade Balance": get_uk_trade_balance_data,
-    }
-
-    results = {}
-
-    for name, func in uk_tickers.items():
-        try:
-            df = func().dropna()
-
-            if len(df) < 4:
-                continue
-
-            df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
-
-            if len(df_1y) < 2:
-                continue
-
-            latest = df_1y["value"].iloc[-1]
-            start = df_1y["value"].iloc[0]
-
-            if latest > start:
-                trend = "up"
-            elif latest < start:
-                trend = "down"
-            else:
-                trend = "flat"
-
-            results[name] = {
-                "latest": latest,
-                "trend": trend,
-            }
-
-        except Exception as e:
-            if IS_PROD:
-                st.warning(f"{name} data is temporarily unavailable.")
-            else:
-                st.warning(f"⚠️ Could not process {name}: {e}")
-
-    return results
-
-@st.cache_data(ttl=1800)
-def analyze_euro():
-    """Compute latest value and trend for Euro Area indicators."""
-    euro_tickers = {
-        "Interest Rate": get_euro_interest_rate_data,
-        "HICP YoY": get_euro_hicp_yoy_data,
-        "Core HICP YoY": get_euro_core_hicp_yoy_data,
-        "GDP QoQ": get_euro_gdp_qoq_data,
-        "GDP YoY": get_euro_gdp_yoy_data,
-        "Unemployment Rate": get_euro_unemployment_rate_data,
-        "Retail Sales MoM": get_euro_retail_sales_mom_data,
-    }
-
-    results = {}
-    for name, func in euro_tickers.items():
-        try:
-            df = func().dropna()
-            if len(df) < 12:
-                continue
-
-            df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
-            latest = df_1y["value"].iloc[-1]
-            start = df_1y["value"].iloc[0]
-
-            if latest > start:
-                trend = "up"
-            elif latest < start:
-                trend = "down"
-            else:
-                trend = "flat"
-
-            results[name] = {"latest": latest, "trend": trend}
-
-        except Exception as e:
-            if IS_PROD:
-                st.warning(f"{name} data is temporarily unavailable.")
-            else:
-                st.warning(f"⚠️ Could not process {name}: {e}")
-
-    return results
-
-    results = {}
-    for name, func in euro_tickers.items():
-        try:
-            df = func().dropna()
-            if len(df) < 12:
-                continue
-            df_1y = df[df["date"] >= (df["date"].max() - pd.DateOffset(years=1))]
-            latest = df_1y["value"].iloc[-1]
-            start = df_1y["value"].iloc[0]
-
-            if latest > start:
-                trend = "up"
-            elif latest < start:
-                trend = "down"
-            else:
-                trend = "flat"
-
-            results[name] = {"latest": latest, "trend": trend}
-
-        except Exception as e:
-            if IS_PROD:
-                st.warning(f"{name} data is temporarily unavailable.")
-            else:
-                st.warning(f"⚠️ Could not process {name}: {e}")
-    return results
-    
 # -----------------------------
 # Asset Class Analysis Functions
 # -----------------------------
@@ -653,29 +409,12 @@ def analyze_crypto():
     return analyze_asset_class(tickers)
 
 
-# Bonds (special handling: US yields via Yahoo, others via text)
-@st.cache_data(ttl=1800)
-def analyze_bonds():
-    tickers = {
-        "US 2Y": "usa_2y",
-        "US 10Y": "usa_10y",
-        "UK 2Y": "uk_2y",
-        "UK 10Y": "uk_10y",
-        "Japan 2Y": "jp_2y",
-        "Japan 10Y": "jp_10y",
-        "Euro 2Y": "eu_2y",
-        "Euro 10Y": "eu_10y"
-    }
-    return analyze_asset_class(tickers)
+
 
 
 # -------- Asset Map (Global Reference) --------
 asset_map = {
-    "USA": ["usa_rate","usa_cpi","usa_core_cpi","usa_gdp","usa_unemp","usa_ahe","usa_core_pce","usa_core_ppi","usa_housing","usa_ism_manu","usa_ism_serv","usa_jolts","usa_michigan","usa_nfp","usa_pce","usa_ppi","usa_retail","usa_trade"],
-    "Yields": ["usa_1m","usa_3m","usa_6m","usa_1y","usa_2y","usa_3y","usa_5y","usa_7y","usa_10y","usa_20y","usa_30y"],
-    "UK": ["uk_rate","uk_cpi","uk_gdp","uk_unemp","uk_10y","uk_2y"],
-    "Japan": ["jp_rate","jp_cpi","jp_gdp","jp_unemp","jp_10y","jp_2y"],
-    "Euro Area": ["eu_rate","eu_cpi","eu_gdp","eu_unemp","eu_10y","eu_2y"],
+
     "FX": ["eurusd","gbpusd","usdjpy","dxy"],
     "Equities": ["eq_sp500","eq_nasdaq","eq_dow","eq_ftse","eq_nikkei","eq_dax","eq_msci_em","eq_vix"],
     "Stocks": ["st_aapl","st_amzn","st_meta","st_googl","st_nvda","st_msft","st_tsla"],
@@ -685,63 +424,6 @@ asset_map = {
 
 # --- Asset display names ---
 display_names = {
-    # USA Economic Indicators
-    "usa_rate": "USA Federal Funds Rate",
-    "usa_cpi": "USA CPI YoY",
-    "usa_core_cpi": "USA Core CPI YoY",
-    "usa_gdp": "USA GDP QoQ",
-    "usa_unemp": "USA Unemployment Rate",
-    "usa_ahe": "USA Average Hourly Earnings YoY",
-    "usa_core_pce": "USA Core PCE YoY",
-    "usa_core_ppi": "USA Core PPI YoY",
-    "usa_housing": "USA Housing Starts MoM",
- #   "usa_ism_manu": "USA ISM Manufacturing PMI",
- #   "usa_ism_serv": "USA ISM Services PMI",
-    "usa_jolts": "USA JOLTS Job Openings",
-    "usa_michigan": "USA Michigan Consumer Sentiment",
-    "usa_nfp": "USA Non-Farm Payrolls",
-    "usa_pce": "USA PCE YoY",
-    "usa_ppi": "USA PPI YoY",
-    "usa_retail": "USA Retail Sales MoM",
-    "usa_trade": "USA Trade Balance",
-
-    # US Yields
-    "usa_1m": "USA 1M Yield",
-    "usa_3m": "USA 3M Yield",
-    "usa_6m": "USA 6M Yield",
-    "usa_1y": "USA 1Y Yield",
-    "usa_2y": "USA 2Y Yield",
-    "usa_3y": "USA 3Y Yield",
-    "usa_5y": "USA 5Y Yield",
-    "usa_7y": "USA 7Y Yield",
-    "usa_10y": "USA 10Y Yield",
-    "usa_20y": "USA 20Y Yield",
-    "usa_30y": "USA 30Y Yield",
-
-    # UK
-    "uk_rate": "UK Interest Rate",
-    "uk_cpi": "UK CPI YoY",
-    "uk_gdp": "UK GDP QoQ",
-    "uk_unemp": "UK Unemployment Rate",
-    "uk_10y": "UK 10Y Yield",
-    "uk_2y": "UK 2Y Yield",
-
-    # Japan
-    "jp_rate": "Japan Interest Rate",
-    "jp_cpi": "Japan CPI YoY",
-    "jp_gdp": "Japan GDP QoQ",
-    "jp_unemp": "Japan Unemployment Rate",
-    "jp_10y": "Japan 10Y Yield",
-    "jp_2y": "Japan 2Y Yield",
-
-    # Euro Area
-    "eu_rate": "Euro Interest Rate",
-    "eu_cpi": "Euro CPI YoY",
-    "eu_gdp": "Euro GDP QoQ",
-    "eu_unemp": "Euro Unemployment Rate",
-    "eu_10y": "Euro 10Y Yield",
-    "eu_2y": "Euro 2Y Yield",
-
     # FX
     "eurusd": "EUR/USD",
     "gbpusd": "GBP/USD",
@@ -786,110 +468,52 @@ display_names = {
 
 dropdown_map = {v: k for k, v in display_names.items()}
 
+
+
+yahoo_map = {
+    # FX
+    "eurusd": "EURUSD=X",
+    "gbpusd": "GBPUSD=X",
+    "usdjpy": "USDJPY=X",
+    "dxy": "DX-Y.NYB",
+
+    # Equities
+    "eq_sp500": "^GSPC",
+    "eq_nasdaq": "^IXIC",
+    "eq_dow": "^DJI",
+    "eq_ftse": "^FTSE",
+    "eq_nikkei": "^N225",
+    "eq_dax": "^GDAXI",
+    "eq_msci_em": "EEM",
+    "eq_vix": "^VIX",
+
+    # Stocks
+    "st_aapl": "AAPL",
+    "st_amzn": "AMZN",
+    "st_meta": "META",
+    "st_googl": "GOOGL",
+    "st_nvda": "NVDA",
+    "st_msft": "MSFT",
+    "st_tsla": "TSLA",
+
+    # Commodities
+    "cmd_gold": "GC=F",
+    "cmd_silver": "SI=F",
+    "cmd_wti": "CL=F",
+    "cmd_brent": "BZ=F",
+    "cmd_ng": "NG=F",
+    "cmd_wheat": "ZW=F",
+    "cmd_copper": "HG=F",
+    "cmd_corn": "ZC=F",
+    "cmd_soy": "ZS=F",
+
+    # Crypto
+    "crypto_btc": "BTC-USD",
+    "crypto_eth": "ETH-USD",
+}
+
+
 def load_indicator_data(code):
-    loader_map = {
-        # USA
-        "usa_rate": get_usa_interest_rate_data,
-        "usa_cpi": get_usa_cpi_yoy_data,
-        "usa_core_cpi": get_usa_core_cpi_yoy_data,
-        "usa_gdp": get_usa_gdp_qoq_data,
-        "usa_unemp": get_usa_unemployment_rate_data,
-        "usa_ahe": get_usa_average_hourly_earnings_yoy_data,
-        "usa_core_pce": get_usa_core_pce_yoy_data,
-        "usa_core_ppi": get_usa_core_ppi_yoy_data,
-        "usa_housing": get_usa_housing_starts_mom_data,
-   #     "usa_ism_manu": get_usa_ism_manufacturing_pmi_data,
-   #     "usa_ism_serv": get_usa_ism_services_pmi_data,
-        "usa_jolts": get_usa_jolts_job_openings_data,
-        "usa_michigan": get_usa_michigan_consumer_sentiment_data,
-        "usa_nfp": get_usa_nfp_data,
-        "usa_pce": get_usa_pce_yoy_data,
-        "usa_ppi": get_usa_ppi_yoy_data,
-        "usa_retail": get_usa_retail_sales_mom_data,
-        "usa_trade": get_usa_trade_balance_data,
-
-        # US Yields
-        "usa_1m": get_usa_1mo_yield_data,
-        "usa_3m": get_usa_3mo_yield_data,
-        "usa_6m": get_usa_6mo_yield_data,
-        "usa_1y": get_usa_1yr_yield_data,
-        "usa_2y": get_usa_2yr_yield_data,
-        "usa_3y": get_usa_3yr_yield_data,
-        "usa_5y": get_usa_5yr_yield_data,
-        "usa_7y": get_usa_7yr_yield_data,
-        "usa_10y": get_usa_10yr_yield_data,
-        "usa_20y": get_usa_20yr_yield_data,
-        "usa_30y": get_usa_30yr_yield_data,
-
-        # UK
-        "uk_rate": get_uk_interest_rate_data,
-        "uk_cpi": get_uk_cpi_yoy_data,
-        "uk_gdp": get_uk_gdp_qoq_data,
-        "uk_unemp": get_uk_unemployment_rate_data,
-        "uk_10y": get_uk_10yr_yield_data,
-        "uk_2y": get_uk_2yr_yield_data,
-
-        # Japan
-        "jp_rate": get_japan_interest_rate_data,
-        "jp_cpi": get_japan_cpi_yoy_data,
-        "jp_gdp": get_japan_gdp_qoq_data,
-        "jp_unemp": get_japan_unemployment_rate_data,
-        "jp_10y": get_japan_10yr_yield_data,
-        "jp_2y": get_japan_2yr_yield_data,
-
-        # Euro
-        "eu_rate": get_euro_interest_rate_data,
-        "eu_cpi": get_euro_hicp_yoy_data,
-        "eu_gdp": get_euro_gdp_qoq_data,
-        "eu_unemp": get_euro_unemployment_rate_data,
-        "eu_10y": get_euro_10yr_yield_data,
-        "eu_2y": get_euro_2yr_yield_data,
-    }
-
-    yahoo_map = {
-        # FX
-        "eurusd": "EURUSD=X",
-        "gbpusd": "GBPUSD=X",
-        "usdjpy": "USDJPY=X",
-        "dxy": "DX-Y.NYB",
-
-        # Equities
-        "eq_sp500": "^GSPC",
-        "eq_nasdaq": "^IXIC",
-        "eq_dow": "^DJI",
-        "eq_ftse": "^FTSE",
-        "eq_nikkei": "^N225",
-        "eq_dax": "^GDAXI",
-        "eq_msci_em": "EEM",
-        "eq_vix": "^VIX",
-
-        # Stocks
-        "st_aapl": "AAPL",
-        "st_amzn": "AMZN",
-        "st_meta": "META",
-        "st_googl": "GOOGL",
-        "st_nvda": "NVDA",
-        "st_msft": "MSFT",
-        "st_tsla": "TSLA",
-
-        # Commodities
-        "cmd_gold": "GC=F",
-        "cmd_silver": "SI=F",
-        "cmd_wti": "CL=F",
-        "cmd_brent": "BZ=F",
-        "cmd_ng": "NG=F",
-        "cmd_wheat": "ZW=F",
-        "cmd_copper": "HG=F",
-        "cmd_corn": "ZC=F",
-        "cmd_soy": "ZS=F",
-
-        # Crypto
-        "crypto_btc": "BTC-USD",
-        "crypto_eth": "ETH-USD",
-    }
-
-    if code in loader_map:
-        return loader_map[code]()
 
     if code in yahoo_map:
         return get_fx_data_yahoo(
@@ -1516,15 +1140,35 @@ if page == "Home":
         color: white;
         margin-bottom: 22px;
     }
-    .hero h1 {
-        font-size: 44px;
-        font-weight: 850;
-        margin-bottom: 8px;
+    .hero {
+        padding: 42px 38px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #0b1320 0%, #132238 55%, #0a9396 140%);
+        color: white;
+        margin-bottom: 22px;
+        text-align: center;
     }
+
+    .hero .section-label {
+        text-align: center;
+        color: #7dd3fc;
+    }
+
+    .hero h1 {
+        font-size: 48px;
+        font-weight: 900;
+        margin: 8px auto 10px auto;
+        color: #ffffff !important;
+        text-align: center;
+    }
+
     .hero p {
-        font-size: 17px;
+        font-size: 18px;
         color: #d6e2ea;
         max-width: 850px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
     }
     .section-label {
         font-size: 13px;
@@ -1542,6 +1186,7 @@ if page == "Home":
         margin-bottom: 16px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.035);
         min-height: 150px;
+        text-align: center;
     }
     .card h3 {
         font-size: 20px;
@@ -1565,17 +1210,21 @@ if page == "Home":
         border: 1px solid #e5e7eb;
         border-radius: 14px;
         padding: 16px;
+        text-align: center;
     }
     .regime-box span {
         display: block;
-        font-size: 12px;
+        text-align: center;
+        font-size: 13px;
         color: #6b7280;
         font-weight: 700;
         text-transform: uppercase;
         margin-bottom: 6px;
     }
     .regime-box b {
-        font-size: 18px;
+        display: block;
+        text-align: center;
+        font-size: 20px;
         color: #111827;
     }
     .market-row {
@@ -1585,19 +1234,27 @@ if page == "Home":
         margin-bottom: 18px;
     }
     .market-tile {
-        background: #111827;
-        color: white;
-        border-radius: 12px;
-        padding: 14px 16px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 16px;
     }
     .market-tile span {
         display: block;
-        color: #9ca3af;
-        font-size: 12px;
-        margin-bottom: 5px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #000000;
+        margin-bottom: 8px;
     }
     .market-tile b {
-        font-size: 16px;
+        display: block;
+        text-align: center;
+        font-size: 26px;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 6px;
     }
     .footer {
         margin-top: 22px;
@@ -1627,31 +1284,78 @@ if page == "Home":
     </div>
 
     <div class="regime-grid">
-        <div class="regime-box"><span>Growth</span><b>Slowing</b></div>
-        <div class="regime-box"><span>Inflation</span><b>Sticky</b></div>
-        <div class="regime-box"><span>Labor</span><b>Cooling</b></div>
-        <div class="regime-box"><span>Policy</span><b>Restrictive</b></div>
+        <div class="regime-box"><span>Growth Signal</span><b>Coming Soon</b></div>
+        <div class="regime-box"><span>Inflation Signal</span><b>Coming Soon</b></div>
+        <div class="regime-box"><span>Labor Signal</span><b>Coming Soon</b></div>
+        <div class="regime-box"><span>Policy Signal</span><b>Coming Soon</b></div>
     </div>
 
-    <div class="market-row">
-        <div class="market-tile"><span>DXY</span><b>In Progress</b></div>
-        <div class="market-tile"><span>US 10Y</span><b>In Progress</b></div>
-        <div class="market-tile"><span>S&P 500</span><b>In Progress</b></div>
-        <div class="market-tile"><span>Gold</span><b>In Progress</b></div>
-        <div class="market-tile"><span>WTI Crude</span><b>In Progress</b></div>
-    </div>
     """, unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns([1.2, 1, 1])
+    market_snapshot = {
+        "DXY": "dxy",
+        "EUR/USD": "eurusd",
+        "S&P 500": "eq_sp500",
+        "Gold": "cmd_gold",
+        "Bitcoin": "crypto_btc",
+    }
+
+    cols = st.columns(5)
+
+    for i, (label, code) in enumerate(market_snapshot.items()):
+        try:
+            df_market = load_indicator_data(code).dropna()
+            latest = df_market["value"].iloc[-1]
+            previous = df_market["value"].iloc[-2]
+            pct_change = ((latest - previous) / previous) * 100
+
+            if pct_change > 0:
+                change_color = "#16a34a"
+            elif pct_change < 0:
+                change_color = "#dc2626"
+            else:
+                change_color = "#6b7280"
+
+            with cols[i]:
+                st.markdown(f"""
+                <div class="market-tile">
+                    <span>{label}</span>
+                    <b>{latest:.2f}</b>
+                    <div style="
+                        text-align:center;
+                        font-size:18px;
+                        font-weight:800;
+                        color:{change_color};
+                    ">
+                        {pct_change:+.2f}%
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        except Exception as e:
+            with cols[i]:
+                st.markdown(f"""
+                <div class="market-tile">
+                    <span>{label}</span>
+                    <b>{str(e)[:50]}</b>
+                </div>
+                """, unsafe_allow_html=True)
+
+    st.markdown("""
+    """, unsafe_allow_html=True)
+
+    st.markdown("<h2 style='text-align:center;'>Macro Lens Framework</h2>", unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         st.markdown("""
         <div class="card">
-            <h3>Macro Outlook</h3>
+            <h3>Growth</h3>
             <p>
-                The global economy remains in a late-cycle environment. Growth momentum is
-                moderating, inflation is no longer accelerating broadly, and central banks
-                remain cautious as restrictive policy continues to weigh on activity.
+                Track economic momentum across output, consumption,
+                labor markets, housing, and business activity to
+                identify changes in the growth cycle.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1659,50 +1363,63 @@ if page == "Home":
     with col2:
         st.markdown("""
         <div class="card">
-            <h3>Key Developments</h3>
-            <ul>
-                <li>Growth momentum is softening.</li>
-                <li>Labor markets are cooling.</li>
-                <li>Inflation remains above target.</li>
-                <li>Policy easing expectations are rising.</li>
-            </ul>
+            <h3>Inflation</h3>
+            <p>
+                Monitor inflation trends, pricing pressures,
+                wages, and demand dynamics to assess the
+                direction of inflation regimes.
+            </p>
         </div>
         """, unsafe_allow_html=True)
 
     with col3:
         st.markdown("""
         <div class="card">
-            <h3>Current Risks</h3>
-            <p><b>Upside:</b> Growth reaccelerates while markets price easier policy.</p>
-            <p><b>Downside:</b> Labor deterioration becomes more visible.</p>
-            <p><b>Watch:</b> Core inflation, claims, curves, and credit.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    col4, col5 = st.columns([1, 1])
-
-    with col4:
-        st.markdown("""
-        <div class="card">
-            <h3>Research Focus</h3>
+            <h3>Policy</h3>
             <p>
-                MacroLens focuses on growth, inflation, labor markets, central banks,
-                fiscal policy, liquidity, currencies, rates, commodities, and equity-market
-                implications.
+                Analyze central bank reaction functions,
+                interest-rate cycles, and financial conditions
+                to understand policy implications.
             </p>
         </div>
         """, unsafe_allow_html=True)
+        
+    st.markdown("<h2 style='text-align:center;'>Research Approach</h2>", unsafe_allow_html=True)
 
-    with col5:
-        st.markdown("""
-        <div class="card">
-            <h3>Latest Research</h3>
-            <p>
-                No published research note selected yet. This area can later feature your
-                latest monthly macro review, market note, or country-specific regime update.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("""
+    <div class="card" style="text-align:center; max-width:1000px; margin:auto;">
+
+    <h3 style="
+        font-size:28px;
+        font-weight:700;
+        margin-bottom:25px;
+    ">
+        Data → Models → Interpretation → Market Implications
+    </h3>
+
+    <div style="
+    max-width:850px;
+    margin:auto;
+    color:#374151;
+    ">
+
+    <p style="font-size:18px; line-height:1.9;">
+    MacroLens is an independent macroeconomic research platform designed to transform economic and market data into actionable insights.
+    </p>
+
+    <p style="font-size:18px; line-height:1.9;">
+    The framework begins with monitoring growth, inflation, labor markets, and central-bank policy across major economies. These data inputs are then combined into model-driven signals that help identify shifts in macroeconomic regimes.
+    </p>
+
+    <p style="font-size:18px; line-height:1.9;">
+    The objective is not simply to display charts, but to connect economic developments with market implications across equities, bonds, currencies, commodities, and other asset classes through a structured research process.
+    </p>
+
+    </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+        
 
     st.markdown("""
     <div class="footer">
@@ -1745,4 +1462,16 @@ if page == "Crypto":
     safe_render(render_crypto_page, "Crypto")
     
 if page == "GlobalMacroView":
-    render_global_macro_view()
+    render_under_construction_page("Global Macro View")
+    
+if page == "CentralBankWatch":
+    render_under_construction_page("Central Bank Watch")
+
+if page == "RegimeMonitor":
+    render_under_construction_page("Regime Monitor")
+
+if page == "ResearchNotes":
+    render_under_construction_page("Research Notes")
+
+if page == "Calendar":
+    render_under_construction_page("Calendar")
