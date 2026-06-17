@@ -1,6 +1,14 @@
 import streamlit as st
 from datetime import datetime
 
+from app_pages.macro_models import build_global_macro_table
+from models.country_analysis import (
+    analyze_usa,
+    analyze_uk,
+    analyze_euro,
+    analyze_japan,
+)
+
 
 def render_global_macro_view():
     st.markdown("## Global Macro View")
@@ -18,11 +26,11 @@ def render_global_macro_view():
             Current Global Regime
         </div>
         <div style="font-size:34px; font-weight:800; margin-top:6px;">
-            Late-Cycle Disinflation
+            Model Output in Progress
         </div>
         <div style="font-size:15px; color:#cbd5e1; margin-top:8px;">
-            Growth is slowing, inflation remains sticky, labor markets are cooling,
-            and policy remains restrictive.
+            This page is now beginning to move from static dashboard content toward model-driven
+            macro signals across growth, inflation, and policy.
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -32,12 +40,12 @@ def render_global_macro_view():
     col1, col2, col3 = st.columns(3)
 
     pillars = [
-        ("Growth", "Slowing", "Growth momentum is moderating across major economies."),
-        ("Inflation", "Sticky", "Inflation is no longer accelerating broadly, but remains above target."),
-        ("Labor", "Cooling", "Labor markets remain resilient but are showing signs of softening."),
-        ("Policy", "Restrictive", "Central banks remain cautious as real rates stay elevated."),
-        ("Liquidity", "Tight", "Financial conditions remain restrictive relative to the post-pandemic period."),
-        ("Market Pricing", "Soft Landing", "Risk assets appear to be pricing a benign slowdown."),
+        ("Growth", "Model Driven", "Tracks whether economic activity is improving, slowing, or neutral."),
+        ("Inflation", "Model Driven", "Tracks whether inflation pressure is rising, cooling, or neutral."),
+        ("Policy", "Model Driven", "Tracks whether policy is restrictive, accommodative, or unavailable."),
+        ("Labor", "Later", "Labor-market signal will be added after the first model version is stable."),
+        ("Liquidity", "Later", "Liquidity and financial conditions will be added in a later version."),
+        ("Market Pricing", "Later", "Market-implied signals will be added after macro signals are working."),
     ]
 
     for i, (title, status, text) in enumerate(pillars):
@@ -66,69 +74,36 @@ def render_global_macro_view():
 
     st.markdown("### Regional Scorecard")
 
-    st.dataframe(
-        {
-            "Region": ["United States", "Euro Area", "United Kingdom", "Japan"],
-            "Growth": ["Slowing", "Weak", "Weak", "Improving"],
-            "Inflation": ["Sticky", "Moderating", "Sticky", "Rising"],
-            "Policy": ["Restrictive", "Restrictive", "Restrictive", "Normalizing"],
-            "Macro View": [
-                "Late-cycle slowdown",
-                "Weak growth / easing bias",
-                "Stagflation risk fading but growth weak",
-                "Reflation / policy normalization",
-            ],
-        },
-        use_container_width=True,
-        hide_index=True,
-    )
+    try:
+        macro_table = build_global_macro_table(
+            usa=analyze_usa(),
+            uk=analyze_uk(),
+            euro=analyze_euro(),
+            japan=analyze_japan(),
+        )
 
-    st.markdown("### Asset Allocation View")
+        cols = st.columns(4)
 
-    st.dataframe(
-        {
-            "Asset Class": ["Equities", "Bonds", "USD", "Gold", "Oil", "Credit"],
-            "View": ["Neutral", "Positive", "Neutral", "Positive", "Neutral", "Neutral"],
-            "Conviction": ["Medium", "High", "Medium", "Medium", "Low", "Medium"],
-            "Reasoning": [
-                "Supported by earnings resilience, but vulnerable to growth disappointment.",
-                "Slowing growth and easing expectations support duration.",
-                "Policy divergence is mixed across major economies.",
-                "Supported by real-rate risk, policy uncertainty, and reserve diversification.",
-                "Demand risks offset supply/geopolitical risks.",
-                "Spreads remain contained but vulnerable if labor weakness accelerates.",
-            ],
-        },
-        use_container_width=True,
-        hide_index=True,
-    )
+        for i, row in macro_table.iterrows():
+            with cols[i]:
+                with st.container(border=True):
+                    st.markdown(f"### {row['Country']}")
+                    st.markdown(f"**Growth:** {row['Growth']}")
+                    st.markdown(f"**Inflation:** {row['Inflation']}")
+                    st.markdown(f"**Policy:** {row['Policy']}")
 
-    st.markdown("### Key Risks")
+        with st.expander("View raw model output"):
+            st.dataframe(macro_table, use_container_width=True, hide_index=True)
 
-    col1, col2, col3 = st.columns(3)
+    except Exception:
+        st.error("Global macro model is temporarily unavailable.")
 
-    with col1:
-        st.markdown("""
-        **Upside Risks**
-        - Growth reaccelerates
-        - Productivity improves
-        - Inflation falls without labor damage
-        """)
+    st.markdown("### Next Model Improvements")
 
-    with col2:
-        st.markdown("""
-        **Downside Risks**
-        - Labor deterioration
-        - Credit stress
-        - Policy stays restrictive too long
-        """)
-
-    with col3:
-        st.markdown("""
-        **Watching Closely**
-        - Core inflation
-        - Initial claims
-        - Yield curves
-        - Credit spreads
-        - Central bank guidance
-        """)
+    st.markdown("""
+    - Add better scoring logic for growth and inflation.
+    - Separate labor from growth.
+    - Add policy direction, not just policy level.
+    - Add market signals later.
+    - Add analyst interpretation after model output is stable.
+    """)
