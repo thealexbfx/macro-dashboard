@@ -51,3 +51,4 @@ def get_uk_bank_rate_data():
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
     return df[["date", "value"]].dropna().sort_values("date").reset_index(drop=True)
+  

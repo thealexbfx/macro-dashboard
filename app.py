@@ -134,6 +134,7 @@ from indicators.japan import (
     get_japan_core_cpi_yoy_data,
     get_japan_gdp_qoq_data,
     get_japan_unemployment_rate_data,
+    get_japan_retail_sales_mom_data,
 )
 
 from models.country_analysis import (
@@ -1404,7 +1405,7 @@ if page == "Home":
     ">
 
     <p style="font-size:18px; line-height:1.9;">
-    MacroLens is an independent macroeconomic research platform designed to transform economic and market data into actionable insights.
+    Macro Lens is an independent macroeconomic research platform designed to transform economic and market data into actionable insights.
     </p>
 
     <p style="font-size:18px; line-height:1.9;">

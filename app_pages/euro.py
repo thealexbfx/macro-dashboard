@@ -39,10 +39,26 @@ def render_euro_page():
 
         # -------- Indicator Groups --------
         indicator_groups = {
-            "Monetary Policy": ["Interest Rate"],
-            "Inflation": ["HICP YoY", "Core HICP YoY"],
-            "Labor Market": ["Unemployment Rate"],
+            "Monetary Policy & Liquidity": [
+                "Interest Rate",
+                "ECB Balance Sheet"
+            ],
+            "Inflation": ["HICP YoY", "Core HICP YoY", "Services HICP YoY"],
+            "Labor Market": [
+                "Unemployment Rate",
+                "Negotiated Wages YoY",
+                "Labor Productivity YoY"
+            ],
+            "Housing": [
+                "House Price Index YoY"
+            ],
+            
             "Growth": ["GDP QoQ", "GDP YoY", "Retail Sales MoM", "Industrial Production MoM"],
+            "Sentiment": ["Economic Sentiment Indicator"],
+            
+            "External Sector": [
+                "Trade Balance"
+            ],
         }
 
         # Category dropdown
@@ -74,13 +90,32 @@ def render_euro_page():
         # -------- Indicator Function Mapping --------
         indicator_map = {
             "Interest Rate": (get_euro_interest_rate_data, "daily", None),
+            "ECB Balance Sheet": (get_euro_ecb_balance_sheet_data, "monthly", None),
             "HICP YoY": (get_euro_hicp_yoy_data, "monthly", None),
             "Core HICP YoY": (get_euro_core_hicp_yoy_data, "monthly", None),
+            "Services HICP YoY": (get_euro_services_hicp_yoy_data, "monthly", None),
             "Unemployment Rate": (get_euro_unemployment_rate_data, "monthly", None),
+            "Negotiated Wages YoY": (
+                get_euro_negotiated_wages_yoy_data,
+                "monthly",
+                None
+            ),
+            "Labor Productivity YoY": (
+                get_euro_labor_productivity_yoy_data,
+                "quarterly",
+                None
+            ),
+            "House Price Index YoY": (
+                get_euro_house_price_index_yoy_data,
+                "quarterly",
+                None
+            ),
             "GDP QoQ": (get_euro_gdp_qoq_data, "quarterly", None),
             "GDP YoY": (get_euro_gdp_yoy_data, "quarterly", None),
             "Retail Sales MoM": (get_euro_retail_sales_mom_data, "monthly", None),
             "Industrial Production MoM": (get_euro_industrial_production_mom_data, "monthly", None),
+            "Economic Sentiment Indicator": (get_euro_economic_sentiment_data, "monthly", None),
+            "Trade Balance": (get_euro_trade_balance_data, "monthly", None),
         }
 
         # Load data dynamically
@@ -142,6 +177,11 @@ def render_euro_page():
                 "It directly affects short-term borrowing costs for banks, which influences loans, mortgages, and business investment across the Eurozone. "
                 "Changes in the ECB rate are closely watched by global markets as signals of monetary tightening or easing."
             ),
+            
+            "ECB Balance Sheet": (
+                "The ECB balance sheet measures the size of assets held by the European Central Bank and Eurosystem. "
+                "It is useful for tracking liquidity conditions, quantitative easing, quantitative tightening, and the broader stance of monetary policy beyond interest rates."
+            ),
 
             # Inflation
             "HICP YoY": (
@@ -153,11 +193,33 @@ def render_euro_page():
                 "Core HICP YoY strips out volatile items such as energy and food to give a cleaner view of underlying inflation pressure. "
                 "It is closely watched by the ECB because persistent core inflation can signal more durable price pressures."
             ),
+            
+            "Services HICP YoY": (
+                "Services HICP measures annual inflation across service sectors such as housing, transportation, recreation, healthcare, and hospitality. "
+                "Because services prices are closely linked to wages and domestic demand, services inflation tends to be more persistent than goods inflation. "
+                "The ECB monitors this indicator closely as a gauge of underlying inflation pressure and the risk that inflation remains above target."
+            ),
 
             # Labor Market
             "Unemployment Rate": (
                 "The unemployment rate represents the percentage of the Euro Area labor force actively seeking work but currently without a job. "
                 "It is a key indicator of labor market slack, household income pressure, and the broader economic cycle."
+            ),
+            
+            "Negotiated Wages YoY": (
+                "Negotiated wages measure the annual growth of collectively agreed wages across the Euro Area. "
+                "Because wage settlements are a major driver of services inflation and household income growth, this indicator is closely monitored by the ECB. "
+                "Persistent wage growth can support consumer spending but may also increase the risk of inflation remaining above target."
+            ),
+            
+            "Labor Productivity YoY": (
+                "Labour productivity measures the amount of output produced per hour worked. "
+                "Higher productivity allows wages to rise without generating the same inflation pressures, making it an important indicator for assessing sustainable economic growth and underlying inflation dynamics."
+            ),
+            
+            "House Price Index YoY": (
+                "House price growth measures annual changes in residential property prices across the Euro Area. "
+                "It provides insight into housing-market conditions, household wealth, credit growth, and the impact of interest rates on property demand."
             ),
 
             # Growth
@@ -179,6 +241,18 @@ def render_euro_page():
             "Industrial Production MoM": (
                 "Industrial Production measures changes in the output of factories, utilities, and mining across the Euro Area. "
                 "It is a key indicator of economic activity and manufacturing momentum, often providing an early signal of changes in growth and business conditions."
+            ),
+            
+            "Economic Sentiment Indicator": (
+                "The Economic Sentiment Indicator (ESI) is a composite survey-based measure published by the European Commission. "
+                "It combines confidence indicators from industry, services, consumers, retail trade, and construction to provide a forward-looking view of economic activity across the Euro Area. "
+                "Rising ESI values typically signal improving growth momentum, while falling readings may indicate weakening economic conditions."
+            ),
+            
+            "Trade Balance": (
+                "The trade balance measures the difference between Euro Area exports and imports of goods. "
+                "A surplus indicates exports exceed imports, while a deficit indicates imports exceed exports. "
+                "It provides insight into external demand, competitiveness, and the contribution of trade to economic growth."
             ),
         }
 
@@ -205,24 +279,38 @@ def render_euro_page():
         # -------- Dynamic Titles --------
         titles = {
             "Interest Rate": "ECB Main Refinancing Rate (%)",
+            "ECB Balance Sheet": "ECB Balance Sheet (€ Millions)",
             "HICP YoY": "Euro Area HICP Inflation (YoY, %)",
             "Core HICP YoY": "Euro Area Core HICP Inflation (YoY, %)",
+            "Services HICP YoY": "Euro Area Services HICP Inflation (YoY, %)",
             "Unemployment Rate": "Euro Area Unemployment Rate (%)",
+            "Negotiated Wages YoY": "Euro Area Negotiated Wages (YoY %)",
+            "Labor Productivity YoY": "Euro Area Labour Productivity (YoY, %)",
+            "House Price Index YoY": "Euro Area House Price Index (YoY, %)",
             "GDP QoQ": "Euro Area Real GDP Growth (QoQ, %)",
             "GDP YoY": "Euro Area Real GDP Growth (YoY, %)",
             "Retail Sales MoM": "Euro Area Retail Sales Volume (MoM, %)",
             "Industrial Production MoM": "Industrial Production (MoM, %)",
+            "Economic Sentiment Indicator": "Euro Area Economic Sentiment Indicator",
+            "Trade Balance": "Euro Area Trade Balance (€ Millions)",
         }
         
         source_map = {
             "Interest Rate": "Source: European Central Bank (ECB)",
+            "ECB Balance Sheet": "Source: European Central Bank (ECB)",
             "HICP YoY": "Source: Eurostat",
             "Core HICP YoY": "Source: Eurostat",
+            "Services HICP YoY": "Source: Eurostat",
             "Unemployment Rate": "Source: Eurostat",
+            "Negotiated Wages YoY": "Source: European Central Bank (ECB)",
+            "Labor Productivity YoY": "Source: European Central Bank (ECB)",
+            "House Price Index YoY": "Source: European Central Bank (ECB)",
             "GDP QoQ": "Source: Eurostat",
             "GDP YoY": "Source: Eurostat",
             "Retail Sales MoM": "Source: Eurostat",
             "Industrial Production MoM": "Source: Eurostat",
+            "Economic Sentiment Indicator": "Source: European Commission Business and Consumer Surveys",
+            "Trade Balance": "Source: Eurostat",
         }
 
         # Detect quarterly data
@@ -244,8 +332,17 @@ def render_euro_page():
                 "GDP YoY",
                 "Retail Sales MoM",
                 "Industrial Production MoM",
+                "Services HICP YoY",
+                "Negotiated Wages YoY",
+                "House Price Index YoY",
             ]:
                 return 1
+                
+            elif indicator in [ 
+                "Trade Balance",
+                "ECB Balance Sheet",
+            ]:
+                return 0
 
             else:
                 return 2

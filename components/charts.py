@@ -206,7 +206,7 @@ def plot_chart(
                 hovertemplate=(
                     "<span style='color:black'><b>%{customdata[0]}</b></span><br>"
                     f"<span style='color:black'>%{{y:,.{decimals}f}}{yaxis_suffix}</span><br>"
-                    "<span style='color:%{customdata[2]}; font-weight:bold'>%{customdata[1]}</span>"
+                    "<span style='color:black; font-weight:bold'>%{customdata[1]}</span>"
                     "<extra></extra>"
                 ),
             )
@@ -229,24 +229,22 @@ def plot_chart(
             df["hover_label"] = df["date"].dt.to_period("Q").apply(
                 lambda x: f"Q{x.quarter} {x.year}"
             )
-            fig.update_traces(
-                customdata=df["hover_label"],
-                hovertemplate=(
-                    f"<b>%{{customdata}}</b><br>%{{y:,.{decimals}f}}"
-                    + yaxis_suffix
-                    + "<extra></extra>"
-                ),
-            )
+
+        elif date_format == "monthly":
+            df["hover_label"] = df["date"].dt.strftime("%B %Y")
 
         else:
-            hovertemplate = (
-                "<span style='color:black'><b>%{x|"
-                + hover_date_format
-                + "}</b></span><br>"
+            df["hover_label"] = df["date"].dt.strftime("%d %B %Y")
+
+        fig.update_traces(
+            customdata=df["hover_label"],
+            hovertemplate=(
+                "<span style='color:black'><b>%{customdata}</b></span><br>"
                 f"<span style='color:black'>%{{y:,.{decimals}f}}{yaxis_suffix}</span>"
                 "<extra></extra>"
-            )
-            fig.update_traces(hovertemplate=hovertemplate)
+            ),
+        )
+            
 
     # -------------------- X-Axis Tick Formatting --------------------
     if tickformat_override:
@@ -276,6 +274,13 @@ def plot_chart(
             tick_labels = tick_df["date"].dt.to_period("Q").apply(
                 lambda x: f"Q{x.quarter} {x.year}"
             )
+
+        elif date_format == "monthly":
+            tick_labels = tick_df["date"].dt.strftime("%b %Y")
+
+        elif date_format == "daily":
+            tick_labels = tick_df["date"].dt.strftime("%d %b %Y")
+
         else:
             tick_labels = tick_df["date"].dt.strftime("%Y")
 

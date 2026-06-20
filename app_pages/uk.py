@@ -38,24 +38,33 @@ def render_uk_page():
 
         # -------- Indicator Groups --------
         indicator_groups = {      
-            "Monetary Policy": [
-                "Bank Rate"
+            "Monetary Policy & Liquidity": [
+                "Bank Rate",
+                "BoE Balance Sheet"
             ],
             "Labor Market": [
                 "Unemployment Rate",
                 "Average Weekly Earnings YoY",
+                "Unit Labour Costs YoY",
                 "Vacancies"
             ],
             "Growth": [
                 "GDP QoQ",
+                "GDP MoM",
                 "Retail Sales MoM",
                 "Industrial Production MoM"
             ],
             "Inflation": [
                 "CPI YoY",
                 "Core CPI YoY",
+                "Services CPI YoY",
                 "House Prices YoY"
             ],
+            
+            "Sentiment": [
+                "Consumer Confidence"
+            ],
+            
             "External Sector": [
                 "Trade Balance"
             ]
@@ -101,8 +110,19 @@ def render_uk_page():
             "Unemployment Rate": (get_uk_unemployment_rate_data, "monthly", None),
             "Average Weekly Earnings YoY": (get_uk_average_weekly_earnings_yoy_data, "monthly", None),
             "Vacancies": (get_uk_vacancies_data, "monthly", None),
+            
+            "Consumer Confidence": (
+                get_uk_consumer_confidence_data,
+                "monthly",
+                None
+            ),
 
             "Trade Balance": (get_uk_trade_balance_data, "monthly", None),
+            
+            "Services CPI YoY": (get_uk_services_cpi_yoy_data, "monthly", None),
+            "GDP MoM": (get_uk_gdp_mom_data, "monthly", None),
+            "Unit Labour Costs YoY": (get_uk_unit_labour_costs_yoy_data, "quarterly", None),
+            "BoE Balance Sheet": (get_uk_boe_balance_sheet_data, "daily", None),
 
             
         }
@@ -166,6 +186,11 @@ def render_uk_page():
                 "It influences borrowing costs across the economy, including mortgages, consumer credit, business loans, and money-market pricing. "
                 "Markets watch this indicator closely because it signals the stance of UK monetary policy and the balance between inflation control and growth support."
             ),
+            
+            "BoE Balance Sheet": (
+                "The Bank of England balance sheet tracks the scale of central bank liquidity support, including asset purchases and related facilities. "
+                "It is useful for monitoring QE and QT because changes in the balance sheet can affect financial conditions, gilt markets, liquidity, and risk appetite."
+            ),
 
             # Inflation
             "CPI YoY": (
@@ -223,13 +248,34 @@ def render_uk_page():
                 "They provide a forward-looking view of labour demand and hiring appetite. "
                 "Falling vacancies can suggest cooling labour-market conditions, while elevated vacancies may indicate that firms still face difficulty finding workers."
             ),
-
+                
+            "Consumer Confidence": (
+                "Consumer confidence measures household expectations about the economy and personal finances. "
+                "It is useful for assessing future consumption, saving behavior, and recession risk."
+            ),
+            
             # External Sector
             "Trade Balance": (
                 "The trade balance measures the difference between UK exports and imports of goods and services. "
                 "A deficit means imports exceed exports, while a surplus means exports exceed imports. "
                 "This indicator helps assess external demand, domestic import demand, currency sensitivity, and the contribution of net trade to overall economic growth."
-            )
+            ),
+            
+            "Services CPI YoY": (
+                "Services CPI measures annual inflation across UK services. "
+                "It is important because services inflation tends to be stickier than goods inflation and is closely watched by the Bank of England."
+            ),
+
+            "GDP MoM": (
+                "Monthly GDP measures the month-to-month change in total UK economic output. "
+                "It gives a timelier read on growth momentum than quarterly GDP."
+            ),
+            
+            "Unit Labour Costs YoY": (
+                "Unit labour costs measure the change in labour costs required to produce a unit of economic output. "
+                "They combine wage growth and productivity growth into a single indicator, making them a useful gauge of underlying inflation pressure. "
+                "Rising unit labour costs can signal that wage growth is outpacing productivity, increasing the risk of persistent inflation and attracting attention from the Bank of England."
+            ),
 
         }
 
@@ -257,10 +303,12 @@ def render_uk_page():
         # -------- Dynamic Titles --------
         titles = {
             "Bank Rate": "Bank of England Bank Rate (%)",
+            "BoE Balance Sheet": "Bank of England Balance Sheet (£ Millions)",
 
             "CPI YoY": "Consumer Price Inflation (YoY %)",
             "Core CPI YoY": "Core Consumer Price Inflation (YoY %)",
             "House Prices YoY": "House Price Growth (YoY %)",
+            "Consumer Confidence": "UK Consumer Confidence Index",
 
             "GDP QoQ": "GDP Growth (QoQ %)",
             "Retail Sales MoM": "Retail Sales (MoM %)",
@@ -270,12 +318,17 @@ def render_uk_page():
             "Average Weekly Earnings YoY": "Average Weekly Earnings (YoY %)",
             "Vacancies": "Job Vacancies (Thousands)",
 
-            "Trade Balance": "Trade Balance (£ Millions)"
+            "Trade Balance": "Trade Balance (£ Millions)",
+            
+            "Services CPI YoY": "Services CPI Inflation (YoY %)",
+            "GDP MoM": "GDP Growth (MoM %)",
+            "Unit Labour Costs YoY": "Unit Labour Costs (YoY %)"
           
         }
         
         source_map = {
             "Bank Rate": "Source: Bank of England (BOE)",
+            "BoE Balance Sheet": "Source: Bank of England (BOE)",
             "CPI YoY": "Source: Office for National Statistics (ONS)",
             "Core CPI YoY": "Source: Office for National Statistics (ONS)",
             "GDP QoQ": "Source: Office for National Statistics (ONS)",
@@ -285,7 +338,12 @@ def render_uk_page():
             "Industrial Production MoM": "Source: Office for National Statistics (ONS)",
             "Trade Balance": "Source: Office for National Statistics (ONS)",
             "House Prices YoY": "Source: Office for National Statistics (ONS)",
+            "Consumer Confidence": "Source: OECD via FRED",
             "Vacancies": "Source: Office for National Statistics (ONS)",
+            "Services CPI YoY": "Source: Office for National Statistics (ONS)",
+            "GDP MoM": "Source: Office for National Statistics (ONS)",
+            "Unit Labour Costs YoY": "Source: Office for National Statistics (ONS)",
+            
         }
 
         # Detect quarterly data
@@ -308,12 +366,17 @@ def render_uk_page():
                 "Industrial Production MoM",
                 "Unemployment Rate",
                 "Average Weekly Earnings YoY",
+                "Consumer Confidence",
+                "Services CPI YoY",
+                "GDP MoM",
+                "Unit Labour Costs YoY",
             ]:
                 return 1
 
             elif indicator in [
                 "Vacancies",
                 "Trade Balance",
+                "BoE Balance Sheet",
             ]:
                 return 0
 

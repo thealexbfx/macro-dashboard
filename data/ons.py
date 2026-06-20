@@ -110,3 +110,18 @@ def get_ons_timeseries(cdid: str, dataset_id: str, path: str):
     )
 
     return df
+    
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_uk_services_cpi_yoy_data():
+    return get_ons_timeseries(
+        "D7NN", "MM23",
+        "economy/inflationandpriceindices"
+    )
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_uk_gdp_mom_data():
+    return get_ons_timeseries(
+        "ECY2", "MGDP",
+        "economy/grossdomesticproductgdp"
+    )

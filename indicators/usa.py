@@ -91,7 +91,7 @@ def get_usa_personal_consumption_mom_data():
     return get_bea_nipa_series("T20801", 1, frequency="M")
 
 def get_usa_saving_rate_data():
-    return get_bea_nipa_series("T20600", 34, frequency="M")
+    return get_bea_nipa_series("T20600", 35, frequency="M")
 
 def get_usa_michigan_consumer_sentiment_data():
     return get_fred_series("UMCSENT")

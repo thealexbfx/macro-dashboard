@@ -65,15 +65,19 @@ def render_usa_page():
 
             "Growth & Activity": [
                 "GDP Growth Rate",
-                "Personal Income MoM",
-                "Personal Consumption MoM",
-                "Retail Sales MoM",
+              #  "ISM Manufacturing PMI",
+              #  "ISM Services PMI",                               
                 "Industrial Production MoM",
                 "Capacity Utilization",
                 "Durable Goods Orders MoM",
-             ##   "ISM Manufacturing PMI",
-             ##   "ISM Services PMI",
                 "Trade Balance",
+            ],
+            
+            "Consumer": [
+                "Personal Income MoM",
+                "Personal Consumption MoM",
+                "Saving Rate",
+                "Retail Sales MoM",
             ],
 
             "Housing": [
@@ -145,6 +149,7 @@ def render_usa_page():
             "GDP Growth Rate": (get_usa_gdp_qoq_data, "quarterly", None),
             "Personal Income MoM": (get_usa_personal_income_mom_data, "monthly", None),
             "Personal Consumption MoM": (get_usa_personal_consumption_mom_data, "monthly", None),
+            "Saving Rate": (get_usa_saving_rate_data, "monthly", None),
             "Retail Sales MoM": (get_usa_retail_sales_mom_data, "monthly", None),
             "Industrial Production MoM": (get_usa_industrial_production_mom_data, "monthly", None),
             "Capacity Utilization": (get_usa_capacity_utilization_data, "monthly", None),
@@ -163,8 +168,8 @@ def render_usa_page():
             "Chicago Fed NFCI": (get_usa_chicago_fed_nfci_data, "weekly", None),
             
             "Initial Jobless Claims": (get_usa_initial_jobless_claims_data, "weekly", None),
-        ##    "ISM Manufacturing PMI": (get_usa_ism_manufacturing_pmi_data, "monthly", None),
-         ##   "ISM Services PMI": (get_usa_ism_services_pmi_data, "monthly", None),
+         #   "ISM Manufacturing PMI": (get_usa_ism_manufacturing_pmi_data, "monthly", None),
+         #   "ISM Services PMI": (get_usa_ism_services_pmi_data, "monthly", None),
             "Fed Balance Sheet": (get_usa_fed_balance_sheet_data, "weekly", None)
         }
 
@@ -242,8 +247,11 @@ def render_usa_page():
             "Quits Rate": "The quits rate measures voluntary job separations. A higher quits rate can signal worker confidence and labor-market tightness.",
 
             "GDP Growth Rate": "Real GDP growth measures the pace of overall economic expansion or contraction. It summarizes changes in output across consumption, investment, government spending, and trade.",
+         #   "ISM Manufacturing PMI": "The ISM Manufacturing PMI measures activity across the U.S. manufacturing sector. Readings above 50 generally indicate expansion, while readings below 50 indicate contraction. It is one of the most closely watched leading indicators of economic activity.",
+         #   "ISM Services PMI": "The ISM Services PMI measures activity across the U.S. services sector, which represents the majority of the U.S. economy. Readings above 50 generally indicate expansion, while readings below 50 indicate contraction.",
             "Personal Income MoM": "Personal income tracks monthly changes in household income. It helps assess consumer purchasing power and the sustainability of spending.",
             "Personal Consumption MoM": "Personal consumption measures monthly changes in household spending. Since consumption is the largest part of GDP, it is central to growth analysis.",
+            "Saving Rate": "The personal saving rate measures personal saving as a percentage of disposable personal income. It helps assess household financial health, spending capacity, and the sustainability of consumer demand.",
             "Retail Sales MoM": "Retail sales measure monthly changes in spending at retailers. It is a timely signal of consumer demand and goods-sector momentum.",
             "Industrial Production MoM": "Industrial production tracks monthly output from manufacturing, mining, and utilities. It is useful for monitoring the goods-producing side of the economy.",
             "Capacity Utilization": "Capacity utilization measures how much of industrial capacity is being used. High utilization can indicate supply constraints and inflation pressure.",
@@ -263,10 +271,6 @@ def render_usa_page():
             "Chicago Fed NFCI": "The Chicago Fed National Financial Conditions Index summarizes U.S. financial conditions across money markets, credit markets, and risk indicators.",
             
             "Initial Jobless Claims": "Initial jobless claims measure the number of people filing for unemployment insurance for the first time. It is one of the highest-frequency labor-market indicators and can provide early signals of changes in employment conditions.",
-
-       ##     "ISM Manufacturing PMI": "The ISM Manufacturing PMI tracks activity across the U.S. manufacturing sector. Readings above 50 generally indicate expansion, while readings below 50 generally indicate contraction.",
-
-       ##     "ISM Services PMI": "The ISM Services PMI tracks activity across the U.S. services sector, which represents a large share of the U.S. economy. It is useful for monitoring demand, business activity, employment, and prices in services.",
 
             "Fed Balance Sheet": "The Federal Reserve balance sheet shows total assets held by the Fed. It is often used as a broad liquidity indicator because changes can reflect quantitative easing, quantitative tightening, emergency lending, and other monetary operations."
         }
@@ -316,6 +320,7 @@ def render_usa_page():
             "GDP Growth Rate": "Real GDP Growth Rate (QoQ Annualized, %)",
             "Personal Income MoM": "Personal Income (MoM, %)",
             "Personal Consumption MoM": "Personal Consumption Expenditures (MoM, %)",
+            "Saving Rate": "Personal Saving Rate (%)",
             "Retail Sales MoM": "Retail Sales (MoM, %)",
             "Industrial Production MoM": "Industrial Production (MoM, %)",
             "Capacity Utilization": "Capacity Utilization (%)",
@@ -334,8 +339,8 @@ def render_usa_page():
             "Chicago Fed NFCI": "Chicago Fed National Financial Conditions Index",
             
             "Initial Jobless Claims": "Initial Jobless Claims",
-       ##     "ISM Manufacturing PMI": "ISM Manufacturing PMI",
-       ##     "ISM Services PMI": "ISM Services PMI",
+          #  "ISM Manufacturing PMI": "ISM Manufacturing PMI",
+          #  "ISM Services PMI": "ISM Services PMI",
             "Fed Balance Sheet": "Federal Reserve Balance Sheet: Total Assets"
         }
         
@@ -355,6 +360,7 @@ def render_usa_page():
             "GDP Growth Rate": "Source: U.S. Bureau of Economic Analysis (BEA)",
             "Personal Income MoM": "Source: U.S. Bureau of Economic Analysis (BEA)",
             "Personal Consumption MoM": "Source: U.S. Bureau of Economic Analysis (BEA)",
+            "Saving Rate": "Source: U.S. Bureau of Economic Analysis (BEA)",
 
             "Unemployment Rate": "Source: U.S. Bureau of Labor Statistics (BLS)",
             "Labor Force Participation Rate": "Source: U.S. Bureau of Labor Statistics (BLS)",
@@ -367,6 +373,8 @@ def render_usa_page():
             "ECI Wages & Salaries YoY": "Source: U.S. Bureau of Labor Statistics (BLS)",
 
             "Retail Sales MoM": "Source: Federal Reserve Economic Data (FRED)",
+          #  "ISM Manufacturing PMI": "Source: Institute for Supply Management (ISM)",
+          #  "ISM Services PMI": "Source: Institute for Supply Management (ISM)",
             "Industrial Production MoM": "Source: Federal Reserve Economic Data (FRED)",
             "Capacity Utilization": "Source: Federal Reserve Economic Data (FRED)",
             "Durable Goods Orders MoM": "Source: Federal Reserve Economic Data (FRED)",
@@ -409,6 +417,8 @@ def render_usa_page():
                 "Building Permits MoM", "New Home Sales MoM",
                 "Labor Productivity YoY %", "Unit Labor Costs YoY %", "Real Hourly Compensation YoY %",
                 "Michigan Consumer Sentiment"
+               # "ISM Manufacturing PMI",
+               # "ISM Services PMI"
             ]:
                 return 1
 
