@@ -40,6 +40,8 @@ from components.charts import plot_chart, plot_scenario_chart
 
 from app_pages.global_macro_view import render_global_macro_view
 
+from app_pages.regime_monitor import render_regime_monitor_page
+
 # Modular data loaders - Phase 2A
 from data.fred import get_fred_series, get_usa_yield_data
 from data.bls import get_bls_series
@@ -715,342 +717,31 @@ def prepare_df(df: pd.DataFrame, label: str) -> pd.DataFrame:
 
 #####-----Streamlit App-----#####
 
-# --- Streamlit page config (tab title + favicon + layout) ---
+from styles.theme import inject_global_css
+from components.layout import (
+    render_sidebar,
+    render_top_strip,
+)
+from app_pages.home import render_home_page
+
 st.set_page_config(
-    page_title="Macro Lens Research",
+    page_title="MacroLens Research",
     page_icon="logo_favicon.png",
     layout="wide",
     initial_sidebar_state="collapsed",
     menu_items={}
 )
 
-# --- Umami Analytics (add right here) ---
 components.html("""
 <script defer src="https://cloud.umami.is/script.js" data-website-id="4fd6c49f-bf1f-4823-870d-31e2ffe75961"></script>
 """, height=0)
 
-# --- Global Styles ---
-st.markdown("""
-<style>
-/* Mobile responsiveness adjustments */
-@media only screen and (max-width: 768px) {
-    .block-container {
-        padding: 0.5rem 0.5rem !important;
-    }
+inject_global_css()
 
-    .custom-header {
-        height: auto !important;
-        min-height: 84px !important;
-        padding: 8px 0 10px 0 !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-    }
-
-    .custom-header .logo {
-        position: static !important;
-        left: auto !important;
-        font-size: 1.05rem !important;
-        margin-bottom: 8px !important;
-        text-align: center !important;
-    }
-
-    .custom-header .menu {
-        gap: 1.1rem !important;
-        flex-wrap: nowrap !important;
-        justify-content: center !important;
-        width: 100% !important;
-    }
-
-    .dropdown-btn {
-        font-size: 0.95rem !important;
-    }
-
-    .dropdown-content {
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        max-width: 92vw !important;
-        z-index: 10000 !important;
-    }
-
-    .dropdown-content a {
-        font-size: 14px !important;
-        padding: 10px 4px !important;
-    }
-
-    .main-content {
-        margin-top: 108px !important;
-        padding: 0 0.25rem !important;
-    }
-
-    .stSelectbox label, .stDateInput label {
-        font-size: 0.9rem !important;
-    }
-
-    .stSelectbox div[data-baseweb="select"] {
-        font-size: 0.9rem !important;
-    }
-
-    .stButton > button {
-        width: 100% !important;
-    }
-
-    h1, h2, h3 {
-        font-size: 1.2rem !important;
-    }
-
-    .stPlotlyChart {
-        width: 100% !important;
-        height: auto !important;
-    }
-}
-
-/* Prevent horizontal scrollbars */
-html, body {
-    overflow-x: hidden;
-    margin: 0;
-    padding: 0;
-}
-
-/* Hide Streamlit chrome */
-#MainMenu,
-header,
-footer,
-[data-testid="stToolbar"],
-[data-testid="stDecoration"],
-[data-testid="stStatusWidget"],
-.stStatusWidget {
-    visibility: hidden !important;
-    display: none !important;
-}
-/* Remove top padding Streamlit leaves behind */
-[data-testid="stHeader"] {
-    height: 0px !important;
-    display: none !important;
-}
-
-[data-testid="stToolbar"] {
-    display: none !important;
-}
-
-button[kind="header"] {
-    display: none !important;
-}
-.block-container {padding-top: 0rem !important;}
-
-/* Fixed Top Bar */
-.custom-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 9999;
-    background-color: #F9F9F9;
-    width: 100%;
-    height: 64px;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    border-bottom: 2px solid #DCDCDC;
-
-    transition: box-shadow 0.2s ease, border-bottom 0.2s ease;
-}
-
-/* When page is scrolled */
-.custom-header.scrolled {
-    border-bottom: none;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.custom-header .logo {
-    position: absolute;
-    left: 32px;
-    font-weight: bold;
-    font-size: 1.2rem;
-}
-
-.custom-header .menu {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 3rem;
-}
-
-
-.custom-header .menu a {
-    text-decoration: none;
-    font-size: 1rem;
-    color: black;
-    font-weight: 500;
-}
-
-.custom-header .menu a:hover {
-    color: #007bff;
-}
-
-/* Dropdown menu for countries */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-btn {
-    background: none;
-    border: none;
-    font-size: 1.15rem;
-    font-weight: 600;
-    cursor: pointer;
-    color: black;
-
-    display: flex;
-    align-items: center;
-    height: 100%;
-    padding: 0;
-    line-height: 1;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-
-    left: 50%;
-    transform: translateX(-50%);
-
-    background-color: #ffffff;
-
-    width: max-content;
-    min-width: 100%;
-
-    border: 2.5px solid #d1d5db;
-    border-radius: 10px;
-
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.08);
-    z-index: 1;
-
-    overflow: hidden;
-}
-
-.dropdown-content {
-    padding: 0 16px;
-}
-
-.dropdown-content a {
-    color: black;
-    padding: 12px 4px;
-    font-size: 17px !important;
-    font-weight: 650 !important;
-    white-space: nowrap;
-
-    text-decoration: none;
-    display: block;
-    
-
-    border-bottom: 1.5px solid #cbd5e1;
-}
-
-.dropdown-content a:last-child {
-    border-bottom: none;
-}
-
-.dropdown-content a:hover {
-    background-color: #f1f1f1;
-}
-
-.dropdown:hover .dropdown-content {display: block;}
-.dropdown:hover .dropdown-btn {color: #007bff;}
-
-/* Main content starts below fixed top bar */
-.main-content {
-    margin-top: 80px;  /* same height as .custom-header */
-    padding: 0 1rem;
-}
-
-/* Hero section */
-.hero {
-    padding: 0;
-    margin: 0 0 2rem 0;
-    text-align: center;
-}
-
-.hero h1 {
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin: 0.2rem 0 0.5rem 0;
-    color: #111;
-    line-height: 1.2;
-}
-
-.hero p {
-    font-size: 1.15rem;
-    color: #444;
-    margin-bottom: 1.8rem;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# --- Fixed Top Bar (HTML block) ---
-st.markdown("""
-<div class="custom-header">
-    <div class="logo">
-        <a href="?page=Home" target="_self" style="text-decoration: none; color: inherit;">
-            MACROLENS
-        </a>
-    </div>
-    <div class="menu">
-        <div class="dropdown">
-            <button class="dropdown-btn">Economies ▾</button>
-            <div class="dropdown-content">
-                <a href="?page=UnitedStates" target="_self">United States</a>
-                <a href="?page=EuroArea" target="_self">Euro Area</a>
-                <a href="?page=UnitedKingdom" target="_self">United Kingdom</a>
-                <a href="?page=Japan" target="_self">Japan</a>
-            </div>
-        </div>
-        <div class="dropdown">
-            <button class="dropdown-btn">Markets ▾</button>
-            <div class="dropdown-content">                              
-                <a href="?page=RatesBonds" target="_self">Rates & Bonds</a>
-                <a href="?page=Equities" target="_self">Equities</a>
-                <a href="?page=Commodities" target="_self">Commodities</a>
-                <a href="?page=FX" target="_self">FX</a> 
-                <a href="?page=Crypto" target="_self">Crypto</a>
-            </div>
-        </div>
-        <div class="dropdown">
-            <button class="dropdown-btn">Research ▾</button>
-            <div class="dropdown-content">
-                <a href="?page=GlobalMacroView" target="_self">Global Macro View</a>
-                <a href="?page=CentralBankWatch" target="_self">Central Bank Watch</a>
-                <a href="?page=RegimeMonitor" target="_self">Regime Monitor</a> 
-                <a href="?page=ResearchNotes" target="_self">Research Notes</a>                
-                <a href="?page=Calendar" target="_self">Calendar</a>               
-            </div>    
-        </div>
-    </div>    
-</div>
-""", unsafe_allow_html=True)
-
-# --- JS to toggle shadow on scroll ---
-st.markdown("""
-<script>
-window.addEventListener('scroll', function() {
-    const header = document.querySelector('.custom-header');
-    if (window.scrollY > 10) {
-        header.classList.add('scrolled');
-    } else {
-        header.classList.remove('scrolled');
-    }
-});
-</script>
-""", unsafe_allow_html=True)
-
-query_params = st.query_params
-page = query_params.get("page", "Home")  # default to Home if not specified
+page = st.query_params.get("page", "Home")
 
 page_titles = {
-    "Home": "Home",
+    "Home": "Overview",
     "UnitedStates": "United States",
     "EuroArea": "Euro Area",
     "UnitedKingdom": "United Kingdom",
@@ -1067,412 +758,50 @@ page_titles = {
     "Calendar": "Calendar",
 }
 
-page_title = page_titles.get(page, page)
-
-# --- Main content wrapper to start scroll below header ---
-st.markdown('<div class="main-content">', unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-/* --------- Select Box Labels --------- */
-label[data-baseweb="select"] {
-    font-weight: 700 !important;   /* Bold */
-    font-size: 18px !important;    /* Larger font */
-    color: #1a1a1a !important;
-}
-label[data-baseweb="select"]::after {
-    content: ":";   /* Colon stuck to word */
-}
-
-/* --------- Select Box --------- */
-div[data-baseweb="select"] {
-    border: 1.5px solid #000000 !important;  /* Black border */
-    border-radius: 6px !important;
-    font-size: 15px !important;
-    background-color: #f5f5f5 !important;   /* Grey background */
-}
-div[data-baseweb="select"] > div {
-    font-size: 15px !important;
-    font-weight: 500 !important;
-    color: #1a1a1a !important;
-}
-div[data-baseweb="select"]:hover {
-    border-color: #000000 !important;       /* Black on hover */
-}
-
-/* --------- Date Input Labels --------- */
-label[data-baseweb="input"] {
-    font-weight: 700 !important;   /* Bold */
-    font-size: 18px !important;    /* Larger font */
-    color: #1a1a1a !important;
-}
-label[data-baseweb="input"]::after {
-    content: ":";   /* Colon stuck to word */
-}
-
-/* --------- Date Input --------- */
-div[data-baseweb="input"] {
-    border: 1.5px solid #000000 !important;  /* Black border */
-    border-radius: 6px !important;
-    font-size: 15px !important;
-    /* No background override → keeps Streamlit default */
-}
-div[data-baseweb="input"] input {
-    font-size: 15px !important;
-    font-weight: 500 !important;
-    color: #1a1a1a !important;
-}
-div[data-baseweb="input"]:hover {
-    border-color: #000000 !important;       /* Black on hover */
-}
-</style>
-""", unsafe_allow_html=True)
-
-# --- Main Content Below Header ---
+render_sidebar(active_page=page)
+render_top_strip(page_titles.get(page, page))
 
 if page == "Home":
+    render_home_page()
 
-    st.markdown("""
-    <style>
-    .hero {
-        padding: 34px 38px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, #0b1320 0%, #132238 55%, #0a9396 140%);
-        color: white;
-        margin-bottom: 22px;
-    }
-    .hero {
-        padding: 42px 38px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, #0b1320 0%, #132238 55%, #0a9396 140%);
-        color: white;
-        margin-bottom: 22px;
-        text-align: center;
-    }
+elif page == "UnitedStates":
+    safe_render(render_usa_page, "USA")
 
-    .hero .section-label {
-        text-align: center;
-        color: #7dd3fc;
-    }
-
-    .hero h1 {
-        font-size: 48px;
-        font-weight: 900;
-        margin: 8px auto 10px auto;
-        color: #ffffff !important;
-        text-align: center;
-    }
-
-    .hero p {
-        font-size: 18px;
-        color: #d6e2ea;
-        max-width: 850px;
-        margin-left: auto;
-        margin-right: auto;
-        text-align: center;
-    }
-    .section-label {
-        font-size: 13px;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #0a9396;
-        margin-bottom: 8px;
-    }
-    .card {
-        background: #ffffff;
-        border: 1px solid #e6e8eb;
-        border-radius: 15px;
-        padding: 20px 22px;
-        margin-bottom: 16px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.035);
-        min-height: 150px;
-        text-align: center;
-    }
-    .card h3 {
-        font-size: 20px;
-        font-weight: 800;
-        margin: 0 0 12px 0;
-        color: #111827;
-    }
-    .card p, .card li {
-        font-size: 14.5px;
-        line-height: 1.55;
-        color: #374151;
-    }
-    .regime-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 12px;
-        margin-bottom: 18px;
-    }
-    .regime-box {
-        background: #f8fafc;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 16px;
-        text-align: center;
-    }
-    .regime-box span {
-        display: block;
-        text-align: center;
-        font-size: 13px;
-        color: #6b7280;
-        font-weight: 700;
-        text-transform: uppercase;
-        margin-bottom: 6px;
-    }
-    .regime-box b {
-        display: block;
-        text-align: center;
-        font-size: 20px;
-        color: #111827;
-    }
-    .market-row {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 10px;
-        margin-bottom: 18px;
-    }
-    .market-tile {
-        background: #f8fafc;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 16px;
-    }
-    .market-tile span {
-        display: block;
-        text-align: center;
-        font-size: 18px;
-        font-weight: 800;
-        text-transform: uppercase;
-        color: #000000;
-        margin-bottom: 8px;
-    }
-    .market-tile b {
-        display: block;
-        text-align: center;
-        font-size: 26px;
-        font-weight: 800;
-        color: #111827;
-        margin-bottom: 6px;
-    }
-    .footer {
-        margin-top: 22px;
-        padding: 20px;
-        border-top: 1px solid #e5e7eb;
-        text-align: center;
-        font-size: 13px;
-        color: #6b7280;
-    }
-    @media (max-width: 900px) {
-        .regime-grid, .market-row {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        .hero h1 {
-            font-size: 34px;
-        }
-    }
-    </style>
-
-    <div class="hero">
-        <div class="section-label">Independent Macro Research Platform</div>
-        <h1>Macro Lens Research</h1>
-        <p>
-            A macro research dashboard built to track economic regimes, policy cycles,
-            cross-asset market signals, and the data that drives global macro decisions.
-        </p>
-    </div>
-
-    <div class="regime-grid">
-        <div class="regime-box"><span>Growth Signal</span><b>Coming Soon</b></div>
-        <div class="regime-box"><span>Inflation Signal</span><b>Coming Soon</b></div>
-        <div class="regime-box"><span>Labor Signal</span><b>Coming Soon</b></div>
-        <div class="regime-box"><span>Policy Signal</span><b>Coming Soon</b></div>
-    </div>
-
-    """, unsafe_allow_html=True)
-
-    market_snapshot = {
-        "DXY": "dxy",
-        "EUR/USD": "eurusd",
-        "S&P 500": "eq_sp500",
-        "Gold": "cmd_gold",
-        "Bitcoin": "crypto_btc",
-    }
-
-    cols = st.columns(5)
-
-    for i, (label, code) in enumerate(market_snapshot.items()):
-        try:
-            df_market = load_indicator_data(code).dropna()
-            latest = df_market["value"].iloc[-1]
-            previous = df_market["value"].iloc[-2]
-            pct_change = ((latest - previous) / previous) * 100
-
-            if pct_change > 0:
-                change_color = "#16a34a"
-            elif pct_change < 0:
-                change_color = "#dc2626"
-            else:
-                change_color = "#6b7280"
-
-            with cols[i]:
-                st.markdown(f"""
-                <div class="market-tile">
-                    <span>{label}</span>
-                    <b>{latest:.2f}</b>
-                    <div style="
-                        text-align:center;
-                        font-size:18px;
-                        font-weight:800;
-                        color:{change_color};
-                    ">
-                        {pct_change:+.2f}%
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-
-        except Exception as e:
-            with cols[i]:
-                st.markdown(f"""
-                <div class="market-tile">
-                    <span>{label}</span>
-                    <b>{str(e)[:50]}</b>
-                </div>
-                """, unsafe_allow_html=True)
-
-    st.markdown("""
-    """, unsafe_allow_html=True)
-
-    st.markdown("<h2 style='text-align:center;'>Macro Lens Framework</h2>", unsafe_allow_html=True)
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.markdown("""
-        <div class="card">
-            <h3>Growth</h3>
-            <p>
-                Track economic momentum across output, consumption,
-                labor markets, housing, and business activity to
-                identify changes in the growth cycle.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown("""
-        <div class="card">
-            <h3>Inflation</h3>
-            <p>
-                Monitor inflation trends, pricing pressures,
-                wages, and demand dynamics to assess the
-                direction of inflation regimes.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col3:
-        st.markdown("""
-        <div class="card">
-            <h3>Policy</h3>
-            <p>
-                Analyze central bank reaction functions,
-                interest-rate cycles, and financial conditions
-                to understand policy implications.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    st.markdown("<h2 style='text-align:center;'>Research Approach</h2>", unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="card" style="text-align:center; max-width:1000px; margin:auto;">
-
-    <h3 style="
-        font-size:28px;
-        font-weight:700;
-        margin-bottom:25px;
-    ">
-        Data → Models → Interpretation → Market Implications
-    </h3>
-
-    <div style="
-    max-width:850px;
-    margin:auto;
-    color:#374151;
-    ">
-
-    <p style="font-size:18px; line-height:1.9;">
-    Macro Lens is an independent macroeconomic research platform designed to transform economic and market data into actionable insights.
-    </p>
-
-    <p style="font-size:18px; line-height:1.9;">
-    The framework begins with monitoring growth, inflation, labor markets, and central-bank policy across major economies. These data inputs are then combined into model-driven signals that help identify shifts in macroeconomic regimes.
-    </p>
-
-    <p style="font-size:18px; line-height:1.9;">
-    The objective is not simply to display charts, but to connect economic developments with market implications across equities, bonds, currencies, commodities, and other asset classes through a structured research process.
-    </p>
-
-    </div>
-
-    </div>
-    """, unsafe_allow_html=True)
-        
-
-    st.markdown("""
-    <div class="footer">
-        <p>Built by <b>Macro Lens Research</b> • Independent macro research dashboard</p>
-        <p>
-            <a href="https://www.linkedin.com/in/alex-ballinger-059919302/" target="_blank">LinkedIn</a> |
-            <a href="https://youtube.com/@macrolensresearch" target="_blank">YouTube</a> |
-            <a href="https://www.instagram.com/themacrolens_/" target="_blank">Instagram</a>
-        </p>
-        <p>&copy; 2026 Macro Lens Research. All rights reserved.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-if page == "UnitedStates":
-    safe_render(render_usa_page, "USA")         
-        
-if page == "Japan":
+elif page == "Japan":
     safe_render(render_japan_page, "Japan")
 
-if page == "UnitedKingdom":
+elif page == "UnitedKingdom":
     safe_render(render_uk_page, "UK")
 
-if page == "EuroArea":
+elif page == "EuroArea":
     safe_render(render_euro_page, "Euro Area")
 
-if page == "FX":
+elif page == "FX":
     safe_render(render_fx_page, "FX")
- 
-if page == "Equities":
+
+elif page == "Equities":
     safe_render(render_equities_page, "Equities")
-        
-if page == "Commodities":
+
+elif page == "Commodities":
     safe_render(render_commodities_page, "Commodities")
-        
-if page == "RatesBonds":
+
+elif page == "RatesBonds":
     safe_render(render_rates_bonds_page, "Rates & Bonds")
-     
-if page == "Crypto":
+
+elif page == "Crypto":
     safe_render(render_crypto_page, "Crypto")
-    
-if page == "GlobalMacroView":
-    render_under_construction_page("Global Macro View")
-    
-if page == "CentralBankWatch":
+
+elif page == "GlobalMacroView":
+    safe_render(render_global_macro_view, "Global Macro View")
+
+elif page == "CentralBankWatch":
     render_under_construction_page("Central Bank Watch")
 
-if page == "RegimeMonitor":
-    render_under_construction_page("Regime Monitor")
+elif page == "RegimeMonitor":
+    safe_render(render_regime_monitor_page, "Regime Monitor")
 
-if page == "ResearchNotes":
+elif page == "ResearchNotes":
     render_under_construction_page("Research Notes")
 
-if page == "Calendar":
+elif page == "Calendar":
     render_under_construction_page("Calendar")
