@@ -1,5 +1,5 @@
 import streamlit as st
-
+from components.sparkline import build_sparkline_svg
 
 PILLAR_COLORS = {
     "Growth": "#16a34a",
@@ -31,29 +31,25 @@ def render_pillar_card(name, status, score, description):
     """)
 
 
-def render_market_tile(label, value, change=None):
-    change_html = ""
+def render_market_tile(label, value, change=None, sparkline_df=None, trend_positive=True):
+    if change is None:
+        change_class = "neutral"
+        change_text = ""
+    else:
+        change_class = "positive" if change > 0 else "negative" if change < 0 else "neutral"
+        change_text = f"{change:+.2f}%"
 
-    if change is not None:
-        color = "#16a34a" if change > 0 else "#dc2626" if change < 0 else "#64748b"
-        change_html = (
-            f'<div style="font-size:13px; font-weight:900; color:{color}; margin-top:5px;">'
-            f'{change:+.2f}%'
-            f'</div>'
-        )
+    sparkline_svg = build_sparkline_svg(sparkline_df, positive=trend_positive)
 
-    html = f"""
-    <div class="ml-card" style="min-height:94px;">
-        <div class="small-label">{label}</div>
-        <div style="font-size:25px; font-weight:900; letter-spacing:-0.04em; margin-top:6px;">
-            {value}
-        </div>
-        {change_html}
+    render_html(f"""
+    <div class="market-card">
+        <div class="market-label">{label}</div>
+        <div class="market-value">{value}</div>
+        <div class="market-change {change_class}">{change_text}</div>
+        <div class="market-sparkline">{sparkline_svg}</div>
+        <div class="market-period">Past month</div>
     </div>
-    """
-
-    st.markdown(html, unsafe_allow_html=True)
-
+    """)
 
 def render_country_card(country, regime, growth, inflation, policy):
     render_html(f"""

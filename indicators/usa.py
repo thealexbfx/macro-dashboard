@@ -70,13 +70,15 @@ def get_usa_quits_rate_data():
     return get_bls_series("JTS000000000000000QUR", start_year=2000)
 
 def get_usa_eci_total_compensation_yoy_data():
-    return calculate_yoy_from_index(
-        get_bls_series("CIU2010000000000A", start_year=2001)
+    return get_bls_series(
+        "CIU2010000000000A",
+        start_year=2001
     )
 
 def get_usa_eci_wages_salaries_yoy_data():
-    return calculate_yoy_from_index(
-        get_bls_series("CIU2020000000000A", start_year=2001)
+    return get_bls_series(
+        "CIU2020000000000A",
+        start_year=2001
     )
 
 def get_usa_gdp_qoq_data():

@@ -1,109 +1,140 @@
 import streamlit as st
 from datetime import datetime
 
-from app_pages.macro_models import build_global_macro_table
-from models.country_analysis import (
-    analyze_usa,
-    analyze_uk,
-    analyze_euro,
-    analyze_japan,
-)
+from models.usa_growth import analyze_usa_growth
+from models.usa_inflation import analyze_usa_inflation
+from models.usa_labor import analyze_usa_labor
+from models.usa_policy import analyze_usa_policy
+from models.usa_liquidity import analyze_usa_liquidity
+
+
+def render_country_macro_card(country, regime, growth, inflation, labor, policy, liquidity):
+    html = f"""
+    <div class="ml-card" style="min-height:210px;">
+        <div class="small-label">{country}</div>
+        <h3 style="font-size:24px; font-weight:900; margin:8px 0 14px 0;">
+            {regime}
+        </h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:14px;">
+            <div><div class="small-label">Growth</div><b>{growth}</b></div>
+            <div><div class="small-label">Inflation</div><b>{inflation}</b></div>
+            <div><div class="small-label">Labor</div><b>{labor}</b></div>
+            <div><div class="small-label">Policy</div><b>{policy}</b></div>
+            <div><div class="small-label">Liquidity</div><b>{liquidity}</b></div>
+        </div>
+    </div>
+    """
+
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def render_global_macro_view():
     st.markdown("## Global Macro View")
     st.caption(f"Last updated: {datetime.now().strftime('%B %Y')}")
 
-    st.markdown("""
-    <div style="
-        padding:24px;
-        border-radius:16px;
-        background:#0b1320;
-        color:white;
-        margin-bottom:20px;
-    ">
-        <div style="font-size:13px; letter-spacing:0.08em; text-transform:uppercase; color:#94a3b8;">
-            Current Global Regime
+    growth = analyze_usa_growth()
+    inflation = analyze_usa_inflation()
+    labor = analyze_usa_labor()
+    policy = analyze_usa_policy()
+    liquidity = analyze_usa_liquidity()
+
+    st.markdown(
+        f"""
+        <div class="hero-panel">
+            <h1>Global macro regimes, country by country.</h1>
+            <p>
+                MacroLens tracks growth, inflation, labor, policy and liquidity to classify
+                the current macro environment across major economies.
+            </p>
         </div>
-        <div style="font-size:34px; font-weight:800; margin-top:6px;">
-            Model Output in Progress
-        </div>
-        <div style="font-size:15px; color:#cbd5e1; margin-top:8px;">
-            This page is now beginning to move from static dashboard content toward model-driven
-            macro signals across growth, inflation, and policy.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
-    st.markdown("### Macro Pillars")
+    st.markdown('<div class="section-title">Current global snapshot</div>', unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
 
-    pillars = [
-        ("Growth", "Model Driven", "Tracks whether economic activity is improving, slowing, or neutral."),
-        ("Inflation", "Model Driven", "Tracks whether inflation pressure is rising, cooling, or neutral."),
-        ("Policy", "Model Driven", "Tracks whether policy is restrictive, accommodative, or unavailable."),
-        ("Labor", "Later", "Labor-market signal will be added after the first model version is stable."),
-        ("Liquidity", "Later", "Liquidity and financial conditions will be added in a later version."),
-        ("Market Pricing", "Later", "Market-implied signals will be added after macro signals are working."),
-    ]
-
-    for i, (title, status, text) in enumerate(pillars):
-        col = [col1, col2, col3][i % 3]
-        with col:
-            st.markdown(f"""
-            <div style="
-                border:1px solid #e5e7eb;
-                border-radius:14px;
-                padding:18px;
-                margin-bottom:14px;
-                background:white;
-                min-height:145px;
-            ">
-                <div style="font-size:13px; color:#64748b; font-weight:700; text-transform:uppercase;">
-                    {title}
-                </div>
-                <div style="font-size:24px; font-weight:800; margin:6px 0;">
-                    {status}
-                </div>
-                <div style="font-size:14px; color:#374151; line-height:1.45;">
-                    {text}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-    st.markdown("### Regional Scorecard")
-
-    try:
-        macro_table = build_global_macro_table(
-            usa=analyze_usa(),
-            uk=analyze_uk(),
-            euro=analyze_euro(),
-            japan=analyze_japan(),
+    with col1:
+        render_country_macro_card(
+            country="United States",
+            regime=f"{growth['regime']} / {inflation['regime']}",
+            growth=growth["regime"],
+            inflation=inflation["regime"],
+            labor=labor["regime"],
+            policy=policy["summary"],
+            liquidity=liquidity["regime"],
         )
 
-        cols = st.columns(4)
+    with col2:
+        render_country_macro_card(
+            country="Euro Area",
+            regime="Model Coming Soon",
+            growth="Pending",
+            inflation="Pending",
+            labor="Pending",
+            policy="Pending",
+            liquidity="Pending",
+        )
 
-        for i, row in macro_table.iterrows():
-            with cols[i]:
-                with st.container(border=True):
-                    st.markdown(f"### {row['Country']}")
-                    st.markdown(f"**Growth:** {row['Growth']}")
-                    st.markdown(f"**Inflation:** {row['Inflation']}")
-                    st.markdown(f"**Policy:** {row['Policy']}")
+    with col3:
+        render_country_macro_card(
+            country="United Kingdom",
+            regime="Model Coming Soon",
+            growth="Pending",
+            inflation="Pending",
+            labor="Pending",
+            policy="Pending",
+            liquidity="Pending",
+        )
 
-        with st.expander("View raw model output"):
-            st.dataframe(macro_table, use_container_width=True, hide_index=True)
+    with col4:
+        render_country_macro_card(
+            country="Japan",
+            regime="Model Coming Soon",
+            growth="Pending",
+            inflation="Pending",
+            labor="Pending",
+            policy="Pending",
+            liquidity="Pending",
+        )
 
-    except Exception:
-        st.error("Global macro model is temporarily unavailable.")
+    st.markdown('<div class="section-title">United States model summary</div>', unsafe_allow_html=True)
 
-    st.markdown("### Next Model Improvements")
+    st.markdown(
+        f"""
+        <div class="dark-regime-card">
+            <div class="small-label" style="color:#94a3b8;">Current Model View</div>
+            <h2>{growth["regime"]} / {inflation["regime"]}</h2>
+            <p style="color:#cbd5e1; font-size:14px; line-height:1.65; margin-top:14px;">
+                The US macro model currently shows <b>{growth["regime"]}</b> growth,
+                <b>{inflation["regime"]}</b> inflation, <b>{labor["regime"]}</b> labor conditions,
+                <b>{policy["summary"]}</b> policy, and <b>{liquidity["regime"]}</b> liquidity.
+            </p>
+            <div style="margin-top:18px; display:grid; grid-template-columns: repeat(5, 1fr); gap:12px;">
+                <div><div class="small-label" style="color:#94a3b8;">Growth</div><b>{growth["total_score"]:.2f}</b></div>
+                <div><div class="small-label" style="color:#94a3b8;">Inflation</div><b>{inflation["total_score"]:.2f}</b></div>
+                <div><div class="small-label" style="color:#94a3b8;">Labor</div><b>{labor["total_score"]:.2f}</b></div>
+                <div><div class="small-label" style="color:#94a3b8;">Policy</div><b>{policy["stance"]["total_score"]:.2f}</b></div>
+                <div><div class="small-label" style="color:#94a3b8;">Liquidity</div><b>{liquidity["total_score"]:.2f}</b></div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    st.markdown("""
-    - Add better scoring logic for growth and inflation.
-    - Separate labor from growth.
-    - Add policy direction, not just policy level.
-    - Add market signals later.
-    - Add analyst interpretation after model output is stable.
-    """)
+    st.markdown('<div class="section-title">How to read this page</div>', unsafe_allow_html=True)
+
+    st.markdown(
+        """
+        <div class="ml-card">
+            <p style="font-size:14px; line-height:1.7; color:#475569; margin:0;">
+                Global Macro View is designed to compare macro regimes across economies.
+                The Regime Monitor provides the detailed model breakdown for each pillar.
+                Over time, this page will expand beyond the United States as full pillar models
+                are built for the Euro Area, United Kingdom and Japan.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )

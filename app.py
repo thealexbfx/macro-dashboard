@@ -759,7 +759,8 @@ page_titles = {
 }
 
 render_sidebar(active_page=page)
-render_top_strip(page_titles.get(page, page))
+if page != "Home":
+    render_top_strip(page_titles.get(page, page))
 
 if page == "Home":
     render_home_page()

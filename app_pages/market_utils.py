@@ -8,11 +8,23 @@ def render_date_controls(df, timeframe):
     earliest_date = df["date"].min().date()
     latest_date = df["date"].max().date()
 
+    timeframe_days = {
+        "1D": 1,
+        "1W": 7,
+        "1M": 30,
+        "3M": 90,
+        "6M": 180,
+        "1Y": 365,
+        "3Y": 365 * 3,
+        "5Y": 365 * 5,
+        "10Y": 365 * 10,
+    }
+
     if timeframe != "MAX":
-        years = int(timeframe.replace("Y", ""))
+        days = timeframe_days.get(timeframe, 365)
         default_start_date = max(
             earliest_date,
-            latest_date - dt.timedelta(days=365 * years)
+            latest_date - dt.timedelta(days=days)
         )
     else:
         default_start_date = earliest_date
@@ -24,7 +36,8 @@ def render_date_controls(df, timeframe):
             "Start Date",
             default_start_date,
             min_value=earliest_date,
-            max_value=latest_date
+            max_value=latest_date,
+            key=f"start_date_{timeframe}"
         )
 
     with date_col2:
@@ -32,7 +45,8 @@ def render_date_controls(df, timeframe):
             "End Date",
             latest_date,
             min_value=earliest_date,
-            max_value=latest_date
+            max_value=latest_date,
+            key=f"end_date_{timeframe}"
         )
 
     if start_date > end_date:

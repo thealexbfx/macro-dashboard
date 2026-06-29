@@ -56,7 +56,11 @@ def render_commodities_page():
         with ct_col:
             chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
         with tf_col:
-            timeframe = st.selectbox("Time Frame", ["1Y", "3Y", "5Y", "10Y", "MAX"])
+            timeframe = st.selectbox(
+                "Time Frame",
+                ["1D", "1W", "1M", "3M", "6M", "1Y", "3Y", "5Y", "10Y", "MAX"],
+                index=5
+            )
 
         # Delta Type (allow turning it off)
         delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
