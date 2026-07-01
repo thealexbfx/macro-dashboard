@@ -1,17 +1,17 @@
 :root {
     --sidebar-width: 260px;
 
-    --bg-main: #050b14;
-    --bg-panel: #08111f;
-    --bg-card: rgba(15, 23, 42, 0.86);
-    --bg-card-soft: rgba(15, 23, 42, 0.68);
+    --bg-main: #F5F7FA;
+	--bg-panel: #FFFFFF;
+	--bg-card: #FFFFFF;
+	--bg-card-soft: #F8FAFC;
 
-    --text: #f8fafc;
-    --muted: #94a3b8;
-    --muted-2: #64748b;
+	--text: #0F172A;
+	--muted: #64748B;
+	--muted-2: #94A3B8;
 
-    --border: rgba(148, 163, 184, 0.16);
-    --border-strong: rgba(148, 163, 184, 0.26);
+	--border: #E2E8F0;
+	--border-strong: #CBD5E1;
 
     --blue: #38bdf8;
     --green: #22c55e;
@@ -31,9 +31,15 @@ body,
 [data-testid="stAppViewContainer"],
 .stApp {
     background:
-        radial-gradient(circle at 20% 0%, rgba(56, 189, 248, 0.12), transparent 28%),
-        radial-gradient(circle at 80% 8%, rgba(168, 85, 247, 0.10), transparent 30%),
-        linear-gradient(180deg, #06111f 0%, #050b14 55%, #030712 100%) !important;
+        radial-gradient(circle at 15% 0%, rgba(56,189,248,0.05), transparent 35%),
+        radial-gradient(circle at 85% 8%, rgba(168,85,247,0.04), transparent 35%),
+        linear-gradient(
+            180deg,
+            #FBFCFD 0%,
+            #F7F9FC 45%,
+            #F3F6FA 100%
+        ) !important;
+
     color: var(--text) !important;
     font-family: Inter, "Segoe UI", Arial, sans-serif;
     overflow-x: hidden !important;
@@ -191,16 +197,16 @@ footer,
 /* Cards */
 .ml-card,
 .market-card {
-    background:
-        linear-gradient(180deg, rgba(15,23,42,0.92), rgba(15,23,42,0.74));
+    background: #FFFFFF;
     border: 1px solid var(--border);
     border-radius: 18px;
     padding: 18px;
-    box-shadow:
-        0 18px 46px rgba(0,0,0,0.24),
-        inset 0 1px 0 rgba(255,255,255,0.04);
     box-sizing: border-box;
     color: var(--text);
+
+    box-shadow:
+        0 2px 8px rgba(15,23,42,0.05),
+        0 8px 24px rgba(15,23,42,0.06);
 }
 
 .market-card {
@@ -290,13 +296,14 @@ footer,
 }
 
 .insight-box {
-    background: rgba(15,23,42,0.72);
-    border: 1px solid rgba(148,163,184,0.15);
-    border-radius: 13px;
-    padding: 11px 12px;
-    font-size: 12.5px;
-    line-height: 1.5;
-    color: #cbd5e1;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 9px 10px !important;
+
+    color: #475569;
+    font-size: 12px !important;
+    line-height: 1.55;
 }
 
 /* Country cards */
@@ -405,7 +412,7 @@ div[data-testid="stSelectbox"] {
     font-weight: 750;
 }
 
-/* Research Opportunities */
+/* Research Opportunities - light theme */
 .research-header-row {
     display: grid;
     grid-template-columns: 0.35fr 2fr 1.2fr 1.4fr 2.4fr 0.25fr;
@@ -413,11 +420,11 @@ div[data-testid="stSelectbox"] {
     gap: 14px;
     padding: 11px 18px;
     margin-top: 14px;
-    background: rgba(15,23,42,0.76);
-    border: 1px solid rgba(148,163,184,0.18);
-    border-bottom: 1px solid rgba(148,163,184,0.12);
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-bottom: 1px solid #CBD5E1;
     border-radius: 10px 10px 0 0;
-    color: #94a3b8;
+    color: #64748B;
     font-size: 12px;
     font-weight: 850;
     text-transform: uppercase;
@@ -431,10 +438,10 @@ div[data-testid="stSelectbox"] {
     gap: 14px;
     padding: 10px 18px;
     min-height: 46px;
-    background: rgba(15,23,42,0.70);
-    border-left: 1px solid rgba(148,163,184,0.18);
-    border-right: 1px solid rgba(148,163,184,0.18);
-    border-bottom: 1px solid rgba(148,163,184,0.10);
+    background: #FFFFFF;
+    border-left: 1px solid #E2E8F0;
+    border-right: 1px solid #E2E8F0;
+    border-bottom: 1px solid #E2E8F0;
     border-radius: 0;
 }
 
@@ -443,52 +450,37 @@ div[data-testid="stSelectbox"] {
 }
 
 .research-compact-row:hover {
-    background: rgba(56,189,248,0.055);
+    background: #F8FAFC;
 }
 
 .research-rank {
-    color: #94a3b8;
-	font-size:18px !important;
-    font-weight:700;
+    color: #94A3B8;
+    font-size: 18px !important;
+    font-weight: 700;
 }
 
 .research-asset {
     display: flex;
     align-items: center;
     gap: 9px;
-    color: #f8fafc;
-    font-size: 15px;
-    font-weight: 950;
+    color: #0F172A;
+    font-size: 18px !important;
+    font-weight: 800;
 }
 
-.asset-icon {
-    width: 22px;
-    height: 22px;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(148,163,184,0.14);
-    font-size: 12px;
-}
-
-.research-move {
-    font-size: 16px;
-    font-weight: 950;
-}
-
+.research-move,
 .research-score {
-    font-size: 16px;
-    font-weight: 950;
+    font-size: 18px !important;
+    font-weight: 800;
 }
 
 .research-question {
-    font-size: 13px;
-    color: #cbd5e1;
+    font-size: 17px !important;
+    color: #475569;
 }
 
 .research-arrow {
-    color: #94a3b8;
+    color: #94A3B8;
     font-size: 18px;
     text-align: right;
 }
@@ -548,7 +540,7 @@ div[data-testid="stSelectbox"] {
     font-size: 12px !important;
     text-transform: none !important;
     letter-spacing: 0 !important;
-    color: #f8fafc !important;
+    color: #64748B !important;
 }
 
 .market-value {
@@ -708,22 +700,22 @@ div[data-testid="stHorizontalBlock"] {
 
 /* Period buttons */
 div[data-testid="stButton"] > button {
-    background: rgba(15, 23, 42, 0.85) !important;
-    color: #94a3b8 !important;
-    border: 1px solid rgba(148, 163, 184, 0.20) !important;
+    background: #FFFFFF !important;
+    color: #64748B !important;
+    border: 1px solid #CBD5E1 !important;
     border-radius: 6px !important;
     height: 36px !important;
     min-height: 36px !important;
     padding: 0 16px !important;
     font-weight: 850 !important;
-	width: 100%;
-	font-size: 14px;
+    width: 100%;
+    font-size: 14px;
 }
 
-
 div[data-testid="stButton"] > button:hover {
-    border-color: rgba(56, 189, 248, 0.45) !important;
-    color: #ffffff !important;
+    border-color: rgba(56, 189, 248, 0.55) !important;
+    color: #0F172A !important;
+    background: #F8FAFC !important;
 }
 
 /* ---------- Asset icons ---------- */
@@ -763,4 +755,89 @@ div[data-testid="stButton"] > button:hover {
 
 .research-section + div{
     margin-top:-10px !important;
+}
+
+/* ================================
+   LIGHT THEME CLEANUP
+   removes leftover dark-theme blocks
+   ================================ */
+
+/* Market card label fix */
+.market-label {
+    color: #64748B !important;
+}
+
+/* Pillar insight boxes */
+.insight-box {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    color: #475569 !important;
+}
+
+/* General text inside cards */
+.ml-card p,
+.ml-card div {
+    color: #475569;
+}
+
+/* Strong headings inside cards */
+.ml-card h1,
+.ml-card h2,
+.ml-card h3,
+.ml-card strong {
+    color: #0F172A !important;
+}
+
+/* Small labels */
+.small-label,
+.ml-card .small-label {
+    color: #64748B !important;
+}
+
+/* Any leftover dark callout / pathway boxes */
+.ml-card .insight-box,
+.ml-card div[style*="background"] {
+    color: #475569 !important;
+}
+
+/* Specifically remove dark grey inline callout boxes */
+div[style*="rgba(15,23,42"],
+div[style*="#0f172a"],
+div[style*="#1e293b"],
+div[style*="#334155"] {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    color: #475569 !important;
+}
+
+/* Make paragraph text readable */
+p {
+    color: #475569 !important;
+}
+
+/* Keep major page titles dark */
+.home-title h1,
+.home-section h2,
+.section-title {
+    color: #0F172A !important;
+}
+
+/* Card body text */
+.ml-card {
+    color: #475569 !important;
+}
+
+/* Card titles */
+.ml-card h2,
+.ml-card h3 {
+    color: #0F172A !important;
+}
+
+/* Remove dark hover shadow on light cards */
+.market-card:hover {
+    transform: translateY(-2px);
+    border-color: #CBD5E1 !important;
+    box-shadow:
+        0 4px 12px rgba(15,23,42,0.08),
+        0 12px 28px rgba(15,23,42,0.08) !important;
 }
