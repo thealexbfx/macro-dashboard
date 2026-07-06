@@ -23,6 +23,12 @@ from app_pages.japan import render_japan_page
 from app_pages.uk import render_uk_page
 from app_pages.euro import render_euro_page
 
+st.set_page_config(
+    page_title="MacroLens Research",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
 IS_PROD = os.getenv("APP_ENV", "dev") == "prod"
 if IS_PROD:
     st.set_option("client.showErrorDetails", False)
