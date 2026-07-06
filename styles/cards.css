@@ -1,0 +1,137 @@
+import streamlit as st
+
+PILLAR_COLORS = {
+    "Growth": "#16A34A",
+    "Inflation": "#DC2626",
+    "Labor": "#2563EB",
+    "Policy": "#7E22CE",
+    "Liquidity": "#F59E0B",
+}
+
+PILLAR_ICONS = {
+    "Growth": "↗",
+    "Inflation": "◇",
+    "Labor": "◎",
+    "Policy": "▦",
+    "Liquidity": "◊",
+}
+
+
+def render_html(html: str):
+    st.markdown(html, unsafe_allow_html=True)
+
+
+def render_pillar_card(name, status, score, description):
+    color = PILLAR_COLORS.get(name, "#2563EB")
+    icon = PILLAR_ICONS.get(name, "●")
+
+    html = f"""
+<div class="pillar-card">
+  <div class="pillar-top">
+    <div class="pillar-icon" style="background:{color};">{icon}</div>
+    <div>
+      <div class="pillar-name">{name}</div>
+      <div class="pillar-status" style="color:{color};">{status}</div>
+    </div>
+  </div>
+
+  <div class="pillar-score">{score:.2f}</div>
+  <div class="small-label">Model Score</div>
+
+  <svg class="pillar-spark-svg" viewBox="0 0 220 42" preserveAspectRatio="none">
+    <polyline points="0,30 15,25 30,28 45,20 60,24 75,18 90,15 105,20 120,17 135,22 150,19 165,24 180,21 195,18 220,16"
+      fill="none" stroke="{color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <linearGradient id="g-{name}" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="{color}" stop-opacity=".18"/>
+      <stop offset="100%" stop-color="{color}" stop-opacity="0"/>
+    </linearGradient>
+    <polygon points="0,42 0,30 15,25 30,28 45,20 60,24 75,18 90,15 105,20 120,17 135,22 150,19 165,24 180,21 195,18 220,16 220,42"
+      fill="url(#g-{name})"/>
+  </svg>
+
+  <div class="pillar-description">{description}</div>
+</div>
+"""
+    st.markdown(html, unsafe_allow_html=True)
+
+
+def render_country_card(country, regime, growth, inflation, policy):
+    html = f"""
+<div class="country-card">
+  <h3>{country}</h3>
+  <div class="regime-pill">{regime}</div>
+  <div class="country-grid">
+    <div><span>Growth</span><b>{growth}</b></div>
+    <div><span>Inflation</span><b>{inflation}</b></div>
+    <div><span>Policy</span><b>{policy}</b></div>
+  </div>
+</div>
+"""
+    st.markdown(html, unsafe_allow_html=True)
+	
+/* HARD FIX: Pillar card layout */
+
+.pillar-card {
+    background: #FFFFFF !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: var(--shadow-sm) !important;
+    padding: 16px !important;
+    min-height: 238px !important;
+    box-sizing: border-box !important;
+}
+
+.pillar-top {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    margin-bottom: 12px !important;
+}
+
+.pillar-icon {
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+    max-width: 58px !important;
+    border-radius: 50% !important;
+    color: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 30px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+}
+
+.pillar-name {
+    font-size: 17px !important;
+    font-weight: 900 !important;
+    color: #0F172A !important;
+}
+
+.pillar-status {
+    font-size: 14px !important;
+    font-weight: 900 !important;
+    margin-top: 3px !important;
+}
+
+.pillar-score {
+    text-align: center !important;
+    font-size: 28px !important;
+    font-weight: 950 !important;
+    color: #0F172A !important;
+    margin-top: 10px !important;
+}
+
+.pillar-spark-svg {
+    display: block !important;
+    width: 100% !important;
+    height: 42px !important;
+    margin: 14px 0 10px 0 !important;
+}
+
+.pillar-description {
+    font-size: 12.2px !important;
+    line-height: 1.45 !important;
+    color: #334155 !important;
+}

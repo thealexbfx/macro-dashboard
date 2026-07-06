@@ -1,0 +1,183 @@
+/* ==========================================
+   MACROLENS DESIGN SYSTEM v2
+   Base.css
+========================================== */
+
+:root{
+
+    /* Layout */
+
+    --sidebar-width:270px;
+    --content-max:1800px;
+
+    /* Colors */
+
+    --bg:#F4F7FB;
+    --card:#FFFFFF;
+
+    --text:#0F172A;
+    --muted:#64748B;
+
+    --border:#DCE4ED;
+
+    --blue:#2563EB;
+    --green:#16A34A;
+    --red:#DC2626;
+    --orange:#F59E0B;
+
+    /* Radius */
+
+    --radius:8px;
+
+    /* Shadows */
+
+    --shadow-sm:0 2px 6px rgba(15,23,42,.04);
+
+    --shadow-md:0 6px 20px rgba(15,23,42,.06);
+
+}
+
+
+/* ---------- Global ---------- */
+
+html,
+body,
+.stApp{
+
+    background:
+    radial-gradient(circle at 15% 0%,rgba(37,99,235,.04),transparent 35%),
+    linear-gradient(180deg,#FBFCFD 0%,#F5F8FC 100%) !important;
+
+    color:var(--text);
+
+    font-family:
+    Inter,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+}
+
+
+#MainMenu,
+header,
+footer,
+[data-testid="stToolbar"],
+[data-testid="stHeader"]{
+
+    display:none !important;
+
+}
+
+
+/* ---------- Main Container ---------- */
+
+.block-container{
+
+    max-width:var(--content-max) !important;
+
+    padding-top:18px !important;
+
+    padding-bottom:32px !important;
+
+    padding-right:26px !important;
+
+    padding-left:calc(var(--sidebar-width) + 28px) !important;
+
+}
+
+
+/* ---------- Streamlit spacing ---------- */
+
+div[data-testid="stVerticalBlock"]{
+
+    gap:.8rem !important;
+
+}
+
+div[data-testid="stHorizontalBlock"]{
+
+    gap:1rem !important;
+
+}
+
+
+/* ---------- Typography ---------- */
+
+h1{
+
+    font-size:32px !important;
+
+    font-weight:900 !important;
+
+    letter-spacing:-.04em;
+
+    color:var(--text);
+
+}
+
+h2{
+
+    font-size:22px !important;
+
+    font-weight:850 !important;
+
+}
+
+h3{
+
+    font-size:18px !important;
+
+    font-weight:800 !important;
+
+}
+
+p{
+
+    color:var(--muted);
+
+    line-height:1.65;
+
+}
+
+
+/* ---------- Cards ---------- */
+
+.ml-card{
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    border-radius:var(--radius);
+
+    box-shadow:var(--shadow-sm);
+
+}
+
+
+/* ---------- Utilities ---------- */
+
+.text-green{
+
+    color:var(--green);
+
+}
+
+.text-red{
+
+    color:var(--red);
+
+}
+
+.text-orange{
+
+    color:var(--orange);
+
+}
+
+.text-blue{
+
+    color:var(--blue);
+
+}

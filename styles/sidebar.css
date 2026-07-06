@@ -1,0 +1,137 @@
+/* ==========================================
+   Sidebar
+========================================== */
+
+.ml-sidebar{
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:270px;
+
+    height:100vh;
+
+    overflow-y:auto;
+
+    padding:26px 18px;
+
+    background:
+
+    radial-gradient(circle at top left,
+    rgba(56,189,248,.15),
+    transparent 30%),
+
+    linear-gradient(180deg,
+    #06111F 0%,
+    #081829 100%);
+
+    border-right:1px solid rgba(255,255,255,.08);
+
+}
+
+
+/* ---------- Logo ---------- */
+
+.ml-logo{
+
+    font-size:30px;
+
+    font-weight:950;
+
+    color:white;
+
+    letter-spacing:-.05em;
+
+}
+
+.ml-logo span{
+
+    color:#38BDF8;
+
+}
+
+.ml-sublogo{
+
+    margin-top:4px;
+
+    margin-bottom:34px;
+
+    color:#94A3B8;
+
+    font-size:11px;
+
+    letter-spacing:.28em;
+
+}
+
+
+/* ---------- Sections ---------- */
+
+.ml-nav-section{
+
+    margin:
+
+    26px 0
+
+    10px 8px;
+
+    color:#94A3B8;
+
+    font-size:11px;
+
+    font-weight:900;
+
+    letter-spacing:.12em;
+
+    text-transform:uppercase;
+
+}
+
+
+/* ---------- Links ---------- */
+
+.ml-nav-link{
+
+    display:block;
+
+    padding:11px 14px;
+
+    border-radius:8px;
+
+    margin-bottom:5px;
+
+    color:#CBD5E1 !important;
+
+    text-decoration:none !important;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    transition:.18s;
+
+}
+
+.ml-nav-link:hover{
+
+    background:rgba(255,255,255,.06);
+
+    color:white !important;
+
+}
+
+.ml-nav-link.active{
+
+    background:
+
+    linear-gradient(
+    135deg,
+    #2563EB,
+    #38BDF8);
+
+    color:white !important;
+
+}

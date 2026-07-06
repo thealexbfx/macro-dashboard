@@ -3,14 +3,18 @@ import pandas as pd
 import streamlit as st
 
 from data.yahoo import get_fx_data_yahoo
+from data.bonds import get_usa_10yr_yield_data
 
 
 HOME_MARKET_ASSETS = {
     "DXY": "DX-Y.NYB",
     "S&P 500": "^GSPC",
-    "10Y Yield": "^TNX",
+    "Nasdaq": "^IXIC",
     "Gold": "GC=F",
+    "Oil": "CL=F",
     "Bitcoin": "BTC-USD",
+    "EUR/USD": "EURUSD=X",
+    "USD/JPY": "JPY=X",
 }
 
 
@@ -50,6 +54,7 @@ def get_home_market_snapshot():
             latest = df["value"].iloc[-1]
             previous = df["value"].iloc[-2]
             first = df["value"].iloc[0]
+           
 
             change_pct = ((latest / previous) - 1) * 100 if previous != 0 else 0
             trend_positive = latest >= first
@@ -70,6 +75,34 @@ def get_home_market_snapshot():
                 "trend_positive": True,
                 "sparkline_df": pd.DataFrame(),
             })
+            
+    try:
+        df = get_usa_10yr_yield_data()
+        df = df.dropna().sort_values("date")
+
+        latest = df["value"].iloc[-1]
+        previous = df["value"].iloc[-2]
+        first = df["value"].iloc[0]
+
+        change_pct = latest - previous
+        trend_positive = latest >= first
+
+        rows.insert(2, {
+            "label": "10Y Yield",
+            "value": f"{latest:.2f}%",
+            "change_pct": change_pct,
+            "trend_positive": trend_positive,
+            "sparkline_df": df.tail(30),
+        })
+
+    except Exception:
+        rows.insert(2, {
+            "label": "10Y Yield",
+            "value": "N/A",
+            "change_pct": None,
+            "trend_positive": True,
+            "sparkline_df": pd.DataFrame(),
+        })
 
     return rows
 
