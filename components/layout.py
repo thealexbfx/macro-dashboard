@@ -39,15 +39,24 @@ def render_sidebar(active_page: str = "Home"):
         for page_key, label in items:
             nav_html += _nav_link(page_key, label, active_page)
 
-    st.markdown(
+    st.html(
         f"""
+        <input type="checkbox" id="ml-menu-toggle" class="ml-menu-toggle">
+
+        <label for="ml-menu-toggle" class="ml-mobile-menu-btn">
+            ☰
+        </label>
+
+        <label for="ml-menu-toggle" class="ml-mobile-backdrop"></label>
+
         <aside class="ml-sidebar">
+            <label for="ml-menu-toggle" class="ml-mobile-close">×</label>
+
             <div class="ml-logo">Macro<span>Lens</span></div>
             <div class="ml-sublogo">RESEARCH</div>
             {nav_html}
         </aside>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 
