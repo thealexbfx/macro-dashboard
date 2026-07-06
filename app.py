@@ -795,7 +795,7 @@ elif page == "Crypto":
     safe_render(render_crypto_page, "Crypto")
 
 elif page == "GlobalMacroView":
-    safe_render(render_global_macro_view, "Global Macro View")
+    render_under_construction_page("Global Macro View")
 
 elif page == "CentralBankWatch":
     render_under_construction_page("Central Bank Watch")

@@ -822,124 +822,125 @@
     background: #fff;
 }
 
-/* ---------- Mobile Navigation v2 ---------- */
+/* ---------- Mobile Navigation ---------- */
 
 .ml-menu-toggle,
 .ml-mobile-menu-btn,
 .ml-mobile-backdrop,
 .ml-mobile-close {
-  display: none;
+    display: none;
 }
 
 @media (max-width: 900px) {
-  .ml-mobile-menu-btn {
-    display: flex !important;
-    position: fixed;
-    top: 14px;
-    left: 14px;
-    z-index: 9999;
 
-    width: 44px;
-    height: 44px;
-    align-items: center;
-    justify-content: center;
+    /* Hamburger */
+    .ml-mobile-menu-btn {
+        display: flex !important;
+        position: fixed;
+        top: 14px;
+        left: 14px;
+        z-index: 9999;
 
-    background: #0b1f33;
-    color: white;
-    border-radius: 12px;
-    font-size: 24px;
-    font-weight: 900;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
-  }
+        width: 46px;
+        height: 46px;
 
-  .ml-mobile-close {
-    display: block !important;
-    position: absolute;
-    top: 14px;
-    right: 18px;
+        align-items: center;
+        justify-content: center;
 
-    color: #cbd5e1;
-    font-size: 34px;
-    font-weight: 800;
-    cursor: pointer;
-  }
+        background: #0B1F33;
+        color: white;
 
-  .ml-sidebar {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
+        border-radius: 12px;
+        font-size: 26px;
+        font-weight: 900;
 
-    width: 310px !important;
-    max-width: 82vw !important;
-    height: 100vh !important;
+        cursor: pointer;
+    }
 
-    transform: translateX(-105%);
-    transition: transform 0.22s ease;
+    /* Sidebar */
+    .ml-sidebar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
 
-    z-index: 9998 !important;
-    overflow-y: auto !important;
-  }
+        width: 300px;
+        max-width: 82vw;
+        height: 100vh;
 
-  .ml-menu-toggle:checked ~ .ml-sidebar {
-    transform: translateX(0);
-  }
+        transform: translateX(-100%);
+        transition: transform .25s ease;
 
-  .ml-mobile-backdrop {
-    display: none;
-  }
+        z-index: 9998;
+        overflow-y: auto;
+    }
 
-  .ml-menu-toggle:checked ~ .ml-mobile-backdrop {
-    display: block !important;
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.42);
-    z-index: 9997;
-  }
+    .ml-menu-toggle:checked ~ .ml-sidebar {
+        transform: translateX(0);
+    }
 
-  .dash-page {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-left: 0 !important;
-    padding: 64px 12px 20px !important;
-  }
+    /* Close button */
+    .ml-mobile-close {
+        display: block !important;
+        position: absolute;
+        top: 14px;
+        right: 18px;
 
-  .dash-top-grid,
-  .dash-bottom-grid,
-  .dash-pillar-grid {
-    grid-template-columns: 1fr !important;
-  }
+        color: white;
+        font-size: 32px;
+        cursor: pointer;
+    }
 
-  .dash-header,
-  .dash-hero,
-  .dash-env,
-  .dash-section,
-  .dash-panel {
-    width: 100% !important;
-  }
+    /* Dark background */
+    .ml-mobile-backdrop {
+        display: none;
+    }
 
-  .dash-header {
-    margin-top: 0 !important;
-  }
+    .ml-menu-toggle:checked ~ .ml-mobile-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.45);
+        z-index: 9997;
+    }
 
-  .hero-card-overlay,
-  .hero-content,
-  .dash-hero > div:first-child {
-    left: 20px !important;
-    right: 20px !important;
-    width: auto !important;
-  }
+    /* ---------- THIS IS THE IMPORTANT PART ---------- */
 
-  .macro-pillars-title,
-  .global-regime-title,
-  .research-notes-title {
-    transform: none !important;
-    font-size: 20px !important;
-    line-height: 1.2 !important;
-  }
+    div[data-testid="stMain"] {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
 
-  .regime-table th,
-  .regime-table td {
-    padding: 10px 7px !important;
-    font-size: 11px !important;
-  }
+    .block-container {
+        margin-left: 0 !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        max-width: 100% !important;
+    }
+
+    .dash-page {
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-top: 64px !important;
+    }
+
+    .dash-top-grid,
+    .dash-bottom-grid,
+    .dash-pillar-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .dash-header,
+    .dash-panel,
+    .dash-section,
+    .dash-hero,
+    .dash-env {
+        width: 100% !important;
+    }
+
+    .hero-card-overlay {
+        left: 18px !important;
+        right: 18px !important;
+        width: auto !important;
+    }
 }
