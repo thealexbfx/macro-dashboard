@@ -824,4 +824,65 @@ Yep, here’s the full cleaned version:
     background: #fff;
 }
 
+/* ---------- Mobile Fix ---------- */
+
+@media (max-width: 900px) {
+  .dash-page {
+    max-width: none;
+    width: 100%;
+    padding: 0 14px;
+  }
+
+  .dash-header {
+    display: block;
+    text-align: center;
+    padding: 16px;
+  }
+
+  .dash-date {
+    position: static;
+    transform: none;
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  .dash-top-grid,
+  .dash-bottom-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dash-pillar-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .market-strip-grid {
+    overflow-x: auto;
+  }
+
+  .dash-section,
+  .dash-panel,
+  .dash-env,
+  .dash-hero {
+    width: 100%;
+  }
+
+  .global-regime-title,
+  .research-notes-title,
+  .macro-pillars-title {
+    font-size: 20px !important;
+    line-height: 1.2;
+    white-space: normal;
+  }
+
+  .regime-table {
+    font-size: 12px;
+  }
+
+  .regime-table th,
+  .regime-table td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+}
+
 ```
