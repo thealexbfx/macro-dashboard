@@ -31,7 +31,7 @@ def render_country_macro_card(country, flag, regime, growth, inflation, labor, p
 
 
 def render_global_macro_view():
-    st.markdown("## Global Macro View")
+    st.markdown("## Global Macro Outlook")
     st.caption(f"Last updated: {datetime.now().strftime('%B %Y')}")
 
     growth = analyze_usa_growth()
@@ -43,7 +43,7 @@ def render_global_macro_view():
     st.markdown(
         """
         <div class="hero-panel">
-            <div class="small-label">GLOBAL MACRO VIEW</div>
+            <div class="small-label">GLOBAL MACRO OUTLOOK</div>
             <h1>Macro regimes, translated into signals.</h1>
             <p>
                 MacroLens tracks growth, inflation, labor, policy and liquidity across major economies

@@ -1,175 +1,266 @@
 import streamlit as st
 import datetime as dt
+import pandas as pd
+from components.research_page import render_research_page
 
 from data.yahoo import get_fx_data_yahoo
-from app_pages.common import (
-    calculate_summary_stats,
-    render_summary_bar,
-    render_commentary,
-)
+from app_pages.common import calculate_summary_stats
 from app_pages.market_utils import (
-    render_date_controls,
     filter_by_dates,
     detect_quarterly_data,
     build_market_chart,
     display_market_chart,
 )
 
+
+def get_start_date(df, timeframe):
+    end = df["date"].max()
+
+    if timeframe == "1D":
+        return end - pd.DateOffset(days=1)
+    if timeframe == "1W":
+        return end - pd.DateOffset(weeks=1)
+    if timeframe == "1M":
+        return end - pd.DateOffset(months=1)
+    if timeframe == "3M":
+        return end - pd.DateOffset(months=3)
+    if timeframe == "6M":
+        return end - pd.DateOffset(months=6)
+    if timeframe == "1Y":
+        return end - pd.DateOffset(years=1)
+    if timeframe == "3Y":
+        return end - pd.DateOffset(years=3)
+    if timeframe == "5Y":
+        return end - pd.DateOffset(years=5)
+    if timeframe == "10Y":
+        return end - pd.DateOffset(years=10)
+
+    return df["date"].min()
+
+
+def pct_change_over(df, label):
+    end = df["date"].max()
+
+    offsets = {
+        "1D": pd.DateOffset(days=1),
+        "1W": pd.DateOffset(weeks=1),
+        "1M": pd.DateOffset(months=1),
+        "6M": pd.DateOffset(months=6),
+        "1Y": pd.DateOffset(years=1),
+    }
+
+    start_date = end - offsets[label]
+    past = df[df["date"] <= start_date]
+
+    if past.empty:
+        return "—"
+
+    start_val = past["value"].iloc[-1]
+    latest_val = df["value"].iloc[-1]
+
+    if start_val == 0:
+        return "—"
+
+    change = (latest_val / start_val - 1) * 100
+    sign = "+" if change > 0 else ""
+    return f"{sign}{change:.2f}%"
+
+
+def render_stat_tile(label, value):
+    st.markdown(
+        f"""
+        <div class="ml-stat-tile">
+            <div class="ml-stat-label">{label}</div>
+            <div class="ml-stat-value">{value}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def render_commodities_page():
-    col1, col2 = st.columns([1.5, 5])
+    # -----------------------
+    # Indicator setup
+    # -----------------------
+    commodity_map = {
+        "Gold": {
+            "ticker": "GC=F",
+            "description": "Gold is a safe-haven asset that reacts to inflation expectations, USD strength, interest rates, real yields, and geopolitical uncertainty.",
+            "related": ["DXY", "US 10Y Real Yield", "FedWatch", "Silver", "Oil"],
+            "drivers": ["Dollar strength", "Real yields", "Fed expectations", "Inflation expectations", "Geopolitical risk"],
+        },
+        "Crude Oil": {
+            "ticker": "CL=F",
+            "description": "Crude oil prices reflect global supply and demand dynamics, OPEC production decisions, inventories, and geopolitical risk.",
+            "related": ["Brent Oil", "DXY", "Energy equities", "Inflation expectations", "10Y Yield"],
+            "drivers": ["Global growth", "OPEC supply", "Inventories", "Geopolitics", "Dollar strength"],
+        },
+        "Silver": {
+            "ticker": "SI=F",
+            "description": "Silver acts both as a precious metal and industrial commodity, reacting to real yields, risk appetite, and manufacturing demand.",
+            "related": ["Gold", "DXY", "Copper", "Real Yields", "Industrial metals"],
+            "drivers": ["Gold trend", "Industrial demand", "Real yields", "Dollar strength", "Risk sentiment"],
+        },
+        "Copper": {
+            "ticker": "HG=F",
+            "description": "Copper is a key industrial metal closely linked to global manufacturing, construction, China demand, and the growth cycle.",
+            "related": ["China data", "DXY", "Industrial production", "Equities", "Oil"],
+            "drivers": ["Global growth", "China demand", "Manufacturing activity", "Supply disruptions", "Dollar strength"],
+        },
+        "Natural Gas": {
+            "ticker": "NG=F",
+            "description": "Natural gas prices are sensitive to weather, storage levels, LNG flows, production, and seasonal demand.",
+            "related": ["Crude Oil", "Power prices", "Weather", "Inventories", "Energy equities"],
+            "drivers": ["Weather", "Storage", "LNG exports", "Production", "Seasonal demand"],
+        },
+        "Brent Oil": {
+            "ticker": "BZ=F",
+            "description": "Brent crude is a global oil benchmark influenced by international demand, OPEC policy, supply risk, and geopolitical events.",
+            "related": ["Crude Oil", "DXY", "Inflation expectations", "Energy equities", "10Y Yield"],
+            "drivers": ["Global demand", "OPEC supply", "Middle East risk", "Inventories", "Dollar strength"],
+        },
+        "Wheat": {
+            "ticker": "ZW=F",
+            "description": "Wheat prices respond to weather, crop yields, export policy, global demand, and geopolitical supply disruptions.",
+            "related": ["Corn", "Soybeans", "DXY", "Food inflation", "Weather"],
+            "drivers": ["Weather", "Crop yields", "Export policy", "Global demand", "Geopolitical supply risk"],
+        },
+        "Corn": {
+            "ticker": "ZC=F",
+            "description": "Corn prices are driven by crop conditions, ethanol demand, livestock feed demand, weather, and global trade flows.",
+            "related": ["Wheat", "Soybeans", "Ethanol", "DXY", "Weather"],
+            "drivers": ["Weather", "Ethanol demand", "Feed demand", "Crop yields", "Trade policy"],
+        },
+        "Soybeans": {
+            "ticker": "ZS=F",
+            "description": "Soybean prices track crop supply, global demand, China imports, biofuel demand, and trade policy.",
+            "related": ["Corn", "Wheat", "China demand", "DXY", "Biofuels"],
+            "drivers": ["China demand", "Weather", "Crop yields", "Biofuel demand", "Trade policy"],
+        },
+    }
 
-    with col1:
-        # ---------- Centered Page Title ----------
-        st.markdown(f"""
-            <div style="
-                position: absolute;
-                top: 0px;  /* keeps it at the top of col1 */
-                width: 100%;
-                text-align: center;
-                font-size: 28px;
-                font-weight: 700;
-                font-family: 'Inter','Segoe UI','Arial',sans-serif;
-                color: #111;
-                z-index: 10;
-            ">
-                {"Commodities"}
-            </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("<div style='margin-top:90px;'>", unsafe_allow_html=True)
+    st.markdown("<div class='ml-market-nav-title'>Commodities</div>", unsafe_allow_html=True)
 
-        # -------- Indicator Groups --------
-        indicator_groups = {
-            "Energy": ["Crude Oil", "Natural Gas", "Brent Oil"],
-            "Metals": ["Gold", "Silver", "Copper"],
-            "Agriculture": ["Wheat", "Corn", "Soybeans"]
-        }
+    category = st.segmented_control(
+        "Commodity Category",
+        ["Metals", "Energy", "Agriculture"],
+        default="Metals",
+        label_visibility="collapsed",
+    )
 
-        # Category dropdown
-        category = st.selectbox("Select Category", list(indicator_groups.keys()))
+    category_map = {
+        "Metals": ["Gold", "Silver", "Copper"],
+        "Energy": ["Crude Oil", "Brent Oil", "Natural Gas"],
+        "Agriculture": ["Wheat", "Corn", "Soybeans"],
+    }
 
-        # Indicator dropdown based on category
-        indicator = st.selectbox("Select Indicator", indicator_groups[category])
+    indicator = st.segmented_control(
+        "Commodity",
+        category_map[category],
+        default=category_map[category][0],
+        label_visibility="collapsed",
+    )
 
-        # -------- Chart Type + Timeframe side by side --------
-        ct_col, tf_col = st.columns(2)
-        with ct_col:
-            chart_type = st.selectbox("Chart Type", ["Line", "Area", "Bar", "Step"])
-        with tf_col:
-            timeframe = st.selectbox(
-                "Time Frame",
-                ["1D", "1W", "1M", "3M", "6M", "1Y", "3Y", "5Y", "10Y", "MAX"],
-                index=5
-            )
+    meta = commodity_map[indicator]
 
-        # Delta Type (allow turning it off)
-        delta_type = st.selectbox("Delta Type", ["Off", "Cumulative", "Daily"])
+  #  st.markdown(f"<h1 class='ml-page-title'>{indicator}</h1>", unsafe_allow_html=True)
+  #  st.markdown(f"<p class='ml-page-description'>{meta['description']}</p>", unsafe_allow_html=True)
 
-        # -------- Indicator Function Mapping --------
-      
-        indicator_map = {
-            "Crude Oil": ("CL=F", "daily", None),
-            "Natural Gas": ("NG=F", "daily", None),
-            "Brent Oil": ("BZ=F", "daily", None),
-            "Gold": ("GC=F", "daily", None),
-            "Silver": ("SI=F", "daily", None),
-            "Copper": ("HG=F", "daily", None),
-            "Wheat": ("ZW=F", "daily", None),
-            "Corn": ("ZC=F", "daily", None),
-            "Soybeans": ("ZS=F", "daily", None)
-        }
+    # -----------------------
+    # Data
+    # -----------------------
+    df = get_fx_data_yahoo(
+        meta["ticker"],
+        start_date=dt.date(1990, 1, 1),
+        end_date=dt.date.today(),
+    ).dropna()
 
-        ticker, date_format, tickformat_override = indicator_map[indicator]
-        df = get_fx_data_yahoo(ticker, start_date=dt.date(1990, 1, 1), end_date=dt.date.today())
+    if df.empty:
+        st.error("No data available.")
+        st.stop()
 
-        df = df.dropna()
-        if df.empty:
-            st.error("No data available.")
-            st.stop()
+    df["date"] = pd.to_datetime(df["date"])
+    df = df.sort_values("date")
 
+    # -----------------------
+    # Controls row
+    # -----------------------
+    st.markdown("<div class='ml-chart-toolbar'>", unsafe_allow_html=True)
 
-        start_date, end_date = render_date_controls(df, timeframe)
+    timeframe = st.segmented_control(
+        "Time Frame",
+        ["1D", "1W", "1M", "3M", "6M", "1Y", "3Y", "5Y", "10Y", "MAX"],
+        default="1Y",
+        label_visibility="collapsed",
+    )
 
-        st.markdown("</div>", unsafe_allow_html=True)
+    chart_type = st.segmented_control(
+        "Chart Type",
+        ["Line", "Area", "Bar", "Step"],
+        default="Line",
+        label_visibility="collapsed",
+    )
 
-    with col2:
-        # -------- Commentary --------
-        commentary = {
-            # Energy Commodities
-            "Crude Oil": (
-                "Crude oil prices reflect global supply and demand dynamics, OPEC production decisions, and geopolitical risks. "
-                "They are influenced by global economic growth, inventory levels, and disruptions in major producing regions."
-            ),
+    delta_type = st.segmented_control(
+        "Delta Type",
+        ["Off", "Cumulative", "Daily"],
+        default="Off",
+        label_visibility="collapsed",
+    )
 
-            "Natural Gas": (
-                "Natural gas prices are sensitive to weather patterns, seasonal heating/cooling demand, storage levels, and energy consumption trends. "
-                "They are also influenced by pipeline infrastructure, liquefied natural gas (LNG) exports, and policy regulations."
-            ),
+    st.markdown("</div>", unsafe_allow_html=True)
 
-            "Brent Oil": (
-                "Brent crude oil is a major international benchmark, reflecting global oil market trends. "
-                "It is influenced by production in Europe, Africa, and the Middle East, as well as global demand forecasts."
-            ),
+    start_date = get_start_date(df, timeframe)
+    end_date = df["date"].max()
+    df_filtered = filter_by_dates(df, start_date, end_date)
 
-            # Precious Metals
-            "Gold": (
-                "Gold is a safe-haven asset that reacts to inflation expectations, USD strength, interest rates, and geopolitical uncertainty. "
-                "It is widely used for portfolio hedging and wealth preservation."
-            ),
+    stats = calculate_summary_stats(df_filtered)
 
-            "Silver": (
-                "Silver serves both as an industrial metal and a store of value. "
-                "Its price is influenced by industrial demand, investor sentiment, and monetary policy conditions."
-            ),
+    latest_val = stats["latest_val"]
+    position_pct = stats["position_pct"]
+    slope = stats["slope"]
+    volatility = stats["volatility"]
 
-            # Industrial Metals
-            "Copper": (
-                "Copper is a key industrial metal whose price reflects global manufacturing activity and economic growth. "
-                "It is sensitive to construction, infrastructure demand, and supply disruptions in major producing countries."
-            ),
+    trend = "Upward" if slope > 0 else "Downward" if slope < 0 else "Flat"
+    position_label = "High" if position_pct > 70 else "Low" if position_pct < 30 else "Mid"
 
-            # Agricultural Commodities
-            "Wheat": (
-                "Wheat prices respond to global crop yields, weather conditions, planting and harvesting cycles, and international demand. "
-                "They are also affected by export policies and geopolitical events impacting major wheat-producing countries."
-            ),
+    significance = "High" if volatility > 25 else "Moderate" if volatility > 12 else "Low"
+    
+    page_stats = {
+        "Latest": f"{latest_val:,.2f}",
+        "Trend": trend,
+        "Position": f"{position_pct:.0f}% ({position_label})",
+        "Volatility": f"{volatility:.1f}%",
+        "Significance": significance,
+        "Context": f"{timeframe} view",
+    }
 
-            "Corn": (
-                "Corn prices are influenced by planting and harvest cycles, ethanol production demand, livestock feed requirements, and weather conditions. "
-                "Global trade policies and U.S. crop reports play a key role in price fluctuations."
-            ),
+    price_changes = {
+        "1D": pct_change_over(df, "1D"),
+        "1W": pct_change_over(df, "1W"),
+        "1M": pct_change_over(df, "1M"),
+        "6M": pct_change_over(df, "6M"),
+        "1Y": pct_change_over(df, "1Y"),
+    }
 
-            "Soybeans": (
-                "Soybean prices track agricultural supply, global consumption, and trade policies. "
-                "They are impacted by crop yields, weather events, biofuel demand, and geopolitical developments affecting major exporters."
-            )
-        }
+    quarterly = detect_quarterly_data(df_filtered)
 
+    fig = build_market_chart(
+        df_filtered,
+        indicator,
+        chart_type,
+        delta_type,
+        quarterly=quarterly,
+    )
 
-        render_commentary(commentary, indicator)
-
-        df_filtered = filter_by_dates(df, start_date, end_date)
-        
-
-        # ======== Summary Stats ========
-
-        stats = calculate_summary_stats(df_filtered)
-        render_summary_bar(stats, 2)
-
-        latest_val = stats["latest_val"]
-        mean_val = stats["mean_val"]
-        position_pct = stats["position_pct"]
-        slope = stats["slope"]
-        volatility = stats["volatility"]
-
-        quarterly = detect_quarterly_data(df_filtered)
-
-        fig = build_market_chart(
-            df_filtered,
-            indicator,
-            chart_type,
-            delta_type,
-            quarterly=quarterly,
-        )
-
-        display_market_chart(fig, "Source: Yahoo Finance")
+    render_research_page(
+        title=indicator,
+        description=meta["description"],
+        stats=page_stats,
+        fig=fig,
+        source="Source: Yahoo Finance",
+        related_markets=meta["related"],
+        price_changes=price_changes,
+        key_drivers=meta["drivers"],
+        display_chart_func=display_market_chart,
+    )

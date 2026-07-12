@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_ecb_main_refinancing_rate_data():
     """
     ECB Main Refinancing Rate
@@ -33,7 +33,7 @@ def get_ecb_main_refinancing_rate_data():
 
     return df
     
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_ecb_negotiated_wages_data():
 
     url = (
@@ -62,7 +62,7 @@ def get_ecb_negotiated_wages_data():
     )
     
     
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_ecb_labor_productivity_data():
 
     url = (
@@ -91,7 +91,7 @@ def get_ecb_labor_productivity_data():
         .reset_index(drop=True)
     )
     
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_ecb_balance_sheet_data():
 
     url = (
@@ -122,7 +122,7 @@ def get_ecb_balance_sheet_data():
         .reset_index(drop=True)
     )
     
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_ecb_house_price_index_data():
 
     url = (
@@ -145,7 +145,7 @@ def get_ecb_house_price_index_data():
 
     return df.dropna().reset_index(drop=True)
     
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=60, show_spinner=False)
 def get_ecb_trade_balance_data():
 
     export_url = (

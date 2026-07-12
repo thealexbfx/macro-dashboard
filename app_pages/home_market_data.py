@@ -34,7 +34,7 @@ def _format_value(label, value):
     return f"{value:,.2f}"
 
 
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def get_home_market_snapshot():
     rows = []
 
@@ -107,7 +107,7 @@ def get_home_market_snapshot():
     return rows
 
 
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def get_biggest_movers(period="1D", lookback_days=90, top_n=8):
     period_days = {
         "1D": 1,

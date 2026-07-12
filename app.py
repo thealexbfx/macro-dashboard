@@ -23,6 +23,8 @@ from app_pages.japan import render_japan_page
 from app_pages.uk import render_uk_page
 from app_pages.euro import render_euro_page
 
+from app_pages.commodities_v2 import render_commodities_page_v2
+
 
 
 IS_PROD = os.getenv("APP_ENV", "dev") == "prod"
@@ -345,7 +347,7 @@ def analyze_asset_class(tickers_dict):
 
 
 # Equities
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def analyze_equities():
     tickers = {
         "S&P 500": ("^GSPC", "S&P 500"),
@@ -361,7 +363,7 @@ def analyze_equities():
 
 
 # Stocks
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def analyze_stocks():
     tickers = {
         "Apple": "st_aapl",
@@ -376,7 +378,7 @@ def analyze_stocks():
 
 
 # Commodities
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def analyze_commodities():
     tickers = {
         "Gold": "cmd_gold",
@@ -393,7 +395,7 @@ def analyze_commodities():
 
 
 # FX
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def analyze_fx():
     tickers = {
         "EUR/USD": "eurusd",
@@ -405,7 +407,7 @@ def analyze_fx():
 
 
 # Crypto
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def analyze_crypto():
     tickers = {
         "Bitcoin": "crypto_btc",
@@ -588,7 +590,7 @@ def analyze_series(df: pd.DataFrame, window: int = 12):
 
 
     
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def load_local_macro_data(file_name, freq="monthly", value_col="Rate"):
     base_dir = os.path.dirname(__file__)
     file_path = os.path.join(base_dir, "data", file_name)
@@ -633,7 +635,7 @@ def load_local_macro_data(file_name, freq="monthly", value_col="Rate"):
 # ---------------------------
 # Generic USA Data Loader
 # ---------------------------
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def load_usa_data(file_name: str, freq: str = "monthly", date_format: str = "%B %Y"):
     """
     Generic function to load USA macro data from text files.
@@ -690,7 +692,7 @@ def load_usa_data(file_name: str, freq: str = "monthly", date_format: str = "%B 
     return df
 
     
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def prepare_df(df: pd.DataFrame, label: str) -> pd.DataFrame:
     """Standardize DataFrame for Compare tab by ensuring 'Date' and 'Value_label'."""
     df = df.copy()
@@ -753,7 +755,7 @@ page_titles = {
     "Commodities": "Commodities",
     "FX": "FX",
     "Crypto": "Crypto",
-    "GlobalMacroView": "Global Macro View",
+    "GlobalMacroView": "Global Macro Outlook",
     "CentralBankWatch": "Central Bank Watch",
     "RegimeMonitor": "Regime Monitor",
     "ResearchNotes": "Research Notes",
@@ -761,8 +763,8 @@ page_titles = {
 }
 
 render_sidebar(active_page=page)
-if page != "Home":
-    render_top_strip(page_titles.get(page, page))
+#if page != "Home":
+ #   render_top_strip(page_titles.get(page, page))
 
 if page == "Home":
     render_home_page()
@@ -786,7 +788,7 @@ elif page == "Equities":
     safe_render(render_equities_page, "Equities")
 
 elif page == "Commodities":
-    safe_render(render_commodities_page, "Commodities")
+    safe_render(render_commodities_page_v2, "Commodities")
 
 elif page == "RatesBonds":
     safe_render(render_rates_bonds_page, "Rates & Bonds")
@@ -795,13 +797,13 @@ elif page == "Crypto":
     safe_render(render_crypto_page, "Crypto")
 
 elif page == "GlobalMacroView":
-    render_under_construction_page("Global Macro View")
+    render_under_construction_page("Global Macro Outlook")
 
 elif page == "CentralBankWatch":
     render_under_construction_page("Central Bank Watch")
 
 elif page == "RegimeMonitor":
-    safe_render(render_regime_monitor_page, "Regime Monitor")
+    render_under_construction_page("Regime Monitor")
 
 elif page == "ResearchNotes":
     render_under_construction_page("Research Notes")

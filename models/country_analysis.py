@@ -75,7 +75,7 @@ from indicators.japan import (
 
 
 # --------- Global Analysis Functions ---------
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def analyze_usa():
     """Compute latest value, slope, and relative position for all USA indicators."""
     usa_tickers = {
@@ -160,7 +160,7 @@ def analyze_usa():
                 st.warning(f"⚠️ Could not process {name}: {e}")
     return results
 
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def analyze_japan():
     """Compute latest value, slope, and relative position for all japan indicators."""
     japan_tickers = {
@@ -196,7 +196,7 @@ def analyze_japan():
                 st.warning(f"⚠️ Could not process {name}: {e}")
     return results
 
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def analyze_uk():
     """Compute latest value and 1-year trend for key UK indicators."""
 
@@ -260,7 +260,7 @@ def analyze_uk():
 
     return results
 
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def analyze_euro():
     """Compute latest value and trend for Euro Area indicators."""
     euro_tickers = {

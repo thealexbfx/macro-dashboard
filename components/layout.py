@@ -4,7 +4,7 @@ import streamlit as st
 NAV_ITEMS = {
     "Dashboard": [("Home", "Overview")],
     "Research": [
-        ("GlobalMacroView", "Global Macro View"),
+        ("GlobalMacroView", "Global Macro Outlook"),
         ("RegimeMonitor", "Regime Monitor"),
         ("CentralBankWatch", "Central Bank Watch"),
         ("ResearchNotes", "Research Notes"),
@@ -60,12 +60,11 @@ def render_sidebar(active_page: str = "Home"):
     )
 
 
-def render_top_strip(page_title: str, right_text: str = "Independent Macro Research Platform"):
+def render_top_strip(page_title: str):
     st.markdown(
         f"""
         <div class="top-strip">
             <div>{page_title}</div>
-            <div>{right_text}</div>
         </div>
         """,
         unsafe_allow_html=True,

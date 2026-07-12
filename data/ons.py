@@ -42,7 +42,7 @@ def parse_ons_date(x):
     return pd.to_datetime(x, errors="coerce")
 
 
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=1800, show_spinner=False)
 def get_ons_timeseries(cdid: str, dataset_id: str, path: str):
     """
     Generic ONS timeseries loader.

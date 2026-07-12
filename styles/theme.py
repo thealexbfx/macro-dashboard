@@ -10,6 +10,7 @@ CSS_FILES = [
     "buttons.css",
     "dashboard.css",
     "charts.css",
+    "research.css",
 ]
 
 
