@@ -23,7 +23,7 @@ from app_pages.japan import render_japan_page
 from app_pages.uk import render_uk_page
 from app_pages.euro import render_euro_page
 
-from app_pages.commodities_v2 import render_commodities_page_v2
+from app_pages.market_page import render_commodities_page_v2
 
 
 
