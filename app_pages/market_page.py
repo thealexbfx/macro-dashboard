@@ -8,11 +8,6 @@ from app_pages.common import calculate_summary_stats
 from app_pages.market_utils import filter_by_dates
 from components.research.research_page import render_research_page
 from data.yahoo import get_fx_data_yahoo
-from market_data.commodities import (
-    COMMODITY_CATEGORY_MAP,
-    COMMODITY_COMPARE_MAP,
-    COMMODITY_MAP,
-)
 
 
 # =========================================================
@@ -1107,10 +1102,11 @@ def build_rolling_volatility_chart(
 # PAGE
 # =========================================================
 
-def render_commodities_page_v2():
-    commodity_map = COMMODITY_MAP
-    category_map = COMMODITY_CATEGORY_MAP
-    compare_map = COMMODITY_COMPARE_MAP
+def render_market_page(
+    commodity_map,
+    category_map,
+    compare_map,
+):
 
     st.markdown(
         """

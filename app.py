@@ -23,8 +23,7 @@ from app_pages.japan import render_japan_page
 from app_pages.uk import render_uk_page
 from app_pages.euro import render_euro_page
 
-from app_pages.market_page import render_commodities_page_v2
-
+from app_pages.commodities import render_commodities_page
 
 
 IS_PROD = os.getenv("APP_ENV", "dev") == "prod"
@@ -788,7 +787,7 @@ elif page == "Equities":
     safe_render(render_equities_page, "Equities")
 
 elif page == "Commodities":
-    safe_render(render_commodities_page_v2, "Commodities")
+    safe_render(render_commodities_page, "Commodities")
 
 elif page == "RatesBonds":
     safe_render(render_rates_bonds_page, "Rates & Bonds")
