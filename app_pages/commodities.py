@@ -11,4 +11,6 @@ def render_commodities_page():
         market_map=COMMODITY_MAP,
         category_map=COMMODITY_CATEGORY_MAP,
         compare_map=COMMODITY_COMPARE_MAP,
+        page_key="commodity",
+        asset_label="Commodity",
     )

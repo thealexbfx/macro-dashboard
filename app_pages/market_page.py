@@ -1106,7 +1106,11 @@ def render_market_page(
     market_map,
     category_map,
     compare_map,
+    page_key,
+    asset_label,
 ):
+    def key(name):
+        return f"{page_key}_{name}"
 
     st.markdown(
         """
@@ -1164,14 +1168,14 @@ def render_market_page(
 
     with header_select_col:
         st.markdown(
-            "<div class='ml-commodity-select-label'>SELECT COMMODITY</div>",
+            f"<div class='ml-commodity-select-label'>SELECT {asset_label.upper()}</div>",
             unsafe_allow_html=True,
         )
 
         indicator = st.selectbox(
-            "Select Commodity",
+            f"Select {asset_label}",
             list(market_map.keys()),
-            key="commodity_indicator",
+            key=key("indicator"),
             label_visibility="collapsed",
         )
 
@@ -1223,59 +1227,59 @@ def render_market_page(
     )
 
     timeframe = st.session_state.get(
-        "commodity_timeframe",
+        key("timeframe"),
         "1Y",
     )
 
     primary_chart_type = st.session_state.get(
-        "commodity_primary_chart_type",
+        key("primary_chart_type"),
         "Line",
     )
 
     compare_chart_type = st.session_state.get(
-        "commodity_compare_chart_type",
+        key("compare_chart_type"),
         "Line",
     )
 
-    if "commodity_compare_selected" not in st.session_state:
-        st.session_state["commodity_compare_selected"] = (
-            st.session_state.get("commodity_compare", "Compare +")
+    if key("compare_selected") not in st.session_state:
+        st.session_state[key("compare_selected")] = (
+            st.session_state.get(key("compare"), "Compare +")
         )
 
-    if "commodity_tool_selected" not in st.session_state:
-        st.session_state["commodity_tool_selected"] = (
-            st.session_state.get("commodity_chart_tool", "Price")
+    if key("tool_selected") not in st.session_state:
+        st.session_state[key("tool_selected")] = (
+            st.session_state.get(key("chart_tool"), "Price")
         )
 
-    compare_asset = st.session_state["commodity_compare_selected"]
-    chart_tool = st.session_state["commodity_tool_selected"]
+    compare_asset = st.session_state[key("compare_selected")]
+    chart_tool = st.session_state[key("tool_selected")]
 
     # -----------------------------------------------------
     # TIMEFRAME CALLBACK
     # -----------------------------------------------------
 
     def reset_custom_range_from_timeframe():
-        st.session_state["commodity_use_custom_range"] = False
+        st.session_state[key("use_custom_range")] = False
 
     def sync_compare_selection():
-        selected_compare = st.session_state["commodity_compare"]
-        st.session_state["commodity_compare_selected"] = selected_compare
+        selected_compare = st.session_state[key("compare")]
+        st.session_state[key("compare_selected")] = selected_compare
 
         compare_type_key = (
-            f"commodity_compare_chart_type_{selected_compare}"
+            key(f"compare_chart_type_{selected_compare}")
         )
         if compare_type_key in st.session_state:
-            st.session_state["commodity_compare_chart_type"] = (
+            st.session_state[key("compare_chart_type")] = (
                 st.session_state[compare_type_key]
             )
 
     def sync_tool_selection():
-        st.session_state["commodity_tool_selected"] = (
-            st.session_state["commodity_chart_tool"]
+        st.session_state[key("tool_selected")] = (
+            st.session_state[key("chart_tool")]
         )
 
     def sync_compare_chart_type(widget_key):
-        st.session_state["commodity_compare_chart_type"] = (
+        st.session_state[key("compare_chart_type")] = (
             st.session_state[widget_key]
         )
 
@@ -1320,7 +1324,7 @@ def render_market_page(
                     "10Y",
                     "MAX",
                 ],
-                key="commodity_timeframe",
+                key=key("timeframe"),
                 default="1Y",
                 label_visibility="collapsed",
                 on_change=reset_custom_range_from_timeframe,
@@ -1331,12 +1335,12 @@ def render_market_page(
             earliest_available_date = df["date"].min().date()
 
             saved_start = st.session_state.get(
-                "commodity_custom_start",
+                key("custom_start"),
                 default_start,
             )
 
             saved_end = st.session_state.get(
-                "commodity_custom_end",
+                key("custom_end"),
                 latest_available_date,
             )
 
@@ -1367,7 +1371,7 @@ def render_market_page(
                     ),
                     min_value=earliest_available_date,
                     max_value=latest_available_date,
-                    key="commodity_custom_dates",
+                    key=key("custom_dates"),
                     label_visibility="collapsed",
                 )
 
@@ -1390,38 +1394,38 @@ def render_market_page(
                     if custom_start <= custom_end:
                         if st.button(
                             "Apply range",
-                            key="apply_commodity_custom_range",
+                            key=key("apply_custom_range"),
                             use_container_width=True,
                         ):
                             st.session_state[
-                                "commodity_custom_start"
+                                key("custom_start")
                             ] = custom_start
 
                             st.session_state[
-                                "commodity_custom_end"
+                                key("custom_end")
                             ] = custom_end
 
                             st.session_state[
-                                "commodity_use_custom_range"
+                                key("use_custom_range")
                             ] = True
 
                             st.rerun()
 
                 if st.button(
                     "Reset",
-                    key="reset_commodity_custom_range",
+                    key=key("reset_custom_range"),
                     use_container_width=True,
                 ):
                     st.session_state[
-                        "commodity_use_custom_range"
+                        key("use_custom_range")
                     ] = False
 
                     st.session_state[
-                        "commodity_custom_start"
+                        key("custom_start")
                     ] = default_start
 
                     st.session_state[
-                        "commodity_custom_end"
+                        key("custom_end")
                     ] = latest_available_date
 
                     st.rerun()
@@ -1430,7 +1434,7 @@ def render_market_page(
             st.selectbox(
                 "Compare",
                 list(compare_map.keys()),
-                key="commodity_compare",
+                key=key("compare"),
                 label_visibility="collapsed",
                 on_change=sync_compare_selection,
             )
@@ -1459,7 +1463,7 @@ def render_market_page(
                 st.selectbox(
                     f"{indicator} chart type",
                     ["Line", "Area", "Bar", "Step"],
-                    key="commodity_primary_chart_type",
+                    key=key("primary_chart_type"),
                     format_func=lambda value: f"{indicator}: {value}",
                     label_visibility="collapsed",
                 )
@@ -1468,7 +1472,7 @@ def render_market_page(
                 selected_compare = compare_asset
 
                 compare_type_key = (
-                    f"commodity_compare_chart_type_{selected_compare}"
+                    key(f"compare_chart_type_{selected_compare}")
                 )
 
                 if compare_type_key not in st.session_state:
@@ -1497,7 +1501,7 @@ def render_market_page(
                         "Drawdown",
                         "Rolling Volatility",
                     ],
-                    key="commodity_chart_tool",
+                    key=key("chart_tool"),
                     format_func=lambda value: f"Tool: {value}",
                     label_visibility="collapsed",
                     on_change=sync_tool_selection,
@@ -1506,12 +1510,12 @@ def render_market_page(
         else:
             # Analytical tools currently require a comparison asset.
             if st.session_state.get(
-                "commodity_chart_tool",
+                key("chart_tool"),
                 "Price",
             ) != "Price":
-                st.session_state["commodity_chart_tool"] = "Price"
+                st.session_state[key("chart_tool")] = "Price"
 
-            st.session_state["commodity_tool_selected"] = "Price"
+            st.session_state[key("tool_selected")] = "Price"
 
             primary_type_col, tool_col, spacer_col = st.columns(
                 [2.0, 2.6, 4.0],
@@ -1522,7 +1526,7 @@ def render_market_page(
                 st.selectbox(
                     f"{indicator} chart type",
                     ["Line", "Area", "Bar", "Step"],
-                    key="commodity_primary_chart_type",
+                    key=key("primary_chart_type"),
                     format_func=lambda value: f"{indicator}: {value}",
                     label_visibility="collapsed",
                 )
@@ -1531,7 +1535,7 @@ def render_market_page(
                 st.selectbox(
                     "Comparison tool",
                     ["Price"],
-                    key="commodity_chart_tool",
+                    key=key("chart_tool"),
                     format_func=lambda value: f"Tool: {value}",
                     label_visibility="collapsed",
                     disabled=True,
@@ -1555,7 +1559,7 @@ def render_market_page(
     # -----------------------------------------------------
 
     use_custom_range = st.session_state.get(
-        "commodity_use_custom_range",
+        key("use_custom_range"),
         False,
     )
 
@@ -1564,14 +1568,14 @@ def render_market_page(
     if use_custom_range:
         start_date = pd.Timestamp(
             st.session_state.get(
-                "commodity_custom_start",
+                key("custom_start"),
                 df["date"].min().date(),
             )
         )
 
         requested_end = pd.Timestamp(
             st.session_state.get(
-                "commodity_custom_end",
+                key("custom_end"),
                 latest_data_timestamp.date(),
             )
         )
