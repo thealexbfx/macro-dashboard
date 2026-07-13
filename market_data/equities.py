@@ -8,6 +8,20 @@ EQUITIES_MAP = {
             "the overall health of the U.S. equity market and is widely "
             "used for portfolio performance comparison."
         ),
+        "related": [
+            "NASDAQ",
+            "Dow Jones",
+            "VIX",
+            "US 10Y Yield",
+            "DXY",
+        ],
+        "drivers": [
+            "Corporate earnings",
+            "Federal Reserve policy",
+            "Economic growth",
+            "Interest rates",
+            "Risk sentiment",
+        ],
     },
     "NASDAQ": {
         "ticker": "^IXIC",
@@ -18,6 +32,20 @@ EQUITIES_MAP = {
             "sector trends, innovation cycles, and growth-oriented investor "
             "sentiment."
         ),
+        "related": [
+            "S&P 500",
+            "US 10Y Yield",
+            "VIX",
+            "Semiconductors",
+            "DXY",
+        ],
+        "drivers": [
+            "Technology earnings",
+            "Interest rates",
+            "Growth expectations",
+            "Artificial intelligence investment",
+            "Risk appetite",
+        ],
     },
     "Dow Jones": {
         "ticker": "^DJI",
@@ -28,6 +56,20 @@ EQUITIES_MAP = {
             "corporate and economic performance, particularly for established "
             "firms."
         ),
+        "related": [
+            "S&P 500",
+            "NASDAQ",
+            "VIX",
+            "Industrial production",
+            "US 10Y Yield",
+        ],
+        "drivers": [
+            "Corporate earnings",
+            "Industrial activity",
+            "Economic growth",
+            "Interest rates",
+            "Investor sentiment",
+        ],
     },
     "VIX": {
         "ticker": "^VIX",
@@ -38,6 +80,20 @@ EQUITIES_MAP = {
             "as the fear gauge, rising during periods of uncertainty or "
             "market stress."
         ),
+        "related": [
+            "S&P 500",
+            "NASDAQ",
+            "US 10Y Yield",
+            "Gold",
+            "Credit spreads",
+        ],
+        "drivers": [
+            "Market uncertainty",
+            "Equity volatility",
+            "Geopolitical risk",
+            "Monetary policy surprises",
+            "Investor positioning",
+        ],
     },
     "FTSE 100": {
         "ticker": "^FTSE",
@@ -48,6 +104,20 @@ EQUITIES_MAP = {
             "UK's blue-chip sector and is influenced by domestic economic data "
             "and global market trends."
         ),
+        "related": [
+            "DAX",
+            "GBP/USD",
+            "Brent Oil",
+            "UK 10Y Yield",
+            "European equities",
+        ],
+        "drivers": [
+            "Global growth",
+            "Commodity prices",
+            "Sterling strength",
+            "Bank of England policy",
+            "Corporate earnings",
+        ],
     },
     "DAX": {
         "ticker": "^GDAXI",
@@ -58,6 +128,20 @@ EQUITIES_MAP = {
             "and economic health and is sensitive to Eurozone economic "
             "developments."
         ),
+        "related": [
+            "FTSE 100",
+            "EUR/USD",
+            "Euro Area growth",
+            "Bund yields",
+            "European equities",
+        ],
+        "drivers": [
+            "Euro Area growth",
+            "German manufacturing",
+            "ECB policy",
+            "Global trade",
+            "Corporate earnings",
+        ],
     },
     "Nikkei 225": {
         "ticker": "^N225",
@@ -68,6 +152,20 @@ EQUITIES_MAP = {
             "performance and is influenced by domestic economic conditions, "
             "corporate earnings, and global trade."
         ),
+        "related": [
+            "USD/JPY",
+            "TOPIX",
+            "Japan 10Y Yield",
+            "NASDAQ",
+            "Global trade",
+        ],
+        "drivers": [
+            "Yen strength",
+            "Bank of Japan policy",
+            "Corporate earnings",
+            "Global trade",
+            "Risk sentiment",
+        ],
     },
     "MSCI Emerging Markets ETF": {
         "ticker": "EEM",
@@ -78,6 +176,20 @@ EQUITIES_MAP = {
             "by global growth trends, commodity prices, and investor risk "
             "appetite."
         ),
+        "related": [
+            "DXY",
+            "China equities",
+            "Copper",
+            "US 10Y Yield",
+            "S&P 500",
+        ],
+        "drivers": [
+            "Dollar strength",
+            "China growth",
+            "Commodity prices",
+            "Global liquidity",
+            "Risk appetite",
+        ],
     },
 }
 
