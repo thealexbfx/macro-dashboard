@@ -23,7 +23,6 @@ from app_pages.japan import render_japan_page
 from app_pages.uk import render_uk_page
 from app_pages.euro import render_euro_page
 
-from app_pages.commodities import render_commodities_page
 
 
 IS_PROD = os.getenv("APP_ENV", "dev") == "prod"

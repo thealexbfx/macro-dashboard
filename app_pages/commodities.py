@@ -8,7 +8,7 @@ from market_data.commodities import (
 
 def render_commodities_page():
     render_market_page(
-        commodity_map=COMMODITY_MAP,
+        market_map=COMMODITY_MAP,
         category_map=COMMODITY_CATEGORY_MAP,
         compare_map=COMMODITY_COMPARE_MAP,
     )

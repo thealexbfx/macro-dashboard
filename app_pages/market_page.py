@@ -1103,7 +1103,7 @@ def build_rolling_volatility_chart(
 # =========================================================
 
 def render_market_page(
-    commodity_map,
+    market_map,
     category_map,
     compare_map,
 ):
@@ -1170,12 +1170,12 @@ def render_market_page(
 
         indicator = st.selectbox(
             "Select Commodity",
-            list(commodity_map.keys()),
+            list(market_map.keys()),
             key="commodity_indicator",
             label_visibility="collapsed",
         )
 
-    meta = commodity_map[indicator]
+    meta = market_map[indicator]
 
     with header_title_col:
         st.markdown(
