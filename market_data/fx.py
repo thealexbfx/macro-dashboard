@@ -1,0 +1,5 @@
+FX_MAP = {}
+
+FX_CATEGORY_MAP = {}
+
+FX_COMPARE_MAP = {}
