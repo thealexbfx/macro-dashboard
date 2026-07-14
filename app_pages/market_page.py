@@ -63,6 +63,37 @@ def pct_change_over(df, label):
 
     return f"{sign}{change:.2f}%"
 
+def basis_point_change_over(df, label):
+    end = df["date"].max()
+
+    offsets = {
+        "1D": pd.DateOffset(days=1),
+        "1W": pd.DateOffset(weeks=1),
+        "1M": pd.DateOffset(months=1),
+        "6M": pd.DateOffset(months=6),
+        "1Y": pd.DateOffset(years=1),
+    }
+
+    start_date = end - offsets[label]
+    past = df[df["date"] <= start_date]
+
+    if past.empty:
+        return "—"
+
+    start_val = past["value"].iloc[-1]
+    latest_val = df["value"].iloc[-1]
+
+    basis_point_change = (latest_val - start_val) * 100
+
+    if abs(basis_point_change) < 0.005:
+        return "0 bps"
+
+    rounded_change = round(basis_point_change)
+    sign = "+" if rounded_change > 0 else ""
+
+    unit = "bp" if abs(rounded_change) == 1 else "bps"
+
+    return f"{sign}{rounded_change} {unit}"
 
 def add_latest_label(
     fig,
@@ -1180,6 +1211,7 @@ def render_market_page(
         )
 
     meta = market_map[indicator]
+    is_yield = meta.get("unit") == "percent"
 
     with header_title_col:
         st.markdown(
@@ -1688,14 +1720,34 @@ def render_market_page(
     if chart_tool == "Price" and not primary_values.empty:
         start_value = primary_values.iloc[0]
         end_value = primary_values.iloc[-1]
-        period_return = (end_value / start_value - 1) * 100 if start_value else 0
-        direction = "rose" if period_return >= 0 else "fell"
-        period_insight = (
-            f"Period move: {indicator} {direction} from {start_value:,.2f} to "
-            f"{end_value:,.2f}, a {abs(period_return):.2f}% move. Its highest "
-            f"close was {primary_values.max():,.2f} and its lowest was "
-            f"{primary_values.min():,.2f}."
-        )
+
+        if is_yield:
+            basis_point_move = (end_value - start_value) * 100
+            direction = "rose" if basis_point_move >= 0 else "fell"
+
+            period_insight = (
+                f"Period move: {indicator} {direction} from "
+                f"{start_value:,.2f}% to {end_value:,.2f}%, "
+                f"a move of {abs(basis_point_move):.0f} basis points. "
+                f"Its highest yield was {primary_values.max():,.2f}% "
+                f"and its lowest was {primary_values.min():,.2f}%."
+            )
+        else:
+            period_return = (
+                (end_value / start_value - 1) * 100
+                if start_value
+                else 0
+            )
+
+            direction = "rose" if period_return >= 0 else "fell"
+
+            period_insight = (
+                f"Period move: {indicator} {direction} from "
+                f"{start_value:,.2f} to {end_value:,.2f}, "
+                f"a {abs(period_return):.2f}% move. Its highest "
+                f"close was {primary_values.max():,.2f} and its lowest was "
+                f"{primary_values.min():,.2f}."
+            )
 
     if has_comparison_data and chart_tool != "Price":
         insight_df = prepare_comparison_data(df_filtered, compare_df)
@@ -1836,7 +1888,11 @@ def render_market_page(
     )
 
     page_stats = {
-        "Latest": f"{latest_val:,.2f}",
+        "Latest": (
+            f"{latest_val:,.2f}%"
+            if is_yield
+            else f"{latest_val:,.2f}"
+        ),
         "Trend": trend,
         "Position": (
             f"{position_pct:.2f}% "
@@ -1847,13 +1903,22 @@ def render_market_page(
         "Context": context_label,
     }
 
-    price_changes = {
-        "1D": pct_change_over(df, "1D"),
-        "1W": pct_change_over(df, "1W"),
-        "1M": pct_change_over(df, "1M"),
-        "6M": pct_change_over(df, "6M"),
-        "1Y": pct_change_over(df, "1Y"),
-    }
+    if is_yield:
+        price_changes = {
+            "1D": basis_point_change_over(df, "1D"),
+            "1W": basis_point_change_over(df, "1W"),
+            "1M": basis_point_change_over(df, "1M"),
+            "6M": basis_point_change_over(df, "6M"),
+            "1Y": basis_point_change_over(df, "1Y"),
+        }
+    else:
+        price_changes = {
+            "1D": pct_change_over(df, "1D"),
+            "1W": pct_change_over(df, "1W"),
+            "1M": pct_change_over(df, "1M"),
+            "6M": pct_change_over(df, "6M"),
+            "1Y": pct_change_over(df, "1Y"),
+        }
 
     # -----------------------------------------------------
     # FIGURE
@@ -1917,7 +1982,11 @@ def render_market_page(
             primary_name=indicator,
         )
 
-    analysis_card_title = "Price Changes"
+    analysis_card_title = (
+        "Yield Changes"
+        if is_yield
+        else "Price Changes"
+    )
     analysis_card_items = price_changes
 
     if has_comparison_data and chart_tool != "Price":
