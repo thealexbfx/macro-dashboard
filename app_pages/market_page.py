@@ -1003,6 +1003,54 @@ def build_ratio_chart(df, compare_df, primary_name, compare_name, chart_type):
     )
     return fig
 
+def build_yield_spread_chart(
+    df,
+    compare_df,
+    primary_name,
+    compare_name,
+    chart_type,
+):
+    merged = prepare_comparison_data(df, compare_df)
+
+    merged["spread_bps"] = (
+        merged["value_main"] - merged["value_compare"]
+    ) * 100
+
+    fig = build_analysis_chart(
+        [
+            {
+                "df": merged,
+                "column": "spread_bps",
+                "name": f"{primary_name} − {compare_name}",
+                "chart_type": chart_type,
+                "value_format": "+.0f",
+            }
+        ],
+        y_title="Yield spread (bps)",
+        zero_line=True,
+    )
+
+    fig.update_yaxes(
+        ticksuffix=" bps",
+        tickformat="+.0f",
+    )
+
+    fig.add_annotation(
+        xref="paper",
+        yref="y",
+        x=0.01,
+        y=0,
+        text="Above 0 = positive spread · Below 0 = inverted spread",
+        showarrow=False,
+        yshift=12,
+        font=dict(
+            color="#64748B",
+            size=11,
+        ),
+        bgcolor="rgba(255,255,255,0.80)",
+    )
+
+    return fig
 
 def build_rolling_correlation_chart(df, compare_df, primary_name, compare_name):
     merged = prepare_comparison_data(df, compare_df)
@@ -1531,14 +1579,26 @@ def render_market_page(
             with tool_col:
                 st.selectbox(
                     "Comparison tool",
-                    [
-                        "Price",
-                        "Percentage Change",
-                        "Ratio",
-                        "Rolling Correlation",
-                        "Drawdown",
-                        "Rolling Volatility",
-                    ],
+                    (
+                        [
+                            "Price",
+                            "Yield Spread",
+                            "Percentage Change",
+                            "Ratio",
+                            "Rolling Correlation",
+                            "Drawdown",
+                            "Rolling Volatility",
+                        ]
+                        if is_yield
+                        else [
+                            "Price",
+                            "Percentage Change",
+                            "Ratio",
+                            "Rolling Correlation",
+                            "Drawdown",
+                            "Rolling Volatility",
+                        ]
+                    ),
                     key=key("chart_tool"),
                     format_func=lambda value: f"Tool: {value}",
                     label_visibility="collapsed",
@@ -1689,6 +1749,12 @@ def render_market_page(
             else "Shows the asset's closing value over the selected period. "
             "Use the range and trend to place the latest reading in context."
         ),
+        
+        "Yield Spread": (
+            f"Shows the difference between {indicator} and {compare_asset} "
+            "in basis points. A positive reading means the selected primary "
+            "yield is higher; a negative reading means it is lower."
+        ),
         "Percentage Change": (
             "Shows cumulative performance from the beginning of the selected "
             "period. Both series start at 0%."
@@ -1755,8 +1821,39 @@ def render_market_page(
             "There is not enough common history in the selected window to "
             "calculate a reliable current reading."
         )
+        
+        if chart_tool == "Yield Spread" and not insight_df.empty:
+            spread = (
+                insight_df["value_main"]
+                - insight_df["value_compare"]
+            ) * 100
 
-        if chart_tool == "Percentage Change" and not insight_df.empty:
+            current_spread = spread.iloc[-1]
+            starting_spread = spread.iloc[0]
+            spread_change = current_spread - starting_spread
+
+            if current_spread < 0:
+                curve_state = "inverted"
+            elif current_spread > 0:
+                curve_state = "positive"
+            else:
+                curve_state = "flat"
+
+            if spread_change > 0:
+                movement = "steepened"
+            elif spread_change < 0:
+                movement = "flattened"
+            else:
+                movement = "was unchanged"
+
+            period_insight = (
+                f"Current spread: {indicator} minus {compare_asset} is "
+                f"{current_spread:+.0f} bps, leaving the spread "
+                f"{curve_state}. Over the selected period, the spread "
+                f"{movement} by {abs(spread_change):.0f} bps."
+            )
+
+        elif chart_tool == "Percentage Change" and not insight_df.empty:
             primary_return = (
                 insight_df["value_main"].iloc[-1]
                 / insight_df["value_main"].iloc[0]
@@ -1929,8 +2026,16 @@ def render_market_page(
         and compare_asset != "Compare +"
         and not compare_df.empty
     )
-
-    if chart_tool == "Percentage Change" and has_comparison_data:
+    
+    if chart_tool == "Yield Spread" and has_comparison_data:
+        fig = build_yield_spread_chart(
+            df=df_filtered,
+            compare_df=compare_df,
+            primary_name=indicator,
+            compare_name=compare_asset,
+            chart_type=primary_chart_type,
+        )
+    elif chart_tool == "Percentage Change" and has_comparison_data:
         fig = build_percentage_change_chart(
             df=df_filtered,
             primary_chart_type=primary_chart_type,
@@ -1991,8 +2096,28 @@ def render_market_page(
 
     if has_comparison_data and chart_tool != "Price":
         analysis_df = prepare_comparison_data(df_filtered, compare_df)
+        
+        if chart_tool == "Yield Spread" and not analysis_df.empty:
+            spread = (
+                analysis_df["value_main"]
+                - analysis_df["value_compare"]
+            ) * 100
 
-        if chart_tool == "Percentage Change" and not analysis_df.empty:
+            current_spread = spread.iloc[-1]
+            starting_spread = spread.iloc[0]
+
+            analysis_card_title = "Yield Spread"
+            analysis_card_items = {
+                "Current": f"{current_spread:+.0f} bps",
+                "Period Start": f"{starting_spread:+.0f} bps",
+                "Highest": f"{spread.max():+.0f} bps",
+                "Lowest": f"{spread.min():+.0f} bps",
+                "Change": (
+                    f"{current_spread - starting_spread:+.0f} bps"
+                ),
+            }
+
+        elif chart_tool == "Percentage Change" and not analysis_df.empty:
             primary_return = (
                 analysis_df["value_main"].iloc[-1]
                 / analysis_df["value_main"].iloc[0]
