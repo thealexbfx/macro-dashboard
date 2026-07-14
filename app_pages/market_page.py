@@ -1203,11 +1203,17 @@ def render_market_page(
         unsafe_allow_html=True,
     )
 
-    df = get_fx_data_yahoo(
-        meta["ticker"],
-        start_date=dt.date(1990, 1, 1),
-        end_date=dt.date.today(),
-    ).dropna()
+    if "data_func" in meta:
+        df = meta["data_func"]().dropna()
+    elif "ticker" in meta:
+        df = get_fx_data_yahoo(
+            meta["ticker"],
+            start_date=dt.date(1990, 1, 1),
+            end_date=dt.date.today(),
+        ).dropna()
+    else:
+        st.error("No data source configured for this market.")
+        st.stop()
 
     if df.empty:
         st.error("No data available.")
@@ -1605,11 +1611,13 @@ def render_market_page(
     compare_df = None
 
     if compare_asset != "Compare +":
-        compare_ticker = compare_map.get(compare_asset)
+        compare_source = compare_map.get(compare_asset)
 
-        if compare_ticker:
+        if callable(compare_source):
+            compare_df = compare_source().dropna()
+        elif compare_source:
             compare_df = get_fx_data_yahoo(
-                compare_ticker,
+                compare_source,
                 start_date=dt.date(1990, 1, 1),
                 end_date=dt.date.today(),
             ).dropna()
