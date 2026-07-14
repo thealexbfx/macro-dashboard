@@ -2038,7 +2038,7 @@ def render_market_page(
         description=meta["description"],
         stats=page_stats,
         figure=fig,
-        source="Source: Yahoo Finance",
+        source=meta.get("source", "Source: Yahoo Finance"),
         cards=cards,
         chart_controls=render_chart_controls,
         show_header=False,
