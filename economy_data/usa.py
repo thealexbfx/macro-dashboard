@@ -1,0 +1,3 @@
+USA_ECONOMY_MAP = {}
+
+USA_CATEGORY_MAP = {}

@@ -1,0 +1,3 @@
+UK_ECONOMY_MAP = {}
+
+UK_CATEGORY_MAP = {}
