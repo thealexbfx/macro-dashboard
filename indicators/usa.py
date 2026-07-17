@@ -101,17 +101,34 @@ def get_usa_michigan_consumer_sentiment_data():
 def get_usa_chicago_fed_nfci_data():
     return get_fred_series("NFCI")
 
+def get_usa_housing_starts_data():
+    return get_fred_series("HOUST")
+
+
 def get_usa_housing_starts_mom_data():
-    df = get_fred_series("HOUST")
-    return calculate_mom_pct_change(df)
+    return calculate_mom_pct_change(
+        get_usa_housing_starts_data()
+    )
+
+
+def get_usa_building_permits_data():
+    return get_fred_series("PERMIT")
+
 
 def get_usa_building_permits_mom_data():
-    df = get_fred_series("PERMIT")
-    return calculate_mom_pct_change(df)
+    return calculate_mom_pct_change(
+        get_usa_building_permits_data()
+    )
+
+
+def get_usa_new_home_sales_data():
+    return get_fred_series("HSN1F")
+
 
 def get_usa_new_home_sales_mom_data():
-    df = get_fred_series("HSN1F")
-    return calculate_mom_pct_change(df)
+    return calculate_mom_pct_change(
+        get_usa_new_home_sales_data()
+    )
 
 def get_usa_retail_sales_mom_data():
     df = get_fred_series("RSAFS")

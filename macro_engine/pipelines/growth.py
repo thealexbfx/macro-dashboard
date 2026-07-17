@@ -5,6 +5,7 @@ from macro_engine.engine.indicator_engine import run_indicator
 from macro_engine.metadata.buckets import (
     USA_HOUSEHOLD_DEMAND,
     USA_INDUSTRIAL_ACTIVITY,
+    USA_HOUSING,
 )
 from macro_engine.metadata.growth import (
     USA_CAPACITY_UTILIZATION,
@@ -13,6 +14,9 @@ from macro_engine.metadata.growth import (
     USA_PERSONAL_INCOME,
     USA_REAL_PERSONAL_CONSUMPTION,
     USA_RETAIL_SALES,
+    USA_BUILDING_PERMITS,
+    USA_HOUSING_STARTS,
+    USA_NEW_HOME_SALES,
 )
 from macro_engine.models.bucket import BucketResult
 
@@ -23,6 +27,10 @@ from indicators.usa import (
     get_usa_personal_consumption_mom_data,
     get_usa_personal_income_mom_data,
     get_usa_retail_sales_mom_data,
+    get_usa_building_permits_data,
+    get_usa_housing_starts_data,
+    get_usa_new_home_sales_data,
+    
 )
 
 
@@ -71,4 +79,27 @@ def run_usa_industrial_activity() -> BucketResult:
     return run_bucket(
         indicator_results,
         USA_INDUSTRIAL_ACTIVITY,
+    )
+    
+def run_usa_housing() -> BucketResult:
+    """Run the complete US Housing bucket pipeline."""
+
+    indicator_results = [
+        run_indicator(
+            get_usa_housing_starts_data(),
+            USA_HOUSING_STARTS,
+        ),
+        run_indicator(
+            get_usa_building_permits_data(),
+            USA_BUILDING_PERMITS,
+        ),
+        run_indicator(
+            get_usa_new_home_sales_data(),
+            USA_NEW_HOME_SALES,
+        ),
+    ]
+
+    return run_bucket(
+        indicator_results,
+        USA_HOUSING,
     )

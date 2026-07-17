@@ -119,3 +119,65 @@ USA_DURABLE_GOODS_ORDERS = IndicatorConfig(
     source="Federal Reserve Economic Data: DGORDER",
     unit="percent change from previous month",
 )
+
+USA_HOUSING_STARTS = IndicatorConfig(
+    indicator_id="usa_housing_starts",
+    name="Housing Starts",
+    economy="USA",
+    pillar="growth",
+    bucket="housing",
+    frequency="monthly",
+    economic_direction="positive",
+    state_window=3,
+    trend_window=3,
+    minimum_history=36,
+    historical_lookback=240,
+    description=(
+        "Privately owned US housing units started, expressed at a "
+        "seasonally adjusted annual rate."
+    ),
+    source="Federal Reserve Economic Data: HOUST",
+    unit="thousands of units, seasonally adjusted annual rate",
+)
+
+
+USA_BUILDING_PERMITS = IndicatorConfig(
+    indicator_id="usa_building_permits",
+    name="Building Permits",
+    economy="USA",
+    pillar="growth",
+    bucket="housing",
+    frequency="monthly",
+    economic_direction="positive",
+    state_window=3,
+    trend_window=3,
+    minimum_history=36,
+    historical_lookback=240,
+    description=(
+        "Privately owned US housing units authorized by building "
+        "permits, expressed at a seasonally adjusted annual rate."
+    ),
+    source="Federal Reserve Economic Data: PERMIT",
+    unit="thousands of units, seasonally adjusted annual rate",
+)
+
+
+USA_NEW_HOME_SALES = IndicatorConfig(
+    indicator_id="usa_new_home_sales",
+    name="New Home Sales",
+    economy="USA",
+    pillar="growth",
+    bucket="housing",
+    frequency="monthly",
+    economic_direction="positive",
+    state_window=3,
+    trend_window=3,
+    minimum_history=36,
+    historical_lookback=240,
+    description=(
+        "Sales of new single-family houses in the United States, "
+        "expressed at a seasonally adjusted annual rate."
+    ),
+    source="Federal Reserve Economic Data: HSN1F",
+    unit="thousands of units, seasonally adjusted annual rate",
+)

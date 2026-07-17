@@ -36,3 +36,20 @@ USA_INDUSTRIAL_ACTIVITY = BucketConfig(
         "using production, capacity usage, and durable-goods demand."
     ),
 )
+
+USA_HOUSING = BucketConfig(
+    bucket_id="usa_housing",
+    name="Housing",
+    economy="USA",
+    pillar="growth",
+    indicator_weights={
+        "usa_housing_starts": 0.40,
+        "usa_building_permits": 0.35,
+        "usa_new_home_sales": 0.25,
+    },
+    minimum_indicators=2,
+    description=(
+        "Measures current residential construction, future building "
+        "activity, and demand for newly built homes."
+    ),
+)
