@@ -53,3 +53,17 @@ USA_HOUSING = BucketConfig(
         "activity, and demand for newly built homes."
     ),
 )
+
+USA_EMPLOYMENT_MOMENTUM = BucketConfig(
+    bucket_id="usa_employment_momentum",
+    name="Employment Momentum",
+    economy="USA",
+    pillar="growth",
+    indicator_weights={
+        "usa_nonfarm_payrolls": 0.30,
+        "usa_unemployment_rate": 0.35,
+        "usa_job_openings": 0.20,
+        "usa_initial_jobless_claims": 0.15,
+    },
+    minimum_indicators=3,
+)

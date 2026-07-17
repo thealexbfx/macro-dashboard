@@ -181,3 +181,84 @@ USA_NEW_HOME_SALES = IndicatorConfig(
     source="Federal Reserve Economic Data: HSN1F",
     unit="thousands of units, seasonally adjusted annual rate",
 )
+
+USA_NONFARM_PAYROLLS = IndicatorConfig(
+    indicator_id="usa_nonfarm_payrolls",
+    name="Nonfarm Payrolls",
+    economy="USA",
+    pillar="growth",
+    bucket="employment_momentum",
+    frequency="monthly",
+    economic_direction="positive",
+    state_window=1,
+    trend_window=3,
+    historical_lookback=240,
+    minimum_history=36,
+    description=(
+        "Three-month average of monthly changes in total "
+        "nonfarm payroll employment."
+    ),
+    source="BLS",
+    unit="thousands of jobs",
+)
+
+USA_UNEMPLOYMENT_RATE = IndicatorConfig(
+    indicator_id="usa_unemployment_rate",
+    name="Unemployment Rate",
+    economy="USA",
+    pillar="growth",
+    bucket="employment_momentum",
+    frequency="monthly",
+    economic_direction="negative",
+    state_window=3,
+    trend_window=3,
+    historical_lookback=240,
+    minimum_history=36,
+    description=(
+        "Civilian unemployment rate. Lower values represent "
+        "stronger labor-market conditions."
+    ),
+    source="BLS",
+    unit="percent",
+)
+
+USA_JOB_OPENINGS = IndicatorConfig(
+    indicator_id="usa_job_openings",
+    name="Job Openings",
+    economy="USA",
+    pillar="growth",
+    bucket="employment_momentum",
+    frequency="monthly",
+    economic_direction="positive",
+    state_window=3,
+    trend_window=3,
+    historical_lookback=240,
+    minimum_history=36,
+    description=(
+        "Total nonfarm job openings from the Job Openings "
+        "and Labor Turnover Survey."
+    ),
+    source="BLS",
+    unit="thousands of openings",
+)
+
+USA_INITIAL_JOBLESS_CLAIMS = IndicatorConfig(
+    indicator_id="usa_initial_jobless_claims",
+    name="Initial Jobless Claims",
+    economy="USA",
+    pillar="growth",
+    bucket="employment_momentum",
+    frequency="weekly",
+    economic_direction="negative",
+    state_window=1,
+    trend_window=4,
+    historical_lookback=520,
+    minimum_history=52,
+    description=(
+        "Four-week moving average of initial unemployment "
+        "insurance claims. Lower values represent stronger "
+        "labor-market conditions."
+    ),
+    source="FRED",
+    unit="claims",
+)

@@ -57,6 +57,22 @@ def get_usa_nfp_data():
     df = get_bls_series("CES0000000001", start_year=2000)
     df["value"] = df["value"].diff()
     return df.dropna().reset_index(drop=True)
+    
+def get_usa_nfp_3m_average_data():
+    """Return the 3-month average change in nonfarm payrolls."""
+
+    df = get_usa_nfp_data().copy()
+
+    df["value"] = (
+        df["value"]
+        .rolling(window=3, min_periods=3)
+        .mean()
+    )
+
+    return (
+        df.dropna(subset=["value"])
+        .reset_index(drop=True)
+    )
 
 def get_usa_average_hourly_earnings_yoy_data():
     return calculate_yoy_from_index(
@@ -163,6 +179,21 @@ def get_usa_real_hourly_compensation_data():
 def get_usa_initial_jobless_claims_data():
     return get_fred_series("ICSA")
 
+def get_usa_initial_jobless_claims_4wk_average_data():
+    """Return the 4-week moving average of initial jobless claims."""
+
+    df = get_usa_initial_jobless_claims_data().copy()
+
+    df["value"] = (
+        df["value"]
+        .rolling(window=4, min_periods=4)
+        .mean()
+    )
+
+    return (
+        df.dropna(subset=["value"])
+        .reset_index(drop=True)
+    )
 
 def get_usa_ism_manufacturing_pmi_data():
     return load_usa_data("USA_ISM_Manufacturing_PMI.txt", freq="monthly")

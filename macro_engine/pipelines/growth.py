@@ -6,6 +6,7 @@ from macro_engine.metadata.buckets import (
     USA_HOUSEHOLD_DEMAND,
     USA_INDUSTRIAL_ACTIVITY,
     USA_HOUSING,
+    USA_EMPLOYMENT_MOMENTUM,
 )
 from macro_engine.metadata.growth import (
     USA_CAPACITY_UTILIZATION,
@@ -17,6 +18,10 @@ from macro_engine.metadata.growth import (
     USA_BUILDING_PERMITS,
     USA_HOUSING_STARTS,
     USA_NEW_HOME_SALES,
+    USA_INITIAL_JOBLESS_CLAIMS,
+    USA_JOB_OPENINGS,
+    USA_NONFARM_PAYROLLS,
+    USA_UNEMPLOYMENT_RATE,
 )
 from macro_engine.models.bucket import BucketResult
 
@@ -30,7 +35,10 @@ from indicators.usa import (
     get_usa_building_permits_data,
     get_usa_housing_starts_data,
     get_usa_new_home_sales_data,
-    
+    get_usa_initial_jobless_claims_4wk_average_data,
+    get_usa_jolts_job_openings_data,
+    get_usa_nfp_3m_average_data,
+    get_usa_unemployment_rate_data,
 )
 
 
@@ -102,4 +110,31 @@ def run_usa_housing() -> BucketResult:
     return run_bucket(
         indicator_results,
         USA_HOUSING,
+    )
+    
+def run_usa_employment_momentum() -> BucketResult:
+    """Run the complete US Employment Momentum bucket pipeline."""
+
+    indicator_results = [
+        run_indicator(
+            get_usa_nfp_3m_average_data(),
+            USA_NONFARM_PAYROLLS,
+        ),
+        run_indicator(
+            get_usa_unemployment_rate_data(),
+            USA_UNEMPLOYMENT_RATE,
+        ),
+        run_indicator(
+            get_usa_jolts_job_openings_data(),
+            USA_JOB_OPENINGS,
+        ),
+        run_indicator(
+            get_usa_initial_jobless_claims_4wk_average_data(),
+            USA_INITIAL_JOBLESS_CLAIMS,
+        ),
+    ]
+
+    return run_bucket(
+        indicator_results,
+        USA_EMPLOYMENT_MOMENTUM,
     )

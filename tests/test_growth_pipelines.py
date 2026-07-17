@@ -6,6 +6,7 @@ from unittest.mock import patch
 import pandas as pd
 
 from macro_engine.pipelines.growth import (
+    run_usa_employment_momentum,
     run_usa_household_demand,
     run_usa_housing,
     run_usa_industrial_activity,
@@ -282,3 +283,94 @@ def test_housing_pipeline_calls_each_loader_once(
     mock_housing_starts.assert_called_once_with()
     mock_building_permits.assert_called_once_with()
     mock_new_home_sales.assert_called_once_with()
+    
+@patch(
+    "macro_engine.pipelines.growth."
+    "get_usa_initial_jobless_claims_4wk_average_data"
+)
+@patch(
+    "macro_engine.pipelines.growth."
+    "get_usa_jolts_job_openings_data"
+)
+@patch(
+    "macro_engine.pipelines.growth."
+    "get_usa_unemployment_rate_data"
+)
+@patch(
+    "macro_engine.pipelines.growth."
+    "get_usa_nfp_3m_average_data"
+)
+def test_run_usa_employment_momentum_returns_valid_bucket(
+    mock_nfp,
+    mock_unemployment,
+    mock_job_openings,
+    mock_initial_claims,
+) -> None:
+    mock_nfp.return_value = make_stable_series(150.0)
+    mock_unemployment.return_value = make_stable_series(4.2)
+    mock_job_openings.return_value = make_stable_series(7500.0)
+    mock_initial_claims.return_value = make_stable_series(220000.0)
+
+    result = run_usa_employment_momentum()
+
+    assert result.bucket_id == "usa_employment_momentum"
+    assert result.name == "Employment Momentum"
+    assert result.economy == "USA"
+    assert result.pillar == "growth"
+    assert result.indicators_used == 4
+    assert len(result.indicator_results) == 4
+    assert result.is_valid
+
+    assert -1.0 <= result.state_score <= 1.0
+    assert -1.0 <= result.trend_score <= 1.0
+    assert -1.0 <= result.breadth_score <= 1.0
+    assert 0.0 <= result.confidence_score <= 1.0
+
+    indicator_ids = {
+        indicator.indicator_id
+        for indicator in result.indicator_results
+    }
+
+    assert indicator_ids == {
+        "usa_nonfarm_payrolls",
+        "usa_unemployment_rate",
+        "usa_job_openings",
+        "usa_initial_jobless_claims",
+    }
+
+
+@patch(
+    "macro_engine.pipelines.growth."
+    "get_usa_initial_jobless_claims_4wk_average_data"
+)
+@patch(
+    "macro_engine.pipelines.growth."
+    "get_usa_jolts_job_openings_data"
+)
+@patch(
+    "macro_engine.pipelines.growth."
+    "get_usa_unemployment_rate_data"
+)
+@patch(
+    "macro_engine.pipelines.growth."
+    "get_usa_nfp_3m_average_data"
+)
+def test_employment_pipeline_calls_each_loader_once(
+    mock_nfp,
+    mock_unemployment,
+    mock_job_openings,
+    mock_initial_claims,
+) -> None:
+    data = make_stable_series()
+
+    mock_nfp.return_value = data
+    mock_unemployment.return_value = data
+    mock_job_openings.return_value = data
+    mock_initial_claims.return_value = data
+
+    run_usa_employment_momentum()
+
+    mock_nfp.assert_called_once_with()
+    mock_unemployment.assert_called_once_with()
+    mock_job_openings.assert_called_once_with()
+    mock_initial_claims.assert_called_once_with()
