@@ -1,6 +1,11 @@
 """Reusable bucket aggregation logic for the MacroLens Engine."""
 
 from collections.abc import Sequence
+from macro_engine.labels import (
+    classify_breadth,
+    classify_state,
+    classify_trend,
+)
 from macro_engine.models.bucket import BucketConfig, BucketResult
 from macro_engine.models.indicator import IndicatorResult
 
@@ -53,22 +58,6 @@ def calculate_bucket_state_score(
         )
 
     return float(weighted_total / weight_total)
-    
-def classify_bucket_state(score: float) -> str:
-    """Convert a bucket state score into an economic label."""
-    if score >= 0.60:
-        return "Very Strong"
-
-    if score >= 0.20:
-        return "Strong"
-
-    if score > -0.20:
-        return "Normal"
-
-    if score > -0.60:
-        return "Weak"
-
-    return "Very Weak"
 
 
 def calculate_bucket_trend_score(
@@ -96,16 +85,6 @@ def calculate_bucket_trend_score(
 
     return float(weighted_total / weight_total)
 
-
-def classify_bucket_trend(score: float) -> str:
-    """Convert a bucket trend score into a directional label."""
-    if score >= 0.20:
-        return "Improving"
-
-    if score <= -0.20:
-        return "Deteriorating"
-
-    return "Stable"
     
 def calculate_bucket_breadth_score(
     results: Sequence[IndicatorResult],
@@ -125,22 +104,6 @@ def calculate_bucket_breadth_score(
 
     return float((positive - negative) / len(prepared))
 
-
-def classify_bucket_breadth(score: float) -> str:
-    """Convert bucket breadth into a descriptive label."""
-    if score >= 0.75:
-        return "Broadly Positive"
-
-    if score >= 0.25:
-        return "Mostly Positive"
-
-    if score > -0.25:
-        return "Mixed"
-
-    if score > -0.75:
-        return "Mostly Negative"
-
-    return "Broadly Negative"
     
 def calculate_bucket_confidence_score(
     results: Sequence[IndicatorResult],
@@ -303,11 +266,11 @@ def run_bucket(
         economy=config.economy,
         pillar=config.pillar,
         state_score=state_score,
-        state_label=classify_bucket_state(state_score),
+        state_label=classify_state(config.pillar, state_score),
         trend_score=trend_score,
-        trend_label=classify_bucket_trend(trend_score),
+        trend_label=classify_trend(config.pillar, trend_score),
         breadth_score=breadth_score,
-        breadth_label=classify_bucket_breadth(breadth_score),
+        breadth_label=classify_breadth(config.pillar, breadth_score),
         confidence_score=confidence_score,
         confidence_label=classify_bucket_confidence(confidence_score),
         indicators_used=len(prepared),

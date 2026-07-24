@@ -44,6 +44,22 @@ from app_pages.global_macro_view import render_global_macro_view
 
 from app_pages.regime_monitor import render_regime_monitor_page
 
+from app_pages.macro_engine.global_overview import (
+    render_macro_engine_global_page,
+)
+from app_pages.macro_engine.usa import (
+    render_usa_macro_engine_page,
+)
+from app_pages.macro_engine.euro import (
+    render_euro_macro_engine_page,
+)
+from app_pages.macro_engine.uk import (
+    render_uk_macro_engine_page,
+)
+from app_pages.macro_engine.japan import (
+    render_japan_macro_engine_page,
+)
+
 # Modular data loaders - Phase 2A
 from data.fred import get_fred_series, get_usa_yield_data
 from data.bls import get_bls_series
@@ -758,6 +774,11 @@ page_titles = {
     "RegimeMonitor": "Regime Monitor",
     "ResearchNotes": "Research Notes",
     "Calendar": "Calendar",
+    "MacroEngineGlobal": "Global Overview",
+    "MacroEngineUSA": "United States Macro Engine",
+    "MacroEngineEuro": "Euro Area Macro Engine",
+    "MacroEngineUK": "United Kingdom Macro Engine",
+    "MacroEngineJapan": "Japan Macro Engine",
 }
 
 render_sidebar(active_page=page)
@@ -793,6 +814,36 @@ elif page == "RatesBonds":
 
 elif page == "Crypto":
     safe_render(render_crypto_page, "Crypto")
+    
+elif page == "MacroEngineGlobal":
+    safe_render(
+        render_macro_engine_global_page,
+        "Macro Engine Global Overview",
+    )
+
+elif page == "MacroEngineUSA":
+    safe_render(
+        render_usa_macro_engine_page,
+        "United States Macro Engine",
+    )
+
+elif page == "MacroEngineEuro":
+    safe_render(
+        render_euro_macro_engine_page,
+        "Euro Area Macro Engine",
+    )
+
+elif page == "MacroEngineUK":
+    safe_render(
+        render_uk_macro_engine_page,
+        "United Kingdom Macro Engine",
+    )
+
+elif page == "MacroEngineJapan":
+    safe_render(
+        render_japan_macro_engine_page,
+        "Japan Macro Engine",
+    )
 
 elif page == "GlobalMacroView":
     render_under_construction_page("Global Macro Outlook")

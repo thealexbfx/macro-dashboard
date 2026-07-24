@@ -2,6 +2,9 @@
 
 import pandas as pd
 import pytest
+from datetime import date
+from macro_engine.metadata.usa_policy import USA_POLICY_RATE
+
 
 from macro_engine.engine.indicator_engine import (
     calculate_confidence,
@@ -14,9 +17,102 @@ from macro_engine.engine.indicator_engine import (
     classify_trend,
     prepare_indicator_data,
     run_indicator,
+    calculate_trend_percentile,
+    filter_indicator_data_as_of,
 )
 from macro_engine.metadata.growth import USA_REAL_PERSONAL_CONSUMPTION
 
+def test_filter_indicator_data_as_of_limits_rows() -> None:
+    data = pd.DataFrame(
+        {
+            "date": pd.to_datetime(
+                [
+                    "2026-01-31",
+                    "2026-02-28",
+                    "2026-03-31",
+                ]
+            ),
+            "value": [1.0, 2.0, 3.0],
+        }
+    )
+
+    filtered = filter_indicator_data_as_of(
+        data,
+        as_of_date=date(2026, 2, 28),
+    )
+
+    assert len(filtered) == 2
+    assert filtered["value"].tolist() == [1.0, 2.0]
+
+
+def test_filter_indicator_data_as_of_rejects_empty_history() -> None:
+    data = pd.DataFrame(
+        {
+            "date": pd.to_datetime(
+                [
+                    "2026-01-31",
+                    "2026-02-28",
+                ]
+            ),
+            "value": [1.0, 2.0],
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="no indicator observations",
+    ):
+        filter_indicator_data_as_of(
+            data,
+            as_of_date=date(2025, 12, 31),
+        )
+
+
+def test_run_indicator_respects_as_of_date() -> None:
+    data = pd.DataFrame(
+        {
+            "date": pd.date_range(
+                "2020-01-31",
+                periods=72,
+                freq="ME",
+            ),
+            "value": range(72),
+        }
+    )
+
+    result = run_indicator(
+        data,
+        USA_REAL_PERSONAL_CONSUMPTION,
+        as_of_date=date(2024, 12, 31),
+    )
+
+    assert result.latest_date == date(2024, 12, 31)
+
+def test_unchanged_trend_is_neutral() -> None:
+    data = pd.DataFrame(
+        {
+            "date": pd.date_range(
+                start="2024-01-01",
+                periods=600,
+                freq="D",
+            ),
+            "value": [5.0] * 600,
+        }
+    )
+
+    percentile = calculate_trend_percentile(
+        data,
+        USA_POLICY_RATE,
+    )
+
+    score = calculate_trend_score(
+        percentile,
+        USA_POLICY_RATE,
+    )
+
+    assert percentile == 50.0
+    assert score == 0.0
+    assert classify_trend(score) == "Stable"
 
 def make_monthly_data(values: list[float]) -> pd.DataFrame:
     """Create a clean monthly date/value test series."""

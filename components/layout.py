@@ -2,13 +2,15 @@ import streamlit as st
 
 
 NAV_ITEMS = {
-    "Dashboard": [("Home", "Overview")],
-    "Research": [
-        ("GlobalMacroView", "Global Macro Outlook"),
-        ("RegimeMonitor", "Regime Monitor"),
-        ("CentralBankWatch", "Central Bank Watch"),
-        ("ResearchNotes", "Research Notes"),
-        ("Calendar", "Calendar"),
+    "Dashboard": [
+        ("Home", "Overview"),
+    ],
+    "Macro Engine": [
+        ("MacroEngineGlobal", "Global Overview"),
+        ("MacroEngineUSA", "United States"),
+        ("MacroEngineEuro", "Euro Area"),
+        ("MacroEngineUK", "United Kingdom"),
+        ("MacroEngineJapan", "Japan"),
     ],
     "Economies": [
         ("UnitedStates", "United States"),
@@ -22,6 +24,13 @@ NAV_ITEMS = {
         ("Commodities", "Commodities"),
         ("FX", "FX"),
         ("Crypto", "Crypto"),
+    ],
+    "Research": [
+        ("GlobalMacroView", "Global Macro Outlook"),
+        ("RegimeMonitor", "Regime Monitor"),
+        ("CentralBankWatch", "Central Bank Watch"),
+        ("ResearchNotes", "Research Notes"),
+        ("Calendar", "Calendar"),
     ],
 }
 

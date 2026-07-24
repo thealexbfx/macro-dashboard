@@ -10,10 +10,7 @@ from macro_engine.engine.bucket_engine import (
     calculate_bucket_confidence_score,
     calculate_bucket_state_score,
     calculate_bucket_trend_score,
-    classify_bucket_breadth,
     classify_bucket_confidence,
-    classify_bucket_state,
-    classify_bucket_trend,
     identify_key_drivers,
     prepare_bucket_results,
     run_bucket,
@@ -176,62 +173,15 @@ def test_calculate_bucket_confidence_score(
 @pytest.mark.parametrize(
     ("score", "expected"),
     [
-        (0.70, "Very Strong"),
-        (0.20, "Strong"),
-        (0.00, "Normal"),
-        (-0.20, "Weak"),
-        (-0.70, "Very Weak"),
-    ],
-)
-def test_classify_bucket_state(
-    score: float,
-    expected: str,
-) -> None:
-    assert classify_bucket_state(score) == expected
-
-
-@pytest.mark.parametrize(
-    ("score", "expected"),
-    [
-        (0.20, "Improving"),
-        (0.00, "Stable"),
-        (-0.20, "Deteriorating"),
-    ],
-)
-def test_classify_bucket_trend(
-    score: float,
-    expected: str,
-) -> None:
-    assert classify_bucket_trend(score) == expected
-
-
-@pytest.mark.parametrize(
-    ("score", "expected"),
-    [
-        (1.00, "Broadly Positive"),
-        (0.50, "Mostly Positive"),
-        (0.00, "Mixed"),
-        (-0.50, "Mostly Negative"),
-        (-1.00, "Broadly Negative"),
-    ],
-)
-def test_classify_bucket_breadth(
-    score: float,
-    expected: str,
-) -> None:
-    assert classify_bucket_breadth(score) == expected
-
-
-@pytest.mark.parametrize(
-    ("score", "expected"),
-    [
-        (0.90, "Very High"),
-        (0.75, "High"),
-        (0.60, "Moderate"),
-        (0.40, "Low"),
+        (0.95, "Very High"),
+        (0.80, "High"),
+        (0.65, "Moderate"),
+        (0.50, "Low"),
         (0.20, "Very Low"),
     ],
 )
+
+
 def test_classify_bucket_confidence(
     score: float,
     expected: str,

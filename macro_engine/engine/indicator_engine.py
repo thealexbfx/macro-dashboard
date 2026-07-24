@@ -1,6 +1,7 @@
 """Reusable indicator-processing logic for the MacroLens Engine."""
 
 import pandas as pd
+from datetime import date
 
 from macro_engine.models.indicator import IndicatorConfig
 
@@ -185,7 +186,14 @@ def calculate_trend_percentile(
 
     historical_trends = (state_series - previous_state_series).dropna()
 
-    current_trend = historical_trends.iloc[-1]
+    current_trend = float(historical_trends.iloc[-1])
+
+    # An unchanged indicator should always represent a neutral trend.
+    # This prevents tied zero changes in stepwise series, such as policy
+    # rates, from being ranked as an extreme historical observation.
+    if abs(current_trend) <= 1e-12:
+        return 50.0
+
     percentile = (historical_trends <= current_trend).mean() * 100
 
     return float(percentile)
@@ -446,9 +454,47 @@ def classify_confidence(score: float) -> str:
 
     return "Very Low"
 
+def filter_indicator_data_as_of(
+    data: pd.DataFrame,
+    as_of_date: date | None = None,
+) -> pd.DataFrame:
+    """
+    Restrict indicator data to observations on or before as_of_date.
+
+    When as_of_date is None, the original dataset is returned unchanged.
+    """
+
+    if as_of_date is None:
+        return data.copy()
+
+    if "date" not in data.columns:
+        raise ValueError(
+            "indicator data must contain a 'date' column "
+            "when using as_of_date"
+        )
+
+    filtered = data.copy()
+    filtered["date"] = pd.to_datetime(
+        filtered["date"],
+        errors="coerce",
+    )
+
+    filtered = filtered.loc[
+        filtered["date"] <= pd.Timestamp(as_of_date)
+    ].copy()
+
+    if filtered.empty:
+        raise ValueError(
+            f"no indicator observations are available "
+            f"on or before {as_of_date}"
+        )
+
+    return filtered
+
 def run_indicator(
     data: pd.DataFrame,
     config: IndicatorConfig,
+    as_of_date: date | None = None,
 ):
     """
     Run the complete Version 1 indicator pipeline.
@@ -458,7 +504,15 @@ def run_indicator(
     """
     from macro_engine.models.indicator import IndicatorResult
 
-    cleaned = prepare_indicator_data(data, config)
+    filtered = filter_indicator_data_as_of(
+        data,
+        as_of_date=as_of_date,
+    )
+
+    cleaned = prepare_indicator_data(
+        filtered,
+        config,
+    )
 
     state_value = calculate_state_value(cleaned, config)
     historical_percentile = calculate_historical_percentile(cleaned, config)
