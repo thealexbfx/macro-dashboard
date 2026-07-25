@@ -3,9 +3,11 @@ import pytest
 from macro_engine.models.bucket import BucketResult
 from macro_engine.models.pillar import PillarResult
 
+
 from macro_engine.pipelines.pillars import (
     run_euro_growth,
     run_usa_growth,
+    run_uk_growth,
 )
 
 
@@ -218,3 +220,13 @@ def test_euro_growth_pipeline_calls_each_bucket_once(monkeypatch):
         "industrial_activity": 1,
         "forward_looking": 1,
     }
+    
+def test_run_uk_growth():
+    result = run_uk_growth()
+
+    assert result.pillar_id == "uk_growth"
+    assert result.name == "UK Growth"
+    assert result.economy == "United Kingdom"
+    assert result.buckets_used == 4
+    assert len(result.bucket_results) == 4
+    assert result.diagnostics["missing_bucket_ids"] == []

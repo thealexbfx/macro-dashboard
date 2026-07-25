@@ -295,3 +295,65 @@ EURO_FORWARD_LOOKING = BucketConfig(
         "European Commission Economic Sentiment Indicator."
     ),
 )
+
+UK_ECONOMIC_ACTIVITY = BucketConfig(
+    bucket_id="uk_economic_activity",
+    name="Economic Activity",
+    economy="United Kingdom",
+    pillar="growth",
+    minimum_indicators=1,
+    indicator_weights={
+        "uk_gdp_qoq": 0.55,
+        "uk_gdp_mom": 0.45,
+    },
+    description=(
+        "Combines quarterly and monthly GDP measures into an assessment "
+        "of current UK economic activity."
+    ),
+)
+
+
+UK_HOUSEHOLD_DEMAND = BucketConfig(
+    bucket_id="uk_household_demand",
+    name="Household Demand",
+    economy="United Kingdom",
+    pillar="growth",
+    minimum_indicators=1,
+    indicator_weights={
+        "uk_retail_sales": 1.00,
+    },
+    description=(
+        "Assesses UK household demand using retail sales activity."
+    ),
+)
+
+
+UK_INDUSTRIAL_ACTIVITY = BucketConfig(
+    bucket_id="uk_industrial_activity",
+    name="Industrial Activity",
+    economy="United Kingdom",
+    pillar="growth",
+    minimum_indicators=1,
+    indicator_weights={
+        "uk_industrial_production": 1.00,
+    },
+    description=(
+        "Assesses current UK industrial activity using production output."
+    ),
+)
+
+
+UK_FORWARD_LOOKING = BucketConfig(
+    bucket_id="uk_forward_looking",
+    name="Forward Looking",
+    economy="United Kingdom",
+    pillar="growth",
+    minimum_indicators=1,
+    indicator_weights={
+        "uk_consumer_confidence": 1.00,
+    },
+    description=(
+        "Assesses forward-looking UK growth conditions using consumer "
+        "confidence."
+    ),
+)

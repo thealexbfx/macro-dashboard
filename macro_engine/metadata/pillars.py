@@ -110,3 +110,22 @@ EURO_GROWTH = PillarConfig(
         "of current Euro Area economic growth."
     ),
 )
+
+UK_GROWTH = PillarConfig(
+    pillar_id="uk_growth",
+    pillar="growth",
+    name="UK Growth",
+    economy="United Kingdom",
+    minimum_buckets=3,
+    bucket_weights={
+        "uk_economic_activity": 0.35,
+        "uk_household_demand": 0.20,
+        "uk_industrial_activity": 0.20,
+        "uk_forward_looking": 0.25,
+    },
+    description=(
+        "Aggregates realized economic activity, household demand, industrial "
+        "production, and forward-looking sentiment into a unified assessment "
+        "of current UK economic growth."
+    ),
+)
