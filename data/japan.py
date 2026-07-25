@@ -3,7 +3,7 @@ import requests
 import streamlit as st
 from config import ESTAT_API_KEY
 from io import BytesIO
-
+from data.fred import get_fred_series
 
 
 ESTAT_BASE_URL = "https://api.e-stat.go.jp/rest/3.0/app/json"
@@ -535,19 +535,9 @@ def get_japan_economy_watchers_survey_data():
     
 @st.cache_data(ttl=1800, show_spinner=False)
 def get_boj_balance_sheet_data():
+    df = get_fred_series("JPNASSETS")
 
-    url = "https://www.stat-search.boj.or.jp/ssi/html/nme_R031.4119888.20260620143547.02.csv"
-
-    raw = pd.read_csv(url)
-
-    df = raw.iloc[1:].copy()
-
-    df = df.rename(columns={
-        df.columns[0]: "date",
-        df.columns[1]: "value",
-    })
-
-    df["date"] = pd.to_datetime(df["date"], format="%Y/%m", errors="coerce")
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
     return (
