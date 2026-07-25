@@ -129,3 +129,22 @@ UK_GROWTH = PillarConfig(
         "of current UK economic growth."
     ),
 )
+
+JAPAN_GROWTH = PillarConfig(
+    pillar_id="japan_growth",
+    pillar="growth",
+    name="Japan Growth",
+    economy="Japan",
+    minimum_buckets=3,
+    bucket_weights={
+        "japan_economic_activity": 0.35,
+        "japan_household_demand": 0.20,
+        "japan_industrial_activity": 0.20,
+        "japan_forward_looking": 0.25,
+    },
+    description=(
+        "Aggregates realized economic activity, household demand, industrial "
+        "production, and forward-looking sentiment into a unified assessment "
+        "of current Japanese economic growth."
+    ),
+)

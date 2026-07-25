@@ -8,6 +8,7 @@ from macro_engine.pipelines.pillars import (
     run_euro_growth,
     run_usa_growth,
     run_uk_growth,
+    run_japan_growth,
 )
 
 
@@ -229,4 +230,12 @@ def test_run_uk_growth():
     assert result.economy == "United Kingdom"
     assert result.buckets_used == 4
     assert len(result.bucket_results) == 4
+    assert result.diagnostics["missing_bucket_ids"] == []
+    
+def test_run_japan_growth():
+    result = run_japan_growth()
+
+    assert result.pillar_id == "japan_growth"
+    assert result.economy == "Japan"
+    assert result.buckets_used == 4
     assert result.diagnostics["missing_bucket_ids"] == []

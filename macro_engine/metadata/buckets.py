@@ -357,3 +357,65 @@ UK_FORWARD_LOOKING = BucketConfig(
         "confidence."
     ),
 )
+
+JAPAN_ECONOMIC_ACTIVITY = BucketConfig(
+    bucket_id="japan_economic_activity",
+    name="Economic Activity",
+    economy="Japan",
+    pillar="growth",
+    minimum_indicators=1,
+    indicator_weights={
+        "japan_gdp_qoq": 1.00,
+    },
+    description=(
+        "Assesses current Japanese economic activity using quarterly real "
+        "GDP growth."
+    ),
+)
+
+
+JAPAN_HOUSEHOLD_DEMAND = BucketConfig(
+    bucket_id="japan_household_demand",
+    name="Household Demand",
+    economy="Japan",
+    pillar="growth",
+    minimum_indicators=1,
+    indicator_weights={
+        "japan_retail_sales": 1.00,
+    },
+    description=(
+        "Assesses Japanese household demand using retail sales activity."
+    ),
+)
+
+
+JAPAN_INDUSTRIAL_ACTIVITY = BucketConfig(
+    bucket_id="japan_industrial_activity",
+    name="Industrial Activity",
+    economy="Japan",
+    pillar="growth",
+    minimum_indicators=1,
+    indicator_weights={
+        "japan_industrial_production": 1.00,
+    },
+    description=(
+        "Assesses current Japanese industrial activity using production "
+        "output."
+    ),
+)
+
+
+JAPAN_FORWARD_LOOKING = BucketConfig(
+    bucket_id="japan_forward_looking",
+    name="Forward Looking",
+    economy="Japan",
+    pillar="growth",
+    minimum_indicators=1,
+    indicator_weights={
+        "japan_economy_watchers": 1.00,
+    },
+    description=(
+        "Assesses forward-looking Japanese growth conditions using the "
+        "Economy Watchers Survey."
+    ),
+)

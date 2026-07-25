@@ -10,6 +10,7 @@ from macro_engine.models.pillar import PillarResult
 
 from macro_engine.metadata.pillars import (
     UK_GROWTH,
+    JAPAN_GROWTH,
     EURO_GROWTH,
     USA_GROWTH,
     USA_INFLATION,
@@ -36,6 +37,13 @@ from macro_engine.pipelines.uk_growth import (
     run_uk_forward_looking,
     run_uk_household_demand,
     run_uk_industrial_activity,
+)
+
+from macro_engine.pipelines.japan_growth import (
+    run_japan_economic_activity,
+    run_japan_forward_looking,
+    run_japan_household_demand,
+    run_japan_industrial_activity,
 )
 
 from macro_engine.pipelines.inflation import (
@@ -140,6 +148,33 @@ def run_uk_growth(
     return run_pillar(
         bucket_results,
         UK_GROWTH,
+    )
+
+def run_japan_growth(
+    as_of_date: date | None = None,
+):
+    """
+    Execute the complete Japan Growth pillar.
+    """
+
+    bucket_results = (
+        run_japan_economic_activity(
+            as_of_date=as_of_date,
+        ),
+        run_japan_household_demand(
+            as_of_date=as_of_date,
+        ),
+        run_japan_industrial_activity(
+            as_of_date=as_of_date,
+        ),
+        run_japan_forward_looking(
+            as_of_date=as_of_date,
+        ),
+    )
+
+    return run_pillar(
+        bucket_results,
+        JAPAN_GROWTH,
     )
 
 def run_usa_inflation(
