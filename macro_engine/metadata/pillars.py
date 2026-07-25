@@ -91,3 +91,22 @@ USA_POLICY = PillarConfig(
         "market-implied policy expectations."
     ),
 )
+
+EURO_GROWTH = PillarConfig(
+    pillar_id="euro_growth",
+    pillar="growth",
+    name="Euro Area Growth",
+    economy="Euro Area",
+    minimum_buckets=3,
+    bucket_weights={
+        "euro_economic_activity": 0.35,
+        "euro_household_demand": 0.20,
+        "euro_industrial_activity": 0.20,
+        "euro_forward_looking": 0.25,
+    },
+    description=(
+        "Aggregates realized economic activity, household demand, industrial "
+        "production, and forward-looking sentiment into a unified assessment "
+        "of current Euro Area economic growth."
+    ),
+)

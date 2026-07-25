@@ -130,11 +130,30 @@ def get_euro_trade_balance_data():
         }
     )
     
+# Eurostat's detailed EA20 Business and Consumer Survey dataset
+# provides the historical series through December 2025.
+#
+# The simplified EA21 series provides the latest observations.
+# The overlapping values differ by only 0.1-0.3 index points, so
+# EA20 history is retained through Dec 2025 and EA21 is appended
+# from Jan 2026 onward.    
+    
 import pandas as pd
 import requests
 
 def get_euro_economic_sentiment_data():
-    df = get_eurostat_series(
+    historical = get_eurostat_series(
+        "ei_bssi_m_r2",
+        {
+            "geo": "EA20",
+            "indic": "BS-ESI-I",
+            "s_adj": "SA",
+            "freq": "M",
+            "lastTimePeriod": "240",
+        },
+    )
+
+    current = get_eurostat_series(
         "teibs010",
         {
             "geo": "EA21",
@@ -142,17 +161,35 @@ def get_euro_economic_sentiment_data():
             "s_adj": "SA",
             "freq": "M",
             "lastTimePeriod": "24",
-        }
+        },
     )
 
-    return df
+    historical = historical[
+        historical["date"] < pd.Timestamp("2026-01-01")
+    ]
+
+    current = current[
+        current["date"] >= pd.Timestamp("2026-01-01")
+    ]
+
+    df = pd.concat(
+        [historical, current],
+        ignore_index=True,
+    )
+
+    return (
+        df.dropna(subset=["date", "value"])
+        .drop_duplicates(subset=["date"], keep="last")
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
 
 
 if __name__ == "__main__":
     df = get_euro_economic_sentiment_data()
     print(df.tail(20))
     print(df["date"].max())
-    
+
   
 def get_euro_services_hicp_yoy_data():
     df = get_eurostat_series(

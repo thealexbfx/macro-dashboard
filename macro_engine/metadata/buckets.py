@@ -236,3 +236,62 @@ USA_POLICY_EXPECTATIONS = BucketConfig(
         "more accommodative or more restrictive."
     ),
 )
+
+EURO_ECONOMIC_ACTIVITY = BucketConfig(
+    bucket_id="euro_economic_activity",
+    name="Economic Activity",
+    economy="Euro Area",
+    pillar="growth",
+    minimum_indicators=2,
+    indicator_weights={
+        "euro_gdp_qoq": 0.65,
+        "euro_gdp_yoy": 0.35,
+    },
+    description=(
+        "Measures overall Euro Area economic activity using quarterly real "
+        "GDP growth on both a quarter-on-quarter and year-on-year basis."
+    ),
+)
+
+EURO_HOUSEHOLD_DEMAND = BucketConfig(
+    bucket_id="euro_household_demand",
+    name="Household Demand",
+    economy="Euro Area",
+    pillar="growth",
+    minimum_indicators=1,
+    indicator_weights={
+        "euro_retail_sales": 1.00,
+    },
+    description=(
+        "Measures current Euro Area household demand using retail sales."
+    ),
+)
+
+EURO_INDUSTRIAL_ACTIVITY = BucketConfig(
+    bucket_id="euro_industrial_activity",
+    name="Industrial Activity",
+    economy="Euro Area",
+    pillar="growth",
+    minimum_indicators=1,
+    indicator_weights={
+        "euro_industrial_production": 1.00,
+    },
+    description=(
+        "Measures Euro Area industrial production activity."
+    ),
+)
+
+EURO_FORWARD_LOOKING = BucketConfig(
+    bucket_id="euro_forward_looking",
+    name="Forward Looking",
+    economy="Euro Area",
+    pillar="growth",
+    minimum_indicators=1,
+    indicator_weights={
+        "euro_economic_sentiment": 1.00,
+    },
+    description=(
+        "Measures forward-looking business and consumer confidence using the "
+        "European Commission Economic Sentiment Indicator."
+    ),
+)

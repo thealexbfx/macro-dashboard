@@ -3,7 +3,10 @@ import pytest
 from macro_engine.models.bucket import BucketResult
 from macro_engine.models.pillar import PillarResult
 
-from macro_engine.pipelines.pillars import run_usa_growth
+from macro_engine.pipelines.pillars import (
+    run_euro_growth,
+    run_usa_growth,
+)
 
 
 def dummy_bucket(name):
@@ -24,6 +27,23 @@ def dummy_bucket(name):
         indicator_results=(),
     )
 
+def dummy_euro_bucket(bucket_id):
+    return BucketResult(
+        bucket_id=bucket_id,
+        name=bucket_id,
+        economy="Euro Area",
+        pillar="growth",
+        state_score=0.2,
+        state_label="Strong",
+        trend_score=0.1,
+        trend_label="Stable",
+        breadth_score=0.5,
+        breadth_label="Mostly Positive",
+        confidence_score=0.8,
+        confidence_label="High",
+        indicators_used=1,
+        indicator_results=(),
+    )
 
 def test_run_usa_growth_returns_valid_pillar(monkeypatch):
 
@@ -105,4 +125,96 @@ def test_growth_pipeline_calls_each_bucket_once(monkeypatch):
         "employment": 1,
         "industry": 1,
         "housing": 1,
+    }
+    
+def test_run_euro_growth_returns_valid_pillar(monkeypatch):
+
+    monkeypatch.setattr(
+        "macro_engine.pipelines.pillars.run_euro_economic_activity",
+        lambda as_of_date=None: dummy_euro_bucket(
+            "euro_economic_activity"
+        ),
+    )
+
+    monkeypatch.setattr(
+        "macro_engine.pipelines.pillars.run_euro_household_demand",
+        lambda as_of_date=None: dummy_euro_bucket(
+            "euro_household_demand"
+        ),
+    )
+
+    monkeypatch.setattr(
+        "macro_engine.pipelines.pillars.run_euro_industrial_activity",
+        lambda as_of_date=None: dummy_euro_bucket(
+            "euro_industrial_activity"
+        ),
+    )
+
+    monkeypatch.setattr(
+        "macro_engine.pipelines.pillars.run_euro_forward_looking",
+        lambda as_of_date=None: dummy_euro_bucket(
+            "euro_forward_looking"
+        ),
+    )
+
+    result = run_euro_growth()
+
+    assert isinstance(result, PillarResult)
+    assert result.is_valid
+    assert result.pillar_id == "euro_growth"
+    assert result.economy == "Euro Area"
+
+
+def test_euro_growth_pipeline_calls_each_bucket_once(monkeypatch):
+
+    calls = {
+        "economic_activity": 0,
+        "household_demand": 0,
+        "industrial_activity": 0,
+        "forward_looking": 0,
+    }
+
+    def economic_activity(as_of_date=None):
+        calls["economic_activity"] += 1
+        return dummy_euro_bucket("euro_economic_activity")
+
+    def household_demand(as_of_date=None):
+        calls["household_demand"] += 1
+        return dummy_euro_bucket("euro_household_demand")
+
+    def industrial_activity(as_of_date=None):
+        calls["industrial_activity"] += 1
+        return dummy_euro_bucket("euro_industrial_activity")
+
+    def forward_looking(as_of_date=None):
+        calls["forward_looking"] += 1
+        return dummy_euro_bucket("euro_forward_looking")
+
+    monkeypatch.setattr(
+        "macro_engine.pipelines.pillars.run_euro_economic_activity",
+        economic_activity,
+    )
+
+    monkeypatch.setattr(
+        "macro_engine.pipelines.pillars.run_euro_household_demand",
+        household_demand,
+    )
+
+    monkeypatch.setattr(
+        "macro_engine.pipelines.pillars.run_euro_industrial_activity",
+        industrial_activity,
+    )
+
+    monkeypatch.setattr(
+        "macro_engine.pipelines.pillars.run_euro_forward_looking",
+        forward_looking,
+    )
+
+    run_euro_growth()
+
+    assert calls == {
+        "economic_activity": 1,
+        "household_demand": 1,
+        "industrial_activity": 1,
+        "forward_looking": 1,
     }

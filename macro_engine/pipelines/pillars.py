@@ -9,6 +9,7 @@ from macro_engine.engine.pillar_engine import run_pillar
 from macro_engine.models.pillar import PillarResult
 
 from macro_engine.metadata.pillars import (
+    EURO_GROWTH,
     USA_GROWTH,
     USA_INFLATION,
     USA_LABOR,
@@ -21,6 +22,12 @@ from macro_engine.pipelines.growth import (
     run_usa_employment_momentum,
     run_usa_industrial_activity,
     run_usa_housing,
+)
+from macro_engine.pipelines.euro_growth import (
+    run_euro_economic_activity,
+    run_euro_forward_looking,
+    run_euro_household_demand,
+    run_euro_industrial_activity,
 )
 
 from macro_engine.pipelines.inflation import (
@@ -71,6 +78,33 @@ def run_usa_growth(
     return run_pillar(
         bucket_results,
         USA_GROWTH,
+    )
+    
+def run_euro_growth(
+    as_of_date: date | None = None,
+) -> PillarResult:
+    """
+    Execute the complete Euro Area Growth pillar.
+    """
+
+    bucket_results = (
+        run_euro_economic_activity(
+            as_of_date=as_of_date,
+        ),
+        run_euro_household_demand(
+            as_of_date=as_of_date,
+        ),
+        run_euro_industrial_activity(
+            as_of_date=as_of_date,
+        ),
+        run_euro_forward_looking(
+            as_of_date=as_of_date,
+        ),
+    )
+
+    return run_pillar(
+        bucket_results,
+        EURO_GROWTH,
     )
 
 def run_usa_inflation(
