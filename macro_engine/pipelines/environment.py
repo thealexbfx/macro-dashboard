@@ -8,6 +8,11 @@ from macro_engine.models.environment import (
     MacroEnvironmentResult,
 )
 from macro_engine.pipelines.pillars import (
+    run_euro_growth,
+    run_euro_inflation,
+    run_euro_labor,
+    run_euro_liquidity,
+    run_euro_policy,
     run_usa_growth,
     run_usa_inflation,
     run_usa_labor,
@@ -18,6 +23,12 @@ from macro_engine.pipelines.pillars import (
 
 USA_MACRO_ENVIRONMENT = MacroEnvironmentConfig(
     economy="USA",
+    minimum_pillars=5,
+    minimum_confidence=0.60,
+)
+
+EURO_MACRO_ENVIRONMENT = MacroEnvironmentConfig(
+    economy="Euro Area",
     minimum_pillars=5,
     minimum_confidence=0.60,
 )
@@ -58,6 +69,45 @@ def run_usa_macro_environment(
 
     return build_environment_result(
         config=USA_MACRO_ENVIRONMENT,
+        pillar_results=pillar_results,
+        as_of_date=as_of_date,
+    )
+    
+def run_euro_macro_environment(
+    as_of_date: date | None = None,
+) -> MacroEnvironmentResult:
+    """
+    Run the complete Euro Area macro environment pipeline.
+
+    The environment combines the five primary Euro Area macro pillars:
+
+    - Growth
+    - Inflation
+    - Labor
+    - Liquidity
+    - Policy
+    """
+
+    pillar_results = (
+        run_euro_growth(
+            as_of_date=as_of_date,
+        ),
+        run_euro_inflation(
+            as_of_date=as_of_date,
+        ),
+        run_euro_labor(
+            as_of_date=as_of_date,
+        ),
+        run_euro_liquidity(
+            as_of_date=as_of_date,
+        ),
+        run_euro_policy(
+            as_of_date=as_of_date,
+        ),
+    )
+
+    return build_environment_result(
+        config=EURO_MACRO_ENVIRONMENT,
         pillar_results=pillar_results,
         as_of_date=as_of_date,
     )

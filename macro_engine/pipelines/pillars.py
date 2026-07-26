@@ -12,6 +12,10 @@ from macro_engine.metadata.pillars import (
     UK_GROWTH,
     JAPAN_GROWTH,
     EURO_GROWTH,
+    EURO_INFLATION,
+    EURO_LABOR,
+    EURO_LIQUIDITY,
+    EURO_POLICY,
     USA_GROWTH,
     USA_INFLATION,
     USA_LABOR,
@@ -30,6 +34,27 @@ from macro_engine.pipelines.euro_growth import (
     run_euro_forward_looking,
     run_euro_household_demand,
     run_euro_industrial_activity,
+)
+
+from macro_engine.pipelines.euro_inflation import (
+    run_euro_core_inflation_persistence,
+    run_euro_headline_price_pressure,
+    run_euro_wage_cost_pressure,
+    run_euro_monetary_policy_pressure,
+)
+
+from macro_engine.pipelines.euro_labor import (
+    run_euro_employment_conditions,
+)
+
+from macro_engine.pipelines.liquidity import (
+    run_usa_central_bank_liquidity,
+    run_usa_money_conditions,
+    run_usa_funding_conditions,
+)
+
+from macro_engine.pipelines.euro_policy import (
+    run_euro_current_policy_stance,
 )
 
 from macro_engine.pipelines.uk_growth import (
@@ -123,6 +148,85 @@ def run_euro_growth(
         EURO_GROWTH,
     )
     
+def run_euro_inflation(
+    as_of_date: date | None = None,
+) -> PillarResult:
+    """
+    Execute the complete Euro Area Inflation pillar.
+    """
+
+    bucket_results = (
+        run_euro_core_inflation_persistence(
+            as_of_date=as_of_date,
+        ),
+        run_euro_headline_price_pressure(
+            as_of_date=as_of_date,
+        ),
+        run_euro_wage_cost_pressure(
+            as_of_date=as_of_date,
+        ),
+        run_euro_monetary_policy_pressure(
+            as_of_date=as_of_date,
+        ),
+    )
+
+    return run_pillar(
+        bucket_results,
+        EURO_INFLATION,
+    )
+    
+    
+def run_euro_labor(
+    as_of_date: date | None = None,
+) -> PillarResult:
+    """Run the complete Euro Area Labor pillar pipeline."""
+
+    bucket_results = [
+        run_euro_employment_conditions(
+            as_of_date=as_of_date,
+        ),
+    ]
+
+    return run_pillar(
+        bucket_results,
+        EURO_LABOR,
+    )
+    
+def run_euro_liquidity(
+    as_of_date: date | None = None,
+) -> PillarResult:
+    """Run the complete Euro Area Liquidity pillar pipeline."""
+
+    bucket_results = [
+        run_euro_central_bank_liquidity(
+            as_of_date=as_of_date,
+        ),
+        run_euro_money_conditions(
+            as_of_date=as_of_date,
+        ),
+    ]
+
+    return run_pillar(
+        bucket_results,
+        EURO_LIQUIDITY,
+    )
+    
+def run_euro_policy(
+    as_of_date: date | None = None,
+) -> PillarResult:
+    """Run the complete Euro Area Policy pillar pipeline."""
+
+    bucket_results = [
+        run_euro_current_policy_stance(
+            as_of_date=as_of_date,
+        ),
+    ]
+
+    return run_pillar(
+        bucket_results,
+        EURO_POLICY,
+    )
+
 def run_uk_growth(
     as_of_date: date | None = None,
 ) -> PillarResult:
@@ -231,18 +335,17 @@ def run_usa_labor(
 def run_usa_liquidity_pillar(
     as_of_date: date | None = None,
 ):
-    """
-    Execute the complete USA Liquidity pillar.
-    """
-
-    bucket_results = (
+    bucket_results = [
         run_usa_central_bank_liquidity(
+            as_of_date=as_of_date,
+        ),
+        run_usa_money_conditions(
             as_of_date=as_of_date,
         ),
         run_usa_funding_conditions(
             as_of_date=as_of_date,
         ),
-    )
+    ]
 
     return run_pillar(
         bucket_results,

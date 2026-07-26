@@ -6,9 +6,11 @@ from data.ecb import (
     get_ecb_balance_sheet_data,
     get_ecb_house_price_index_data,
     get_ecb_trade_balance_data,
+    get_ecb_total_employment_yoy_data,
+    get_ecb_m3_yoy_data,
 )
 import streamlit as st
-
+import pandas as pd
 
 
 EURO_AREA_GEO = "EA21"
@@ -207,6 +209,122 @@ def get_euro_services_hicp_yoy_data():
 
     return df.dropna(subset=["value"]).reset_index(drop=True)
     
+    
+def get_euro_ecb_balance_sheet_13w_change_data():
+    """
+    Thirteen-week change in the ECB balance sheet.
+
+    Positive values indicate balance-sheet expansion and a supportive
+    central-bank liquidity impulse. Negative values indicate contraction.
+    """
+
+    df = get_euro_ecb_balance_sheet_data().copy()
+
+    df = (
+        df.dropna(subset=["date", "value"])
+        .sort_values("date")
+        .drop_duplicates(subset=["date"], keep="last")
+        .reset_index(drop=True)
+    )
+
+    df["value"] = df["value"].diff(13)
+
+    return (
+        df.dropna(subset=["value"])
+        .reset_index(drop=True)
+    )
+    
+def get_euro_real_policy_rate_data():
+    """
+    Calculate the real ECB policy rate.
+
+    The series equals the ECB main refinancing rate minus Euro Area
+    core HICP inflation.
+    """
+
+    policy_df = get_euro_policy_rate_monthly_data().copy()
+    inflation_df = get_euro_core_hicp_yoy_data().copy()
+
+    policy_df = (
+        policy_df.dropna(subset=["date", "value"])
+        .sort_values("date")
+        .drop_duplicates(subset=["date"], keep="last")
+        .rename(columns={"value": "policy_rate"})
+    )
+
+    inflation_df = (
+        inflation_df.dropna(subset=["date", "value"])
+        .sort_values("date")
+        .drop_duplicates(subset=["date"], keep="last")
+        .rename(columns={"value": "core_inflation"})
+    )
+
+    policy_df["date"] = pd.to_datetime(policy_df["date"])
+    inflation_df["date"] = pd.to_datetime(inflation_df["date"])
+
+    result = policy_df.merge(
+        inflation_df[["date", "core_inflation"]],
+        on="date",
+        how="inner",
+    )
+
+    result["value"] = (
+        result["policy_rate"]
+        - result["core_inflation"]
+    )
+
+    return (
+        result[["date", "value"]]
+        .dropna(subset=["value"])
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
+    
+def get_euro_policy_rate_monthly_data():
+    """
+    Convert the ECB main refinancing rate from effective-date observations
+    into a continuous monthly series.
+
+    Each month receives the most recently effective policy rate.
+    """
+
+    policy_df = get_euro_interest_rate_data().copy()
+
+    policy_df = (
+        policy_df.dropna(subset=["date", "value"])
+        .sort_values("date")
+        .drop_duplicates(subset=["date"], keep="last")
+        .rename(columns={"value": "policy_rate"})
+    )
+
+    policy_df["date"] = pd.to_datetime(policy_df["date"])
+
+    monthly_dates = pd.DataFrame(
+        {
+            "date": pd.date_range(
+                start=policy_df["date"].min().to_period("M").to_timestamp(),
+                end=policy_df["date"].max().to_period("M").to_timestamp(),
+                freq="MS",
+            )
+        }
+    )
+
+    monthly_policy = pd.merge_asof(
+        monthly_dates.sort_values("date"),
+        policy_df[["date", "policy_rate"]].sort_values("date"),
+        on="date",
+        direction="backward",
+    )
+
+    return (
+        monthly_policy
+        .rename(columns={"policy_rate": "value"})
+        [["date", "value"]]
+        .dropna(subset=["value"])
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
+
 
 def get_euro_negotiated_wages_yoy_data():
     return get_ecb_negotiated_wages_data()
@@ -222,3 +340,10 @@ def get_euro_house_price_index_yoy_data():
     
 def get_euro_trade_balance_data():
     return get_ecb_trade_balance_data()
+    
+def get_euro_total_employment_yoy_data():
+    return get_ecb_total_employment_yoy_data()
+
+
+def get_euro_m3_yoy_data():
+    return get_ecb_m3_yoy_data()

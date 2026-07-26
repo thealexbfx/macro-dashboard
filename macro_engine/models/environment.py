@@ -423,3 +423,111 @@ class MacroEnvironmentResult:
             raise ValueError(
                 "pillar_map keys must match pillar result config names"
             )
+            
+    def summary(self) -> str:
+        """Return a concise human-readable summary."""
+
+        lines = [
+            "=" * 60,
+            f"{self.economy.upper()} MACRO ENVIRONMENT",
+            "=" * 60,
+            "",
+            "Environment",
+            "-----------",
+            self.environment_label,
+            "",
+            "Confidence",
+            "----------",
+            f"{self.confidence_label} ({self.confidence_score:.2f})",
+            "",
+            "Conviction",
+            "----------",
+            f"{self.environment_conviction_label} "
+            f"({self.environment_conviction_score:.2f})",
+            "",
+            "Overall Direction",
+            "-----------------",
+            self.overall_direction,
+            "",
+            "Dimensions",
+            "----------",
+            f"Activity    : {self.activity_label:<22} "
+            f"{self.activity_score:+.2f}",
+            f"Inflation  : {self.inflation_impulse_label:<22} "
+            f"{self.inflation_impulse_score:+.2f}",
+            f"Financial  : {self.financial_impulse_label:<22} "
+            f"{self.financial_impulse_score:+.2f}",
+            "",
+            "Pillars",
+            "-------",
+        ]
+
+        for pillar in self.pillar_results:
+            lines.append(
+                f"{pillar.name:<25}"
+                f"{pillar.state_label:<18}"
+                f"{pillar.trend_label:<15}"
+                f"{pillar.confidence_label}"
+            )
+
+        if self.confirmations:
+            lines.extend(
+                [
+                    "",
+                    "Confirmations",
+                    "-------------",
+                ]
+            )
+
+            for signal in self.confirmations:
+                lines.append(f"• {signal.message}")
+
+        if self.tensions:
+            lines.extend(
+                [
+                    "",
+                    "Tensions",
+                    "--------",
+                ]
+            )
+
+            for signal in self.tensions:
+                lines.append(f"• {signal.message}")
+
+        if self.transition_signals:
+            lines.extend(
+                [
+                    "",
+                    "Transition Signals",
+                    "------------------",
+                ]
+            )
+
+            for signal in self.transition_signals:
+                lines.append(f"• {signal.message}")
+
+        if self.key_drivers:
+            lines.extend(
+                [
+                    "",
+                    "Key Drivers",
+                    "-----------",
+                ]
+            )
+
+            for driver in self.key_drivers:
+                lines.append(f"• {driver}")
+
+        if self.flags:
+            lines.extend(
+                [
+                    "",
+                    "Flags",
+                    "-----",
+                ]
+            )
+
+            for flag in self.flags:
+                lines.append(f"• {flag}")
+
+        return "\n".join(lines)

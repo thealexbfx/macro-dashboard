@@ -28,10 +28,15 @@ def get_ecb_main_refinancing_rate_data():
     df["date"] = pd.to_datetime(df["date"])
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
-    df = df.dropna()
-    df = df.sort_values("date").reset_index(drop=True)
+    today = pd.Timestamp.today().normalize()
 
-    return df
+    return (
+        df.dropna(subset=["date", "value"])
+        .loc[lambda x: x["date"] <= today]
+        .drop_duplicates(subset=["date"], keep="last")
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
     
 @st.cache_data(ttl=60, show_spinner=False)
 def get_ecb_negotiated_wages_data():
@@ -48,15 +53,19 @@ def get_ecb_negotiated_wages_data():
     df = df.rename(
         columns={
             "TIME_PERIOD": "date",
-            "OBS_VALUE": "value"
+            "OBS_VALUE": "value",
         }
     )
 
     df["date"] = pd.to_datetime(df["date"])
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
+    today = pd.Timestamp.today().normalize()
+
     return (
-        df.dropna()
+        df.dropna(subset=["date", "value"])
+        .loc[lambda x: x["date"] <= today]
+        .drop_duplicates(subset=["date"], keep="last")
         .sort_values("date")
         .reset_index(drop=True)
     )
@@ -82,7 +91,10 @@ def get_ecb_labor_productivity_data():
         }
     )
 
-    df["date"] = pd.to_datetime(df["date"])
+    df["date"] = pd.PeriodIndex(
+        df["date"].astype(str),
+        freq="Q",
+    ).to_timestamp(how="start")
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
 
     return (
@@ -186,6 +198,87 @@ def get_ecb_trade_balance_data():
     return (
         df[["date", "value"]]
         .dropna()
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
+ 
+@st.cache_data(ttl=60, show_spinner=False)
+def get_ecb_total_employment_yoy_data():
+    """
+    Euro Area total employment, year-on-year growth.
+    Quarterly, calendar and seasonally adjusted.
+    Official ECB Data Portal.
+    """
+
+    url = (
+        "https://data-api.ecb.europa.eu/service/data/"
+        "MNA/Q.Y.I10.W2.S1.S1._Z.EMP._Z._T._Z.PS._Z.G1"
+        "?format=csvdata"
+    )
+
+    df = pd.read_csv(url)
+
+    df = df[["TIME_PERIOD", "OBS_VALUE"]].copy()
+
+    df = df.rename(
+        columns={
+            "TIME_PERIOD": "date",
+            "OBS_VALUE": "value",
+        }
+    )
+
+    df["date"] = pd.PeriodIndex(
+        df["date"].astype(str),
+        freq="Q",
+    ).to_timestamp(how="start")
+
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    today = pd.Timestamp.today().normalize()
+
+    return (
+        df.dropna(subset=["date", "value"])
+        .loc[lambda x: x["date"] <= today]
+        .drop_duplicates(subset=["date"], keep="last")
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def get_ecb_m3_yoy_data():
+    """
+    Euro Area monetary aggregate M3, annual growth rate.
+    Monthly, working-day and seasonally adjusted.
+    Official ECB Data Portal.
+    """
+
+    url = (
+        "https://data-api.ecb.europa.eu/service/data/"
+        "BSI/M.U2.Y.V.M30.X.I.U2.2300.Z01.A"
+        "?format=csvdata"
+    )
+
+    df = pd.read_csv(url)
+
+    df = df[["TIME_PERIOD", "OBS_VALUE"]].copy()
+
+    df = df.rename(
+        columns={
+            "TIME_PERIOD": "date",
+            "OBS_VALUE": "value",
+        }
+    )
+
+    df["date"] = pd.to_datetime(df["date"])
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    today = pd.Timestamp.today().normalize()
+
+    return (
+        df.dropna(subset=["date", "value"])
+        .loc[lambda x: x["date"] <= today]
+        .drop_duplicates(subset=["date"], keep="last")
         .sort_values("date")
         .reset_index(drop=True)
     )

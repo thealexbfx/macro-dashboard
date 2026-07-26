@@ -63,3 +63,22 @@ USA_CHICAGO_FED_NFCI = IndicatorConfig(
     source="Federal Reserve Economic Data: NFCI",
     unit="index",
 )
+
+USA_M2_YOY = IndicatorConfig(
+    indicator_id="usa_m2_yoy",
+    name="M2 Money Supply",
+    economy="USA",
+    pillar="liquidity",
+    bucket="money_conditions",
+    frequency="monthly",
+    economic_direction="positive",
+    state_window=3,
+    trend_window=3,
+    historical_lookback=240,
+    minimum_history=36,
+    description=(
+        "Annual growth in the US M2 money supply."
+    ),
+    source="FRED: M2SL",
+    unit="percent",
+)

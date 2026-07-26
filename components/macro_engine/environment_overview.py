@@ -4,6 +4,10 @@ from typing import Any
 
 import streamlit as st
 
+from components.macro_engine.indicator_inventory import (
+    render_model_indicator_inventory,
+)
+
 from components.macro_engine.evidence import (
     render_model_evidence,
 )
@@ -55,6 +59,13 @@ def render_macro_environment_overview(
     )
 
     render_pillar_grid(result)
+
+    st.markdown(
+        '<hr class="ml-section-divider">',
+        unsafe_allow_html=True,
+    )
+    
+    render_model_indicator_inventory(result)
 
     st.markdown(
         '<hr class="ml-section-divider">',

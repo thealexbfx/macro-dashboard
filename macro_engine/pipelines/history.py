@@ -18,6 +18,7 @@ from macro_engine.models.environment import (
 )
 from macro_engine.pipelines.environment import (
     run_usa_macro_environment,
+    run_euro_macro_environment,
 )
 
 
@@ -295,6 +296,23 @@ def run_usa_environment_history(
         start_date=start_date,
         end_date=end_date,
         environment_runner=run_usa_macro_environment,
+        frequency=frequency,
+        continue_on_error=continue_on_error,
+    )
+    
+def run_euro_environment_history(
+    start_date: date,
+    end_date: date,
+    frequency: HistoryFrequency = "monthly",
+    continue_on_error: bool = True,
+) -> HistoricalEnvironmentRun:
+    """Run the complete Euro Area environment across historical dates."""
+
+    return run_environment_history(
+        economy="Euro Area",
+        start_date=start_date,
+        end_date=end_date,
+        environment_runner=run_euro_macro_environment,
         frequency=frequency,
         continue_on_error=continue_on_error,
     )

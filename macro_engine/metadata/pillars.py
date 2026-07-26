@@ -63,15 +63,16 @@ USA_LIQUIDITY = PillarConfig(
     pillar="liquidity",
     name="USA Liquidity",
     economy="USA",
-    minimum_buckets=2,
+    minimum_buckets=3,
     bucket_weights={
-        "usa_central_bank_liquidity": 0.55,
-        "usa_funding_conditions": 0.45,
+        "usa_central_bank_liquidity": 0.40,
+        "usa_money_conditions": 0.30,
+        "usa_funding_conditions": 0.30,
     },
     description=(
         "Assesses whether US financial liquidity is supportive or restrictive "
-        "using Federal Reserve and Treasury balance-sheet flows together with "
-        "broader financial funding conditions."
+        "using Federal Reserve and Treasury balance-sheet flows, broad money "
+        "growth, and financial funding conditions."
     ),
 )
 
@@ -108,6 +109,71 @@ EURO_GROWTH = PillarConfig(
         "Aggregates realized economic activity, household demand, industrial "
         "production, and forward-looking sentiment into a unified assessment "
         "of current Euro Area economic growth."
+    ),
+)
+
+EURO_INFLATION = PillarConfig(
+    pillar_id="euro_inflation",
+    pillar="inflation",
+    name="Euro Area Inflation",
+    economy="Euro Area",
+    minimum_buckets=4,
+    bucket_weights={
+        "euro_core_inflation_persistence": 0.30,
+        "euro_headline_price_pressure": 0.25,
+        "euro_wage_cost_pressure": 0.25,
+        "euro_monetary_policy_pressure": 0.20,
+    },
+    description=(
+        "Aggregates core inflation, headline inflation, wage cost pressures, "
+        "and monetary policy into a unified assessment of current Euro Area "
+        "inflation."
+    ),
+)
+
+EURO_LABOR = PillarConfig(
+    pillar_id="euro_labor",
+    pillar="labor",
+    name="Euro Area Labor",
+    economy="Euro Area",
+    minimum_buckets=1,
+    bucket_weights={
+        "euro_employment_conditions": 1.00,
+    },
+    description=(
+        "Assesses Euro Area labor-market strength using employment growth "
+        "and unemployment conditions."
+    ),
+)
+
+EURO_LIQUIDITY = PillarConfig(
+    pillar_id="euro_liquidity",
+    pillar="liquidity",
+    name="Euro Area Liquidity",
+    economy="Euro Area",
+    minimum_buckets=2,
+    bucket_weights={
+        "euro_central_bank_liquidity": 0.55,
+        "euro_money_conditions": 0.45,
+    },
+    description=(
+        "Assesses Euro Area liquidity using Eurosystem balance-sheet flows "
+        "and broad money growth."
+    ),
+)
+
+EURO_POLICY = PillarConfig(
+    pillar_id="euro_policy",
+    pillar="policy",
+    name="Euro Area Policy",
+    economy="Euro Area",
+    minimum_buckets=1,
+    bucket_weights={
+        "euro_current_policy_stance": 1.0,
+    },
+    description=(
+        "Assesses the current restrictiveness of ECB monetary policy using "
+        "nominal and inflation-adjusted policy rates."
     ),
 )
 

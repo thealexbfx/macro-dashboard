@@ -178,6 +178,19 @@ def get_usa_michigan_consumer_sentiment_data():
 def get_usa_chicago_fed_nfci_data():
     return get_fred_series("NFCI")
 
+def get_usa_m2_yoy_data():
+    """
+    Year-over-year growth in the M2 money stock.
+
+    FRED series:
+        M2SL
+
+    Positive values indicate expanding broad money.
+    """
+    return calculate_yoy_from_index(
+        get_fred_series("M2SL")
+    )
+
 def get_usa_housing_starts_data():
     return get_fred_series("HOUST")
 

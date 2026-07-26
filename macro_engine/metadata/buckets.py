@@ -237,6 +237,21 @@ USA_POLICY_EXPECTATIONS = BucketConfig(
     ),
 )
 
+USA_MONEY_CONDITIONS = BucketConfig(
+    bucket_id="usa_money_conditions",
+    name="Money Conditions",
+    economy="USA",
+    pillar="liquidity",
+    minimum_indicators=1,
+    indicator_weights={
+        "usa_m2_yoy": 1.00,
+    },
+    description=(
+        "Measures broad US monetary liquidity using annual "
+        "growth in the M2 money supply."
+    ),
+)
+
 EURO_ECONOMIC_ACTIVITY = BucketConfig(
     bucket_id="euro_economic_activity",
     name="Economic Activity",
@@ -417,5 +432,132 @@ JAPAN_FORWARD_LOOKING = BucketConfig(
     description=(
         "Assesses forward-looking Japanese growth conditions using the "
         "Economy Watchers Survey."
+    ),
+)
+
+EURO_CORE_INFLATION_PERSISTENCE = BucketConfig(
+    bucket_id="euro_core_inflation_persistence",
+    name="Core Inflation Persistence",
+    economy="Euro Area",
+    pillar="inflation",
+    minimum_indicators=1,
+    indicator_weights={
+        "euro_core_hicp_yoy": 0.60,
+        "euro_services_hicp_yoy": 0.40,
+    },
+    description=(
+        "Combines core and services inflation to assess the persistence of "
+        "underlying Euro Area price pressure."
+    ),
+)
+
+
+EURO_HEADLINE_PRICE_PRESSURE = BucketConfig(
+    bucket_id="euro_headline_price_pressure",
+    name="Headline Price Pressure",
+    economy="Euro Area",
+    pillar="inflation",
+    minimum_indicators=1,
+    indicator_weights={
+        "euro_headline_hicp_yoy": 1.0,
+    },
+    description=(
+        "Measures broad Euro Area consumer price pressure using headline HICP."
+    ),
+)
+
+
+EURO_WAGE_COST_PRESSURE = BucketConfig(
+    bucket_id="euro_wage_cost_pressure",
+    name="Wage Cost Pressure",
+    economy="Euro Area",
+    pillar="inflation",
+    minimum_indicators=1,
+    indicator_weights={
+        "euro_negotiated_wages_yoy": 0.65,
+        "euro_labor_productivity_yoy": 0.35,
+    },
+    description=(
+        "Combines negotiated wage growth and labor productivity to assess "
+        "domestically generated labor-cost inflation pressure."
+    ),
+)
+
+
+EURO_MONETARY_POLICY_PRESSURE = BucketConfig(
+    bucket_id="euro_monetary_policy_pressure",
+    name="Monetary Policy Pressure",
+    economy="Euro Area",
+    pillar="inflation",
+    minimum_indicators=1,
+    indicator_weights={
+        "euro_ecb_refinancing_rate": 1.0,
+    },
+    description=(
+        "Measures the degree of monetary policy restraint through the ECB "
+        "main refinancing rate."
+    ),
+)
+
+EURO_EMPLOYMENT_CONDITIONS = BucketConfig(
+    bucket_id="euro_employment_conditions",
+    name="Employment Conditions",
+    economy="Euro Area",
+    pillar="labor",
+    minimum_indicators=2,
+    indicator_weights={
+        "euro_total_employment_yoy": 0.50,
+        "euro_unemployment_rate": 0.50,
+    },
+    description=(
+        "Assesses Euro Area labor-market conditions using total employment "
+        "growth and the unemployment rate."
+    ),
+)
+
+EURO_CENTRAL_BANK_LIQUIDITY = BucketConfig(
+    bucket_id="euro_central_bank_liquidity",
+    name="Central Bank Liquidity",
+    economy="Euro Area",
+    pillar="liquidity",
+    minimum_indicators=1,
+    indicator_weights={
+        "euro_ecb_balance_sheet_13w_change": 1.00,
+    },
+    description=(
+        "Measures whether the Eurosystem balance sheet is currently adding "
+        "or withdrawing central-bank liquidity."
+    ),
+)
+
+
+EURO_MONEY_CONDITIONS = BucketConfig(
+    bucket_id="euro_money_conditions",
+    name="Money Conditions",
+    economy="Euro Area",
+    pillar="liquidity",
+    minimum_indicators=1,
+    indicator_weights={
+        "euro_m3_yoy": 1.00,
+    },
+    description=(
+        "Measures broad monetary liquidity in the Euro Area using annual "
+        "growth in the M3 money supply."
+    ),
+)
+
+EURO_CURRENT_POLICY_STANCE = BucketConfig(
+    bucket_id="euro_current_policy_stance",
+    name="Current Policy Stance",
+    economy="Euro Area",
+    pillar="policy",
+    minimum_indicators=2,
+    indicator_weights={
+        "euro_real_policy_rate": 0.60,
+        "euro_policy_rate": 0.40,
+    },
+    description=(
+        "Measures the restrictiveness of current ECB policy using both "
+        "inflation-adjusted and nominal policy rates."
     ),
 )
