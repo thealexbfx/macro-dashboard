@@ -17,8 +17,10 @@ from macro_engine.models.environment import (
     MacroEnvironmentSnapshot,
 )
 from macro_engine.pipelines.environment import (
-    run_usa_macro_environment,
     run_euro_macro_environment,
+    run_uk_macro_environment,
+    run_usa_macro_environment,
+    run_japan_macro_environment,
 )
 
 
@@ -313,6 +315,40 @@ def run_euro_environment_history(
         start_date=start_date,
         end_date=end_date,
         environment_runner=run_euro_macro_environment,
+        frequency=frequency,
+        continue_on_error=continue_on_error,
+    )
+    
+def run_uk_environment_history(
+    start_date: date,
+    end_date: date,
+    frequency: HistoryFrequency = "monthly",
+    continue_on_error: bool = True,
+) -> HistoricalEnvironmentRun:
+    """Run the complete UK environment across historical dates."""
+
+    return run_environment_history(
+        economy="United Kingdom",
+        start_date=start_date,
+        end_date=end_date,
+        environment_runner=run_uk_macro_environment,
+        frequency=frequency,
+        continue_on_error=continue_on_error,
+    )
+    
+def run_japan_environment_history(
+    start_date: date,
+    end_date: date,
+    frequency: HistoryFrequency = "monthly",
+    continue_on_error: bool = True,
+) -> HistoricalEnvironmentRun:
+    """Run the complete Japan environment across historical dates."""
+
+    return run_environment_history(
+        economy="Japan",
+        start_date=start_date,
+        end_date=end_date,
+        environment_runner=run_japan_macro_environment,
         frequency=frequency,
         continue_on_error=continue_on_error,
     )

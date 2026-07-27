@@ -373,6 +373,120 @@ UK_FORWARD_LOOKING = BucketConfig(
     ),
 )
 
+UK_CORE_INFLATION_PERSISTENCE = BucketConfig(
+    bucket_id="uk_core_inflation_persistence",
+    name="Core Inflation Persistence",
+    economy="United Kingdom",
+    pillar="inflation",
+    minimum_indicators=1,
+    indicator_weights={
+        "uk_core_cpi_yoy": 0.60,
+        "uk_services_cpi_yoy": 0.40,
+    },
+    description=(
+        "Combines core CPI and services inflation to assess the persistence "
+        "of underlying UK price pressure."
+    ),
+)
+
+UK_HEADLINE_PRICE_PRESSURE = BucketConfig(
+    bucket_id="uk_headline_price_pressure",
+    name="Headline Price Pressure",
+    economy="United Kingdom",
+    pillar="inflation",
+    minimum_indicators=1,
+    indicator_weights={
+        "uk_cpi_yoy": 1.0,
+    },
+    description=(
+        "Measures broad UK consumer price pressure using headline CPI."
+    ),
+)
+
+UK_WAGE_COST_PRESSURE = BucketConfig(
+    bucket_id="uk_wage_cost_pressure",
+    name="Wage Cost Pressure",
+    economy="United Kingdom",
+    pillar="inflation",
+    minimum_indicators=1,
+    indicator_weights={
+        "uk_average_weekly_earnings_yoy": 1.0,
+    },
+    description=(
+        "Measures domestic wage-cost inflation pressure using average weekly "
+        "earnings growth."
+    ),
+)
+
+UK_MONETARY_POLICY_PRESSURE = BucketConfig(
+    bucket_id="uk_monetary_policy_pressure",
+    name="Monetary Policy Pressure",
+    economy="United Kingdom",
+    pillar="inflation",
+    minimum_indicators=1,
+    indicator_weights={
+        "uk_bank_rate": 1.0,
+    },
+    description=(
+        "Measures the degree of monetary policy restraint through the Bank of "
+        "England Bank Rate."
+    ),
+)
+
+UK_EMPLOYMENT_CONDITIONS = BucketConfig(
+    bucket_id="uk_employment_conditions",
+    name="Employment Conditions",
+    economy="United Kingdom",
+    pillar="labor",
+    minimum_indicators=1,
+    indicator_weights={
+        "uk_unemployment_rate": 1.0,
+    },
+)
+
+
+UK_LABOR_DEMAND = BucketConfig(
+    bucket_id="uk_labor_demand",
+    name="Labor Demand",
+    economy="United Kingdom",
+    pillar="labor",
+    minimum_indicators=1,
+    indicator_weights={
+        "uk_vacancies": 1.0,
+    },
+)
+
+UK_CENTRAL_BANK_LIQUIDITY = BucketConfig(
+    bucket_id="uk_central_bank_liquidity",
+    name="Central Bank Liquidity",
+    economy="United Kingdom",
+    pillar="liquidity",
+    minimum_indicators=1,
+    indicator_weights={
+        "uk_boe_balance_sheet_13w_change": 1.00,
+    },
+    description=(
+        "Measures whether the Bank of England balance sheet is currently "
+        "adding or withdrawing central-bank liquidity."
+    ),
+)
+
+UK_CURRENT_POLICY_STANCE = BucketConfig(
+    bucket_id="uk_current_policy_stance",
+    name="Current Policy Stance",
+    economy="United Kingdom",
+    pillar="policy",
+    minimum_indicators=2,
+    indicator_weights={
+        "uk_real_policy_rate": 0.60,
+        "uk_policy_rate": 0.40,
+    },
+    description=(
+        "Assesses the restrictiveness of UK monetary policy using real and "
+        "nominal Bank of England policy rates."
+    ),
+)
+
 JAPAN_ECONOMIC_ACTIVITY = BucketConfig(
     bucket_id="japan_economic_activity",
     name="Economic Activity",
@@ -432,6 +546,131 @@ JAPAN_FORWARD_LOOKING = BucketConfig(
     description=(
         "Assesses forward-looking Japanese growth conditions using the "
         "Economy Watchers Survey."
+    ),
+)
+
+JAPAN_CORE_INFLATION_PERSISTENCE = BucketConfig(
+    bucket_id="japan_core_inflation_persistence",
+    name="Core Inflation Persistence",
+    economy="Japan",
+    pillar="inflation",
+    minimum_indicators=1,
+    indicator_weights={
+        "japan_core_cpi_yoy": 0.60,
+        "japan_tokyo_core_cpi_yoy": 0.40,
+    },
+    description=(
+        "Combines national and Tokyo core inflation to assess the persistence "
+        "of underlying Japanese price pressure."
+    ),
+)
+
+
+JAPAN_HEADLINE_PRICE_PRESSURE = BucketConfig(
+    bucket_id="japan_headline_price_pressure",
+    name="Headline Price Pressure",
+    economy="Japan",
+    pillar="inflation",
+    minimum_indicators=1,
+    indicator_weights={
+        "japan_cpi_yoy": 0.60,
+        "japan_tokyo_cpi_yoy": 0.40,
+    },
+    description=(
+        "Measures broad Japanese consumer price pressure using national and "
+        "Tokyo headline CPI."
+    ),
+)
+
+
+JAPAN_WAGE_COST_PRESSURE = BucketConfig(
+    bucket_id="japan_wage_cost_pressure",
+    name="Wage Cost Pressure",
+    economy="Japan",
+    pillar="inflation",
+    minimum_indicators=1,
+    indicator_weights={
+        "japan_wage_growth_yoy": 1.00,
+    },
+    description=(
+        "Measures domestic wage-cost inflation pressure using annual wage "
+        "growth."
+    ),
+)
+
+JAPAN_EMPLOYMENT_CONDITIONS = BucketConfig(
+    bucket_id="japan_employment_conditions",
+    name="Employment Conditions",
+    economy="Japan",
+    pillar="labor",
+    minimum_indicators=1,
+    indicator_weights={
+        "japan_unemployment_rate": 1.00,
+    },
+    description=(
+        "Assesses Japanese labor-market conditions using the unemployment rate."
+    ),
+)
+
+
+JAPAN_LABOR_DEMAND = BucketConfig(
+    bucket_id="japan_labor_demand",
+    name="Labor Demand",
+    economy="Japan",
+    pillar="labor",
+    minimum_indicators=1,
+    indicator_weights={
+        "japan_labor_wage_growth_yoy": 1.00,
+    },
+    description=(
+        "Measures Japanese labor demand using annual wage growth as an "
+        "indicator of labor-market tightness."
+    ),
+)
+
+JAPAN_CENTRAL_BANK_LIQUIDITY = BucketConfig(
+    bucket_id="japan_central_bank_liquidity",
+    name="Japan Central Bank Liquidity",
+    economy="Japan",
+    pillar="liquidity",
+    minimum_indicators=1,
+    indicator_weights={
+        "japan_central_bank_assets_yoy": 1.00,
+    },
+    description=(
+        "Assesses central bank liquidity through annual growth in "
+        "Bank of Japan assets."
+    ),
+)
+
+
+JAPAN_MONEY_CONDITIONS = BucketConfig(
+    bucket_id="japan_money_conditions",
+    name="Japan Money Conditions",
+    economy="Japan",
+    pillar="liquidity",
+    minimum_indicators=1,
+    indicator_weights={
+        "japan_m3_yoy": 1.00,
+    },
+    description=(
+        "Assesses domestic money conditions through annual growth in "
+        "Japan's broad M3 money supply."
+    ),
+)
+
+JAPAN_CURRENT_POLICY_STANCE = BucketConfig(
+    bucket_id="japan_current_policy_stance",
+    name="Japan Current Policy Stance",
+    economy="Japan",
+    pillar="policy",
+    minimum_indicators=1,
+    indicator_weights={
+        "japan_policy_rate": 1.00,
+    },
+    description=(
+        "Assesses the current monetary policy stance using the "
+        "Bank of Japan policy rate."
     ),
 )
 

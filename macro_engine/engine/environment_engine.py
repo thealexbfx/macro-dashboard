@@ -164,19 +164,30 @@ def _canonical_pillar_name(
     Convert a pillar result into its canonical environment key.
 
     Examples:
-        "USA Growth" -> "growth"
-        "USA Inflation" -> "inflation"
+        "usa_growth" -> "growth"
+        "euro_inflation" -> "inflation"
+        "uk_labor" -> "labor"
+        "japan_policy" -> "policy"
     """
 
-    name = _normalise_name(result.name)
+    pillar_id = _normalise_name(result.pillar_id)
 
-    if economy:
-        economy_prefix = f"{_normalise_name(economy)}_"
+    canonical_names = (
+        "growth",
+        "inflation",
+        "labor",
+        "liquidity",
+        "policy",
+    )
 
-        if name.startswith(economy_prefix):
-            name = name[len(economy_prefix):]
+    for canonical_name in canonical_names:
+        if (
+            pillar_id == canonical_name
+            or pillar_id.endswith(f"_{canonical_name}")
+        ):
+            return canonical_name
 
-    return name
+    return _normalise_name(result.name)
 
 def validate_environment_inputs(
     config: MacroEnvironmentConfig,

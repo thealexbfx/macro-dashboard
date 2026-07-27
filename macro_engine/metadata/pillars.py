@@ -196,6 +196,65 @@ UK_GROWTH = PillarConfig(
     ),
 )
 
+UK_INFLATION = PillarConfig(
+    pillar_id="uk_inflation",
+    pillar="inflation",
+    name="UK Inflation",
+    economy="United Kingdom",
+    minimum_buckets=4,
+    bucket_weights={
+        "uk_core_inflation_persistence": 0.30,
+        "uk_headline_price_pressure": 0.25,
+        "uk_wage_cost_pressure": 0.25,
+        "uk_monetary_policy_pressure": 0.20,
+    },
+    description=(
+        "Aggregates core inflation, headline inflation, wage cost pressures, "
+        "and monetary policy into a unified assessment of current UK "
+        "inflation."
+    ),
+)
+
+UK_LABOR = PillarConfig(
+    pillar_id="uk_labor",
+    name="UK Labor",
+    economy="United Kingdom",
+    pillar="labor",
+    bucket_weights={
+        "uk_employment_conditions": 0.60,
+        "uk_labor_demand": 0.40,
+    },
+)
+
+UK_LIQUIDITY = PillarConfig(
+    pillar_id="uk_liquidity",
+    pillar="liquidity",
+    name="UK Liquidity",
+    economy="United Kingdom",
+    minimum_buckets=1,
+    bucket_weights={
+        "uk_central_bank_liquidity": 1.00,
+    },
+    description=(
+        "Assesses UK liquidity using changes in the Bank of England "
+        "balance sheet."
+    ),
+)
+
+UK_POLICY = PillarConfig(
+    pillar_id="uk_policy",
+    name="Policy",
+    economy="United Kingdom",
+    pillar="policy",
+    minimum_buckets=1,
+    bucket_weights={
+        "uk_current_policy_stance": 1.0,
+    },
+    description=(
+        "Assesses the stance and direction of UK monetary policy."
+    ),
+)
+
 JAPAN_GROWTH = PillarConfig(
     pillar_id="japan_growth",
     pillar="growth",
@@ -212,5 +271,69 @@ JAPAN_GROWTH = PillarConfig(
         "Aggregates realized economic activity, household demand, industrial "
         "production, and forward-looking sentiment into a unified assessment "
         "of current Japanese economic growth."
+    ),
+)
+
+JAPAN_INFLATION = PillarConfig(
+    pillar_id="japan_inflation",
+    pillar="inflation",
+    name="Japan Inflation",
+    economy="Japan",
+    minimum_buckets=3,
+    bucket_weights={
+        "japan_core_inflation_persistence": 0.40,
+        "japan_headline_price_pressure": 0.35,
+        "japan_wage_cost_pressure": 0.25,
+    },
+    description=(
+        "Aggregates core inflation, headline inflation, and wage cost "
+        "pressures into a unified assessment of current Japanese inflation."
+    ),
+)
+
+JAPAN_LABOR = PillarConfig(
+    pillar_id="japan_labor",
+    pillar="labor",
+    name="Japan Labor",
+    economy="Japan",
+    minimum_buckets=2,
+    bucket_weights={
+        "japan_employment_conditions": 0.60,
+        "japan_labor_demand": 0.40,
+    },
+    description=(
+        "Assesses Japanese labor-market conditions using unemployment and "
+        "wage growth as indicators of labor-market strength and demand."
+    ),
+)
+
+JAPAN_LIQUIDITY = PillarConfig(
+    pillar_id="japan_liquidity",
+    pillar="liquidity",
+    name="Japan Liquidity",
+    economy="Japan",
+    minimum_buckets=2,
+    bucket_weights={
+        "japan_central_bank_liquidity": 0.60,
+        "japan_money_conditions": 0.40,
+    },
+    description=(
+        "Assesses Japanese liquidity conditions using central bank "
+        "balance sheet dynamics and broad money growth."
+    ),
+)
+
+JAPAN_POLICY = PillarConfig(
+    pillar_id="japan_policy",
+    pillar="policy",
+    name="Japan Policy",
+    economy="Japan",
+    minimum_buckets=1,
+    bucket_weights={
+        "japan_current_policy_stance": 1.00,
+    },
+    description=(
+        "Assesses the Bank of Japan's current monetary policy stance "
+        "using the policy rate."
     ),
 )

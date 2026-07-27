@@ -10,7 +10,14 @@ from macro_engine.models.pillar import PillarResult
 
 from macro_engine.metadata.pillars import (
     UK_GROWTH,
+    UK_INFLATION,
+    UK_LABOR,
+    UK_LIQUIDITY,
     JAPAN_GROWTH,
+    JAPAN_INFLATION,
+    JAPAN_LABOR,
+    JAPAN_LIQUIDITY,
+    JAPAN_POLICY,
     EURO_GROWTH,
     EURO_INFLATION,
     EURO_LABOR,
@@ -53,6 +60,11 @@ from macro_engine.pipelines.liquidity import (
     run_usa_funding_conditions,
 )
 
+from macro_engine.pipelines.euro_liquidity import (
+    run_euro_central_bank_liquidity,
+    run_euro_money_conditions,
+)
+
 from macro_engine.pipelines.euro_policy import (
     run_euro_current_policy_stance,
 )
@@ -64,11 +76,47 @@ from macro_engine.pipelines.uk_growth import (
     run_uk_industrial_activity,
 )
 
+from macro_engine.pipelines.uk_inflation import (
+    run_uk_core_inflation_persistence,
+    run_uk_headline_price_pressure,
+    run_uk_wage_cost_pressure,
+    run_uk_monetary_policy_pressure,
+)
+
+from macro_engine.pipelines.uk_labor import (
+    run_uk_employment_conditions,
+    run_uk_labor_demand,
+)
+
+from macro_engine.pipelines.uk_liquidity import (
+    run_uk_central_bank_liquidity,
+)
+
 from macro_engine.pipelines.japan_growth import (
     run_japan_economic_activity,
     run_japan_forward_looking,
     run_japan_household_demand,
     run_japan_industrial_activity,
+)
+
+from macro_engine.pipelines.japan_inflation import (
+    run_japan_core_inflation_persistence,
+    run_japan_headline_price_pressure,
+    run_japan_wage_cost_pressure,
+)
+
+from macro_engine.pipelines.japan_labor import (
+    run_japan_employment_conditions,
+    run_japan_labor_demand,
+)
+
+from macro_engine.pipelines.japan_liquidity import (
+    run_japan_central_bank_liquidity,
+    run_japan_money_conditions,
+)
+
+from macro_engine.pipelines.japan_policy import (
+    run_japan_current_policy_stance,
 )
 
 from macro_engine.pipelines.inflation import (
@@ -253,6 +301,70 @@ def run_uk_growth(
         bucket_results,
         UK_GROWTH,
     )
+    
+def run_uk_inflation(
+    as_of_date: date | None = None,
+):
+    """
+    Execute the UK Inflation pillar.
+    """
+
+    bucket_results = (
+        run_uk_core_inflation_persistence(
+            as_of_date=as_of_date,
+        ),
+        run_uk_headline_price_pressure(
+            as_of_date=as_of_date,
+        ),
+        run_uk_wage_cost_pressure(
+            as_of_date=as_of_date,
+        ),
+        run_uk_monetary_policy_pressure(
+            as_of_date=as_of_date,
+        ),
+    )
+
+    return run_pillar(
+        bucket_results,
+        UK_INFLATION,
+    )
+
+def run_uk_labor(
+    as_of_date: date | None = None,
+) -> PillarResult:
+    """Execute the UK Labor pillar."""
+
+    bucket_results = (
+        run_uk_employment_conditions(
+            as_of_date=as_of_date,
+        ),
+        run_uk_labor_demand(
+            as_of_date=as_of_date,
+        ),
+    )
+
+    return run_pillar(
+        bucket_results,
+        UK_LABOR,
+    )
+
+def run_uk_liquidity(
+    as_of_date: date | None = None,
+) -> PillarResult:
+    """Run the current UK Liquidity pillar pipeline."""
+
+    bucket_results = [
+        run_uk_central_bank_liquidity(
+            as_of_date=as_of_date,
+        ),
+    ]
+
+    return run_pillar(
+        bucket_results,
+        UK_LIQUIDITY,
+    )
+    
+
 
 def run_japan_growth(
     as_of_date: date | None = None,
@@ -279,6 +391,84 @@ def run_japan_growth(
     return run_pillar(
         bucket_results,
         JAPAN_GROWTH,
+    )
+
+def run_japan_inflation(
+    as_of_date: date | None = None,
+) -> PillarResult:
+    """
+    Execute the complete Japan Inflation pillar.
+    """
+
+    bucket_results = (
+        run_japan_core_inflation_persistence(
+            as_of_date=as_of_date,
+        ),
+        run_japan_headline_price_pressure(
+            as_of_date=as_of_date,
+        ),
+        run_japan_wage_cost_pressure(
+            as_of_date=as_of_date,
+        ),
+    )
+
+    return run_pillar(
+        bucket_results,
+        JAPAN_INFLATION,
+    )
+
+def run_japan_labor(
+    as_of_date: date | None = None,
+) -> PillarResult:
+    """Execute the Japan Labor pillar."""
+
+    bucket_results = (
+        run_japan_employment_conditions(
+            as_of_date=as_of_date,
+        ),
+        run_japan_labor_demand(
+            as_of_date=as_of_date,
+        ),
+    )
+
+    return run_pillar(
+        bucket_results,
+        JAPAN_LABOR,
+    )
+
+def run_japan_liquidity(
+    as_of_date: date | None = None,
+) -> PillarResult:
+    """Execute the Japan Liquidity pillar."""
+
+    bucket_results = (
+        run_japan_central_bank_liquidity(
+            as_of_date=as_of_date,
+        ),
+        run_japan_money_conditions(
+            as_of_date=as_of_date,
+        ),
+    )
+
+    return run_pillar(
+        bucket_results,
+        JAPAN_LIQUIDITY,
+    )
+
+def run_japan_policy(
+    as_of_date: date | None = None,
+) -> PillarResult:
+    """Execute the Japan Policy pillar."""
+
+    bucket_results = (
+        run_japan_current_policy_stance(
+            as_of_date=as_of_date,
+        ),
+    )
+
+    return run_pillar(
+        bucket_results,
+        JAPAN_POLICY,
     )
 
 def run_usa_inflation(

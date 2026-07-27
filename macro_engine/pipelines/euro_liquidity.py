@@ -6,6 +6,7 @@ from indicators.euro import (
     get_euro_ecb_balance_sheet_13w_change_data,
     get_euro_m3_yoy_data,
 )
+
 from macro_engine.engine.bucket_engine import run_bucket
 from macro_engine.engine.indicator_engine import run_indicator
 from macro_engine.metadata.buckets import (

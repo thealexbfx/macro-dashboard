@@ -18,9 +18,37 @@ from data.japan import get_japan_economy_watchers_survey_data as load_japan_econ
 
 from data.japan import get_boj_balance_sheet_data as load_boj_balance_sheet_data
 
+from data.japan import get_japan_m3_yoy_data as load_japan_m3_yoy_data
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_japan_m3_yoy_data():
+    return load_japan_m3_yoy_data()
+
 @st.cache_data(ttl=86400, show_spinner=False)
 def get_japan_boj_balance_sheet_data():
     return load_boj_balance_sheet_data()
+    
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_japan_boj_balance_sheet_yoy_data():
+    df = load_boj_balance_sheet_data().copy()
+
+    if df.empty:
+        return df
+
+    df = (
+        df[["date", "value"]]
+        .dropna()
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
+
+    df["value"] = df["value"].pct_change(12) * 100
+
+    return (
+        df[["date", "value"]]
+        .dropna()
+        .reset_index(drop=True)
+    )
 
 @st.cache_data(ttl=86400, show_spinner=False)
 def get_japan_economy_watchers_survey_data():

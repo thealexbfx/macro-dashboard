@@ -546,3 +546,71 @@ def get_boj_balance_sheet_data():
         .sort_values("date")
         .reset_index(drop=True)
     )
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def get_japan_m3_yoy_data():
+    url = "https://www.stat-search.boj.or.jp/api/v1/getDataCode"
+
+    params = {
+        "format": "json",
+        "lang": "en",
+        "db": "MD02",
+        "code": "MAM1YAM3M3MO",
+        "startDate": "198001",
+    }
+
+    response = requests.get(
+        url,
+        params=params,
+        timeout=30,
+    )
+    response.raise_for_status()
+
+    payload = response.json()
+
+    if payload.get("STATUS") != 200:
+        raise RuntimeError(
+            f"BOJ API error: "
+            f"{payload.get('MESSAGEID')} - "
+            f"{payload.get('MESSAGE')}"
+        )
+
+    result_set = payload.get("RESULTSET", [])
+
+    if not result_set:
+        return pd.DataFrame(columns=["date", "value"])
+
+    series = result_set[0]
+    values_section = series.get("VALUES", {})
+
+    dates = values_section.get("SURVEY_DATES", [])
+    values = values_section.get("VALUES", [])
+
+    if len(dates) != len(values):
+        raise ValueError(
+            "BOJ API returned different numbers of dates and values."
+        )
+
+    df = pd.DataFrame({
+        "date": dates,
+        "value": values,
+    })
+
+    df["date"] = pd.to_datetime(
+        df["date"].astype(str),
+        format="%Y%m",
+        errors="coerce",
+    )
+
+    df["value"] = pd.to_numeric(
+        df["value"],
+        errors="coerce",
+    )
+
+    return (
+        df[["date", "value"]]
+        .dropna()
+        .sort_values("date")
+        .reset_index(drop=True)
+    )

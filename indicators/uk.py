@@ -3,6 +3,7 @@ import pandas as pd
 from data.ons import get_ons_timeseries
 from io import StringIO
 import requests
+from datetime import date
 from data.ons import parse_ons_date
 from data.boe import get_uk_bank_rate_data
 from data.fred import get_fred_series
@@ -191,3 +192,109 @@ def get_uk_boe_balance_sheet_data():
     })
 
     return df.dropna().sort_values("date").reset_index(drop=True)
+    
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_uk_boe_balance_sheet_13w_change_data():
+    """
+    Return the 13-week change in the Bank of England balance sheet.
+
+    Positive values indicate balance-sheet expansion.
+    Negative values indicate balance-sheet contraction.
+    """
+
+    df = get_uk_boe_balance_sheet_data().copy()
+
+    df["value"] = df["value"].diff(13)
+
+    return (
+        df.dropna()
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
+    
+def get_uk_real_policy_rate_data(
+    as_of_date: date | None = None,
+) -> pd.DataFrame:
+    """
+    Return the UK real policy rate as Bank Rate minus core CPI inflation.
+    """
+
+    policy_rate = get_uk_bank_rate_monthly_data(
+        as_of_date=as_of_date,
+    ).copy()
+    core_cpi = get_uk_core_cpi_yoy_data().copy()
+
+    policy_rate = policy_rate.rename(columns={"value": "policy_rate"})
+    core_cpi = core_cpi.rename(columns={"value": "core_cpi"})
+
+    merged = pd.merge_asof(
+        policy_rate.sort_values("date"),
+        core_cpi.sort_values("date"),
+        on="date",
+        direction="backward",
+    )
+
+    merged["value"] = merged["policy_rate"] - merged["core_cpi"]
+
+    return (
+        merged[["date", "value"]]
+        .dropna()
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
+    
+def get_uk_bank_rate_monthly_data(
+    as_of_date: date | None = None,
+) -> pd.DataFrame:
+    """
+    Convert Bank of England decision-date observations into a continuous
+    monthly Bank Rate series for engine scoring.
+    """
+
+    data = get_uk_interest_rate_data()
+
+    df = (
+        data[["date", "value"]]
+        .dropna()
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
+
+    effective_date = pd.Timestamp(
+        as_of_date or date.today()
+    ).normalize()
+
+    df = df[df["date"] <= effective_date].copy()
+
+    if df.empty:
+        return df
+
+    latest_rate = df.iloc[-1]["value"]
+
+    df = pd.concat(
+        [
+            df,
+            pd.DataFrame(
+                {
+                    "date": [effective_date],
+                    "value": [latest_rate],
+                }
+            ),
+        ],
+        ignore_index=True,
+    )
+
+    df["date"] = (
+        pd.to_datetime(df["date"])
+        .dt.to_period("M")
+        .dt.to_timestamp()
+    )
+
+    return (
+        df.groupby("date", as_index=False)
+        .last()
+        .set_index("date")
+        .resample("MS")
+        .ffill()
+        .reset_index()
+    )
