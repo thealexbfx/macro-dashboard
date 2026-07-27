@@ -128,7 +128,7 @@ def render_home_page():
     html = template_path.read_text(encoding="utf-8")
 
     today = dt.date.today().strftime("%B %d, %Y").replace(" 0", " ")
-    world_map = load_image_base64("global_macro_map.png")
+    world_map = load_image_base64("global_macro_map1.png")
 
     html = html.replace("{{TODAY}}", today)
     html = html.replace("{{WORLD_MAP}}", world_map)
