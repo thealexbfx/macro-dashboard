@@ -85,22 +85,17 @@ ECONOMIES = (
 PILLAR_NAMES = ("Growth", "Inflation", "Labor", "Liquidity", "Policy")
 
 
-def _load_economy(source: EconomySource, today: date) -> EconomyLoad:
+def _load_economy(source: EconomySource) -> EconomyLoad:
     try:
         result = source.environment_loader()
     except Exception as exc:
         return EconomyLoad(source=source, environment_error=str(exc))
 
-    try:
-        history_run = source.history_loader(source.history_start_date, today)
-    except Exception as exc:
-        return EconomyLoad(
-            source=source,
-            result=result,
-            history_error=str(exc),
-        )
-
-    return EconomyLoad(source=source, result=result, history_run=history_run)
+    return EconomyLoad(
+        source=source,
+        result=result,
+        history_run=None,
+    )
 
 
 def _pillar_tone(pillar) -> str:
@@ -304,10 +299,6 @@ def _morning_brief_html(
 
     strongest_growth = _pillar_extreme(results, "Growth", strongest=True)
     weakest_liquidity = _pillar_extreme(results, "Liquidity", strongest=False)
-    changed_count = sum(
-        bool(change and change.changed)
-        for change in (_recent_change(load) for load in loads)
-    )
 
     bullets = []
     if strongest_growth:
@@ -332,9 +323,6 @@ def _morning_brief_html(
             if stable_pillars >= 3
             else f"Euro Area remains in {euro_result.environment_label.lower()}."
         )
-    bullets.append(
-        f"{changed_count if changed_count else 'No'} {'regime changed' if changed_count == 1 else 'regimes changed'} during the latest monthly update."
-    )
 
     return f"""
     <section class="ml-overview-brief">
@@ -508,10 +496,9 @@ def _resources_html(results: tuple[MacroEnvironmentResult, ...]) -> str:
 
 def render_macro_engine_global_page() -> None:
     inject_macro_engine_css()
-    today = date.today()
 
-    with st.spinner("Loading current macro environments and recent history..."):
-        loads = tuple(_load_economy(source, today) for source in ECONOMIES)
+    with st.spinner("Loading macro environments..."):
+        loads = tuple(_load_economy(source) for source in ECONOMIES)
 
     results = tuple(load.result for load in loads if load.result is not None)
 
@@ -529,7 +516,6 @@ def render_macro_engine_global_page() -> None:
             {_morning_brief_html(loads, results)}
             {_scoreboard_html(loads, results)}
             {_comparison_html(loads, results)}
-            {_changes_html(loads)}
             {_resources_html(results)}
             <footer class="ml-overview-methodology">
                 Macro Engine classifications are objective model outputs—not forecasts or investment views.
