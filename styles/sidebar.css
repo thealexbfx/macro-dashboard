@@ -18,15 +18,7 @@
 
     padding:26px 18px;
 
-    background:
-
-    radial-gradient(circle at top left,
-    rgba(56,189,248,.15),
-    transparent 30%),
-
-    linear-gradient(180deg,
-    #06111F 0%,
-    #081829 100%);
+    background:#071729;
 
     border-right:1px solid rgba(255,255,255,.08);
 
@@ -125,12 +117,7 @@
 
 .ml-nav-link.active{
 
-    background:
-
-    linear-gradient(
-    135deg,
-    #2563EB,
-    #38BDF8);
+    background:#1678B8;
 
     color:white !important;
 

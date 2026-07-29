@@ -44,9 +44,7 @@ html,
 body,
 .stApp{
 
-    background:
-    radial-gradient(circle at 15% 0%,rgba(37,99,235,.04),transparent 35%),
-    linear-gradient(180deg,#FBFCFD 0%,#F5F8FC 100%) !important;
+    background:#FAFBFC !important;
 
     color:var(--text);
 

@@ -3,10 +3,9 @@ import streamlit as st
 
 NAV_ITEMS = {
     "Dashboard": [
-        ("Home", "Overview"),
+        ("Home", "Global Overview"),
     ],
     "Macro Engine": [
-        ("MacroEngineGlobal", "Global Overview"),
         ("MacroEngineUSA", "United States"),
         ("MacroEngineEuro", "Euro Area"),
         ("MacroEngineUK", "United Kingdom"),

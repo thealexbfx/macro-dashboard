@@ -12,33 +12,13 @@ from macro_engine.engine.validation_engine import (
     build_regime_transition_summary,
     build_stability_validation_summary,
 )
-from macro_engine.pipelines.environment import (
-    run_uk_macro_environment,
+from app_pages.macro_engine.loaders import (
+    STANDARD_HISTORY_START_DATE,
+    load_uk_environment_history,
+    load_uk_macro_environment,
 )
-from macro_engine.pipelines.history import (
-    run_uk_environment_history,
-)
 
-
-HISTORY_START_DATE = date(2024, 1, 1)
-
-
-@st.cache_data(ttl=1800, show_spinner=False)
-def _load_uk_macro_environment():
-    return run_uk_macro_environment()
-
-
-@st.cache_data(ttl=1800, show_spinner=False)
-def _load_uk_environment_history(
-    start_date: date,
-    end_date: date,
-):
-    return run_uk_environment_history(
-        start_date=start_date,
-        end_date=end_date,
-        frequency="monthly",
-        continue_on_error=True,
-    )
+HISTORY_START_DATE = STANDARD_HISTORY_START_DATE
 
 
 def render_uk_macro_engine_page() -> None:
@@ -55,12 +35,12 @@ def render_uk_macro_engine_page() -> None:
     with st.spinner(
         "Running the United Kingdom Macro Engine..."
     ):
-        result = _load_uk_macro_environment()
+        result = load_uk_macro_environment()
 
     with st.spinner(
         "Loading United Kingdom environment history..."
     ):
-        history_run = _load_uk_environment_history(
+        history_run = load_uk_environment_history(
             start_date=HISTORY_START_DATE,
             end_date=today,
         )

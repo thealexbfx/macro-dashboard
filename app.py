@@ -740,7 +740,6 @@ from components.layout import (
     render_sidebar,
     render_top_strip,
 )
-from app_pages.home import render_home_page
 
 st.set_page_config(
     page_title="MacroLens Research",
@@ -759,7 +758,7 @@ inject_global_css()
 page = st.query_params.get("page", "Home")
 
 page_titles = {
-    "Home": "Overview",
+    "Home": "Global Overview",
     "UnitedStates": "United States",
     "EuroArea": "Euro Area",
     "UnitedKingdom": "United Kingdom",
@@ -786,7 +785,10 @@ render_sidebar(active_page=page)
  #   render_top_strip(page_titles.get(page, page))
 
 if page == "Home":
-    render_home_page()
+    safe_render(
+        render_macro_engine_global_page,
+        "Global Macro Overview",
+    )
 
 elif page == "UnitedStates":
     safe_render(render_usa_page, "USA")

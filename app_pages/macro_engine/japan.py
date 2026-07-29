@@ -12,33 +12,13 @@ from macro_engine.engine.validation_engine import (
     build_regime_transition_summary,
     build_stability_validation_summary,
 )
-from macro_engine.pipelines.environment import (
-    run_japan_macro_environment,
+from app_pages.macro_engine.loaders import (
+    JAPAN_HISTORY_START_DATE,
+    load_japan_environment_history,
+    load_japan_macro_environment,
 )
-from macro_engine.pipelines.history import (
-    run_japan_environment_history,
-)
 
-
-HISTORY_START_DATE = date(2015, 12, 1)
-
-
-@st.cache_data(ttl=1800, show_spinner=False)
-def _load_japan_macro_environment():
-    return run_japan_macro_environment()
-
-
-@st.cache_data(ttl=1800, show_spinner=False)
-def _load_japan_environment_history(
-    start_date: date,
-    end_date: date,
-):
-    return run_japan_environment_history(
-        start_date=start_date,
-        end_date=end_date,
-        frequency="monthly",
-        continue_on_error=True,
-    )
+HISTORY_START_DATE = JAPAN_HISTORY_START_DATE
 
 
 def render_japan_macro_engine_page() -> None:
@@ -52,10 +32,10 @@ def render_japan_macro_engine_page() -> None:
     today = date.today()
 
     with st.spinner("Running the Japan Macro Engine..."):
-        result = _load_japan_macro_environment()
+        result = load_japan_macro_environment()
 
     with st.spinner("Loading Japan environment history..."):
-        history_run = _load_japan_environment_history(
+        history_run = load_japan_environment_history(
             start_date=HISTORY_START_DATE,
             end_date=today,
         )

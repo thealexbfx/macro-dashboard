@@ -12,33 +12,13 @@ from macro_engine.engine.validation_engine import (
     build_regime_transition_summary,
     build_stability_validation_summary,
 )
-from macro_engine.pipelines.environment import (
-    run_euro_macro_environment,
+from app_pages.macro_engine.loaders import (
+    STANDARD_HISTORY_START_DATE,
+    load_euro_environment_history,
+    load_euro_macro_environment,
 )
-from macro_engine.pipelines.history import (
-    run_euro_environment_history,
-)
 
-
-HISTORY_START_DATE = date(2024, 1, 1)
-
-
-@st.cache_data(ttl=1800, show_spinner=False)
-def _load_euro_macro_environment():
-    return run_euro_macro_environment()
-
-
-@st.cache_data(ttl=1800, show_spinner=False)
-def _load_euro_environment_history(
-    start_date: date,
-    end_date: date,
-):
-    return run_euro_environment_history(
-        start_date=start_date,
-        end_date=end_date,
-        frequency="monthly",
-        continue_on_error=True,
-    )
+HISTORY_START_DATE = STANDARD_HISTORY_START_DATE
 
 
 def render_euro_macro_engine_page() -> None:
@@ -54,10 +34,10 @@ def render_euro_macro_engine_page() -> None:
     with st.spinner(
         "Running the Euro Area Macro Engine..."
     ):
-        result = _load_euro_macro_environment()
+        result = load_euro_macro_environment()
 
     with st.spinner("Loading environment history..."):
-        history_run = _load_euro_environment_history(
+        history_run = load_euro_environment_history(
             start_date=HISTORY_START_DATE,
             end_date=today,
         )
