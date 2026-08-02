@@ -13,3 +13,4 @@ openai
 statsmodels
 openpyxl
 lxml
+redis>=5.0,<7.0
