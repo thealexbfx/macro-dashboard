@@ -1,0 +1,19 @@
+feature,vif,model,target
+us_inflation,2.8287853342821103,Country-level macro model,gbpusd_forward_1m
+us_activity,2.253752504169062,Country-level macro model,gbpusd_forward_1m
+uk_inflation,2.070286811940411,Country-level macro model,gbpusd_forward_1m
+us_financial,1.599105321580685,Country-level macro model,gbpusd_forward_1m
+uk_activity,1.2525929767275257,Country-level macro model,gbpusd_forward_1m
+uk_financial,1.2399331989155156,Country-level macro model,gbpusd_forward_1m
+us_inflation,2.832832332824681,Country-level macro model,gbpusd_forward_3m
+us_activity,2.1769170780435387,Country-level macro model,gbpusd_forward_3m
+uk_inflation,2.121701036413216,Country-level macro model,gbpusd_forward_3m
+us_financial,1.6218265512353687,Country-level macro model,gbpusd_forward_3m
+uk_financial,1.2978830145627889,Country-level macro model,gbpusd_forward_3m
+uk_activity,1.2406140681366262,Country-level macro model,gbpusd_forward_3m
+financial_difference,1.033882414301082,Relative macro model,gbpusd_forward_1m
+activity_difference,1.0325178685379375,Relative macro model,gbpusd_forward_1m
+inflation_difference,1.00158189137023,Relative macro model,gbpusd_forward_1m
+activity_difference,1.045115756286943,Relative macro model,gbpusd_forward_3m
+financial_difference,1.044755445964556,Relative macro model,gbpusd_forward_3m
+inflation_difference,1.0005844287297643,Relative macro model,gbpusd_forward_3m

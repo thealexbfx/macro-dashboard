@@ -1,0 +1,19 @@
+{
+  "asset_key": "eurusd",
+  "display_name": "EUR/USD",
+  "snapshot_date": "2026-08-01",
+  "created_at": "2026-08-01T11:32:03.721906",
+  "macro_direction": "Bearish",
+  "directional_score": -0.30884,
+  "model_confidence": 0.8733500000000001,
+  "model_conviction": 0.45575,
+  "historical_support": "Pending",
+  "current_price": 1.1527377367019653,
+  "price_trend": "Range-bound / Mixed",
+  "momentum": "Neutral",
+  "volatility_state": "Low",
+  "alignment": "Mixed",
+  "pricing_status": "Unclear",
+  "decision_stance": "REVIEW",
+  "thesis": "The current relative macro backdrop favours United States over Euro Area. This produces a provisional bearish bias for EUR/USD over a 3-month horizon."
+}

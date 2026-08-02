@@ -38,6 +38,11 @@ def safe_render(render_func, section_name):
         else:
             st.exception(e)
 
+
+from app_pages.research.active_ideas import (
+    render_active_ideas_page,
+)
+
 from components.charts import plot_chart, plot_scenario_chart
 
 from app_pages.global_macro_view import render_global_macro_view
@@ -58,6 +63,14 @@ from app_pages.macro_engine.uk import (
 )
 from app_pages.macro_engine.japan import (
     render_japan_macro_engine_page,
+)
+
+from app_pages.research.research_workspace import (
+    render_research_workspace_page,
+)
+
+from app_pages.historical_regime_explorer import (
+    render_historical_regime_explorer_page,
 )
 
 # Modular data loaders - Phase 2A
@@ -771,6 +784,7 @@ page_titles = {
     "GlobalMacroView": "Global Macro Outlook",
     "CentralBankWatch": "Central Bank Watch",
     "RegimeMonitor": "Regime Monitor",
+    "HistoricalRegimeExplorer": "Historical Regime Explorer",
     "ResearchNotes": "Research Notes",
     "Calendar": "Calendar",
     "MacroEngineGlobal": "Global Overview",
@@ -779,7 +793,6 @@ page_titles = {
     "MacroEngineUK": "United Kingdom Macro Engine",
     "MacroEngineJapan": "Japan Macro Engine",
 }
-
 render_sidebar(active_page=page)
 #if page != "Home":
  #   render_top_strip(page_titles.get(page, page))
@@ -855,9 +868,27 @@ elif page == "CentralBankWatch":
 
 elif page == "RegimeMonitor":
     render_under_construction_page("Regime Monitor")
+    
+elif page == "HistoricalRegimeExplorer":
+    safe_render(
+        render_historical_regime_explorer_page,
+        "Historical Regime Explorer",
+    )
+    
+elif page == "ResearchWorkspace":
+    safe_render(
+        render_research_workspace_page,
+        "Research Workspace",
+    )
 
 elif page == "ResearchNotes":
     render_under_construction_page("Research Notes")
 
 elif page == "Calendar":
     render_under_construction_page("Calendar")
+
+elif page == "ActiveIdeas":
+    safe_render(
+        render_active_ideas_page,
+        "Active Ideas",
+    )

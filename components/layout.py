@@ -3,33 +3,44 @@ import streamlit as st
 
 NAV_ITEMS = {
     "Dashboard": [
-        ("Home", "Global Overview"),
+        ("Home", "Global Macro Monitor"),
     ],
+
+    "Decisions": [
+        ("ActiveIdeas", "Active Ideas"),
+        ("ResearchWorkspace", "Research Workspace"),
+       ## ("DecisionHistory", "Decision History"),
+    ],
+
     "Macro Engine": [
         ("MacroEngineUSA", "United States"),
         ("MacroEngineEuro", "Euro Area"),
         ("MacroEngineUK", "United Kingdom"),
         ("MacroEngineJapan", "Japan"),
     ],
-    "Economies": [
+
+    "Historical Research": [
+        ("HistoricalRegimeExplorer", "Regime Explorer"),
+        ("RegimeMonitor", "Regime Monitor"),
+    ],
+
+    "Research Tools": [
+        ("CentralBankWatch", "Central Bank Watch"),
+        ("Calendar", "Calendar"),
+        ("ResearchNotes", "Research Notes"),
+        ("GlobalMacroView", "Global Macro Outlook"),
+    ],
+
+    "Economic + Market Data": [
         ("UnitedStates", "United States"),
         ("EuroArea", "Euro Area"),
         ("UnitedKingdom", "United Kingdom"),
         ("Japan", "Japan"),
-    ],
-    "Markets": [
         ("RatesBonds", "Rates & Bonds"),
         ("Equities", "Equities"),
         ("Commodities", "Commodities"),
         ("FX", "FX"),
         ("Crypto", "Crypto"),
-    ],
-    "Research": [
-        ("GlobalMacroView", "Global Macro Outlook"),
-        ("RegimeMonitor", "Regime Monitor"),
-        ("CentralBankWatch", "Central Bank Watch"),
-        ("ResearchNotes", "Research Notes"),
-        ("Calendar", "Calendar"),
     ],
 }
 
@@ -61,7 +72,6 @@ def render_sidebar(active_page: str = "Home"):
             <label for="ml-menu-toggle" class="ml-mobile-close">×</label>
 
             <div class="ml-logo">Macro<span>Lens</span></div>
-            <div class="ml-sublogo">RESEARCH</div>
             {nav_html}
         </aside>
         """

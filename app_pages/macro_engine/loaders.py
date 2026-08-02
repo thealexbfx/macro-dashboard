@@ -4,6 +4,7 @@ from datetime import date
 from typing import Callable
 
 import streamlit as st
+from macro_engine.utils.timing import log_runtime
 
 from macro_engine.models.environment import MacroEnvironmentResult
 from macro_engine.pipelines.environment import (
@@ -21,29 +22,53 @@ from macro_engine.pipelines.history import (
 )
 
 
-CACHE_TTL_SECONDS = 1800
+CACHE_TTL_SECONDS = 21600
 STANDARD_HISTORY_START_DATE = date(2024, 1, 1)
 JAPAN_HISTORY_START_DATE = date(2015, 12, 1)
 
 
-@st.cache_data(ttl=CACHE_TTL_SECONDS, show_spinner=False)
+@st.cache_data(
+    ttl=CACHE_TTL_SECONDS,
+    show_spinner=False,
+)
 def load_usa_macro_environment() -> MacroEnvironmentResult:
-    return run_usa_macro_environment()
+    with log_runtime(
+        "USA macro environment"
+    ):
+        return run_usa_macro_environment()
 
 
-@st.cache_data(ttl=CACHE_TTL_SECONDS, show_spinner=False)
+@st.cache_data(
+    ttl=CACHE_TTL_SECONDS,
+    show_spinner=False,
+)
 def load_euro_macro_environment() -> MacroEnvironmentResult:
-    return run_euro_macro_environment()
+    with log_runtime(
+        "Euro Area macro environment"
+    ):
+        return run_euro_macro_environment()
 
 
-@st.cache_data(ttl=CACHE_TTL_SECONDS, show_spinner=False)
+@st.cache_data(
+    ttl=CACHE_TTL_SECONDS,
+    show_spinner=False,
+)
 def load_uk_macro_environment() -> MacroEnvironmentResult:
-    return run_uk_macro_environment()
+    with log_runtime(
+        "UK macro environment"
+    ):
+        return run_uk_macro_environment()
 
 
-@st.cache_data(ttl=CACHE_TTL_SECONDS, show_spinner=False)
+@st.cache_data(
+    ttl=CACHE_TTL_SECONDS,
+    show_spinner=False,
+)
 def load_japan_macro_environment() -> MacroEnvironmentResult:
-    return run_japan_macro_environment()
+    with log_runtime(
+        "Japan macro environment"
+    ):
+        return run_japan_macro_environment()
 
 
 def _run_history(

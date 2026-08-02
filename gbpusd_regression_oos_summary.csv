@@ -1,0 +1,5 @@
+model,target,oos_observations,directional_accuracy,rmse,prediction_correlation
+Country-level macro model,gbpusd_forward_1m,29,0.5172413793103449,0.021880185525035175,-0.051882748781237775
+Country-level macro model,gbpusd_forward_3m,27,0.4444444444444444,0.03998590421799797,-0.1696123731473955
+Relative macro model,gbpusd_forward_1m,29,0.41379310344827586,0.01974981828436961,-0.22134987381782056
+Relative macro model,gbpusd_forward_3m,27,0.3333333333333333,0.04013454632481596,-0.32122615951384015

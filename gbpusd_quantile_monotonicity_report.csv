@@ -1,0 +1,13 @@
+signal,forward_horizon,spearman_monotonicity
+uk_activity,gbpusd_forward_3m,-0.9
+uk_inflation,gbpusd_forward_3m,-0.7
+uk_inflation,gbpusd_forward_1m,-0.4
+inflation_difference,gbpusd_forward_1m,-0.3
+us_activity,gbpusd_forward_1m,-0.3
+uk_activity,gbpusd_forward_1m,0.3
+activity_difference,gbpusd_forward_3m,0.2
+activity_difference,gbpusd_forward_1m,0.1
+inflation_difference,gbpusd_forward_3m,-0.1
+us_activity,gbpusd_forward_3m,-0.1
+us_inflation,gbpusd_forward_1m,-0.1
+us_inflation,gbpusd_forward_3m,-0.1

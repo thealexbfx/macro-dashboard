@@ -7,7 +7,6 @@ import streamlit as st
 from components.macro_engine.indicator_inventory import (
     render_model_indicator_inventory,
 )
-
 from components.macro_engine.evidence import (
     render_model_evidence,
 )
@@ -29,6 +28,34 @@ from components.macro_engine.validation.renderer import (
 from styles.macro_engine import inject_macro_engine_css
 
 
+def render_historical_explorer_link(
+    environment: str,
+) -> None:
+    st.markdown(
+        """
+        <div style="
+            margin-top: 10px;
+            margin-bottom: 6px;
+            color: #6b7788;
+            font-size: 12px;
+        ">
+            Compare the current model environment with previous historical
+            episodes and cross-asset outcomes.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if st.button(
+        "View Historical Episodes",
+        key="open_historical_regime_explorer",
+        use_container_width=False,
+    ):
+        st.query_params["page"] = "HistoricalRegimeExplorer"
+        st.query_params["environment"] = environment
+        st.rerun()
+
+
 def render_macro_environment_overview(
     result: Any,
     history_run: Any,
@@ -45,6 +72,10 @@ def render_macro_environment_overview(
     inject_macro_engine_css()
 
     render_environment_hero(result)
+
+    render_historical_explorer_link(
+        result.environment_label,
+    )
 
     st.markdown(
         '<hr class="ml-section-divider">',
@@ -64,7 +95,7 @@ def render_macro_environment_overview(
         '<hr class="ml-section-divider">',
         unsafe_allow_html=True,
     )
-    
+
     render_model_indicator_inventory(result)
 
     st.markdown(

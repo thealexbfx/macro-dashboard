@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from macro_engine.cache.storage import load_cache
 from dataclasses import dataclass
 from datetime import date
 from html import escape
@@ -8,6 +8,7 @@ from typing import Callable
 import streamlit as st
 
 from app_pages.macro_engine.loaders import (
+    CACHE_TTL_SECONDS,
     JAPAN_HISTORY_START_DATE,
     STANDARD_HISTORY_START_DATE,
     load_euro_environment_history,
@@ -38,8 +39,14 @@ class EconomySource:
     name: str
     page: str
     history_start_date: date
-    environment_loader: Callable[[], MacroEnvironmentResult]
-    history_loader: Callable[[date, date], HistoricalEnvironmentRun]
+    environment_loader: Callable[
+        [],
+        MacroEnvironmentResult,
+    ]
+    history_loader: Callable[
+        [date, date],
+        HistoricalEnvironmentRun,
+    ]
 
 
 @dataclass(frozen=True)
@@ -49,6 +56,7 @@ class EconomyLoad:
     history_run: HistoricalEnvironmentRun | None = None
     environment_error: str | None = None
     history_error: str | None = None
+
 
 
 ECONOMIES = (
@@ -82,14 +90,33 @@ ECONOMIES = (
     ),
 )
 
+
 PILLAR_NAMES = ("Growth", "Inflation", "Labor", "Liquidity", "Policy")
 
 
-def _load_economy(source: EconomySource) -> EconomyLoad:
+def _load_economy(
+    source: EconomySource,
+) -> EconomyLoad:
+
+    CACHE_NAMES = {
+        "United States": "usa_environment",
+        "Euro Area": "euro_environment",
+        "United Kingdom": "uk_environment",
+        "Japan": "japan_environment",
+    }
+
     try:
-        result = source.environment_loader()
+
+        result = load_cache(
+            CACHE_NAMES[source.name]
+        )
+
     except Exception as exc:
-        return EconomyLoad(source=source, environment_error=str(exc))
+
+        return EconomyLoad(
+            source=source,
+            environment_error=str(exc),
+        )
 
     return EconomyLoad(
         source=source,
@@ -192,24 +219,6 @@ def _takeaway_for(
     return "The current profile is holding broadly steady."
 
 
-def _latest_observation(loads: tuple[EconomyLoad, ...]) -> str:
-    dated = [
-        load.result.as_of_date
-        for load in loads
-        if load.result is not None and load.result.as_of_date is not None
-    ]
-    if not dated:
-        return "Last updated: latest available model data"
-
-    latest = max(dated)
-    if len(set(dated)) == 1 and len(dated) == len(ECONOMIES):
-        return f"Last updated: {display_date(latest)}"
-
-    return (
-        f"Last updated: latest model observation {display_date(latest)}. "
-        "Economy-specific dates are shown below."
-    )
-
 
 def _meter(value: float, *, score: bool = False) -> str:
     percent = (value + 1.0) * 50.0 if score else value * 100.0
@@ -297,38 +306,155 @@ def _morning_brief_html(
     if not results:
         return ""
 
-    strongest_growth = _pillar_extreme(results, "Growth", strongest=True)
-    weakest_liquidity = _pillar_extreme(results, "Liquidity", strongest=False)
+    strongest_growth = _pillar_extreme(
+        results,
+        "Growth",
+        strongest=True,
+    )
 
-    bullets = []
+    weakest_liquidity = _pillar_extreme(
+        results,
+        "Liquidity",
+        strongest=False,
+    )
+
+    brief_items: list[
+        tuple[str, str, str]
+    ] = []
+
     if strongest_growth:
-        economy = economy_display_name(strongest_growth[0].economy)
-        bullets.append(f"{_short_name(economy)} remains the strongest growth economy.")
+        result, pillar = strongest_growth
+        economy = economy_display_name(
+            result.economy
+        )
+
+        brief_items.append(
+            (
+                "Growth Leader",
+                economy,
+                (
+                    f"{_short_name(economy)} activity remains "
+                    f"the strongest of the four tracked economies, "
+                    f"with growth currently classified as "
+                    f"{pillar.state_label.lower()}."
+                ),
+            )
+        )
+
     if weakest_liquidity:
-        economy = economy_display_name(weakest_liquidity[0].economy)
-        bullets.append(f"{economy} continues to show the weakest liquidity profile.")
-    euro_result = next(
-        (result for result in results if economy_display_name(result.economy) == "Euro Area"),
+        result, pillar = weakest_liquidity
+        economy = economy_display_name(
+            result.economy
+        )
+
+        labor = pillar_for(
+            result,
+            "Labor",
+        )
+
+        if (
+            labor is not None
+            and labor.state_score >= 0.20
+        ):
+            explanation = (
+                f"Liquidity remains the weakest in {economy}, "
+                f"despite {labor.state_label.lower()} labour "
+                "conditions."
+            )
+        else:
+            explanation = (
+                f"{economy} currently has the weakest liquidity "
+                f"profile, classified as "
+                f"{pillar.state_label.lower()}."
+            )
+
+        brief_items.append(
+            (
+                "Liquidity Watch",
+                economy,
+                explanation,
+            )
+        )
+
+    uk_result = next(
+        (
+            result
+            for result in results
+            if economy_display_name(
+                result.economy
+            ) == "United Kingdom"
+        ),
         None,
     )
-    if euro_result is not None:
-        stable_pillars = sum(
-            1
-            for name in PILLAR_NAMES
-            if (pillar := pillar_for(euro_result, name)) is not None
-            and pillar.trend_label.casefold() == "stable"
+
+    if uk_result is not None:
+        policy = pillar_for(
+            uk_result,
+            "Policy",
         )
-        bullets.append(
-            "Euro Area conditions remain broadly stable."
-            if stable_pillars >= 3
-            else f"Euro Area remains in {euro_result.environment_label.lower()}."
+
+        if (
+            policy is not None
+            and policy.state_score <= -0.10
+        ):
+            uk_story = (
+                "Inflation momentum is easing, but restrictive "
+                "policy continues to constrain the outlook."
+            )
+        else:
+            uk_story = (
+                "The UK remains in a transitional environment "
+                "with limited model conviction."
+            )
+
+        brief_items.append(
+            (
+                "Policy–Inflation Gap",
+                "United Kingdom",
+                uk_story,
+            )
         )
+
+    cards_html = "".join(
+        f"""
+        <article class="ml-overview-brief-item">
+            <div class="ml-overview-brief-item-label">
+                {escape(label)}
+            </div>
+
+            <div class="ml-overview-brief-item-economy">
+                {escape(economy)}
+            </div>
+
+            <p>
+                {escape(explanation)}
+            </p>
+        </article>
+        """
+        for label, economy, explanation
+        in brief_items[:3]
+    )
 
     return f"""
     <section class="ml-overview-brief">
-        <div class="ml-overview-brief-title">Morning Brief</div>
+        <div class="ml-overview-brief-header">
+            <div>
+                <div class="ml-overview-brief-kicker">
+                    Daily Model Summary
+                </div>
+
+                <div class="ml-overview-brief-title">
+                    Morning Brief
+                </div>
+            </div>
+
+            <div class="ml-overview-brief-note">
+                Key conditions surfaced by the current models
+            </div>
+        </div>
+
         <div class="ml-overview-brief-grid">
-            {''.join(f'<div><i></i><span>{escape(item)}</span></div>' for item in bullets)}
+            {cards_html}
         </div>
     </section>
     """
@@ -434,60 +560,210 @@ def _changes_html(loads: tuple[EconomyLoad, ...]) -> str:
     """
 
 
-def _resources_html(results: tuple[MacroEnvironmentResult, ...]) -> str:
-    watch_rows = []
-    for result in sorted(results, key=lambda item: item.environment_conviction_score):
-        name = economy_display_name(result.economy)
-        pillars = [pillar_for(result, pillar_name) for pillar_name in PILLAR_NAMES]
-        pillars = [pillar for pillar in pillars if pillar is not None]
-        weakest = min(pillars, key=lambda item: item.state_score) if pillars else None
-        labor = pillar_for(result, "Labor")
-        liquidity = pillar_for(result, "Liquidity")
-        policy = pillar_for(result, "Policy")
+def _resources_html(
+    results: tuple[MacroEnvironmentResult, ...],
+) -> str:
+    watch_items = []
+
+    for result in sorted(
+        results,
+        key=lambda item: (
+            item.environment_conviction_score
+        ),
+    ):
+        name = economy_display_name(
+            result.economy
+        )
+
+        pillars = [
+            pillar_for(
+                result,
+                pillar_name,
+            )
+            for pillar_name in PILLAR_NAMES
+        ]
+
+        pillars = [
+            pillar
+            for pillar in pillars
+            if pillar is not None
+        ]
+
+        weakest = (
+            min(
+                pillars,
+                key=lambda item: item.state_score,
+            )
+            if pillars
+            else None
+        )
+
+        labor = pillar_for(
+            result,
+            "Labor",
+        )
+
+        liquidity = pillar_for(
+            result,
+            "Liquidity",
+        )
+
+        policy = pillar_for(
+            result,
+            "Policy",
+        )
+
         if (
             liquidity is not None
             and labor is not None
             and liquidity.state_score <= -0.50
             and labor.state_score >= 0.20
         ):
-            reason = "Liquidity is very weak while labour remains strong."
+            label = "Liquidity Divergence"
+            reason = (
+                "Liquidity is very weak while labour remains "
+                "strong."
+            )
             tone = "negative"
+
         elif (
             policy is not None
             and policy.state_score <= -0.20
-            and "eas" in result.inflation_impulse_label.casefold()
+            and "eas" in (
+                result.inflation_impulse_label.casefold()
+            )
         ):
-            reason = "Policy remains restrictive despite easing inflation."
+            label = "Policy–Inflation Gap"
+            reason = (
+                "Inflation is easing, but policy remains "
+                "restrictive."
+            )
             tone = "caution"
-        elif result.environment_conviction_score < 0.35:
-            reason = "Low model conviction means the current classification is less firmly established."
-            tone = "negative"
-        elif "transition" in result.environment_label.casefold():
-            reason = "The current environment remains transitional."
+
+        elif (
+            result.environment_conviction_score
+            < 0.35
+        ):
+            label = "Low Conviction"
+            reason = (
+                "The current environment classification is "
+                "less firmly established than in peer economies."
+            )
             tone = "caution"
+
+        elif (
+            "transition"
+            in result.environment_label.casefold()
+        ):
+            label = "Transitional Regime"
+            reason = (
+                "The economy remains between more clearly "
+                "defined macro environments."
+            )
+            tone = "caution"
+
         elif weakest is not None:
-            reason = f"{weakest.name.split()[-1]} is {weakest.state_label.lower()} and {weakest.trend_label.lower()}."
-            tone = _pillar_tone(weakest)
+            pillar_name = (
+                weakest.name.split()[-1]
+            )
+
+            label = f"{pillar_name} Watch"
+
+            reason = (
+                f"{pillar_name} is currently "
+                f"{weakest.state_label.lower()} and "
+                f"{weakest.trend_label.lower()}."
+            )
+
+            tone = _pillar_tone(
+                weakest
+            )
+
         else:
-            reason = "Monitor the next scheduled model update."
+            label = "Model Watch"
+            reason = (
+                "Monitor the next scheduled model update."
+            )
             tone = "neutral"
-        watch_rows.append(
-            f'<li><i class="{tone}"></i><b>{escape(name)}</b><span>{escape(reason)}</span></li>'
+
+        watch_items.append(
+            f"""
+            <article class="ml-overview-watch-item">
+                <div class="ml-overview-watch-marker {tone}">
+                </div>
+
+                <div class="ml-overview-watch-content">
+                    <div class="ml-overview-watch-top">
+                        <strong>{escape(name)}</strong>
+
+                        <span class="{tone}">
+                            {escape(label)}
+                        </span>
+                    </div>
+
+                    <p>{escape(reason)}</p>
+                </div>
+            </article>
+            """
         )
 
     return f"""
     <div class="ml-overview-two-up ml-overview-resources">
-        <section class="ml-overview-panel">
-            <div class="ml-overview-panel-title">Watchlist</div>
-            <div class="ml-overview-watch-head"><span>Economy</span><span>Why it’s on watch</span></div>
-            <ul class="ml-overview-watchlist">{''.join(watch_rows)}</ul>
+        <section class="ml-overview-panel ml-overview-watch-panel">
+            <div class="ml-overview-panel-heading">
+                <div>
+                    <div class="ml-overview-panel-kicker">
+                        Model Monitoring
+                    </div>
+
+                    <div class="ml-overview-panel-title">
+                        Watchlist
+                    </div>
+                </div>
+
+                <span>
+                    {len(watch_items)} economies
+                </span>
+            </div>
+
+            <div class="ml-overview-watchlist">
+                {''.join(watch_items)}
+            </div>
         </section>
-        <section class="ml-overview-panel">
-            <div class="ml-overview-panel-title">Latest Research</div>
+
+        <section class="ml-overview-panel ml-overview-research-panel">
+            <div class="ml-overview-panel-heading">
+                <div>
+                    <div class="ml-overview-panel-kicker">
+                        MacroLens Publications
+                    </div>
+
+                    <div class="ml-overview-panel-title">
+                        Latest Research
+                    </div>
+                </div>
+            </div>
+
             <div class="ml-overview-research-empty">
-                <strong>Published MacroLens research will appear here.</strong>
-                <span>No structured research registry is currently available.</span>
-                <a href="?page=ResearchNotes" target="_self">Open Research Notes →</a>
+                <div class="ml-overview-research-empty-label">
+                    Research Library
+                </div>
+
+                <strong>
+                    No published research yet
+                </strong>
+
+                <p>
+                    Structured MacroLens outlooks and research
+                    notes will appear here as they are published.
+                </p>
+
+                <a
+                    href="?page=ResearchNotes"
+                    target="_self"
+                >
+                    Open Research Notes →
+                </a>
             </div>
         </section>
     </div>
@@ -497,21 +773,31 @@ def _resources_html(results: tuple[MacroEnvironmentResult, ...]) -> str:
 def render_macro_engine_global_page() -> None:
     inject_macro_engine_css()
 
-    with st.spinner("Loading macro environments..."):
-        loads = tuple(_load_economy(source) for source in ECONOMIES)
+    with st.spinner(
+        "Loading macro environments..."
+    ):
+        loads = tuple(
+            _load_economy(source)
+            for source in ECONOMIES
+        )
 
-    results = tuple(load.result for load in loads if load.result is not None)
+    results = tuple(
+        load.result
+        for load in loads
+        if load.result is not None
+    )
 
     st.html(
         f"""
         <main class="ml-global-dashboard">
             <section class="ml-overview-hero">
-                <div>
-                    <div class="ml-overview-eyebrow">Macro Engine</div>
-                    <h1>Global Macro Overview</h1>
-                    <p>A comparative view of current macroeconomic conditions across the United States, Euro Area, United Kingdom and Japan.</p>
-                </div>
-                <div class="ml-overview-updated">{escape(_latest_observation(loads))}</div>
+                <h1>Global Macro Monitor</h1>
+
+                <p>
+                    A comparative view of current macroeconomic conditions
+                    across the United States, Euro Area, United Kingdom
+                    and Japan.
+                </p>
             </section>
             {_morning_brief_html(loads, results)}
             {_scoreboard_html(loads, results)}

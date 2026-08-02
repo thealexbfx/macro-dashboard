@@ -2,123 +2,177 @@
    Sidebar
 ========================================== */
 
-.ml-sidebar{
+.ml-sidebar {
 
-    position:fixed;
+    position: fixed;
 
-    top:0;
+    top: 0;
 
-    left:0;
+    left: 0;
 
-    width:270px;
+    width: 270px;
 
-    height:100vh;
+    height: 100vh;
 
-    overflow-y:auto;
+    overflow-y: auto;
 
-    padding:26px 18px;
+    padding: 26px 18px;
 
-    background:#071729;
+    background: #071729;
 
-    border-right:1px solid rgba(255,255,255,.08);
-
-}
-
-
-/* ---------- Logo ---------- */
-
-.ml-logo{
-
-    font-size:30px;
-
-    font-weight:950;
-
-    color:white;
-
-    letter-spacing:-.05em;
-
-}
-
-.ml-logo span{
-
-    color:#38BDF8;
-
-}
-
-.ml-sublogo{
-
-    margin-top:4px;
-
-    margin-bottom:34px;
-
-    color:#94A3B8;
-
-    font-size:11px;
-
-    letter-spacing:.28em;
+    border-right: 1px solid rgba(255,255,255,.08);
 
 }
 
 
-/* ---------- Sections ---------- */
+/* ==========================================
+   Logo
+========================================== */
 
-.ml-nav-section{
+.ml-logo {
 
-    margin:
+    font-size: 30px;
 
-    26px 0
+    font-weight: 950;
 
-    10px 8px;
+    color: white;
 
-    color:#94A3B8;
+    letter-spacing: -.05em;
 
-    font-size:11px;
+}
 
-    font-weight:900;
+.ml-logo span {
 
-    letter-spacing:.12em;
+    color: #38BDF8;
 
-    text-transform:uppercase;
+}
+
+.ml-sublogo {
+
+    margin-top: 4px;
+
+    margin-bottom: 34px;
+
+    color: #94A3B8;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    letter-spacing: .28em;
+
+    text-transform: uppercase;
 
 }
 
 
-/* ---------- Links ---------- */
+/* ==========================================
+   Section Headings
+========================================== */
 
-.ml-nav-link{
+.ml-nav-section {
 
-    display:block;
+    margin: 28px 0 10px 8px;
 
-    padding:11px 14px;
+    padding-top: 14px;
 
-    border-radius:8px;
+    border-top: 1px solid rgba(255,255,255,.08);
 
-    margin-bottom:5px;
+    color: #FFFFFF;
 
-    color:#CBD5E1 !important;
+    font-size: 12px;
 
-    text-decoration:none !important;
+    font-weight: 800;
 
-    font-size:14px;
+    letter-spacing: .10em;
 
-    font-weight:700;
+    text-transform: uppercase;
 
-    transition:.18s;
-
-}
-
-.ml-nav-link:hover{
-
-    background:rgba(255,255,255,.06);
-
-    color:white !important;
+    opacity: .95;
 
 }
 
-.ml-nav-link.active{
+.ml-nav-section:first-of-type {
 
-    background:#1678B8;
+    margin-top: 0;
 
-    color:white !important;
+    padding-top: 0;
+
+    border-top: none;
+
+}
+
+
+/* ==========================================
+   Navigation Links
+========================================== */
+
+.ml-nav-link {
+
+    display: block;
+
+    padding: 11px 14px;
+
+    margin-bottom: 5px;
+
+    border-radius: 8px;
+
+    color: #E2E8F0 !important;
+
+    text-decoration: none !important;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    transition:
+        background .18s,
+        color .18s,
+        transform .18s;
+
+}
+
+.ml-nav-link:hover {
+
+    background: rgba(255,255,255,.08);
+
+    color: white !important;
+
+    transform: translateX(2px);
+
+}
+
+.ml-nav-link.active {
+
+    background: #156DA8;
+
+    color: white !important;
+
+    font-weight: 700;
+
+}
+
+
+/* ==========================================
+   Scrollbar
+========================================== */
+
+.ml-sidebar::-webkit-scrollbar {
+
+    width: 6px;
+
+}
+
+.ml-sidebar::-webkit-scrollbar-thumb {
+
+    background: rgba(255,255,255,.14);
+
+    border-radius: 999px;
+
+}
+
+.ml-sidebar::-webkit-scrollbar-thumb:hover {
+
+    background: rgba(255,255,255,.25);
 
 }
