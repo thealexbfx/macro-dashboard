@@ -3,13 +3,27 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable
 
+from macro_engine.decision.fx_config import (
+    get_fx_configs,
+)
 from macro_engine.decision.workspace import (
     DecisionWorkspaceResult,
-    build_eurusd_workspace,
-    build_gbpusd_workspace,
+    build_fx_workspace,
 )
 
-WorkspaceBuilder = Callable[[int], DecisionWorkspaceResult]
+from macro_engine.decision.cross_asset.config import (
+    get_cross_asset_config,
+)
+from macro_engine.decision.workspace import (
+    DecisionWorkspaceResult,
+    build_cross_asset_workspace,
+    build_fx_workspace,
+)
+
+WorkspaceBuilder = Callable[
+    [int],
+    DecisionWorkspaceResult,
+]
 
 
 @dataclass(frozen=True)
@@ -22,33 +36,63 @@ class DecisionAsset:
 
 
 ASSET_REGISTRY: dict[str, DecisionAsset] = {
-    "gbpusd": DecisionAsset(
-        key="gbpusd",
-        display_name="GBP/USD",
+    config.key: DecisionAsset(
+        key=config.key,
+        display_name=config.display_name,
         asset_class="FX",
-        default_horizon_months=3,
-        builder=build_gbpusd_workspace,
-    ),
-    
-    "eurusd": DecisionAsset(
-        key="eurusd",
-        display_name="EUR/USD",
-        asset_class="FX",
-        default_horizon_months=3,
-        builder=build_eurusd_workspace,
-    ),
+        default_horizon_months=(
+            config.default_horizon_months
+        ),
+        builder=(
+            lambda horizon_months,
+            asset_key=config.key: build_fx_workspace(
+                asset_key=asset_key,
+                horizon_months=horizon_months,
+            )
+        ),
+    )
+    for config in get_fx_configs()
 }
 
+gold_config = get_cross_asset_config(
+    "gold"
+)
 
-def get_available_assets() -> tuple[DecisionAsset, ...]:
-    return tuple(ASSET_REGISTRY.values())
+ASSET_REGISTRY["gold"] = DecisionAsset(
+    key=gold_config.key,
+    display_name=gold_config.display_name,
+    asset_class=gold_config.asset_class,
+    default_horizon_months=(
+        gold_config.default_horizon_months
+    ),
+    builder=(
+        lambda horizon_months: build_cross_asset_workspace(
+            asset_key="gold",
+            horizon_months=horizon_months,
+        )
+    ),
+)
+
+def get_available_assets() -> tuple[
+    DecisionAsset,
+    ...,
+]:
+    return tuple(
+        ASSET_REGISTRY.values()
+    )
 
 
-def get_asset(asset_key: str) -> DecisionAsset:
+def get_asset(
+    asset_key: str,
+) -> DecisionAsset:
     try:
         return ASSET_REGISTRY[asset_key]
+
     except KeyError as exc:
-        available = ", ".join(ASSET_REGISTRY)
+        available = ", ".join(
+            ASSET_REGISTRY
+        )
+
         raise ValueError(
             f"Unknown decision asset: {asset_key}. "
             f"Available assets: {available}"
@@ -67,4 +111,6 @@ def build_workspace(
         else asset.default_horizon_months
     )
 
-    return asset.builder(resolved_horizon)
+    return asset.builder(
+        resolved_horizon
+    )

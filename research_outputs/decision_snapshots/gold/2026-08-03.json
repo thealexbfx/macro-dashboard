@@ -1,0 +1,19 @@
+{
+  "asset_key": "gold",
+  "display_name": "Gold",
+  "snapshot_date": "2026-08-03",
+  "created_at": "2026-08-03T21:00:55.189801",
+  "macro_direction": "Neutral",
+  "directional_score": 0.05549853723543246,
+  "model_confidence": 0.889,
+  "model_conviction": 0.4303,
+  "historical_support": "Limited",
+  "current_price": 4113.10009765625,
+  "price_trend": "Range-bound / Mixed",
+  "momentum": "Neutral",
+  "volatility_state": "High",
+  "alignment": "Insufficient",
+  "pricing_status": "Unclear",
+  "decision_stance": "REVIEW",
+  "thesis": "The Gold factor model is currently balanced. Inflation and liquidity provide support, while real-rate conditions, dollar pressure and the current activity backdrop offset that support. MacroLens therefore assigns a neutral bias over a 3-month horizon."
+}

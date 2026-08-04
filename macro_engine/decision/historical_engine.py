@@ -59,6 +59,20 @@ HISTORICAL_DATASETS: dict[str, HistoricalDataset] = {
         pair_primary_column="us_environment",
         pair_secondary_column="euro_environment",
     ),
+    
+    "usdjpy": HistoricalDataset(
+        asset_key="usdjpy",
+        display_name="USD/JPY",
+        primary_file="usdjpy_primary_environment_report.csv",
+        primary_column="us_environment",
+        primary_source="US environment history",
+        secondary_file="usdjpy_secondary_environment_report.csv",
+        secondary_column="japan_environment",
+        secondary_source="Japan environment history",
+        pair_file="usdjpy_environment_pair_report.csv",
+        pair_primary_column="us_environment",
+        pair_secondary_column="japan_environment",
+    ),
 }
 
 

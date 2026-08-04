@@ -11,6 +11,7 @@ from data.yahoo import get_fx_data_yahoo
 from macro_engine.pipelines.history import (
     HistoricalEnvironmentRun,
     run_euro_environment_history,
+    run_japan_environment_history,
     run_uk_environment_history,
     run_usa_environment_history,
 )
@@ -71,6 +72,18 @@ FX_VALIDATION_CONFIGS: dict[
         secondary_prefix="euro",
         secondary_display_name="Euro Area",
         secondary_history_runner=run_euro_environment_history,
+    ),
+    
+    "usdjpy": FXHistoricalValidationConfig(
+        asset_key="usdjpy",
+        display_name="USD/JPY",
+        ticker="USDJPY=X",
+        primary_prefix="us",
+        primary_display_name="US",
+        primary_history_runner=run_usa_environment_history,
+        secondary_prefix="japan",
+        secondary_display_name="Japan",
+        secondary_history_runner=run_japan_environment_history,
     ),
 }
 

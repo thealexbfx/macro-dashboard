@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 from datetime import date
-
+from macro_engine.decision.fx_config import get_fx_config
 from macro_engine.decision.models import DecisionEvidence, ResearchIdea
 from macro_engine.models.environment import MacroEnvironmentResult
 from macro_engine.cache.storage import load_cache
 
-from macro_engine.decision.historical import (
-    load_eurusd_historical_evidence,
-    load_gbpusd_historical_evidence,
+from macro_engine.decision.historical_engine import (
+    load_historical_evidence,
 )
 
 DIRECTION_THRESHOLD = 0.10
@@ -370,132 +369,96 @@ def _build_historical_decision_evidence(
         tuple(limitations),
     )
 
+def build_fx_research_idea(
+    asset_key: str,
+    horizon_months: int = 3,
+) -> ResearchIdea:
+    config = get_fx_config(asset_key)
+
+    base_result = load_cache(
+        config.base_environment_cache
+    )
+
+    quote_result = load_cache(
+        config.quote_environment_cache
+    )
+
+    idea = build_fx_research_idea_from_results(
+        asset=config.display_name,
+        base_name=config.base_name,
+        quote_name=config.quote_name,
+        base_result=base_result,
+        quote_result=quote_result,
+        horizon_months=horizon_months,
+    )
+
+    historical_evidence = load_historical_evidence(
+        asset_key=config.key,
+        primary_environment=(
+            quote_result.environment_label
+            if config.quote_environment_cache == "usa_environment"
+            else base_result.environment_label
+        ),
+        secondary_environment=(
+            base_result.environment_label
+            if config.quote_environment_cache == "usa_environment"
+            else quote_result.environment_label
+        ),
+        horizon_months=horizon_months,
+    )
+
+    (
+        historical_supporting,
+        historical_contradicting,
+        historical_limitations,
+    ) = _build_historical_decision_evidence(
+        asset=config.display_name,
+        primary_name=config.historical_primary_name,
+        secondary_name=config.historical_secondary_name,
+        evidence=historical_evidence,
+        model_direction=idea.model_direction,
+        horizon_months=horizon_months,
+    )
+
+    return ResearchIdea(
+        as_of_date=idea.as_of_date,
+        asset=idea.asset,
+        model_direction=idea.model_direction,
+        horizon_months=idea.horizon_months,
+        directional_score=idea.directional_score,
+        model_confidence=idea.model_confidence,
+        model_conviction=idea.model_conviction,
+        historical_support=_historical_support_label(
+            historical_evidence
+        ),
+        thesis=idea.thesis,
+        supporting_evidence=(
+            idea.supporting_evidence
+            + historical_supporting
+        ),
+        contradicting_evidence=(
+            idea.contradicting_evidence
+            + historical_contradicting
+        ),
+        limitations=(
+            idea.limitations
+            + historical_limitations
+        ),
+    )
+
 def build_gbpusd_research_idea(
     horizon_months: int = 3,
 ) -> ResearchIdea:
-    uk_result = load_cache(
-        "uk_environment"
-    )
-
-    usa_result = load_cache(
-        "usa_environment"
-    )
-
-    idea = build_fx_research_idea_from_results(
-        asset="GBP/USD",
-        base_name="United Kingdom",
-        quote_name="United States",
-        base_result=uk_result,
-        quote_result=usa_result,
+    return build_fx_research_idea(
+        asset_key="gbpusd",
         horizon_months=horizon_months,
     )
 
-    historical_evidence = load_gbpusd_historical_evidence(
-        us_environment=usa_result.environment_label,
-        uk_environment=uk_result.environment_label,
-        horizon_months=horizon_months,
-    )
 
-    (
-        historical_supporting,
-        historical_contradicting,
-        historical_limitations,
-    ) = _build_historical_decision_evidence(
-        asset="GBP/USD",
-        primary_name="US",
-        secondary_name="UK",
-        evidence=historical_evidence,
-        model_direction=idea.model_direction,
-        horizon_months=horizon_months,
-    )
-
-    return ResearchIdea(
-        as_of_date=idea.as_of_date,
-        asset=idea.asset,
-        model_direction=idea.model_direction,
-        horizon_months=idea.horizon_months,
-        directional_score=idea.directional_score,
-        model_confidence=idea.model_confidence,
-        model_conviction=idea.model_conviction,
-        historical_support=_historical_support_label(
-            historical_evidence
-        ),
-        thesis=idea.thesis,
-        supporting_evidence=(
-            idea.supporting_evidence
-            + historical_supporting
-        ),
-        contradicting_evidence=(
-            idea.contradicting_evidence
-            + historical_contradicting
-        ),
-        limitations=(
-            idea.limitations
-            + historical_limitations
-        ),
-    )
-    
 def build_eurusd_research_idea(
     horizon_months: int = 3,
 ) -> ResearchIdea:
-    euro_result = load_cache(
-        "euro_environment"
-    )
-
-    usa_result = load_cache(
-        "usa_environment"
-    )
-
-    idea = build_fx_research_idea_from_results(
-        asset="EUR/USD",
-        base_name="Euro Area",
-        quote_name="United States",
-        base_result=euro_result,
-        quote_result=usa_result,
+    return build_fx_research_idea(
+        asset_key="eurusd",
         horizon_months=horizon_months,
-    )
-
-    historical_evidence = load_eurusd_historical_evidence(
-        us_environment=usa_result.environment_label,
-        euro_environment=euro_result.environment_label,
-        horizon_months=horizon_months,
-    )
-
-    (
-        historical_supporting,
-        historical_contradicting,
-        historical_limitations,
-    ) = _build_historical_decision_evidence(
-        asset="EUR/USD",
-        primary_name="US",
-        secondary_name="Euro Area",
-        evidence=historical_evidence,
-        model_direction=idea.model_direction,
-        horizon_months=horizon_months,
-    )
-
-    return ResearchIdea(
-        as_of_date=idea.as_of_date,
-        asset=idea.asset,
-        model_direction=idea.model_direction,
-        horizon_months=idea.horizon_months,
-        directional_score=idea.directional_score,
-        model_confidence=idea.model_confidence,
-        model_conviction=idea.model_conviction,
-        historical_support=_historical_support_label(
-            historical_evidence
-        ),
-        thesis=idea.thesis,
-        supporting_evidence=(
-            idea.supporting_evidence
-            + historical_supporting
-        ),
-        contradicting_evidence=(
-            idea.contradicting_evidence
-            + historical_contradicting
-        ),
-        limitations=(
-            idea.limitations
-            + historical_limitations
-        ),
     )

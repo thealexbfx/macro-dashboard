@@ -9,26 +9,23 @@ from macro_engine.decision.alignment import (
     build_evidence_alignment,
 )
 
-
 from macro_engine.decision.fx import (
-    build_eurusd_research_idea,
-    build_gbpusd_research_idea,
+    build_fx_research_idea,
 )
-
-
-from macro_engine.decision.historical import (
-    load_eurusd_historical_evidence,
-    load_gbpusd_historical_evidence,
+from macro_engine.decision.fx_config import (
+    get_fx_config,
+)
+from macro_engine.decision.historical_engine import (
+    load_historical_evidence,
+)
+from macro_engine.decision.market_context import (
+    MarketContext,
+    build_fx_market_context_for_asset,
 )
 
 from macro_engine.decision.historical_context import (
     HistoricalContext,
     build_historical_context,
-)
-from macro_engine.decision.market_context import (
-    MarketContext,
-    build_eurusd_market_context,
-    build_gbpusd_market_context,
 )
 
 
@@ -37,6 +34,21 @@ from macro_engine.decision.pricing_assessment import (
     MarketPricingAssessment,
     build_market_pricing_assessment,
 )
+
+from macro_engine.decision.cross_asset.config import (
+    get_cross_asset_config,
+)
+from macro_engine.decision.cross_asset.gold import (
+    build_gold_research_idea,
+)
+from macro_engine.decision.cross_asset.historical import (
+    load_cross_asset_historical_evidence,
+)
+from macro_engine.decision.market_context import (
+    build_cross_asset_market_context,
+)
+
+
 
 
 @dataclass(frozen=True)
@@ -59,6 +71,74 @@ class DecisionWorkspaceResult:
     historical_context: HistoricalContext
     decision: DecisionFramework
 
+
+def build_cross_asset_workspace(
+    asset_key: str,
+    horizon_months: int = 3,
+) -> DecisionWorkspaceResult:
+    config = get_cross_asset_config(asset_key)
+
+    if asset_key == "gold":
+        idea = build_gold_research_idea(
+            horizon_months=horizon_months,
+        )
+    else:
+        raise ValueError(
+            f"No cross-asset research model exists yet for "
+            f"{asset_key}."
+        )
+
+    market = build_cross_asset_market_context(
+        asset_key
+    )
+
+    alignment = build_evidence_alignment(
+        idea=idea,
+        market=market,
+    )
+
+    pricing = build_market_pricing_assessment(
+        idea=idea,
+        market=market,
+        alignment=alignment,
+    )
+
+    usa_result = load_cache(
+        config.environment_cache
+    )
+
+    historical_evidence = (
+        load_cross_asset_historical_evidence(
+            asset_key=asset_key,
+            environment=usa_result.environment_label,
+            horizon_months=horizon_months,
+        )
+    )
+
+    historical_context = build_historical_context(
+        evidence=historical_evidence,
+        model_direction=idea.model_direction,
+        horizon_months=horizon_months,
+        primary_name="US",
+        secondary_name=config.display_name,
+    )
+
+    decision = build_decision_framework(
+        idea=idea,
+        market=market,
+        alignment=alignment,
+    )
+
+    return DecisionWorkspaceResult(
+        asset_key=config.key,
+        display_name=config.display_name,
+        idea=idea,
+        market=market,
+        alignment=alignment,
+        pricing=pricing,
+        historical_context=historical_context,
+        decision=decision,
+    )
 
 def build_decision_framework(
     *,
@@ -122,121 +202,97 @@ def build_decision_framework(
         invalidation=invalidation,
     )
 
+def build_fx_workspace(
+    asset_key: str,
+    horizon_months: int = 3,
+) -> DecisionWorkspaceResult:
+    config = get_fx_config(asset_key)
+
+    idea = build_fx_research_idea(
+        asset_key=asset_key,
+        horizon_months=horizon_months,
+    )
+
+    market = build_fx_market_context_for_asset(
+        asset_key
+    )
+
+    alignment = build_evidence_alignment(
+        idea=idea,
+        market=market,
+    )
+
+    pricing = build_market_pricing_assessment(
+        idea=idea,
+        market=market,
+        alignment=alignment,
+    )
+
+    base_result = load_cache(
+        config.base_environment_cache
+    )
+
+    quote_result = load_cache(
+        config.quote_environment_cache
+    )
+
+    primary_environment = (
+        quote_result.environment_label
+        if config.quote_environment_cache == "usa_environment"
+        else base_result.environment_label
+    )
+
+    secondary_environment = (
+        base_result.environment_label
+        if config.quote_environment_cache == "usa_environment"
+        else quote_result.environment_label
+    )
+
+    historical_evidence = load_historical_evidence(
+        asset_key=config.key,
+        primary_environment=primary_environment,
+        secondary_environment=secondary_environment,
+        horizon_months=horizon_months,
+    )
+
+    historical_context = build_historical_context(
+        evidence=historical_evidence,
+        model_direction=idea.model_direction,
+        horizon_months=horizon_months,
+        primary_name=config.historical_primary_name,
+        secondary_name=config.historical_secondary_name,
+    )
+
+    decision = build_decision_framework(
+        idea=idea,
+        market=market,
+        alignment=alignment,
+    )
+
+    return DecisionWorkspaceResult(
+        asset_key=config.key,
+        display_name=config.display_name,
+        idea=idea,
+        market=market,
+        alignment=alignment,
+        pricing=pricing,
+        historical_context=historical_context,
+        decision=decision,
+    )
 
 def build_gbpusd_workspace(
     horizon_months: int = 3,
 ) -> DecisionWorkspaceResult:
-    idea = build_gbpusd_research_idea(
-        horizon_months=horizon_months,
-    )
-
-    market = build_gbpusd_market_context()
-
-    alignment = build_evidence_alignment(
-        idea=idea,
-        market=market,
-    )
-
-    pricing = build_market_pricing_assessment(
-        idea=idea,
-        market=market,
-        alignment=alignment,
-    )
-
-    usa_result = load_cache(
-        "usa_environment"
-    )
-
-    uk_result = load_cache(
-        "uk_environment"
-    )
-
-    historical_evidence = load_gbpusd_historical_evidence(
-        us_environment=usa_result.environment_label,
-        uk_environment=uk_result.environment_label,
-        horizon_months=horizon_months,
-    )
-
-    historical_context = build_historical_context(
-        evidence=historical_evidence,
-        model_direction=idea.model_direction,
-        horizon_months=horizon_months,
-        primary_name="US",
-        secondary_name="UK",
-    )
-
-    decision = build_decision_framework(
-        idea=idea,
-        market=market,
-        alignment=alignment,
-    )
-
-    return DecisionWorkspaceResult(
+    return build_fx_workspace(
         asset_key="gbpusd",
-        display_name="GBP/USD",
-        idea=idea,
-        market=market,
-        alignment=alignment,
-        pricing=pricing,
-        historical_context=historical_context,
-        decision=decision,
+        horizon_months=horizon_months,
     )
-    
+
+
 def build_eurusd_workspace(
     horizon_months: int = 3,
 ) -> DecisionWorkspaceResult:
-    idea = build_eurusd_research_idea(
-        horizon_months=horizon_months,
-    )
-
-    market = build_eurusd_market_context()
-
-    alignment = build_evidence_alignment(
-        idea=idea,
-        market=market,
-    )
-
-    pricing = build_market_pricing_assessment(
-        idea=idea,
-        market=market,
-        alignment=alignment,
-    )
-
-    usa_result = load_cache(
-        "usa_environment"
-    )
-
-    euro_result = load_cache(
-        "euro_environment"
-    )
-
-    historical_evidence = load_eurusd_historical_evidence(
-        us_environment=usa_result.environment_label,
-        euro_environment=euro_result.environment_label,
-        horizon_months=horizon_months,
-    )
-
-    historical_context = build_historical_context(
-        evidence=historical_evidence,
-        model_direction=idea.model_direction,
-        horizon_months=horizon_months,
-        primary_name="US",
-        secondary_name="Euro Area",
-    )
-
-    decision = build_decision_framework(
-        idea=idea,
-        market=market,
-        alignment=alignment,
-    )
-
-    return DecisionWorkspaceResult(
+    return build_fx_workspace(
         asset_key="eurusd",
-        display_name="EUR/USD",
-        idea=idea,
-        market=market,
-        alignment=alignment,
-        pricing=pricing,
-        historical_context=historical_context,
-        decision=decision,
+        horizon_months=horizon_months,
     )

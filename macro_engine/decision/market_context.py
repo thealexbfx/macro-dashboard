@@ -1,7 +1,13 @@
 from __future__ import annotations
 
+from macro_engine.decision.fx_config import get_fx_config
+
 from dataclasses import dataclass
 from datetime import date, timedelta
+
+from macro_engine.decision.cross_asset.config import (
+    get_cross_asset_config,
+)
 
 import numpy as np
 import pandas as pd
@@ -185,7 +191,7 @@ def _classify_volatility(
     return "Normal"
 
 
-def build_fx_market_context(
+def build_market_context(
     *,
     asset: str,
     ticker: str,
@@ -311,14 +317,35 @@ def build_fx_market_context(
     )
 
 
-def build_gbpusd_market_context() -> MarketContext:
-    return build_fx_market_context(
-        asset="GBP/USD",
-        ticker="GBPUSD=X",
+def build_fx_market_context_for_asset(
+    asset_key: str,
+) -> MarketContext:
+    config = get_fx_config(asset_key)
+
+    return build_market_context(
+        asset=config.display_name,
+        ticker=config.ticker,
     )
-    
+
+
+def build_cross_asset_market_context(
+    asset_key: str,
+) -> MarketContext:
+    config = get_cross_asset_config(asset_key)
+
+    return build_market_context(
+        asset=config.display_name,
+        ticker=config.ticker,
+    )
+
+
+def build_gbpusd_market_context() -> MarketContext:
+    return build_fx_market_context_for_asset(
+        "gbpusd"
+    )
+
+
 def build_eurusd_market_context() -> MarketContext:
-    return build_fx_market_context(
-        asset="EUR/USD",
-        ticker="EURUSD=X",
+    return build_fx_market_context_for_asset(
+        "eurusd"
     )
