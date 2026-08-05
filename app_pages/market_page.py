@@ -9,6 +9,9 @@ from app_pages.market_utils import filter_by_dates
 from components.research.research_page import render_research_page
 from data.yahoo import get_fx_data_yahoo
 
+from macro_engine.decision.market_context import (
+    load_live_quote,
+)
 
 # =========================================================
 # DATE HELPERS
@@ -34,6 +37,102 @@ def get_start_date(df, timeframe):
 
     return df["date"].min()
 
+
+def pct_change_over_live(
+    df: pd.DataFrame,
+    label: str,
+    latest_value: float,
+    previous_close: float | None = None,
+) -> str:
+    if (
+        label == "1D"
+        and previous_close is not None
+        and previous_close != 0
+    ):
+        start_value = previous_close
+
+    else:
+        periods = {
+            "1D": 1,
+            "1W": 5,
+            "1M": 21,
+            "3M": 63,
+            "6M": 126,
+            "1Y": 252,
+        }
+
+        period = periods[label]
+
+        if len(df) <= period:
+            return "—"
+
+        start_value = float(
+            df["value"].iloc[-period - 1]
+        )
+
+    if start_value == 0:
+        return "—"
+
+    change = (
+        latest_value / start_value
+        - 1.0
+    ) * 100
+
+    sign = "+" if change > 0 else ""
+
+    return f"{sign}{change:.2f}%"
+
+
+def basis_point_change_over_live(
+    df: pd.DataFrame,
+    label: str,
+    latest_value: float,
+    previous_close: float | None = None,
+) -> str:
+    if (
+        label == "1D"
+        and previous_close is not None
+    ):
+        start_value = previous_close
+
+    else:
+        periods = {
+            "1D": 1,
+            "1W": 5,
+            "1M": 21,
+            "3M": 63,
+            "6M": 126,
+            "1Y": 252,
+        }
+
+        period = periods[label]
+
+        if len(df) <= period:
+            return "—"
+
+        start_value = float(
+            df["value"].iloc[-period - 1]
+        )
+
+    basis_point_change = (
+        latest_value - start_value
+    ) * 100
+
+    if abs(basis_point_change) < 0.005:
+        return "0 bps"
+
+    rounded_change = round(
+        basis_point_change
+    )
+
+    sign = "+" if rounded_change > 0 else ""
+    unit = (
+        "bp"
+        if abs(rounded_change) == 1
+        else "bps"
+    )
+
+    return f"{sign}{rounded_change} {unit}"
 
 def pct_change_over(df, label):
     end = df["date"].max()
@@ -1289,7 +1388,7 @@ def render_market_page(
         df = get_fx_data_yahoo(
             meta["ticker"],
             start_date=dt.date(1990, 1, 1),
-            end_date=dt.date.today(),
+            end_date=dt.date.today() + dt.timedelta(days=1),
         ).dropna()
     else:
         st.error("No data source configured for this market.")
@@ -1310,6 +1409,32 @@ def render_market_page(
         df
         .dropna(subset=["date", "value"])
         .sort_values("date")
+    )
+    
+    historical_latest_value = float(
+        df["value"].iloc[-1]
+    )
+
+    live_current_value = None
+    live_previous_close = None
+
+    if "ticker" in meta:
+        live_quote = load_live_quote(
+            meta["ticker"]
+        )
+
+        live_current_value = (
+            live_quote.current_price
+        )
+
+        live_previous_close = (
+            live_quote.previous_close
+        )
+
+    current_market_value = (
+        live_current_value
+        if live_current_value is not None
+        else historical_latest_value
     )
 
     timeframe = st.session_state.get(
@@ -1711,7 +1836,7 @@ def render_market_page(
             compare_df = get_fx_data_yahoo(
                 compare_source,
                 start_date=dt.date(1990, 1, 1),
-                end_date=dt.date.today(),
+                end_date=dt.date.today() + dt.timedelta(days=1),
             ).dropna()
 
             compare_df["date"] = pd.to_datetime(
@@ -1788,11 +1913,18 @@ def render_market_page(
         end_value = primary_values.iloc[-1]
 
         if is_yield:
-            basis_point_move = (end_value - start_value) * 100
-            direction = "rose" if basis_point_move >= 0 else "fell"
+            basis_point_move = (
+                end_value - start_value
+            ) * 100
+
+            direction = (
+                "rose"
+                if basis_point_move >= 0
+                else "fell"
+            )
 
             period_insight = (
-                f"Period move: {indicator} {direction} from "
+                f"Daily-close move: {indicator} {direction} from "
                 f"{start_value:,.2f}% to {end_value:,.2f}%, "
                 f"a move of {abs(basis_point_move):.0f} basis points. "
                 f"Its highest yield was {primary_values.max():,.2f}% "
@@ -1808,7 +1940,7 @@ def render_market_page(
             direction = "rose" if period_return >= 0 else "fell"
 
             period_insight = (
-                f"Period move: {indicator} {direction} from "
+                f"Daily-close move: {indicator} {direction} from "
                 f"{start_value:,.2f} to {end_value:,.2f}, "
                 f"a {abs(period_return):.2f}% move. Its highest "
                 f"close was {primary_values.max():,.2f} and its lowest was "
@@ -1952,7 +2084,7 @@ def render_market_page(
 
     stats = calculate_summary_stats(df_filtered)
 
-    latest_val = stats["latest_val"]
+    latest_val = current_market_value
     position_pct = stats["position_pct"]
     slope = stats["slope"]
     volatility = stats["volatility"]
@@ -2002,19 +2134,36 @@ def render_market_page(
 
     if is_yield:
         price_changes = {
-            "1D": basis_point_change_over(df, "1D"),
-            "1W": basis_point_change_over(df, "1W"),
-            "1M": basis_point_change_over(df, "1M"),
-            "6M": basis_point_change_over(df, "6M"),
-            "1Y": basis_point_change_over(df, "1Y"),
+            label: basis_point_change_over_live(
+                df=df,
+                label=label,
+                latest_value=current_market_value,
+                previous_close=live_previous_close,
+            )
+            for label in (
+                "1D",
+                "1W",
+                "1M",
+                "6M",
+                "1Y",
+            )
         }
+
     else:
         price_changes = {
-            "1D": pct_change_over(df, "1D"),
-            "1W": pct_change_over(df, "1W"),
-            "1M": pct_change_over(df, "1M"),
-            "6M": pct_change_over(df, "6M"),
-            "1Y": pct_change_over(df, "1Y"),
+            label: pct_change_over_live(
+                df=df,
+                label=label,
+                latest_value=current_market_value,
+                previous_close=live_previous_close,
+            )
+            for label in (
+                "1D",
+                "1W",
+                "1M",
+                "6M",
+                "1Y",
+            )
         }
 
     # -----------------------------------------------------

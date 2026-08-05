@@ -2183,6 +2183,32 @@ def render_research_workspace_page() -> None:
     score_label = _score_interpretation(
         idea.directional_score
     )
+    
+    selected_asset = next(
+        asset
+        for asset in available_assets
+        if asset.key == selected_asset_key
+    )
+
+    is_fx_asset = selected_asset.asset_class == "FX"
+
+    if idea.model_direction == "Neutral":
+        macro_direction_description = (
+            "Current macro drivers are broadly balanced and do not "
+            "produce a clear directional bias."
+        )
+
+    elif is_fx_asset:
+        macro_direction_description = (
+            "The relative macroeconomic backdrop currently favours "
+            "one side of the currency pair."
+        )
+
+    else:
+        macro_direction_description = (
+            "The current macro factor balance supports the model's "
+            "directional view for this asset."
+        )    
 
     _html(
         f"""
@@ -2216,8 +2242,7 @@ def render_research_workspace_page() -> None:
                     </strong>
 
                     <p>
-                        The relative economic backdrop currently
-                        favours one side of the currency pair.
+                        {macro_direction_description}
                     </p>
                 </div>
 

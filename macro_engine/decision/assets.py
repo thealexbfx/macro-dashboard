@@ -73,6 +73,82 @@ ASSET_REGISTRY["gold"] = DecisionAsset(
     ),
 )
 
+sp500_config = get_cross_asset_config(
+    "sp500"
+)
+
+ASSET_REGISTRY["sp500"] = DecisionAsset(
+    key=sp500_config.key,
+    display_name=sp500_config.display_name,
+    asset_class=sp500_config.asset_class,
+    default_horizon_months=(
+        sp500_config.default_horizon_months
+    ),
+    builder=(
+        lambda horizon_months: build_cross_asset_workspace(
+            asset_key="sp500",
+            horizon_months=horizon_months,
+        )
+    ),
+)
+
+us10y_config = get_cross_asset_config(
+    "us10y"
+)
+
+ASSET_REGISTRY["us10y"] = DecisionAsset(
+    key=us10y_config.key,
+    display_name=us10y_config.display_name,
+    asset_class=us10y_config.asset_class,
+    default_horizon_months=(
+        us10y_config.default_horizon_months
+    ),
+    builder=(
+        lambda horizon_months: build_cross_asset_workspace(
+            asset_key="us10y",
+            horizon_months=horizon_months,
+        )
+    ),
+)
+
+wti_config = get_cross_asset_config(
+    "wti"
+)
+
+ASSET_REGISTRY["wti"] = DecisionAsset(
+    key=wti_config.key,
+    display_name=wti_config.display_name,
+    asset_class=wti_config.asset_class,
+    default_horizon_months=(
+        wti_config.default_horizon_months
+    ),
+    builder=(
+        lambda horizon_months: build_cross_asset_workspace(
+            asset_key="wti",
+            horizon_months=horizon_months,
+        )
+    ),
+)
+
+dxy_config = get_cross_asset_config(
+    "dxy"
+)
+
+ASSET_REGISTRY["dxy"] = DecisionAsset(
+    key=dxy_config.key,
+    display_name=dxy_config.display_name,
+    asset_class=dxy_config.asset_class,
+    default_horizon_months=(
+        dxy_config.default_horizon_months
+    ),
+    builder=(
+        lambda horizon_months: build_cross_asset_workspace(
+            asset_key="dxy",
+            horizon_months=horizon_months,
+        )
+    ),
+)
+
 def get_available_assets() -> tuple[
     DecisionAsset,
     ...,

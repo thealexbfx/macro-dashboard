@@ -1,0 +1,19 @@
+{
+  "asset_key": "usdjpy",
+  "display_name": "USD/JPY",
+  "snapshot_date": "2026-08-04",
+  "created_at": "2026-08-04T19:33:51.004750",
+  "macro_direction": "Bullish",
+  "directional_score": 0.17618,
+  "model_confidence": 0.8778,
+  "model_conviction": 0.4104,
+  "historical_support": "Limited",
+  "current_price": 157.5290069580078,
+  "price_trend": "Range-bound / Mixed",
+  "momentum": "Neutral",
+  "volatility_state": "Normal",
+  "alignment": "Mixed",
+  "pricing_status": "Unclear",
+  "decision_stance": "REVIEW",
+  "thesis": "The current relative macro backdrop favours United States over Japan. This produces a provisional bullish bias for USD/JPY over a 3-month horizon."
+}

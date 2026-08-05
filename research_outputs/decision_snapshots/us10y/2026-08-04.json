@@ -1,0 +1,19 @@
+{
+  "asset_key": "us10y",
+  "display_name": "US 10Y",
+  "snapshot_date": "2026-08-04",
+  "created_at": "2026-08-04T19:46:41.688495",
+  "macro_direction": "Bullish",
+  "directional_score": 0.29445522550300496,
+  "model_confidence": 0.889,
+  "model_conviction": 0.4303,
+  "historical_support": "Limited",
+  "current_price": 4.626999855041504,
+  "price_trend": "Uptrend",
+  "momentum": "Bullish",
+  "volatility_state": "Low",
+  "alignment": "Confirmed",
+  "pricing_status": "Partly Reflected",
+  "decision_stance": "READY FOR REVIEW",
+  "thesis": "The combined US 10Y factor model currently produces a provisional bullish yield bias over a 3-month horizon. Inflation, policy, growth, liquidity and macro quality are assessed together."
+}

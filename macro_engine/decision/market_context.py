@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from macro_engine.decision.fx_config import get_fx_config
-
+import yfinance as yf
 from dataclasses import dataclass
 from datetime import date, timedelta
 
@@ -17,6 +17,56 @@ from data.yahoo import get_fx_data_yahoo
 
 TRADING_DAYS_PER_YEAR = 252
 
+@dataclass(frozen=True)
+class LiveQuote:
+    current_price: float | None
+    previous_close: float | None
+
+
+def load_live_quote(
+    ticker: str,
+) -> LiveQuote:
+    """
+    Load Yahoo's latest available quote and previous session close.
+
+    The function safely returns None values when Yahoo does not provide
+    a usable live quote, allowing the caller to fall back to daily data.
+    """
+    try:
+        fast_info = dict(
+            yf.Ticker(ticker).fast_info
+        )
+    except Exception:
+        return LiveQuote(
+            current_price=None,
+            previous_close=None,
+        )
+
+    last_price = fast_info.get("lastPrice")
+    previous_close = fast_info.get("previousClose")
+
+    try:
+        resolved_current_price = (
+            float(last_price)
+            if last_price is not None
+            else None
+        )
+    except (TypeError, ValueError):
+        resolved_current_price = None
+
+    try:
+        resolved_previous_close = (
+            float(previous_close)
+            if previous_close is not None
+            else None
+        )
+    except (TypeError, ValueError):
+        resolved_previous_close = None
+
+    return LiveQuote(
+        current_price=resolved_current_price,
+        previous_close=resolved_previous_close,
+    )
 
 @dataclass(frozen=True)
 class MarketContext:
@@ -104,6 +154,30 @@ def _safe_return(
 
     return latest / previous - 1.0
 
+
+def _safe_live_return(
+    *,
+    current_price: float,
+    previous_close: float | None,
+    fallback_prices: pd.Series,
+) -> float | None:
+    """
+    Calculate the current session return using Yahoo's previous session
+    close. Fall back to the two latest daily observations when needed.
+    """
+    if (
+        previous_close is not None
+        and previous_close != 0
+    ):
+        return (
+            current_price / previous_close
+            - 1.0
+        )
+
+    return _safe_return(
+        fallback_prices,
+        1,
+    )
 
 def _safe_average(
     prices: pd.Series,
@@ -234,12 +308,40 @@ def build_market_context(
             f"Not enough market history is available for {asset}."
         )
 
-    current_price = float(prices.iloc[-1])
+    live_quote = load_live_quote(
+        ticker
+    )
 
-    daily_return = _safe_return(prices, 1)
-    weekly_return = _safe_return(prices, 5)
-    monthly_return = _safe_return(prices, 21)
-    quarterly_return = _safe_return(prices, 63)
+    historical_latest_price = float(
+        prices.iloc[-1]
+    )
+
+    current_price = (
+        live_quote.current_price
+        if live_quote.current_price is not None
+        else historical_latest_price
+    )
+
+    daily_return = _safe_live_return(
+        current_price=current_price,
+        previous_close=live_quote.previous_close,
+        fallback_prices=prices,
+    )
+
+    weekly_return = _safe_return(
+        prices,
+        5,
+    )
+
+    monthly_return = _safe_return(
+        prices,
+        21,
+    )
+
+    quarterly_return = _safe_return(
+        prices,
+        63,
+    )
 
     ma20 = _safe_average(prices, 20)
     ma50 = _safe_average(prices, 50)

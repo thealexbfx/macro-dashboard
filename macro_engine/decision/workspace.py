@@ -48,8 +48,21 @@ from macro_engine.decision.market_context import (
     build_cross_asset_market_context,
 )
 
+from macro_engine.decision.cross_asset.sp500 import (
+    build_sp500_research_idea,
+)
 
+from macro_engine.decision.cross_asset.us10y import (
+    build_us10y_research_idea,
+)
 
+from macro_engine.decision.cross_asset.wti import (
+    build_wti_research_idea,
+)
+
+from macro_engine.decision.cross_asset.dxy import (
+    build_dxy_research_idea,
+)
 
 @dataclass(frozen=True)
 class DecisionFramework:
@@ -82,6 +95,27 @@ def build_cross_asset_workspace(
         idea = build_gold_research_idea(
             horizon_months=horizon_months,
         )
+
+    elif asset_key == "sp500":
+        idea = build_sp500_research_idea(
+            horizon_months=horizon_months,
+        )
+
+    elif asset_key == "us10y":
+        idea = build_us10y_research_idea(
+            horizon_months=horizon_months,
+        )
+
+    elif asset_key == "wti":
+        idea = build_wti_research_idea(
+            horizon_months=horizon_months,
+        )
+        
+    elif asset_key == "dxy":
+        idea = build_dxy_research_idea(
+            horizon_months=horizon_months,
+        )
+
     else:
         raise ValueError(
             f"No cross-asset research model exists yet for "
@@ -121,6 +155,17 @@ def build_cross_asset_workspace(
         horizon_months=horizon_months,
         primary_name="US",
         secondary_name=config.display_name,
+        outcome_unit=(
+            "basis_points"
+            if asset_key == "us10y"
+            else "percent"
+        ),
+        outcome_name=(
+            "yield change"
+            if asset_key == "us10y"
+            else "return"
+        ),
+        require_exact_pair=False,
     )
 
     decision = build_decision_framework(

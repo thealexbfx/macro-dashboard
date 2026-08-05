@@ -1,0 +1,19 @@
+{
+  "asset_key": "dxy",
+  "display_name": "DXY",
+  "snapshot_date": "2026-08-04",
+  "created_at": "2026-08-04T19:53:37.006956",
+  "macro_direction": "Bullish",
+  "directional_score": 0.24470647060360595,
+  "model_confidence": 0.889,
+  "model_conviction": 0.4303,
+  "historical_support": "Limited",
+  "current_price": 99.84200286865234,
+  "price_trend": "Range-bound / Mixed",
+  "momentum": "Neutral",
+  "volatility_state": "Low",
+  "alignment": "Mixed",
+  "pricing_status": "Unclear",
+  "decision_stance": "REVIEW",
+  "thesis": "The combined DXY factor model currently produces a provisional bullish dollar bias over a 3-month horizon. US growth, policy, inflation, liquidity and macro quality are assessed together."
+}

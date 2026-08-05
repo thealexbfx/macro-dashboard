@@ -26,6 +26,9 @@ class HistoricalContext:
     assessment_label: str
     assessment: str
 
+    outcome_unit: str = "percent"
+    outcome_name: str = "return"
+
     def to_text(self) -> str:
         lines = [
             f"Historical Context — {self.horizon_months}M",
@@ -44,12 +47,14 @@ class HistoricalContext:
 
             if item.average_return is not None:
                 lines.append(
-                    f"Average return: {item.average_return:+.1%}"
+                    f"Average {self.outcome_name}: "
+                    f"{_format_outcome(item.average_return, self.outcome_unit)}"
                 )
 
             if item.median_return is not None:
                 lines.append(
-                    f"Median return: {item.median_return:+.1%}"
+                    f"Median {self.outcome_name}: "
+                    f"{_format_outcome(item.median_return, self.outcome_unit)}"
                 )
 
             if item.up_rate is not None:
@@ -86,6 +91,19 @@ def _confidence_label(observations: int) -> str:
 
     return "Very limited sample"
 
+def _format_outcome(
+    value: float | None,
+    unit: str,
+) -> str:
+    if value is None:
+        return "N/A"
+
+    if unit == "basis_points":
+        return f"{value:+.1f} bp"
+
+    return f"{value:+.1%}"
+
+
 
 def build_historical_context(
     *,
@@ -94,6 +112,9 @@ def build_historical_context(
     horizon_months: int,
     primary_name: str,
     secondary_name: str,
+    outcome_unit: str = "percent",
+    outcome_name: str = "return",
+    require_exact_pair: bool = True,
 ) -> HistoricalContext:
     items = tuple(
         HistoricalContextItem(
@@ -186,7 +207,7 @@ def build_historical_context(
                 "provide a strong directional conclusion."
             )
 
-    if exact_pair is None:
+    if require_exact_pair and exact_pair is None:
         assessment += (
             " No exact historical match is available for the current "
             f"{primary_name} and {secondary_name} environment combination."
@@ -197,4 +218,6 @@ def build_historical_context(
         items=items,
         assessment_label=assessment_label,
         assessment=assessment,
+        outcome_unit=outcome_unit,
+        outcome_name=outcome_name,
     )

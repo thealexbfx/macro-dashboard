@@ -1,0 +1,19 @@
+{
+  "asset_key": "wti",
+  "display_name": "WTI",
+  "snapshot_date": "2026-08-04",
+  "created_at": "2026-08-04T19:50:21.443202",
+  "macro_direction": "Bullish",
+  "directional_score": 0.20736526469819705,
+  "model_confidence": 0.889,
+  "model_conviction": 0.4303,
+  "historical_support": "Limited",
+  "current_price": 75.33999633789062,
+  "price_trend": "Downtrend",
+  "momentum": "Neutral",
+  "volatility_state": "High",
+  "alignment": "Divergent",
+  "pricing_status": "Not Yet Confirmed",
+  "decision_stance": "WATCH",
+  "thesis": "The combined WTI factor model currently produces a provisional bullish bias over a 3-month horizon. Growth demand, inflation momentum, liquidity, policy conditions and macro quality are assessed together."
+}
