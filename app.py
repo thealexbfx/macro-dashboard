@@ -1,4 +1,11 @@
 import streamlit as st
+st.set_page_config(
+    page_title="MacroLens Research",
+    page_icon="logo_favicon.png",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+    menu_items={}
+)
 import pandas as pd
 import plotly.express as px
 import datetime as dt
@@ -23,20 +30,22 @@ from app_pages.japan import render_japan_page
 from app_pages.uk import render_uk_page
 from app_pages.euro import render_euro_page
 
-
-
-IS_PROD = os.getenv("APP_ENV", "dev") == "prod"
+load_dotenv()  # loads .env file
+APP_ENV = os.getenv("APP_ENV", "prod").lower()
+IS_PROD = APP_ENV == "prod"
 if IS_PROD:
     st.set_option("client.showErrorDetails", False)
 
 def safe_render(render_func, section_name):
     try:
         render_func()
-    except Exception as e:
+    except Exception:
         if IS_PROD:
-            st.error(f"{section_name} is temporarily unavailable. Please try again later.")
+            st.error(
+                f"{section_name} is temporarily unavailable. Please try again later."
+            )
         else:
-            st.exception(e)
+            raise
 
 
 from app_pages.research.active_ideas import (
@@ -189,7 +198,6 @@ from app_pages.rates_bonds import render_rates_bonds_page
 
 from app_pages.crypto import render_crypto_page
 
-load_dotenv()  # loads .env file
 
 FRED_API_KEY = os.getenv("FRED_API_KEY")
 ESTAT_API_KEY = os.getenv("ESTAT_API_KEY")
@@ -201,12 +209,16 @@ BEA_API_KEY = os.getenv("BEA_API_KEY")
 # Initialize OpenAI client
 # ------------------------------
 try:
-    # Prefer Streamlit secrets if available
     OPENAI_API_KEY = st.secrets["openai"]["api_key"]
 except Exception:
-    # fallback to .env
     if not OPENAI_API_KEY:
-        st.error("❌ OpenAI API key not found! Set it in .env or Streamlit secrets.")
+        if IS_PROD:
+            st.error("The application is temporarily unavailable.")
+        else:
+            st.error(
+                "OpenAI API key not found. "
+                "Set it in .env or Streamlit secrets."
+            )
         st.stop()
 # ------------------------------
 # Load BLS API key
@@ -754,19 +766,11 @@ from components.layout import (
     render_top_strip,
 )
 
-st.set_page_config(
-    page_title="MacroLens Research",
-    page_icon="logo_favicon.png",
-    layout="wide",
-    initial_sidebar_state="collapsed",
-    menu_items={}
-)
+inject_global_css()
 
 components.html("""
 <script defer src="https://cloud.umami.is/script.js" data-website-id="4fd6c49f-bf1f-4823-870d-31e2ffe75961"></script>
 """, height=0)
-
-inject_global_css()
 
 page = st.query_params.get("page", "Home")
 
