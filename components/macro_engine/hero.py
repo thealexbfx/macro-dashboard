@@ -31,34 +31,6 @@ def _render_metric_card(
 
 
 def render_environment_hero(result: Any) -> None:
-    economy_title = (
-        "United States"
-        if result.economy.upper() == "USA"
-        else result.economy
-    )
-
-    header_html = (
-        '<div class="ml-engine-header">'
-        '<div class="ml-engine-eyebrow">'
-        f"{escape(result.economy)} · Macro Engine"
-        "</div>"
-        '<h1 class="ml-engine-title">'
-        f"{escape(economy_title)} Macro Environment"
-        "</h1>"
-        '<div class="ml-engine-description">'
-        "The Macro Engine organizes economic data into an objective "
-        "assessment of the current macroeconomic environment. It presents "
-        "model classifications, confidence and supporting evidence while "
-        "leaving investment interpretation to the Research section."
-        "</div>"
-        "</div>"
-    )
-
-    st.markdown(
-        header_html,
-        unsafe_allow_html=True,
-    )
-
     hero_html = (
         '<div class="ml-environment-hero">'
         '<div class="ml-environment-badge">'

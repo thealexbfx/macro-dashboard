@@ -25,7 +25,24 @@ from components.macro_engine.pillar_grid import (
 from components.macro_engine.validation.renderer import (
     render_validation,
 )
+from components.page_intro import render_page_intro
 from styles.macro_engine import inject_macro_engine_css
+
+
+def _economy_display_name(economy: Any) -> str:
+    normalized = str(economy).strip().casefold()
+
+    return {
+        "usa": "United States",
+        "us": "United States",
+        "united states": "United States",
+        "euro": "Euro Area",
+        "euro area": "Euro Area",
+        "euro_area": "Euro Area",
+        "uk": "United Kingdom",
+        "united kingdom": "United Kingdom",
+        "japan": "Japan",
+    }.get(normalized, str(economy))
 
 
 def render_historical_explorer_link(
@@ -70,6 +87,25 @@ def render_macro_environment_overview(
     results. It performs no engine calculations.
     """
     inject_macro_engine_css()
+
+    economy_name = _economy_display_name(
+        result.economy,
+    )
+
+    render_page_intro(
+       title=f"{economy_name} Macro Engine",
+        description=(
+            f"Understand the current state of the {economy_name} economy "
+            "through Growth, Inflation, Labour, Liquidity and Policy. "
+            "These five pillars combine to determine the current macro "
+            "environment shown by MacroLens."
+        ),
+        guide=(
+            "Begin with the environment summary, then review the five "
+            "pillars to understand which parts of the economy are supporting "
+            "or challenging the current classification."
+        ),
+    )
 
     render_environment_hero(result)
 

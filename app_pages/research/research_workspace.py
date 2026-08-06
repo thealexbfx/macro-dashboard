@@ -9,7 +9,7 @@ from macro_engine.decision.assets import (
     get_available_assets,
 )
 from macro_engine.decision.workspace import DecisionWorkspaceResult
-
+from components.page_intro import render_page_intro
 from macro_engine.decision.historical_context import (
     HistoricalContext,
 )
@@ -2038,6 +2038,21 @@ def _render_research_limitations(
 
 def render_research_workspace_page() -> None:
     _inject_research_workspace_css()
+    
+    render_page_intro(
+        title="Research Workspace",
+        description=(
+            "Explore why MacroLens currently has a bullish, bearish or neutral "
+            "view on an asset. Review the supporting macro evidence, market "
+            "behaviour and historical context before reaching your own conclusion."
+        ),
+        guide=(
+            "Select an asset class, asset and research horizon. Then follow the "
+            "workspace from the current macro view through market confirmation, "
+            "historical evidence and the final system stance."
+        ),
+        max_width=1180,
+    )
 
     available_assets = get_available_assets()
 
@@ -2147,31 +2162,6 @@ def render_research_workspace_page() -> None:
 
     direction_class = _direction_class(
         idea.model_direction
-    )
-
-    _html(
-        f"""
-        <div class="ml-research-page-header">
-            <div class="ml-research-title">
-                {workspace.display_name} Research Idea
-            </div>
-
-            <div class="ml-research-subtitle">
-                A structured assessment of macro conditions, market
-                behaviour and historical evidence.
-            </div>
-
-            <div class="ml-research-reading-path">
-                Macro View
-                <span>→</span>
-                Market Confirmation
-                <span>→</span>
-                Historical Evidence
-                <span>→</span>
-                System Stance
-            </div>
-        </div>
-        """
     )
 
     _render_snapshot_update(

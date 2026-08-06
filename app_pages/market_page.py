@@ -13,6 +13,8 @@ from macro_engine.decision.market_context import (
     load_live_quote,
 )
 
+from components.page_intro import render_page_intro
+
 # =========================================================
 # DATE HELPERS
 # =========================================================
@@ -1280,6 +1282,69 @@ def build_rolling_volatility_chart(
 # PAGE
 # =========================================================
 
+MARKET_PAGE_INTROS = {
+    "fx": {
+        "title": "Foreign Exchange",
+        "description": (
+            "Explore currency markets through the relative economic, "
+            "inflation and policy conditions of different economies."
+        ),
+        "guide": (
+            "Select a currency pair, review its historical price behaviour "
+            "and use the comparison tools to examine relative performance, "
+            "volatility and market relationships."
+        ),
+    },
+    "equities": {
+        "title": "Equities",
+        "description": (
+            "Explore major equity indices and how their performance relates "
+            "to economic growth, liquidity, inflation and market risk appetite."
+        ),
+        "guide": (
+            "Select an equity index, review its price trend and use the "
+            "comparison tools to evaluate relative performance, volatility "
+            "and drawdowns."
+        ),
+    },
+    "commodity": {
+        "title": "Commodities",
+        "description": (
+            "Explore major commodity markets and the economic forces "
+            "influencing global demand, supply conditions and inflation."
+        ),
+        "guide": (
+            "Select a commodity, review its historical price behaviour and "
+            "compare it with other markets to identify trends, divergences "
+            "and changing relationships."
+        ),
+    },
+    "rates_bonds": {
+        "title": "Rates & Bonds",
+        "description": (
+            "Explore government bond yields and interest rate markets that "
+            "reflect expectations for growth, inflation and central-bank policy."
+        ),
+        "guide": (
+            "Select a yield or bond market, review its movement through time "
+            "and use the comparison tools to examine yield spreads and "
+            "relationships with other markets."
+        ),
+    },
+    "crypto": {
+        "title": "Crypto",
+        "description": (
+            "Explore major crypto assets alongside liquidity, risk appetite "
+            "and broader financial-market conditions."
+        ),
+        "guide": (
+            "Select a crypto asset, review its historical price behaviour "
+            "and compare its performance, volatility and drawdowns with "
+            "other markets."
+        ),
+    },
+}
+
 def render_market_page(
     market_map,
     category_map,
@@ -1335,6 +1400,27 @@ def render_market_page(
         unsafe_allow_html=True,
     )
 
+    intro = MARKET_PAGE_INTROS.get(
+        page_key,
+        {
+            "title": "Market Data",
+            "description": (
+                "Explore the prices, trends and historical behaviour of "
+                "financial markets monitored by MacroLens."
+            ),
+            "guide": (
+                "Select an asset, review its historical price behaviour "
+                "and use the comparison tools to examine market context."
+            ),
+        },
+    )
+
+    render_page_intro(
+        title=intro["title"],
+        description=intro["description"],
+        guide=intro["guide"],
+        max_width=1180,
+    )
     # =========================================================
     # COMMODITY HEADER
     # =========================================================

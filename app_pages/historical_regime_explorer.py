@@ -12,6 +12,8 @@ from macro_engine.historical.report import (
     build_historical_regime_report,
 )
 
+from components.page_intro import render_page_intro
+
 from macro_engine.utils.timing import log_runtime
 
 
@@ -849,29 +851,21 @@ def format_ratio(value: object) -> str:
 
 
 def render_header() -> None:
-    _html(
-        """
-        <div class="hre-page-header">
-            <div class="hre-title">
-                Historical Regime Explorer
-            </div>
-
-            <div class="hre-subtitle">
-                Explore how major assets performed after comparable
-                macro environments appeared historically.
-            </div>
-
-            <div class="hre-reading-path">
-                Regime Summary
-                <span>→</span>
-                Cross-Asset Outcomes
-                <span>→</span>
-                Historical Episodes
-                <span>→</span>
-                Episode Detail
-            </div>
-        </div>
-        """
+    render_page_intro(
+        title="Historical Regime Explorer",
+        description=(
+            "Explore how major assets performed after comparable macro "
+            "environments appeared historically. Use the results to understand "
+            "how often each regime occurred, how long it lasted and what "
+            "followed across different markets."
+        ),
+        guide=(
+            "Choose a macro environment, begin with the regime summary, then "
+            "compare cross-asset outcomes and inspect the individual historical "
+            "episodes behind the averages. Treat the results as historical "
+            "context rather than a forecast."
+        ),
+        max_width=1180,
     )
 
 

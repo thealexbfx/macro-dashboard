@@ -7,6 +7,7 @@ import streamlit as st
 from app_pages.market_utils import filter_by_dates
 from components.research.research_page import render_research_page
 
+from components.page_intro import render_page_intro
 
 ANALYSIS_OPTIONS = [
     "Level",
@@ -726,13 +727,6 @@ def render_economy_page(
             margin-bottom: 0.35rem; color: #64748B; font-size: 0.72rem;
             font-weight: 700; letter-spacing: 0.10em;
         }
-        .ml-economy-title-wrap {
-            min-height: 66px; display: flex; align-items: center; justify-content: center;
-        }
-        .ml-economy-title {
-            color: #0F172A; font-size: 2.0rem; font-weight: 750;
-            line-height: 1.1; text-align: center;
-        }
         .ml-economy-description {
             max-width: 980px; margin: 0.25rem auto 1rem auto; color: #475569;
             font-size: 0.98rem; line-height: 1.55; text-align: center;
@@ -759,13 +753,16 @@ def render_economy_page(
         unsafe_allow_html=True,
     )
 
-    _, title_col, _ = st.columns([2.2, 5.6, 2.2], gap="medium")
-    with title_col:
-        st.markdown(
-            f"<div class='ml-economy-title-wrap'><div class='ml-economy-title'>{country_name}</div></div>",
-            unsafe_allow_html=True,
-        )
-
+    render_page_intro(
+        title=f"{country_name} Economy",
+        description=page_description,
+        guide=(
+            "Select an indicator to explore its latest reading, historical trend "
+            "and supporting data. These pages explain the economic evidence that "
+            "feeds the Macro Engine rather than providing investment signals."
+        ),
+    )
+    
     selector_col, _ = st.columns([3.2, 6.8], gap="medium")
     with selector_col:
         st.markdown("<div class='ml-economy-select-label'>SELECT CATEGORY</div>", unsafe_allow_html=True)

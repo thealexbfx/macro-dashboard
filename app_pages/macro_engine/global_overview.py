@@ -7,6 +7,8 @@ from typing import Callable
 
 import streamlit as st
 
+from components.page_intro import render_page_intro
+
 from app_pages.macro_engine.loaders import (
     CACHE_TTL_SECONDS,
     JAPAN_HISTORY_START_DATE,
@@ -772,6 +774,22 @@ def _resources_html(
 
 def render_macro_engine_global_page() -> None:
     inject_macro_engine_css()
+    
+    render_page_intro(
+        title="Global Macro Monitor",
+        description=(
+            "Compare the current macroeconomic environment across the "
+            "United States, Euro Area, United Kingdom and Japan. Use this "
+            "page to identify where growth, inflation, liquidity and policy "
+            "conditions are strengthening, weakening or diverging."
+        ),
+        guide=(
+            "Begin with the Morning Brief, compare the four economy cards, "
+            "then open an individual economy when you want to review the "
+            "underlying pillars, evidence and historical context."
+        ),
+        max_width=1180,
+    )
 
     with st.spinner(
         "Loading macro environments..."
@@ -790,15 +808,6 @@ def render_macro_engine_global_page() -> None:
     st.html(
         f"""
         <main class="ml-global-dashboard">
-            <section class="ml-overview-hero">
-                <h1>Global Macro Monitor</h1>
-
-                <p>
-                    A comparative view of current macroeconomic conditions
-                    across the United States, Euro Area, United Kingdom
-                    and Japan.
-                </p>
-            </section>
             {_morning_brief_html(loads, results)}
             {_scoreboard_html(loads, results)}
             {_comparison_html(loads, results)}

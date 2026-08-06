@@ -4,6 +4,7 @@ from datetime import date
 from textwrap import dedent
 
 import streamlit as st
+from components.page_intro import render_page_intro
 
 from macro_engine.decision.active_ideas import (
     ActiveIdea,
@@ -1229,6 +1230,23 @@ def _render_todays_changes(
 
 def render_active_ideas_page() -> None:
     _inject_active_ideas_css()
+    
+    render_page_intro(
+        title="Active Ideas",
+        description=(
+            "See which monitored markets have experienced meaningful changes "
+            "in macro conditions, price behaviour or research status. This page "
+            "highlights assets that deserve further review rather than providing "
+            "automatic trading signals."
+        ),
+        guide=(
+            "Start with Today's Changes to see which assets require attention. "
+            "Then open the Research Workspace to understand what changed, why it "
+            "matters and whether the current macro view still aligns with market "
+            "behaviour."
+        ),
+        max_width=1120,
+    )
 
     available_assets = get_available_assets()
 
@@ -1239,25 +1257,6 @@ def render_active_ideas_page() -> None:
         }
     )
 
-    # ---------------------------------------------------------
-    # Page header
-    # ---------------------------------------------------------
-
-    _html(
-        """
-        <div class="ml-active-page-header">
-            <div class="ml-active-page-title">
-                Active Ideas
-            </div>
-
-            <div class="ml-active-page-subtitle">
-                A prioritized view of monitored assets, recent model
-                changes and the current research states that may
-                require further review.
-            </div>
-        </div>
-        """
-    )
 
     # ---------------------------------------------------------
     # Compact centered controls
