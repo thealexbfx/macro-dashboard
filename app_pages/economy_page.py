@@ -238,9 +238,27 @@ def format_change(value, meta):
     return format_value(value, meta, include_sign=True)
 
 
-def hover_template(name, decimals=2, suffix=""):
+def hover_template(name, decimals=2, suffix="", meta=None):
+    frequency = (meta or {}).get("frequency", "monthly").lower()
+
+    if frequency in {"daily", "weekly"}:
+        date_format = "%b %d, %Y"
+    elif frequency == "quarterly":
+        date_format = None
+    elif frequency == "annual":
+        date_format = "%Y"
+    else:
+        date_format = "%b %Y"
+
+    if frequency == "quarterly":
+        return (
+            "<b>%{customdata}</b><br>"
+            f"<b>{name}</b>&nbsp;&nbsp;%{{y:,.{decimals}f}}{suffix}"
+            "<extra></extra>"
+        )
+
     return (
-        "<b>%{x|%b %d, %Y}</b><br>"
+        f"<b>%{{x|{date_format}}}</b><br>"
         f"<b>{name}</b>&nbsp;&nbsp;%{{y:,.{decimals}f}}{suffix}"
         "<extra></extra>"
     )
@@ -432,8 +450,20 @@ def build_economy_chart(
             x=df["date"],
             y=df["value"],
             name=name,
-            hovertemplate=hover_template(name, decimals, suffix),
+            hovertemplate=hover_template(
+                name,
+                decimals,
+                suffix,
+                meta,
+            ),
         )
+        if meta.get("frequency", "").lower() == "quarterly":
+            common["customdata"] = (
+                "Q"
+                + df["date"].dt.quarter.astype(str)
+                + " "
+                + df["date"].dt.year.astype(str)
+            )
         if yaxis:
             common["yaxis"] = yaxis
 
@@ -543,7 +573,6 @@ def build_economy_chart(
             ticks="outside",
             tickcolor="#111827",
             ticklen=5,
-            hoverformat="%b %d, %Y",
             fixedrange=True,
         ),
         yaxis=dict(
