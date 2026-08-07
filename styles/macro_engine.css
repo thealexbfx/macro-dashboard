@@ -1252,9 +1252,9 @@ h2 {
 
 .ml-overview-profile-head {
     display: grid;
-    grid-template-columns: 64px minmax(42px, 1fr) 72px;
+    grid-template-columns: 82px minmax(30px, 1fr) minmax(62px, auto);
     align-items: end;
-    gap: 7px;
+    column-gap: 5px;
     margin-top: 13px;
     color: #64748b;
     font-size: 9px;
@@ -1281,9 +1281,36 @@ h2 {
 
 .ml-overview-pillar-row {
     display: grid;
-    grid-template-columns: 64px minmax(42px, 1fr) 72px;
+    grid-template-columns: 82px minmax(30px, 1fr) minmax(62px, auto);
     align-items: center;
-    gap: 7px;
+    column-gap: 5px;
+    width: 100%;
+    min-width: 0;
+}
+
+.ml-overview-pillar-row > span:first-child {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    min-width: 0;
+    white-space: nowrap;
+}
+
+.ml-overview-pillar-row > span:first-child .ml-help-anchor {
+    flex: 0 0 14px;
+    margin-left: 0;
+}
+
+.ml-overview-pillar-track {
+    width: 100%;
+    min-width: 0;
+}
+
+.ml-overview-pillar-row > strong {
+    min-width: 0;
+    white-space: nowrap;
+    text-align: right;
+    font-size: 11px;
 }
 
 .ml-overview-pillar-row > span {

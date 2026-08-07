@@ -8,6 +8,11 @@ from typing import Callable
 import streamlit as st
 
 from components.page_intro import render_page_intro
+from components.help_text import (
+    environment_help,
+    help_text,
+    tooltip_html,
+)
 
 from app_pages.macro_engine.loaders import (
     CACHE_TTL_SECONDS,
@@ -235,6 +240,521 @@ def _direction_mark(direction: str) -> str:
         return "↓"
     return "→"
 
+def _inject_help_tooltip_css() -> None:
+    st.markdown(
+        """
+        <style>
+        /*
+        ------------------------------------------------------------
+        Shared tooltip styles
+        ------------------------------------------------------------
+        */
+
+        .ml-help-label {
+            display: inline;
+        }
+
+        .ml-help-anchor {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            margin-left: 0.28rem;
+            vertical-align: 0.08em;
+
+            cursor: help;
+            outline: none;
+        }
+
+        .ml-help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 15px;
+            height: 15px;
+            flex: 0 0 15px;
+
+            padding: 0;
+            margin: 0;
+
+            border: 1px solid #9aabba;
+            border-radius: 50%;
+            background: #ffffff;
+
+            color: #607086;
+            font-family: inherit;
+            font-size: 0.62rem;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+        }
+
+        .ml-help-tooltip {
+            position: absolute;
+            z-index: 9999;
+
+            left: 50%;
+            bottom: calc(100% + 9px);
+            transform: translateX(-50%);
+
+            display: block;
+            width: 230px;
+            min-width: 230px;
+            height: auto;
+
+            margin: 0;
+            padding: 0.65rem 0.75rem;
+
+            border: 1px solid #cfd8e3;
+            border-radius: 8px;
+            background: #10233f;
+
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.74rem;
+            font-weight: 500;
+            line-height: 1.45;
+            letter-spacing: normal;
+            text-align: left;
+            text-transform: none;
+            white-space: normal;
+
+            box-shadow: 0 10px 24px rgba(15, 35, 63, 0.18);
+
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+
+            transition:
+                opacity 120ms ease,
+                transform 120ms ease,
+                visibility 120ms ease;
+        }
+
+        .ml-help-tooltip::after {
+            content: "";
+            position: absolute;
+
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+
+            width: 0;
+            height: 0;
+
+            border-width: 6px;
+            border-style: solid;
+            border-color: #10233f transparent transparent transparent;
+        }
+
+        .ml-help-anchor:hover .ml-help-tooltip,
+        .ml-help-anchor:focus .ml-help-tooltip,
+        .ml-help-anchor:focus-within .ml-help-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-2px);
+        }
+
+
+        /*
+        ------------------------------------------------------------
+        Economy card tooltips near the right side
+        ------------------------------------------------------------
+        */
+
+        .ml-overview-economy:nth-child(3) .ml-help-tooltip,
+        .ml-overview-economy:nth-child(4) .ml-help-tooltip {
+            left: auto;
+            right: -8px;
+            transform: none;
+        }
+
+        .ml-overview-economy:nth-child(3) .ml-help-tooltip::after,
+        .ml-overview-economy:nth-child(4) .ml-help-tooltip::after {
+            left: auto;
+            right: 10px;
+            transform: none;
+        }
+
+        .ml-overview-economy:nth-child(3)
+        .ml-help-anchor:hover
+        .ml-help-tooltip,
+        .ml-overview-economy:nth-child(3)
+        .ml-help-anchor:focus
+        .ml-help-tooltip,
+        .ml-overview-economy:nth-child(3)
+        .ml-help-anchor:focus-within
+        .ml-help-tooltip,
+        .ml-overview-economy:nth-child(4)
+        .ml-help-anchor:hover
+        .ml-help-tooltip,
+        .ml-overview-economy:nth-child(4)
+        .ml-help-anchor:focus
+        .ml-help-tooltip,
+        .ml-overview-economy:nth-child(4)
+        .ml-help-anchor:focus-within
+        .ml-help-tooltip {
+            transform: translateY(-2px);
+        }
+
+
+        /*
+        ------------------------------------------------------------
+        Macro-profile pillar labels
+        Growth, Inflation, Labor, Liquidity and Policy
+        ------------------------------------------------------------
+        */
+
+        .ml-overview-economy,
+        .ml-overview-card-metrics,
+        .ml-overview-pillars,
+        .ml-overview-pillar-row,
+        .ml-overview-pillar-row > span:first-child {
+            overflow: visible !important;
+        }
+
+        .ml-overview-pillar-row > span:first-child {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.24rem;
+
+            min-width: 0;
+            white-space: nowrap;
+        }
+
+        .ml-overview-pillar-row > span:first-child .ml-help-label {
+            display: inline;
+        }
+
+        .ml-overview-pillar-row > span:first-child .ml-help-anchor {
+            position: relative;
+
+            width: 14px;
+            height: 14px;
+            flex: 0 0 14px;
+
+            margin-left: 0;
+            vertical-align: 0;
+        }
+
+        .ml-overview-pillar-row > span:first-child .ml-help-icon {
+            width: 14px;
+            height: 14px;
+            min-width: 14px;
+            flex: 0 0 14px;
+
+            font-family: inherit;
+            font-size: 0.58rem;
+        }
+
+        /*
+        Pillar icons sit near the left side of each card.
+
+        Open their tooltips towards the right rather than centering
+        them over the icon. This prevents the tooltip from entering
+        the sidebar or being clipped outside the card.
+        */
+
+        .ml-overview-pillar-row
+        > span:first-child
+        .ml-help-tooltip {
+            left: -8px;
+            right: auto;
+            bottom: calc(100% + 9px);
+
+            width: 220px;
+            min-width: 220px;
+            max-width: 220px;
+
+            transform: translateY(0);
+        }
+
+        .ml-overview-pillar-row
+        > span:first-child
+        .ml-help-tooltip::after {
+            left: 14px;
+            right: auto;
+            transform: none;
+        }
+
+        .ml-overview-pillar-row
+        > span:first-child
+        .ml-help-anchor:hover
+        .ml-help-tooltip,
+        .ml-overview-pillar-row
+        > span:first-child
+        .ml-help-anchor:focus
+        .ml-help-tooltip,
+        .ml-overview-pillar-row
+        > span:first-child
+        .ml-help-anchor:focus-within
+        .ml-help-tooltip {
+            transform: translateY(-2px);
+        }
+
+
+        /*
+        ------------------------------------------------------------
+        Watchlist labels and tooltip controls
+        ------------------------------------------------------------
+        */
+
+        .ml-watch-label-group {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.35rem;
+            flex: 0 0 auto;
+        }
+
+        .ml-watch-label-badge {
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .ml-watch-help-anchor {
+            position: relative !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            width: 17px !important;
+            height: 17px !important;
+            flex: 0 0 17px !important;
+
+            padding: 0 !important;
+            margin: 0 !important;
+
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+
+            cursor: help;
+            outline: none;
+        }
+
+        .ml-watch-help-anchor > .ml-help-icon {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            width: 15px !important;
+            height: 15px !important;
+            min-width: 15px !important;
+            flex: 0 0 15px !important;
+
+            padding: 0 !important;
+            margin: 0 !important;
+
+            border: 1px solid #9aabba !important;
+            border-radius: 50% !important;
+            background: #ffffff !important;
+
+            color: #607086 !important;
+            font-family: inherit !important;
+            font-size: 0.62rem !important;
+            font-weight: 800 !important;
+            line-height: 1 !important;
+            letter-spacing: normal !important;
+            text-transform: none !important;
+        }
+
+        .ml-watch-help-tooltip {
+            position: absolute !important;
+            z-index: 10000 !important;
+
+            right: -8px !important;
+            bottom: calc(100% + 10px) !important;
+            left: auto !important;
+            top: auto !important;
+
+            display: block !important;
+            width: 230px !important;
+            min-width: 230px !important;
+            height: auto !important;
+
+            margin: 0 !important;
+            padding: 0.65rem 0.75rem !important;
+
+            border: 1px solid #cfd8e3 !important;
+            border-radius: 8px !important;
+            background: #10233f !important;
+
+            color: #ffffff !important;
+            font-family: inherit !important;
+            font-size: 0.74rem !important;
+            font-weight: 500 !important;
+            line-height: 1.45 !important;
+            letter-spacing: normal !important;
+            text-align: left !important;
+            text-transform: none !important;
+            white-space: normal !important;
+
+            box-shadow:
+                0 10px 24px rgba(15, 35, 63, 0.18) !important;
+
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+
+            transform: translateY(0) !important;
+
+            transition:
+                opacity 120ms ease,
+                transform 120ms ease,
+                visibility 120ms ease;
+        }
+
+        .ml-watch-help-tooltip::after {
+            content: "";
+            position: absolute;
+
+            top: 100%;
+            right: 9px;
+
+            width: 0;
+            height: 0;
+
+            border-width: 6px;
+            border-style: solid;
+            border-color:
+                #10233f transparent transparent transparent;
+        }
+
+        .ml-watch-help-anchor:hover .ml-watch-help-tooltip,
+        .ml-watch-help-anchor:focus .ml-watch-help-tooltip,
+        .ml-watch-help-anchor:focus-within
+        .ml-watch-help-tooltip {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(-2px) !important;
+        }
+
+        .ml-overview-watch-panel,
+        .ml-overview-watchlist,
+        .ml-overview-watch-item,
+        .ml-overview-watch-content,
+        .ml-overview-watch-top {
+            overflow: visible !important;
+        }
+
+
+        /*
+        ------------------------------------------------------------
+        Mobile tooltip layout
+        ------------------------------------------------------------
+        */
+
+        @media (max-width: 700px) {
+            .ml-help-tooltip,
+            .ml-overview-economy:nth-child(3) .ml-help-tooltip,
+            .ml-overview-economy:nth-child(4) .ml-help-tooltip,
+            .ml-overview-pillar-row
+            > span:first-child
+            .ml-help-tooltip {
+                position: fixed;
+
+                left: 50%;
+                right: auto;
+                bottom: 24px;
+                top: auto;
+
+                width: min(280px, calc(100vw - 40px));
+                min-width: 0;
+                max-width: calc(100vw - 40px);
+
+                transform: translateX(-50%);
+            }
+
+            .ml-help-tooltip::after,
+            .ml-overview-economy:nth-child(3)
+            .ml-help-tooltip::after,
+            .ml-overview-economy:nth-child(4)
+            .ml-help-tooltip::after,
+            .ml-overview-pillar-row
+            > span:first-child
+            .ml-help-tooltip::after {
+                display: none;
+            }
+
+            .ml-help-anchor:hover .ml-help-tooltip,
+            .ml-help-anchor:focus .ml-help-tooltip,
+            .ml-help-anchor:focus-within .ml-help-tooltip,
+            .ml-overview-economy:nth-child(3)
+            .ml-help-anchor:hover
+            .ml-help-tooltip,
+            .ml-overview-economy:nth-child(3)
+            .ml-help-anchor:focus
+            .ml-help-tooltip,
+            .ml-overview-economy:nth-child(3)
+            .ml-help-anchor:focus-within
+            .ml-help-tooltip,
+            .ml-overview-economy:nth-child(4)
+            .ml-help-anchor:hover
+            .ml-help-tooltip,
+            .ml-overview-economy:nth-child(4)
+            .ml-help-anchor:focus
+            .ml-help-tooltip,
+            .ml-overview-economy:nth-child(4)
+            .ml-help-anchor:focus-within
+            .ml-help-tooltip,
+            .ml-overview-pillar-row
+            > span:first-child
+            .ml-help-anchor:hover
+            .ml-help-tooltip,
+            .ml-overview-pillar-row
+            > span:first-child
+            .ml-help-anchor:focus
+            .ml-help-tooltip,
+            .ml-overview-pillar-row
+            > span:first-child
+            .ml-help-anchor:focus-within
+            .ml-help-tooltip {
+                transform: translateX(-50%);
+            }
+
+            .ml-watch-help-tooltip {
+                position: fixed !important;
+
+                left: 50% !important;
+                right: auto !important;
+                bottom: 24px !important;
+                top: auto !important;
+
+                width: min(
+                    280px,
+                    calc(100vw - 40px)
+                ) !important;
+                min-width: 0 !important;
+                max-width:
+                    calc(100vw - 40px) !important;
+
+                transform:
+                    translateX(-50%) !important;
+            }
+
+            .ml-watch-help-tooltip::after {
+                display: none !important;
+            }
+
+            .ml-watch-help-anchor:hover
+            .ml-watch-help-tooltip,
+            .ml-watch-help-anchor:focus
+            .ml-watch-help-tooltip,
+            .ml-watch-help-anchor:focus-within
+            .ml-watch-help-tooltip {
+                transform:
+                    translateX(-50%) !important;
+            }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 def _scoreboard_html(
     loads: tuple[EconomyLoad, ...],
@@ -265,8 +785,20 @@ def _scoreboard_html(
             pillar_rows.append(
                 f"""
                 <div class="ml-overview-pillar-row">
-                    <span>{escape(name)}</span>
-                    <div class="ml-overview-pillar-track"><i class="{tone}" style="width:{_meter(pillar.state_score, score=True)}"></i></div>
+                    <span>
+                        {tooltip_html(
+                            name,
+                            help_text(name.casefold()),
+                        )}
+                    </span>
+
+                    <div class="ml-overview-pillar-track">
+                        <i
+                            class="{tone}"
+                            style="width:{_meter(pillar.state_score, score=True)}"
+                        ></i>
+                    </div>
+
                     <strong>{escape(profile_label)}</strong>
                 </div>
                 """
@@ -279,15 +811,36 @@ def _scoreboard_html(
                     <div class="ml-overview-country">{escape(load.source.name)}</div>
                     <span>Full analysis →</span>
                 </div>
-                <div class="ml-overview-regime">{escape(result.environment_label)}</div>
+                <div class="ml-overview-regime">
+                    {tooltip_html(
+                        result.environment_label,
+                        environment_help(result.environment_label),
+                    )}
+                </div>
                 <div class="ml-overview-direction">{_direction_mark(result.overall_direction)} {escape(result.overall_direction)}</div>
                 <div class="ml-overview-card-metrics">
                     <div>
-                        <label><span>Confidence</span><b>{format_percentage(result.confidence_score)}</b></label>
+                        <label>
+                            <span>
+                                {tooltip_html(
+                                    "Confidence",
+                                    help_text("confidence"),
+                                )}
+                            </span>
+                            <b>{format_percentage(result.confidence_score)}</b>
+                        </label>
                         <div class="ml-overview-metric-track"><i class="confidence" style="width:{_meter(result.confidence_score)}"></i></div>
                     </div>
                     <div>
-                        <label><span>Conviction</span><b>{format_percentage(result.environment_conviction_score)}</b></label>
+                        <label>
+                            <span>
+                                {tooltip_html(
+                                    "Conviction",
+                                    help_text("conviction"),
+                                )}
+                            </span>
+                            <b>{format_percentage(result.environment_conviction_score)}</b>
+                        </label>
                         <div class="ml-overview-metric-track"><i class="conviction {'low' if result.environment_conviction_score < 0.35 else ''}" style="width:{_meter(result.environment_conviction_score)}"></i></div>
                     </div>
                 </div>
@@ -622,6 +1175,8 @@ def _resources_html(
             and labor.state_score >= 0.20
         ):
             label = "Liquidity Divergence"
+            help_key = "liquidity_divergence"
+
             reason = (
                 "Liquidity is very weak while labour remains "
                 "strong."
@@ -636,6 +1191,8 @@ def _resources_html(
             )
         ):
             label = "Policy–Inflation Gap"
+            help_key = "policy_inflation_gap"
+
             reason = (
                 "Inflation is easing, but policy remains "
                 "restrictive."
@@ -647,6 +1204,8 @@ def _resources_html(
             < 0.35
         ):
             label = "Low Conviction"
+            help_key = "low_conviction"
+
             reason = (
                 "The current environment classification is "
                 "less firmly established than in peer economies."
@@ -658,6 +1217,8 @@ def _resources_html(
             in result.environment_label.casefold()
         ):
             label = "Transitional Regime"
+            help_key = "transitional_regime"
+
             reason = (
                 "The economy remains between more clearly "
                 "defined macro environments."
@@ -665,16 +1226,23 @@ def _resources_html(
             tone = "caution"
 
         elif weakest is not None:
-            pillar_name = (
-                weakest.name.split()[-1]
-            )
+            pillar_name = weakest.name.split()[-1]
 
             label = f"{pillar_name} Watch"
+            help_key = f"{pillar_name.casefold()}_watch"
+
+            if pillar_name in {"Liquidity", "Policy"}:
+                watch_state = _pillar_profile_label(
+                    pillar_name,
+                    weakest.state_score,
+                    weakest.state_label,
+                ).lower()
+            else:
+                watch_state = weakest.state_label.lower()
 
             reason = (
-                f"{pillar_name} is currently "
-                f"{weakest.state_label.lower()} and "
-                f"{weakest.trend_label.lower()}."
+                f"{pillar_name} remains {watch_state} "
+                f"and is currently {weakest.trend_label.lower()}."
             )
 
             tone = _pillar_tone(
@@ -683,6 +1251,8 @@ def _resources_html(
 
         else:
             label = "Model Watch"
+            help_key = ""
+
             reason = (
                 "Monitor the next scheduled model update."
             )
@@ -698,9 +1268,24 @@ def _resources_html(
                     <div class="ml-overview-watch-top">
                         <strong>{escape(name)}</strong>
 
-                        <span class="{tone}">
-                            {escape(label)}
-                        </span>
+                        <div class="ml-watch-label-group">
+                            <span class="{tone} ml-watch-label-badge">
+                                {escape(label)}
+                            </span>
+
+                            {
+                                (
+                                    '<div class="ml-watch-help-anchor" tabindex="0">'
+                                    '<span class="ml-help-icon">i</span>'
+                                    f'<div class="ml-watch-help-tooltip">'
+                                    f'{escape(help_text(help_key))}'
+                                    '</div>'
+                                    '</div>'
+                                )
+                                if help_key
+                                else ""
+                            }
+                        </div>
                     </div>
 
                     <p>{escape(reason)}</p>
@@ -774,6 +1359,7 @@ def _resources_html(
 
 def render_macro_engine_global_page() -> None:
     inject_macro_engine_css()
+    _inject_help_tooltip_css()
     
     render_page_intro(
         title="Global Macro Monitor",

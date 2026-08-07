@@ -22,52 +22,47 @@ from macro_engine.pipelines.history import (
 )
 
 
-CACHE_TTL_SECONDS = 21600
+LIVE_CACHE_TTL_SECONDS = 1800
+HISTORY_CACHE_TTL_SECONDS = 21600
+CACHE_TTL_SECONDS = HISTORY_CACHE_TTL_SECONDS
+
 STANDARD_HISTORY_START_DATE = date(2024, 1, 1)
 JAPAN_HISTORY_START_DATE = date(2015, 12, 1)
 
 
 @st.cache_data(
-    ttl=CACHE_TTL_SECONDS,
+    ttl=LIVE_CACHE_TTL_SECONDS,
     show_spinner=False,
 )
 def load_usa_macro_environment() -> MacroEnvironmentResult:
-    with log_runtime(
-        "USA macro environment"
-    ):
+    with log_runtime("USA macro environment"):
         return run_usa_macro_environment()
 
 
 @st.cache_data(
-    ttl=CACHE_TTL_SECONDS,
+    ttl=LIVE_CACHE_TTL_SECONDS,
     show_spinner=False,
 )
 def load_euro_macro_environment() -> MacroEnvironmentResult:
-    with log_runtime(
-        "Euro Area macro environment"
-    ):
+    with log_runtime("Euro Area macro environment"):
         return run_euro_macro_environment()
 
 
 @st.cache_data(
-    ttl=CACHE_TTL_SECONDS,
+    ttl=LIVE_CACHE_TTL_SECONDS,
     show_spinner=False,
 )
 def load_uk_macro_environment() -> MacroEnvironmentResult:
-    with log_runtime(
-        "UK macro environment"
-    ):
+    with log_runtime("UK macro environment"):
         return run_uk_macro_environment()
 
 
 @st.cache_data(
-    ttl=CACHE_TTL_SECONDS,
+    ttl=LIVE_CACHE_TTL_SECONDS,
     show_spinner=False,
 )
 def load_japan_macro_environment() -> MacroEnvironmentResult:
-    with log_runtime(
-        "Japan macro environment"
-    ):
+    with log_runtime("Japan macro environment"):
         return run_japan_macro_environment()
 
 
@@ -84,7 +79,7 @@ def _run_history(
     )
 
 
-@st.cache_data(ttl=CACHE_TTL_SECONDS, show_spinner=False)
+@st.cache_data(ttl=HISTORY_CACHE_TTL_SECONDS, show_spinner=False)
 def load_usa_environment_history(
     start_date: date,
     end_date: date,
@@ -92,7 +87,7 @@ def load_usa_environment_history(
     return _run_history(run_usa_environment_history, start_date, end_date)
 
 
-@st.cache_data(ttl=CACHE_TTL_SECONDS, show_spinner=False)
+@st.cache_data(ttl=HISTORY_CACHE_TTL_SECONDS, show_spinner=False)
 def load_euro_environment_history(
     start_date: date,
     end_date: date,
@@ -100,7 +95,7 @@ def load_euro_environment_history(
     return _run_history(run_euro_environment_history, start_date, end_date)
 
 
-@st.cache_data(ttl=CACHE_TTL_SECONDS, show_spinner=False)
+@st.cache_data(ttl=HISTORY_CACHE_TTL_SECONDS, show_spinner=False)
 def load_uk_environment_history(
     start_date: date,
     end_date: date,
@@ -108,7 +103,7 @@ def load_uk_environment_history(
     return _run_history(run_uk_environment_history, start_date, end_date)
 
 
-@st.cache_data(ttl=CACHE_TTL_SECONDS, show_spinner=False)
+@st.cache_data(ttl=HISTORY_CACHE_TTL_SECONDS, show_spinner=False)
 def load_japan_environment_history(
     start_date: date,
     end_date: date,

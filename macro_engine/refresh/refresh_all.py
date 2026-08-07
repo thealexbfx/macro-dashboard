@@ -7,16 +7,23 @@ from typing import Callable, Any
 from app_pages.macro_engine.loaders import (
     JAPAN_HISTORY_START_DATE,
     STANDARD_HISTORY_START_DATE,
-    load_euro_environment_history,
-    load_euro_macro_environment,
-    load_japan_environment_history,
-    load_japan_macro_environment,
-    load_uk_environment_history,
-    load_uk_macro_environment,
-    load_usa_environment_history,
-    load_usa_macro_environment,
 )
+
 from macro_engine.cache.storage import save_cache
+
+from macro_engine.pipelines.environment import (
+    run_euro_macro_environment,
+    run_japan_macro_environment,
+    run_uk_macro_environment,
+    run_usa_macro_environment,
+)
+
+from macro_engine.pipelines.history import (
+    run_euro_environment_history,
+    run_japan_environment_history,
+    run_uk_environment_history,
+    run_usa_environment_history,
+)
 
 
 def refresh_and_save(
@@ -42,22 +49,22 @@ def refresh_current_environments() -> None:
         (
             "USA environment",
             "usa_environment",
-            load_usa_macro_environment,
+            run_usa_macro_environment,
         ),
         (
             "Euro Area environment",
             "euro_environment",
-            load_euro_macro_environment,
+            run_euro_macro_environment,
         ),
         (
             "United Kingdom environment",
             "uk_environment",
-            load_uk_macro_environment,
+            run_uk_macro_environment,
         ),
         (
             "Japan environment",
             "japan_environment",
-            load_japan_macro_environment,
+            run_japan_macro_environment,
         ),
     ]
 
@@ -86,33 +93,41 @@ def refresh_environment_histories() -> None:
         (
             "USA environment history",
             "usa_environment_history",
-            lambda: load_usa_environment_history(
+            lambda: run_usa_environment_history(
                 start_date=STANDARD_HISTORY_START_DATE,
                 end_date=today,
+                frequency="monthly",
+                continue_on_error=True,
             ),
         ),
         (
             "Euro Area environment history",
             "euro_environment_history",
-            lambda: load_euro_environment_history(
+            lambda: run_euro_environment_history(
                 start_date=STANDARD_HISTORY_START_DATE,
                 end_date=today,
+                frequency="monthly",
+                continue_on_error=True,
             ),
         ),
         (
             "United Kingdom environment history",
             "uk_environment_history",
-            lambda: load_uk_environment_history(
+            lambda: run_uk_environment_history(
                 start_date=STANDARD_HISTORY_START_DATE,
                 end_date=today,
+                frequency="monthly",
+                continue_on_error=True,
             ),
         ),
         (
             "Japan environment history",
             "japan_environment_history",
-            lambda: load_japan_environment_history(
+            lambda: run_japan_environment_history(
                 start_date=JAPAN_HISTORY_START_DATE,
                 end_date=today,
+                frequency="monthly",
+                continue_on_error=True,
             ),
         ),
     ]

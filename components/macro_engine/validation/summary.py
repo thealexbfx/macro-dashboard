@@ -9,6 +9,11 @@ from components.macro_engine.formatting import (
     format_percentage,
 )
 
+from components.help_text import (
+    help_text,
+    tooltip_html,
+)
+
 
 def _metric_card(
     label: str,
@@ -17,7 +22,7 @@ def _metric_card(
 ) -> None:
     html = (
         '<div class="ml-history-metric ml-validation-metric">'
-        f'<div class="ml-history-metric-label">{escape(label)}</div>'
+        f'<div class="ml-history-metric-label">{label}</div>'
         f'<div class="ml-history-metric-value">{escape(value)}</div>'
         f'<div class="ml-history-metric-detail">{escape(detail)}</div>'
         "</div>"
@@ -81,7 +86,10 @@ def render_validation_summary(
 
     with first_row[2]:
         _metric_card(
-            label="Regime periods",
+            label=tooltip_html(
+                "Regime periods",
+                help_text("regime_periods"),
+            ),
             value=str(
                 environment_validation.regime_period_count
             ),
@@ -110,7 +118,10 @@ def render_validation_summary(
 
     with second_row[1]:
         _metric_card(
-            label="Transitional coverage",
+            label=tooltip_html(
+                "Transitional coverage",
+                help_text("transitional_coverage"),
+            ),
             value=format_percentage(
                 environment_validation.transitional_coverage_ratio
             ),
@@ -129,7 +140,10 @@ def render_validation_summary(
 
     with second_row[3]:
         _metric_card(
-            label="Most persistent regime",
+            label=tooltip_html(
+                "Most persistent regime",
+                help_text("most_persistent_regime"),
+            ),
             value=(
                 environment_validation.most_persistent_regime
             ),
@@ -163,7 +177,10 @@ def render_validation_summary(
             "</div>"
             '<div class="ml-current-regime-item">'
             '<div class="ml-current-regime-item-label">'
-            "Most persistent regime"
+            f'{tooltip_html(
+                "Most persistent regime",
+                help_text("most_persistent_regime"),
+            )}'
             "</div>"
             '<div class="ml-current-regime-item-value">'
             f'{escape(environment_validation.most_persistent_regime)}'

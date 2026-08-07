@@ -12,6 +12,18 @@ from components.macro_engine.formatting import (
     pillar_tone,
 )
 
+from components.help_text import (
+    help_text,
+    tooltip_html,
+)
+
+def _pillar_name_html(name: str) -> str:
+    help_key = name.strip().casefold()
+
+    return tooltip_html(
+        name,
+        help_text(help_key),
+    )
 
 def _render_pillar_card(
     name: str,
@@ -22,18 +34,38 @@ def _render_pillar_card(
 ) -> None:
     tone = pillar_tone(state_score)
 
+    pillar_name_html = _pillar_name_html(name)
+
+    current_state_html = "Current state"
+    trend_html = "Trend"
+
+    state_score_html = tooltip_html(
+        "State",
+        help_text("state_score"),
+    )
+
+    confidence_html = tooltip_html(
+        "Confidence",
+        help_text("confidence"),
+    )
+
     html = (
         f'<div class="ml-pillar-card {tone}">'
-        f'<div class="ml-pillar-name">{escape(name)}</div>'
-        '<div class="ml-pillar-label">Current state</div>'
+        f'<div class="ml-pillar-name">{pillar_name_html}</div>'
+
+        f'<div class="ml-pillar-label">{current_state_html}</div>'
         f'<div class="ml-pillar-value">{escape(state_label)}</div>'
-        '<div class="ml-pillar-label">Trend</div>'
+
+        f'<div class="ml-pillar-label">{trend_html}</div>'
         f'<div class="ml-pillar-value">{escape(trend_label)}</div>'
+
         '<div class="ml-pillar-footer">'
-        f"State {format_score(state_score)}"
+        f"{state_score_html} {format_score(state_score)}"
         "<br>"
-        f"Confidence {format_percentage(confidence_score)}"
+        f"{confidence_html} "
+        f"{format_percentage(confidence_score)}"
         "</div>"
+
         "</div>"
     )
 

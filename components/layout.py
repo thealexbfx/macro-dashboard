@@ -3,7 +3,8 @@ import streamlit as st
 
 NAV_ITEMS = {
     "Dashboard": [
-        ("Home", "Global Macro Monitor"),
+        ("HowItWorks", "How MacroLens Works"),
+        ("MacroEngineGlobal", "Global Macro Monitor"),
     ],
 
     "Decisions": [
@@ -50,7 +51,7 @@ def _nav_link(page_key: str, label: str, active_page: str) -> str:
     return f'<a class="ml-nav-link{active_class}" href="?page={page_key}" target="_self">{label}</a>'
 
 
-def render_sidebar(active_page: str = "Home"):
+def render_sidebar(active_page: str = "HowItWorks"):
     nav_html = ""
 
     for section, items in NAV_ITEMS.items():

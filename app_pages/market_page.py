@@ -12,6 +12,10 @@ from data.yahoo import get_fx_data_yahoo
 from macro_engine.decision.market_context import (
     load_live_quote,
 )
+from comparison_registry import (
+    comparison_options,
+    get_comparison_series,
+)
 
 from components.page_intro import render_page_intro
 
@@ -924,6 +928,88 @@ def build_percentage_change_chart(
 
     return fig
 
+def build_relative_performance_chart(
+    df,
+    compare_df,
+    primary_name,
+    compare_name,
+    chart_type="Line",
+):
+    """
+    Show cumulative relative performance between two assets.
+
+    Positive values mean the primary asset has outperformed the comparison
+    asset since the first common observation in the selected date range.
+    """
+
+    merged = prepare_comparison_data(
+        df,
+        compare_df,
+    )
+
+    merged = merged[
+        (merged["value_main"] != 0)
+        & (merged["value_compare"] != 0)
+    ].copy()
+
+    if merged.empty:
+        return go.Figure()
+
+    primary_start = float(
+        merged["value_main"].iloc[0]
+    )
+
+    compare_start = float(
+        merged["value_compare"].iloc[0]
+    )
+
+    merged["primary_pct"] = (
+        merged["value_main"] / primary_start - 1.0
+    ) * 100
+
+    merged["compare_pct"] = (
+        merged["value_compare"] / compare_start - 1.0
+    ) * 100
+
+    merged["relative_performance"] = (
+        merged["primary_pct"]
+        - merged["compare_pct"]
+    ).round(2)
+
+    fig = build_analysis_chart(
+        [
+            {
+                "df": merged,
+                "column": "relative_performance",
+                "name": f"{primary_name} vs {compare_name}",
+                "chart_type": chart_type,
+                "value_format": "+.2f",
+            }
+        ],
+        y_title="Relative performance",
+        percent_axis=True,
+        zero_line=True,
+    )
+
+    fig.add_annotation(
+        xref="paper",
+        yref="y",
+        x=0.01,
+        y=0,
+        text=(
+            f"Rising = {primary_name} outperforming · "
+            f"Falling = {compare_name} outperforming"
+        ),
+        showarrow=False,
+        yshift=12,
+        font=dict(
+            color="#64748B",
+            size=11,
+        ),
+        bgcolor="rgba(255,255,255,0.80)",
+    )
+
+    return fig
 
 def prepare_comparison_data(df, compare_df):
     primary = df[["date", "value"]].copy()
@@ -1730,7 +1816,7 @@ def render_market_page(
         with compare_col:
             st.selectbox(
                 "Compare",
-                list(compare_map.keys()),
+                ["Compare +"] + comparison_options(),
                 key=key("compare"),
                 label_visibility="collapsed",
                 on_change=sync_compare_selection,
@@ -1795,6 +1881,7 @@ def render_market_page(
                             "Price",
                             "Yield Spread",
                             "Percentage Change",
+                            "Relative Performance",
                             "Ratio",
                             "Rolling Correlation",
                             "Drawdown",
@@ -1804,6 +1891,7 @@ def render_market_page(
                         else [
                             "Price",
                             "Percentage Change",
+                            "Relative Performance",
                             "Ratio",
                             "Rolling Correlation",
                             "Drawdown",
@@ -1912,21 +2000,31 @@ def render_market_page(
     # -----------------------------------------------------
 
     compare_df = None
+    compare_config = None
 
     if compare_asset != "Compare +":
-        compare_source = compare_map.get(compare_asset)
+        compare_config = get_comparison_series(
+            compare_asset
+        )
 
-        if callable(compare_source):
-            compare_df = compare_source().dropna()
-        elif compare_source:
+        if compare_config["kind"] == "function":
+            compare_df = compare_config["loader"]()
+
+        elif compare_config["kind"] == "ticker":
             compare_df = get_fx_data_yahoo(
-                compare_source,
+                compare_config["loader"],
                 start_date=dt.date(1990, 1, 1),
                 end_date=dt.date.today() + dt.timedelta(days=1),
-            ).dropna()
+            )
+
+        if compare_df is not None and not compare_df.empty:
+            compare_df = compare_df[
+                ["date", "value"]
+            ].copy()
 
             compare_df["date"] = pd.to_datetime(
-                compare_df["date"]
+                compare_df["date"],
+                errors="coerce",
             )
 
             compare_df["value"] = pd.to_numeric(
@@ -1938,6 +2036,10 @@ def render_market_page(
                 compare_df
                 .dropna(subset=["date", "value"])
                 .sort_values("date")
+                .drop_duplicates(
+                    subset=["date"],
+                    keep="last",
+                )
             )
 
             compare_df = filter_by_dates(
@@ -1969,6 +2071,14 @@ def render_market_page(
         "Percentage Change": (
             "Shows cumulative performance from the beginning of the selected "
             "period. Both series start at 0%."
+        ),
+        "Relative Performance": (
+            f"Compares {indicator}'s cumulative return with {compare_asset}'s "
+            "cumulative return from the beginning of the selected period. "
+            f"A rising line means {indicator} is gaining relative strength; "
+            f"a falling line means {compare_asset} is gaining relative strength. "
+            "The level represents cumulative outperformance over the selected "
+            "window, not comparable volatility or economic value."
         ),
         "Ratio": (
             f"Shows how many units of {compare_asset} equal one unit of "
@@ -2089,6 +2199,52 @@ def render_market_page(
                 f"while {compare_asset} returned {compare_return:+.2f}%. "
                 f"{leader} outperformed by {difference:.2f} percentage points."
             )
+            
+        elif (
+                chart_tool == "Relative Performance"
+                and not insight_df.empty
+            ):
+                primary_start = insight_df["value_main"].iloc[0]
+                compare_start = insight_df["value_compare"].iloc[0]
+
+                primary_return = (
+                    insight_df["value_main"].iloc[-1]
+                    / primary_start
+                    - 1.0
+                ) * 100
+
+                compare_return = (
+                    insight_df["value_compare"].iloc[-1]
+                    / compare_start
+                    - 1.0
+                ) * 100
+
+                relative_performance = (
+                    primary_return
+                    - compare_return
+                )
+
+                if relative_performance > 0:
+                    leader = indicator
+                elif relative_performance < 0:
+                    leader = compare_asset
+                else:
+                    leader = None
+
+                if leader is None:
+                    period_insight = (
+                        f"Relative performance is flat over the selected period. "
+                        f"{indicator} and {compare_asset} have produced the same "
+                        "cumulative return."
+                    )
+                else:
+                    period_insight = (
+                        f"Relative performance currently favors {leader}. "
+                        f"{indicator} returned {primary_return:+.2f}% versus "
+                        f"{compare_return:+.2f}% for {compare_asset}, a relative "
+                        f"performance difference of "
+                        f"{abs(relative_performance):.2f} percentage points."
+                    )
 
         elif chart_tool == "Ratio":
             valid = insight_df[insight_df["value_compare"] != 0].copy()
@@ -2279,6 +2435,18 @@ def render_market_page(
             compare_chart_type=compare_chart_type,
             primary_name=indicator,
         )
+        
+    elif (
+        chart_tool == "Relative Performance"
+        and has_comparison_data
+    ):
+        fig = build_relative_performance_chart(
+            df=df_filtered,
+            compare_df=compare_df,
+            primary_name=indicator,
+            compare_name=compare_asset,
+            chart_type=primary_chart_type,
+        )
     elif chart_tool == "Ratio" and has_comparison_data:
         fig = build_ratio_chart(
             df=df_filtered,
@@ -2368,6 +2536,40 @@ def render_market_page(
                 indicator: f"{primary_return:+.2f}%",
                 compare_asset: f"{compare_return:+.2f}%",
                 "Difference": f"{primary_return - compare_return:+.2f}%",
+            }
+            
+        elif (
+            chart_tool == "Relative Performance"
+            and not analysis_df.empty
+        ):
+            primary_start = analysis_df["value_main"].iloc[0]
+            compare_start = analysis_df["value_compare"].iloc[0]
+
+            primary_pct = (
+                analysis_df["value_main"] / primary_start
+                - 1.0
+            ) * 100
+
+            compare_pct = (
+                analysis_df["value_compare"] / compare_start
+                - 1.0
+            ) * 100
+
+            relative_series = (
+                primary_pct
+                - compare_pct
+            )
+
+            current_relative = relative_series.iloc[-1]
+
+            analysis_card_title = "Relative Performance"
+
+            analysis_card_items = {
+                "Current": f"{current_relative:+.2f} pp",
+                "Highest": f"{relative_series.max():+.2f} pp",
+                "Lowest": f"{relative_series.min():+.2f} pp",
+                f"{indicator} Return": f"{primary_pct.iloc[-1]:+.2f}%",
+                f"{compare_asset} Return": f"{compare_pct.iloc[-1]:+.2f}%",
             }
 
         elif chart_tool == "Ratio":

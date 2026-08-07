@@ -4,10 +4,17 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from data.yahoo import get_fx_data_yahoo
+
 from app_pages.market_utils import filter_by_dates
 from components.research.research_page import render_research_page
 
 from components.page_intro import render_page_intro
+
+from comparison_registry import (
+    comparison_options,
+    get_comparison_series,
+)
 
 ANALYSIS_OPTIONS = [
     "Level",
@@ -162,18 +169,33 @@ def ordinal(value):
     return f"{rounded}{suffix} Percentile"
 
 
-def recent_trend(df, observations=6):
-    values = df["value"].dropna().tail(observations)
-    if len(values) < 2:
+def recent_trend(df):
+    if df.empty:
         return "Stable"
 
-    change = float(values.iloc[-1] - values.iloc[0])
-    scale = max(float(values.abs().median()), float(values.std(ddof=0)), 1.0)
+    change = absolute_change_over(df, "3M")
+
+    if change is None:
+        return "Stable"
+
+    values = df["value"].dropna()
+    if values.empty:
+        return "Stable"
+
+    scale = max(
+        float(values.tail(4).abs().median()),
+        float(values.tail(4).std(ddof=0)),
+        1.0,
+    )
+
     threshold = scale * 0.01
+
     if change > threshold:
         return "Rising"
+
     if change < -threshold:
         return "Falling"
+
     return "Stable"
 
 
@@ -819,9 +841,37 @@ def render_economy_page(
 
     compare_df = None
     compare_meta = None
-    if compare_asset != "Compare +" and compare_asset in economy_map:
-        compare_meta = economy_map[compare_asset]
-        compare_df = filter_by_dates(load_indicator(compare_meta), start_date, end_date)
+    compare_config = None
+
+    if compare_asset != "Compare +":
+        compare_config = get_comparison_series(compare_asset)
+
+        if compare_config["kind"] == "function":
+            compare_df = compare_config["loader"]()
+
+        elif compare_config["kind"] == "ticker":
+            compare_df = get_fx_data_yahoo(
+                compare_config["loader"],
+                start_date=start_date.date(),
+                end_date=end_date.date() + pd.Timedelta(days=1),
+            )
+
+        if compare_df is not None and not compare_df.empty:
+            compare_df = clean_economy_data(compare_df)
+            compare_df = filter_by_dates(
+                compare_df,
+                start_date,
+                end_date,
+            )
+
+            compare_meta = {
+                "title": compare_asset,
+                "frequency": compare_config.get("frequency", "monthly"),
+                "unit_type": compare_config.get("unit_type", "index"),
+                "unit_label": compare_config.get("unit_label", ""),
+                "decimals": compare_config.get("decimals", 2),
+                "spread_unit": compare_config.get("spread_unit"),
+            }
 
     has_compare = compare_df is not None and compare_meta is not None and not compare_df.empty
     compatible_spread = spread_is_compatible(meta, compare_meta)
@@ -897,12 +947,13 @@ def render_economy_page(
                     st.session_state[key("custom_end")] = latest
                     st.rerun()
         with compare_col:
-            st.selectbox(
-                "Compare",
-                ["Compare +", *[name for name in economy_map if name != indicator]],
-                key=key("compare"),
-                label_visibility="collapsed",
-            )
+            with compare_col:
+                st.selectbox(
+                    "Compare",
+                    ["Compare +"] + comparison_options(),
+                    key=key("compare"),
+                    label_visibility="collapsed",
+                )
 
         st.markdown("<div class='ml-chart-type-row-label'>CHART DISPLAY</div>", unsafe_allow_html=True)
         if has_compare:

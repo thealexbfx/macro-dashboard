@@ -9,6 +9,10 @@ from components.macro_engine.formatting import (
     format_percentage,
 )
 
+from components.help_text import (
+    help_text,
+    tooltip_html,
+)
 
 def _metric_card(
     *,
@@ -18,7 +22,7 @@ def _metric_card(
 ) -> None:
     html = (
         '<div class="ml-history-metric ml-validation-metric">'
-        f'<div class="ml-history-metric-label">{escape(label)}</div>'
+        f'<div class="ml-history-metric-label">{label}</div>'
         f'<div class="ml-history-metric-value">{escape(value)}</div>'
         f'<div class="ml-history-metric-detail">{escape(detail)}</div>'
         "</div>"
@@ -149,7 +153,10 @@ def render_stability_analysis(
 
     with first_row[2]:
         _metric_card(
-            label="Annualized transition rate",
+            label=tooltip_html(
+                "Annualized transition rate",
+                help_text("annualized_transition_rate"),
+            ),
             value=_format_rate(
                 stability_validation
                 .annualized_transition_rate
@@ -159,7 +166,10 @@ def render_stability_analysis(
 
     with first_row[3]:
         _metric_card(
-            label="Churn assessment",
+            label=tooltip_html(
+                "Churn assessment",
+                help_text("churn_assessment"),
+            ),
             value=stability_validation.churn_label,
             detail="Overall regime stability classification",
         )
@@ -168,7 +178,10 @@ def render_stability_analysis(
 
     with second_row[0]:
         _metric_card(
-            label="Short-lived regimes",
+            label=tooltip_html(
+                "Short-lived regimes",
+                help_text("short_lived_regimes"),
+            ),
             value=format_percentage(
                 stability_validation
                 .short_lived_period_ratio
@@ -181,7 +194,10 @@ def render_stability_analysis(
 
     with second_row[1]:
         _metric_card(
-            label="Oscillation ratio",
+            label=tooltip_html(
+                "Oscillation ratio",
+                help_text("oscillation_ratio"),
+            ),
             value=format_percentage(
                 stability_validation.oscillation_ratio
             ),
@@ -193,7 +209,10 @@ def render_stability_analysis(
 
     with second_row[2]:
         _metric_card(
-            label="Confidence before transition",
+            label=tooltip_html(
+                "Confidence before transition",
+                help_text("confidence_before_transition"),
+            ),
             value=format_percentage(
                 stability_validation
                 .average_confidence_before_transition
@@ -203,7 +222,10 @@ def render_stability_analysis(
 
     with second_row[3]:
         _metric_card(
-            label="Conviction before transition",
+            label=tooltip_html(
+                "Conviction before transition",
+                help_text("conviction_before_transition"),
+            ),
             value=format_percentage(
                 stability_validation
                 .average_conviction_before_transition
@@ -254,7 +276,10 @@ def render_stability_analysis(
         "</div>"
         '<div class="ml-current-regime-item">'
         '<div class="ml-current-regime-item-label">'
-        "Confidence drift"
+        f'{tooltip_html(
+            "Confidence drift",
+            help_text("confidence_drift"),
+        )}'
         "</div>"
         '<div class="ml-current-regime-item-value">'
         f'{stability_validation.average_confidence_change_within_period:+.2f}'
@@ -262,7 +287,10 @@ def render_stability_analysis(
         "</div>"
         '<div class="ml-current-regime-item">'
         '<div class="ml-current-regime-item-label">'
-        "Conviction drift"
+        f'{tooltip_html(
+            "Conviction drift",
+            help_text("conviction_drift"),
+        )}'
         "</div>"
         '<div class="ml-current-regime-item-value">'
         f'{stability_validation.average_conviction_change_within_period:+.2f}'

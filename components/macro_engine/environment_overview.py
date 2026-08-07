@@ -27,6 +27,7 @@ from components.macro_engine.validation.renderer import (
 )
 from components.page_intro import render_page_intro
 from styles.macro_engine import inject_macro_engine_css
+from styles.help_tooltips import inject_help_tooltip_css
 
 
 def _economy_display_name(economy: Any) -> str:
@@ -87,6 +88,8 @@ def render_macro_environment_overview(
     results. It performs no engine calculations.
     """
     inject_macro_engine_css()
+    inject_help_tooltip_css()
+    
 
     economy_name = _economy_display_name(
         result.economy,

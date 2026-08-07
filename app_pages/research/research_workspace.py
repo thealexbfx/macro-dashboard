@@ -10,6 +10,11 @@ from macro_engine.decision.assets import (
 )
 from macro_engine.decision.workspace import DecisionWorkspaceResult
 from components.page_intro import render_page_intro
+from components.help_text import (
+    help_text,
+    tooltip_html,
+)
+
 from macro_engine.decision.historical_context import (
     HistoricalContext,
 )
@@ -126,10 +131,290 @@ def _format_price(value: float | None) -> str:
     if value is None:
         return "N/A"
 
-    return f"{value:.4f}"
+    if abs(value) >= 100:
+        return f"{value:,.2f}"
+
+    if abs(value) >= 1:
+        return f"{value:,.4f}"
+
+    return f"{value:,.6f}"
 
 def _html(content: str) -> None:
     st.html(dedent(content).strip())
+
+def _inject_research_tooltip_css() -> None:
+    st.markdown(
+        """
+        <style>
+        /* =====================================================
+           RESEARCH WORKSPACE TOOLTIPS
+           ===================================================== */
+
+        .ml-help-label {
+            display: inline !important;
+        }
+
+        .ml-help-anchor {
+            position: relative !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            width: 15px;
+            height: 15px;
+            flex: 0 0 15px;
+
+            margin-left: 0.28rem;
+            padding: 0;
+
+            vertical-align: 0.08em;
+            cursor: help;
+            outline: none;
+        }
+
+        .ml-help-icon {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            width: 15px !important;
+            height: 15px !important;
+            min-width: 15px !important;
+            flex: 0 0 15px !important;
+
+            margin: 0 !important;
+            padding: 0 !important;
+
+            border: 1px solid #9aabba !important;
+            border-radius: 50% !important;
+            background: #ffffff !important;
+
+            color: #607086 !important;
+            font-family: inherit !important;
+            font-size: 0.62rem !important;
+            font-weight: 800 !important;
+            line-height: 1 !important;
+            letter-spacing: normal !important;
+            text-transform: none !important;
+        }
+
+        .ml-help-tooltip {
+            position: absolute !important;
+            z-index: 10000 !important;
+
+            left: 50% !important;
+            right: auto !important;
+            bottom: calc(100% + 9px) !important;
+            top: auto !important;
+
+            display: block !important;
+            width: 230px !important;
+            min-width: 230px !important;
+            height: auto !important;
+
+            margin: 0 !important;
+            padding: 0.65rem 0.75rem !important;
+
+            border: 1px solid #cfd8e3 !important;
+            border-radius: 8px !important;
+            background: #10233f !important;
+
+            color: #ffffff !important;
+            font-family: inherit !important;
+            font-size: 0.74rem !important;
+            font-weight: 500 !important;
+            line-height: 1.45 !important;
+            letter-spacing: normal !important;
+            text-align: left !important;
+            text-transform: none !important;
+            white-space: normal !important;
+
+            box-shadow:
+                0 10px 24px rgba(15, 35, 63, 0.18) !important;
+
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+
+            transform: translateX(-50%) !important;
+
+            transition:
+                opacity 120ms ease,
+                transform 120ms ease,
+                visibility 120ms ease;
+        }
+
+        .ml-help-tooltip::after {
+            content: "";
+            position: absolute;
+
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+
+            width: 0;
+            height: 0;
+
+            border-width: 6px;
+            border-style: solid;
+            border-color:
+                #10233f transparent transparent transparent;
+        }
+
+        .ml-help-anchor:hover .ml-help-tooltip,
+        .ml-help-anchor:focus .ml-help-tooltip,
+        .ml-help-anchor:focus-within .ml-help-tooltip {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform:
+                translateX(-50%) translateY(-2px) !important;
+        }
+
+
+        /* Current Model View labels */
+
+        .ml-view-summary-item > span {
+            overflow: visible !important;
+        }
+
+        .ml-view-summary-item > span .ml-help-label {
+            display: inline !important;
+        }
+
+        .ml-view-summary-item > span .ml-help-anchor {
+            display: inline-flex !important;
+            margin-left: 0.24rem;
+        }
+
+
+        /* Compact metric cards */
+
+        .ml-compact-card,
+        .ml-compact-label {
+            overflow: visible !important;
+        }
+
+        .ml-compact-label .ml-help-label {
+            display: inline !important;
+        }
+
+        .ml-compact-label .ml-help-anchor {
+            display: inline-flex !important;
+            margin-left: 0.24rem;
+        }
+
+
+        /* Pricing-status tooltip sits in a dark card */
+
+        .ml-confirmation-status {
+            overflow: visible !important;
+        }
+
+        .ml-confirmation-status > span {
+            overflow: visible !important;
+        }
+
+        .ml-confirmation-status .ml-help-anchor {
+            display: inline-flex !important;
+            margin-left: 0.24rem;
+        }
+
+        .ml-confirmation-status .ml-help-icon {
+            border-color: #b8c8d9 !important;
+            background: transparent !important;
+            color: #d9e4ef !important;
+        }
+
+        /*
+        Prevent key workspace panels from clipping tooltips.
+        */
+        .ml-view-summary,
+        .ml-view-summary-grid,
+        .ml-view-summary-item,
+        .ml-confirmation-panel,
+        .ml-confirmation-header,
+        .ml-compact-card {
+            overflow: visible !important;
+        }
+
+
+        /* Keep tooltips inside the right side of wide layouts */
+
+        .ml-view-summary-item:nth-child(3) .ml-help-tooltip,
+        .ml-view-summary-item:nth-child(4) .ml-help-tooltip,
+        .ml-confirmation-status .ml-help-tooltip {
+            left: auto !important;
+            right: -8px !important;
+            transform: none !important;
+        }
+
+        .ml-view-summary-item:nth-child(3)
+            .ml-help-tooltip::after,
+        .ml-view-summary-item:nth-child(4)
+            .ml-help-tooltip::after,
+        .ml-confirmation-status
+            .ml-help-tooltip::after {
+            left: auto !important;
+            right: 10px !important;
+            transform: none !important;
+        }
+
+        .ml-view-summary-item:nth-child(3)
+            .ml-help-anchor:hover
+            .ml-help-tooltip,
+        .ml-view-summary-item:nth-child(4)
+            .ml-help-anchor:hover
+            .ml-help-tooltip,
+        .ml-confirmation-status
+            .ml-help-anchor:hover
+            .ml-help-tooltip {
+            transform: translateY(-2px) !important;
+        }
+
+
+        @media (max-width: 700px) {
+            .ml-help-tooltip,
+            .ml-view-summary-item:nth-child(3)
+                .ml-help-tooltip,
+            .ml-view-summary-item:nth-child(4)
+                .ml-help-tooltip,
+            .ml-confirmation-status
+                .ml-help-tooltip {
+                position: fixed !important;
+
+                left: 50% !important;
+                right: auto !important;
+                bottom: 24px !important;
+                top: auto !important;
+
+                width: min(
+                    280px,
+                    calc(100vw - 40px)
+                ) !important;
+
+                min-width: 0 !important;
+                max-width:
+                    calc(100vw - 40px) !important;
+
+                transform:
+                    translateX(-50%) !important;
+            }
+
+            .ml-help-tooltip::after {
+                display: none !important;
+            }
+
+            .ml-help-anchor:hover .ml-help-tooltip,
+            .ml-help-anchor:focus .ml-help-tooltip,
+            .ml-help-anchor:focus-within .ml-help-tooltip {
+                transform:
+                    translateX(-50%) !important;
+            }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 def _inject_research_workspace_css() -> None:
     st.markdown(
@@ -2038,6 +2323,7 @@ def _render_research_limitations(
 
 def render_research_workspace_page() -> None:
     _inject_research_workspace_css()
+    _inject_research_tooltip_css()
     
     render_page_intro(
         title="Research Workspace",
@@ -2105,6 +2391,7 @@ def render_research_workspace_page() -> None:
                 else f"{value} Months"
             ),
             key="decision_horizon",
+            help=help_text("horizon"),
         )
 
     selected_asset_key = asset_labels[selected_asset_label]
@@ -2237,7 +2524,12 @@ def render_research_workspace_page() -> None:
                 </div>
 
                 <div class="ml-view-summary-item">
-                    <span>Macro Score</span>
+                    <span>
+                        {tooltip_html(
+                            "Macro Score",
+                            help_text("macro_score"),
+                        )}
+                    </span>
 
                     <strong>
                         {_format_score(idea.directional_score)}
@@ -2254,7 +2546,12 @@ def render_research_workspace_page() -> None:
                 </div>
 
                 <div class="ml-view-summary-item">
-                    <span>Market Alignment</span>
+                    <span>
+                        {tooltip_html(
+                            "Market Alignment",
+                            help_text("alignment"),
+                        )}
+                    </span>
 
                     <strong>
                         {alignment.label}
@@ -2266,7 +2563,12 @@ def render_research_workspace_page() -> None:
                 </div>
 
                 <div class="ml-view-summary-item ml-view-summary-stance">
-                    <span>System Stance</span>
+                    <span>
+                        {tooltip_html(
+                            "System Stance",
+                            help_text("decision_stance"),
+                        )}
+                    </span>
 
                     <strong>
                         {decision.stance}
@@ -2291,22 +2593,31 @@ def render_research_workspace_page() -> None:
             f"Market data through {market.as_of_date:%b %d}",
         ),
         (
-            "Model Confidence",
+            tooltip_html(
+                "Model Confidence",
+                help_text("confidence"),
+            ),
             _format_percentage(idea.model_confidence),
             "",
-            "How reliably the model classified the current environment",
+            "Reliability of the current model classification.",
         ),
         (
-            "Model Conviction",
+            tooltip_html(
+                "Model Conviction",
+                help_text("model_conviction"),
+            ),
             _format_percentage(idea.model_conviction),
             "ml-neutral-card",
-            "How strongly the underlying macro pillars agree",
+            "Strength and agreement of the current macro signals.",
         ),
         (
-            "Historical Support",
+            tooltip_html(
+                "Historical Support",
+                help_text("historical_support"),
+            ),
             idea.historical_support,
             "ml-neutral-card",
-            "Strength and relevance of the available historical sample",
+            "Relevance of comparable historical outcomes.",
         ),
     ]
 
@@ -2447,7 +2758,12 @@ def render_research_workspace_page() -> None:
                 </div>
 
                 <div class="ml-confirmation-status">
-                    <span>Pricing Status</span>
+                    <span>
+                        {tooltip_html(
+                            "Pricing Status",
+                            help_text("pricing_status"),
+                        )}
+                    </span>
                     <strong>{pricing.label}</strong>
                 </div>
             </div>

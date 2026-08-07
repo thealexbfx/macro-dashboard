@@ -5,6 +5,11 @@ from typing import Any
 
 import streamlit as st
 
+from components.help_text import (
+    environment_help,
+    help_text,
+    tooltip_html,
+)
 from components.macro_engine.formatting import (
     display_date,
     format_percentage,
@@ -18,7 +23,7 @@ def _render_metric_card(
 ) -> None:
     html = (
         '<div class="ml-card">'
-        f'<div class="ml-card-label">{escape(label)}</div>'
+        f'<div class="ml-card-label">{label}</div>'
         f'<div class="ml-card-value">{escape(value)}</div>'
         f'<div class="ml-card-detail">{escape(detail)}</div>'
         "</div>"
@@ -31,13 +36,18 @@ def _render_metric_card(
 
 
 def render_environment_hero(result: Any) -> None:
+    environment_label_html = tooltip_html(
+        result.environment_label,
+        environment_help(result.environment_label),
+    )
+
     hero_html = (
         '<div class="ml-environment-hero">'
         '<div class="ml-environment-badge">'
         "Current macro environment"
         "</div>"
         '<h2 class="ml-environment-name">'
-        f"{escape(result.environment_label)}"
+        f"{environment_label_html}"
         "</h2>"
         '<p class="ml-environment-summary">'
         f"{escape(result.environment_summary)}"
@@ -54,14 +64,22 @@ def render_environment_hero(result: Any) -> None:
 
     with columns[0]:
         _render_metric_card(
-            label="Confidence",
-            value=format_percentage(result.confidence_score),
+            label=tooltip_html(
+                "Confidence",
+                help_text("confidence"),
+            ),
+            value=format_percentage(
+                result.confidence_score
+            ),
             detail=result.confidence_label,
         )
 
     with columns[1]:
         _render_metric_card(
-            label="Conviction",
+            label=tooltip_html(
+                "Conviction",
+                help_text("conviction"),
+            ),
             value=format_percentage(
                 result.environment_conviction_score
             ),
@@ -70,7 +88,10 @@ def render_environment_hero(result: Any) -> None:
 
     with columns[2]:
         _render_metric_card(
-            label="Overall direction",
+            label=tooltip_html(
+                "Overall Direction",
+                help_text("overall_direction"),
+            ),
             value=result.overall_direction,
             detail="Composite model direction",
         )

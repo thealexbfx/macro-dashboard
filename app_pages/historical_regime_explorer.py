@@ -12,7 +12,12 @@ from macro_engine.historical.report import (
     build_historical_regime_report,
 )
 
+from components.help_text import (
+    help_text,
+    tooltip_html,
+)
 from components.page_intro import render_page_intro
+from styles.help_tooltips import inject_help_tooltip_css
 
 from macro_engine.utils.timing import log_runtime
 
@@ -897,7 +902,10 @@ def render_episode_metrics(
 
     with columns[0]:
         render_metric_card(
-            "Historical Episodes",
+            tooltip_html(
+                "Historical Episodes",
+                help_text("historical_episodes"),
+            ),
             str(report.episode_count),
         )
 
@@ -915,7 +923,10 @@ def render_episode_metrics(
 
     with columns[3]:
         render_metric_card(
-            "Completed Episodes",
+            tooltip_html(
+                "Completed Episodes",
+                help_text("completed_episodes"),
+            ),
             str(completed),
         )
 
@@ -937,7 +948,14 @@ def render_regime_summary(
                 </div>
 
                 <div class="hre-regime-count">
-                    <span>Historical Episodes</span>
+                    <span>
+                        {
+                            tooltip_html(
+                                "Historical Episodes",
+                                help_text("historical_episodes"),
+                            )
+                        }
+                    </span>
                     <strong>{report.episode_count}</strong>
                 </div>
             </div>
@@ -1114,6 +1132,12 @@ def render_selected_asset_summary(
         best_row,
         "Worst",
     )
+    
+    frequency_help_key = (
+        "yield_rise_frequency"
+        if frequency_label == "Yield-rise frequency"
+        else "positive_return_frequency"
+    )
 
     _html(
         f"""
@@ -1130,18 +1154,37 @@ def render_selected_asset_summary(
                 </div>
 
                 <div class="hre-asset-summary-horizon">
-                    Best historical consistency: {horizon}
+                    {
+                        tooltip_html(
+                            "Best historical consistency",
+                            help_text("best_historical_consistency"),
+                        )
+                    }: {horizon}
                 </div>
             </div>
 
             <div class="hre-asset-summary-grid">
                 <div class="hre-asset-summary-metric">
-                    <span>Average Outcome</span>
+                    <span>
+                        {
+                            tooltip_html(
+                                "Average Outcome",
+                                help_text("average_outcome"),
+                            )
+                        }
+                    </span>
                     <strong>{average}</strong>
                 </div>
 
                 <div class="hre-asset-summary-metric">
-                    <span>{frequency_label}</span>
+                    <span>
+                        {
+                            tooltip_html(
+                                frequency_label,
+                                help_text(frequency_help_key),
+                            )
+                        }
+                    </span>
                     <strong>{frequency}</strong>
                 </div>
 
@@ -1298,6 +1341,7 @@ def render_episode_history(
                 else f"{horizon} Months"
             ),
             key="historical_regime_horizon",
+            help=help_text("forward_horizon"),
         )
 
     with summary_col:
@@ -1384,6 +1428,26 @@ def get_episode_outcome(
 
     return None
 
+ENTRY_HELP_KEYS = {
+    "Activity Score": "activity_score",
+    "Inflation Score": "inflation_score",
+    "Financial Score": "financial_score",
+    "Confidence": "confidence",
+    "Conviction": "conviction",
+}
+
+
+def _entry_label_html(label: str) -> str:
+    help_key = ENTRY_HELP_KEYS.get(label)
+
+    if help_key is None:
+        return label
+
+    return tooltip_html(
+        label,
+        help_text(help_key),
+    )
+
 def render_entry_conditions(
     episode: pd.Series,
 ) -> None:
@@ -1431,7 +1495,7 @@ def render_entry_conditions(
     rows_html = "".join(
         f"""
         <div class="hre-entry-row">
-            <span>{label}</span>
+            <span>{_entry_label_html(label)}</span>
             <strong>{value}</strong>
         </div>
         """
@@ -1614,6 +1678,7 @@ def render_episode_details(
 
 def render_historical_regime_explorer_page() -> None:
     inject_historical_explorer_css()
+    inject_help_tooltip_css()
     render_header()
 
     environments = load_available_environments()
@@ -1643,6 +1708,7 @@ def render_historical_regime_explorer_page() -> None:
             options=environments,
             index=environments.index(default_environment),
             key="historical_regime_environment",
+            help=help_text("macro_environment"),
         )
 
     report = load_regime_report(selected_environment)

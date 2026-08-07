@@ -1,18 +1,24 @@
 from __future__ import annotations
 
 from datetime import date
+from html import escape
 from textwrap import dedent
 
 import streamlit as st
+
 from components.page_intro import render_page_intro
+from components.help_text import (
+    help_text,
+    tooltip_html,
+)
 
 from macro_engine.decision.active_ideas import (
     ActiveIdea,
     build_active_ideas,
 )
 from macro_engine.decision.assets import get_available_assets
-
 from macro_engine.utils.timing import log_runtime
+
 
 CACHE_TTL_SECONDS = 1800
 
@@ -103,6 +109,25 @@ def _stance_class(stance: str) -> str:
     )
 
 
+CHANGE_HELP_KEYS = {
+    "Historical support": "historical_support",
+    "Evidence alignment": "evidence_alignment",
+    "Pricing status": "pricing_status",
+    "Decision stance": "decision_stance",
+}
+
+
+def _change_label_html(label: str) -> str:
+    help_key = CHANGE_HELP_KEYS.get(label)
+
+    if help_key is None:
+        return escape(label)
+
+    return tooltip_html(
+        label,
+        help_text(help_key),
+    )
+
 def _build_change_rows(
     idea: ActiveIdea,
 ) -> str:
@@ -126,7 +151,7 @@ def _build_change_rows(
         rows += f"""
         <div class="ml-active-change-row">
             <div class="ml-active-change-label">
-                {change.label}
+                {_change_label_html(change.label)}
                 {badge}
             </div>
 
@@ -166,16 +191,23 @@ def _workspace_link(
 def _render_idea_card(
     idea: ActiveIdea,
     horizon_months: int,
+    *,
+    compact: bool = False,
 ) -> None:
     card_class = _status_class(idea)
+
     direction_class = _direction_class(
         idea.macro_direction
     )
+
     stance_class = _stance_class(
         idea.stance
     )
 
-    changes_html = _build_change_rows(idea)
+    changes_html = _build_change_rows(
+        idea
+    )
+
     workspace_link = _workspace_link(
         idea,
         horizon_months,
@@ -191,9 +223,133 @@ def _render_idea_card(
         else ""
     )
 
+    if compact:
+        body_html = f"""
+        <div class="ml-active-compact-summary">
+            <div class="ml-active-compact-view">
+                <strong class="{direction_class}">
+                    {idea.macro_direction}
+                </strong>
+
+                <span>
+                    {_format_score(idea.directional_score)}
+                </span>
+            </div>
+
+            <div class="ml-active-compact-meta">
+                <span>
+                    Alignment:
+                    <strong>{idea.alignment}</strong>
+                </span>
+
+                <span>
+                    Confidence:
+                    <strong>
+                        {_format_percentage(
+                            idea.model_confidence
+                        )}
+                    </strong>
+                </span>
+            </div>
+
+            <div class="ml-active-compact-status">
+                Last material change:
+                <strong>
+                    {_format_last_change(idea)}
+                </strong>
+            </div>
+        </div>
+        """
+
+        footer_date_html = ""
+
+    else:
+        body_html = f"""
+        <div class="ml-active-summary">
+            <div class="ml-active-status-title">
+                {idea.status_label}
+            </div>
+
+            <div class="ml-active-status-text">
+                {idea.summary}
+            </div>
+        </div>
+
+        <div class="ml-active-metrics">
+            <div class="ml-active-metric">
+                <span>Macro View</span>
+
+                <strong class="{direction_class}">
+                    {idea.macro_direction}
+                </strong>
+            </div>
+
+            <div class="ml-active-metric">
+                <span>
+                    {tooltip_html(
+                        "Macro Score",
+                        help_text("macro_score"),
+                    )}
+                </span>
+
+                <strong>
+                    {_format_score(
+                        idea.directional_score
+                    )}
+                </strong>
+            </div>
+
+            <div class="ml-active-metric">
+                <span>
+                    {tooltip_html(
+                        "Alignment",
+                        help_text("alignment"),
+                    )}
+                </span>
+
+                <strong>
+                    {idea.alignment}
+                </strong>
+            </div>
+
+            <div class="ml-active-metric">
+                <span>
+                    {tooltip_html(
+                        "Confidence",
+                        help_text("confidence"),
+                    )}
+                </span>
+
+                <strong>
+                    {_format_percentage(
+                        idea.model_confidence
+                    )}
+                </strong>
+            </div>
+        </div>
+
+        <div class="ml-active-changes">
+            {changes_html}
+        </div>
+        """
+
+        footer_date_html = f"""
+        <div>
+            <span>Last material change</span>
+
+            <strong>
+                {_format_last_change(idea)}
+            </strong>
+        </div>
+        """
+
     _html(
         f"""
-        <div class="ml-active-content-shell ml-active-card {card_class}">
+        <div class="
+            ml-active-content-shell
+            ml-active-card
+            {card_class}
+        ">
             <div class="ml-active-card-top">
                 <div>
                     <div class="ml-active-class">
@@ -208,72 +364,287 @@ def _render_idea_card(
                 <div class="ml-active-right">
                     {attention_html}
 
-                    <div class="ml-active-stance {stance_class}">
+                    <div class="
+                        ml-active-stance
+                        {stance_class}
+                    ">
                         {idea.stance}
                     </div>
                 </div>
             </div>
 
-            <div class="ml-active-summary">
-                <div class="ml-active-status-title">
-                    {idea.status_label}
-                </div>
-
-                <div class="ml-active-status-text">
-                    {idea.summary}
-                </div>
-            </div>
-
-            <div class="ml-active-metrics">
-                <div class="ml-active-metric">
-                    <span>Macro View</span>
-                    <strong class="{direction_class}">
-                        {idea.macro_direction}
-                    </strong>
-                </div>
-
-                <div class="ml-active-metric">
-                    <span>Macro Score</span>
-                    <strong>
-                        {_format_score(idea.directional_score)}
-                    </strong>
-                </div>
-
-                <div class="ml-active-metric">
-                    <span>Alignment</span>
-                    <strong>{idea.alignment}</strong>
-                </div>
-
-                <div class="ml-active-metric">
-                    <span>Confidence</span>
-                    <strong>
-                        {_format_percentage(idea.model_confidence)}
-                    </strong>
-                </div>
-            </div>
-
-            <div class="ml-active-changes">
-                {changes_html}
-            </div>
+            {body_html}
 
             <div class="ml-active-footer">
-                <div>
-                    <span>Last material change</span>
-                    <strong>{_format_last_change(idea)}</strong>
-                </div>
+                {footer_date_html}
 
                 <a
                     class="ml-active-open"
                     href="{workspace_link}"
                     target="_self"
                 >
-                    Open Decision Workspace
+                    Open Research Workspace
                 </a>
             </div>
         </div>
         """
     )
 
+def _inject_active_tooltip_css() -> None:
+    st.markdown(
+        """
+        <style>
+        /* -----------------------------------------
+           Shared Active Ideas tooltip structure
+           ----------------------------------------- */
+
+        .ml-help-label {
+            display: inline !important;
+        }
+
+        .ml-help-anchor {
+            position: relative !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            width: 15px;
+            height: 15px;
+            flex: 0 0 15px;
+
+            margin-left: 0.28rem;
+            padding: 0;
+
+            vertical-align: 0.08em;
+            cursor: help;
+            outline: none;
+        }
+
+        .ml-help-icon {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            width: 15px !important;
+            height: 15px !important;
+            min-width: 15px !important;
+            flex: 0 0 15px !important;
+
+            margin: 0 !important;
+            padding: 0 !important;
+
+            border: 1px solid #9aabba !important;
+            border-radius: 50% !important;
+            background: #ffffff !important;
+
+            color: #607086 !important;
+            font-family: inherit !important;
+            font-size: 0.62rem !important;
+            font-weight: 800 !important;
+            line-height: 1 !important;
+            letter-spacing: normal !important;
+            text-transform: none !important;
+        }
+
+        .ml-help-tooltip {
+            position: absolute !important;
+            z-index: 10000 !important;
+
+            left: 50% !important;
+            right: auto !important;
+            bottom: calc(100% + 9px) !important;
+            top: auto !important;
+
+            display: block !important;
+            width: 230px !important;
+            min-width: 230px !important;
+            height: auto !important;
+
+            margin: 0 !important;
+            padding: 0.65rem 0.75rem !important;
+
+            border: 1px solid #cfd8e3 !important;
+            border-radius: 8px !important;
+            background: #10233f !important;
+
+            color: #ffffff !important;
+            font-family: inherit !important;
+            font-size: 0.74rem !important;
+            font-weight: 500 !important;
+            line-height: 1.45 !important;
+            letter-spacing: normal !important;
+            text-align: left !important;
+            text-transform: none !important;
+            white-space: normal !important;
+
+            box-shadow:
+                0 10px 24px rgba(15, 35, 63, 0.18) !important;
+
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+
+            transform: translateX(-50%) !important;
+
+            transition:
+                opacity 120ms ease,
+                transform 120ms ease,
+                visibility 120ms ease;
+        }
+
+        .ml-help-tooltip::after {
+            content: "";
+            position: absolute;
+
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+
+            width: 0;
+            height: 0;
+
+            border-width: 6px;
+            border-style: solid;
+            border-color:
+                #10233f transparent transparent transparent;
+        }
+
+        .ml-help-anchor:hover .ml-help-tooltip,
+        .ml-help-anchor:focus .ml-help-tooltip,
+        .ml-help-anchor:focus-within .ml-help-tooltip {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform:
+                translateX(-50%) translateY(-2px) !important;
+        }
+
+
+        /* -----------------------------------------
+           Metric-card labels
+           ----------------------------------------- */
+
+        .ml-active-metric > span {
+            overflow: visible !important;
+        }
+
+        .ml-active-metric > span > .ml-help-label {
+            display: inline !important;
+        }
+
+        .ml-active-metric > span > .ml-help-anchor {
+            display: inline-flex !important;
+            margin-left: 0.24rem;
+        }
+
+
+        /* -----------------------------------------
+           Change-row labels
+           ----------------------------------------- */
+
+        .ml-active-change-label,
+        .ml-today-change-row > span:first-child,
+        .ml-active-changes,
+        .ml-today-change-list,
+        .ml-active-card,
+        .ml-today-change-card,
+        .ml-today-panel {
+            overflow: visible !important;
+        }
+
+        .ml-active-change-label .ml-help-label,
+        .ml-today-change-row .ml-help-label {
+            display: inline !important;
+        }
+
+        .ml-active-change-label .ml-help-anchor,
+        .ml-today-change-row .ml-help-anchor {
+            display: inline-flex !important;
+            margin-left: 0.24rem;
+        }
+
+        /*
+        Open change-row tooltips toward the right because their
+        labels sit near the left side of each card.
+        */
+        .ml-active-change-label .ml-help-tooltip,
+        .ml-today-change-row
+        > span:first-child
+        .ml-help-tooltip {
+            left: -8px !important;
+            right: auto !important;
+            transform: translateY(0) !important;
+        }
+
+        .ml-active-change-label .ml-help-tooltip::after,
+        .ml-today-change-row
+        > span:first-child
+        .ml-help-tooltip::after {
+            left: 14px;
+            right: auto;
+            transform: none;
+        }
+
+        .ml-active-change-label
+        .ml-help-anchor:hover
+        .ml-help-tooltip,
+        .ml-active-change-label
+        .ml-help-anchor:focus
+        .ml-help-tooltip,
+        .ml-today-change-row
+        .ml-help-anchor:hover
+        .ml-help-tooltip,
+        .ml-today-change-row
+        .ml-help-anchor:focus
+        .ml-help-tooltip {
+            transform: translateY(-2px) !important;
+        }
+
+
+        /* -----------------------------------------
+           Mobile
+           ----------------------------------------- */
+
+        @media (max-width: 700px) {
+            .ml-help-tooltip,
+            .ml-active-change-label .ml-help-tooltip,
+            .ml-today-change-row
+            > span:first-child
+            .ml-help-tooltip {
+                position: fixed !important;
+
+                left: 50% !important;
+                right: auto !important;
+                bottom: 24px !important;
+                top: auto !important;
+
+                width: min(
+                    280px,
+                    calc(100vw - 40px)
+                ) !important;
+
+                min-width: 0 !important;
+                max-width:
+                    calc(100vw - 40px) !important;
+
+                transform:
+                    translateX(-50%) !important;
+            }
+
+            .ml-help-tooltip::after {
+                display: none !important;
+            }
+
+            .ml-help-anchor:hover .ml-help-tooltip,
+            .ml-help-anchor:focus .ml-help-tooltip,
+            .ml-help-anchor:focus-within .ml-help-tooltip {
+                transform:
+                    translateX(-50%) !important;
+            }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 def _inject_active_ideas_css() -> None:
     st.markdown(
@@ -1065,6 +1436,58 @@ def _inject_active_ideas_css() -> None:
             margin-right: auto;
             margin-bottom: 1.25rem;
         }
+        .ml-active-compact-summary {
+            margin-top: 1rem;
+            padding-top: 0.9rem;
+            border-top: 1px solid #e8edf3;
+        }
+
+        .ml-active-compact-view {
+            display: flex;
+            align-items: baseline;
+            gap: 0.7rem;
+        }
+
+        .ml-active-compact-view strong {
+            font-size: 1.05rem;
+            font-weight: 850;
+        }
+
+        .ml-active-compact-view span {
+            color: #526176;
+            font-size: 0.88rem;
+            font-weight: 750;
+        }
+
+        .ml-active-compact-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1.5rem;
+            margin-top: 0.5rem;
+            color: #66758a;
+            font-size: 0.82rem;
+        }
+
+        .ml-active-compact-meta strong {
+            color: #20344e;
+            font-weight: 800;
+        }
+        
+        .ml-active-compact-meta > span {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.25rem;
+        }
+
+        .ml-active-compact-status {
+            margin-top: 0.55rem;
+            color: #66758a;
+            font-size: 0.8rem;
+        }
+
+        .ml-active-compact-status strong {
+            color: #33465f;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -1141,7 +1564,9 @@ def _render_todays_changes(
         for change in material_changes[:3]:
             change_rows += f"""
             <div class="ml-today-change-row">
-                <span>{change.label}</span>
+                <span>
+                    {_change_label_html(change.label)}
+                </span>
 
                 <strong>
                     {change.previous_value}
@@ -1230,6 +1655,7 @@ def _render_todays_changes(
 
 def render_active_ideas_page() -> None:
     _inject_active_ideas_css()
+    _inject_active_tooltip_css()
     
     render_page_intro(
         title="Active Ideas",
@@ -1285,6 +1711,7 @@ def render_active_ideas_page() -> None:
                 else f"{value} Months"
             ),
             key="active_ideas_horizon",
+            help=help_text("horizon"),
         )
 
     resolved_class = (
@@ -1341,7 +1768,7 @@ def render_active_ideas_page() -> None:
 
                 <div class="ml-active-summary-card">
                     <div class="ml-active-summary-label">
-                        Current Views
+                        No New Changes
                     </div>
 
                     <div class="ml-active-summary-value">
@@ -1404,11 +1831,11 @@ def render_active_ideas_page() -> None:
 
                 <div class="ml-active-section-header">
                     <div class="ml-active-section-title">
-                        Current Views
+                        No New Changes
                     </div>
 
                     <div class="ml-active-section-subtitle">
-                        The latest model view for each monitored asset.
+                        Monitored assets with no new material changes requiring review.
                     </div>
                 </div>
             </div>
@@ -1419,4 +1846,5 @@ def render_active_ideas_page() -> None:
             _render_idea_card(
                 idea,
                 selected_horizon,
+                compact=True,
             )

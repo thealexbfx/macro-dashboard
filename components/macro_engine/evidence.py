@@ -7,7 +7,10 @@ from typing import Any
 import streamlit as st
 
 from components.macro_engine.formatting import signal_text
-
+from components.help_text import (
+    help_text,
+    tooltip_html,
+)
 
 DRIVER_PATTERN = re.compile(
     r"^(?P<name>.+?):\s*"
@@ -163,7 +166,9 @@ def _render_driver_table(drivers: list[str]) -> None:
                 "</div>"
                 "</div>"
                 '<div class="ml-driver-stat">'
-                '<div class="ml-driver-stat-label">Trend score</div>'
+                '<div class="ml-driver-stat-label">'
+                f'{tooltip_html("Trend score", help_text("trend_score"))}'
+                "</div>"
                 f'<div class="ml-driver-stat-value">'
                 f'{escape(parsed["trend"])}'
                 "</div>"
@@ -182,7 +187,9 @@ def _render_driver_table(drivers: list[str]) -> None:
         '<div class="ml-evidence-panel">'
         '<div class="ml-evidence-panel-header">'
         '<div>'
-        '<div class="ml-evidence-panel-title">Primary Drivers</div>'
+        '<div class="ml-evidence-panel-title">'
+        f'{tooltip_html("Primary Drivers", help_text("primary_drivers"))}'
+        "</div>"
         '<div class="ml-evidence-panel-description">'
         "Pillars making the largest directional contribution to the "
         "current environment assessment."

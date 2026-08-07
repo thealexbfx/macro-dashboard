@@ -8,6 +8,10 @@ from typing import Any, Sequence
 import plotly.graph_objects as go
 import streamlit as st
 
+from components.help_text import (
+    help_text,
+    tooltip_html,
+)
 
 @dataclass(frozen=True)
 class RegimeDisplaySummary:
@@ -138,7 +142,7 @@ def _render_summary_card(
 ) -> None:
     html = (
         '<div class="ml-history-metric">'
-        f'<div class="ml-history-metric-label">{escape(label)}</div>'
+        f'<div class="ml-history-metric-label">{label}</div>'
         f'<div class="ml-history-metric-value">{escape(value)}</div>'
         f'<div class="ml-history-metric-detail">{escape(detail)}</div>'
         "</div>"
@@ -174,7 +178,9 @@ def _render_history_summary(
         f'<div class="ml-current-regime {tone}">'
         '<div class="ml-current-regime-header">'
         '<div>'
-        '<div class="ml-current-regime-eyebrow">Current regime</div>'
+        '<div class="ml-current-regime-eyebrow">'
+        f'{tooltip_html("Current regime", help_text("regime"))}'
+        '</div>'
         f'<div class="ml-current-regime-name">'
         f'{escape(summary.current_label)}'
         "</div>"
@@ -192,7 +198,10 @@ def _render_history_summary(
         "</div>"
         '<div class="ml-current-regime-item">'
         '<div class="ml-current-regime-item-label">'
-        "Consecutive observations"
+        f'{tooltip_html(
+            "Consecutive observations",
+            help_text("consecutive_observations"),
+        )}'
         "</div>"
         f'<div class="ml-current-regime-item-value">'
         f'{summary.current_observations} {observation_word}'
@@ -246,7 +255,10 @@ def _render_history_summary(
 
     with columns[1]:
         _render_summary_card(
-            label="Regime changes",
+            label=tooltip_html(
+                "Regime changes",
+                help_text("regime_changes"),
+            ),
             value=str(summary.regime_changes),
             detail="Changes in monthly environment label",
         )
@@ -326,7 +338,9 @@ def _render_recent_timeline(
                 "</div>"
                 "</div>"
                 '<div class="ml-history-stat">'
-                '<div class="ml-history-stat-label">Flags</div>'
+                '<div class="ml-history-stat-label">'
+                f'{tooltip_html("Flags", help_text("flags"))}'
+                '</div>'
                 f'<div class="ml-history-stat-value">'
                 f'{escape(flags_text)}'
                 "</div>"
@@ -387,7 +401,6 @@ def _build_impulse_chart(
                 "color": "#2563eb",
             },
             hovertemplate=(
-                "%{x|%b %Y}<br>"
                 "Activity: %{y:+.2f}"
                 "<extra></extra>"
             ),
@@ -412,7 +425,6 @@ def _build_impulse_chart(
                 "color": "#f59e0b",
             },
             hovertemplate=(
-                "%{x|%b %Y}<br>"
                 "Inflation: %{y:+.2f}"
                 "<extra></extra>"
             ),
@@ -437,7 +449,6 @@ def _build_impulse_chart(
                 "color": "#7c3aed",
             },
             hovertemplate=(
-                "%{x|%b %Y}<br>"
                 "Financial: %{y:+.2f}"
                 "<extra></extra>"
             ),
@@ -462,6 +473,9 @@ def _build_impulse_chart(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="#ffffff",
         hovermode="x unified",
+        hoverlabel={
+            "namelength": -1,
+        },
         legend={
             "orientation": "h",
             "yanchor": "bottom",

@@ -23,7 +23,7 @@ from app_pages.japan import render_japan_page
 from app_pages.uk import render_uk_page
 from app_pages.euro import render_euro_page
 
-
+from app_pages.home1 import render_home_page
 
 IS_PROD = os.getenv("APP_ENV", "dev") == "prod"
 if IS_PROD:
@@ -768,10 +768,11 @@ components.html("""
 
 inject_global_css()
 
-page = st.query_params.get("page", "Home")
+page = st.query_params.get("page", "HowItWorks")
 
 page_titles = {
-    "Home": "Global Overview",
+    "HowItWorks": "How MacroLens Works",
+    "MacroEngineGlobal": "Global Macro Monitor",
     "UnitedStates": "United States",
     "EuroArea": "Euro Area",
     "UnitedKingdom": "United Kingdom",
@@ -797,14 +798,17 @@ render_sidebar(active_page=page)
 #if page != "Home":
  #   render_top_strip(page_titles.get(page, page))
 
-if page == "Home":
+if page == "HowItWorks":
     safe_render(
-        render_macro_engine_global_page,
-        "Global Macro Overview",
+        render_home_page,
+        "How MacroLens Works",
     )
 
 elif page == "UnitedStates":
-    safe_render(render_usa_page, "USA")
+    safe_render(
+        render_usa_page,
+        "USA",
+    )
 
 elif page == "Japan":
     safe_render(render_japan_page, "Japan")
