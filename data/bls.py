@@ -1,5 +1,6 @@
 import datetime as dt
 from pathlib import Path
+import time
 
 import pandas as pd
 import requests
@@ -64,9 +65,35 @@ def get_bls_series(series_id: str, start_year: int = 2000):
         if BLS_API_KEY:
             payload["registrationkey"] = BLS_API_KEY
 
-        r = requests.post(url, json=payload, timeout=30)
-        r.raise_for_status()
-        data = r.json()
+        last_error = None
+
+        for attempt in range(3):
+            try:
+                r = requests.post(
+                    url,
+                    json=payload,
+                    timeout=30,
+                )
+                r.raise_for_status()
+                data = r.json()
+                last_error = None
+                break
+
+            except requests.RequestException as exc:
+                last_error = exc
+
+                if attempt < 2:
+                    time.sleep(5 * (attempt + 1))
+
+        if last_error is not None:
+            if cache_file.exists():
+                st.warning(
+                    f"BLS request failed for {series_id} after retries. "
+                    f"Using stale cached data instead. Error: {last_error}"
+                )
+                return _read_cached_series(cache_file)
+
+            raise last_error
 
         if data.get("status") != "REQUEST_SUCCEEDED":
             message = data.get("message", ["Unknown BLS error"])
