@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import traceback
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
-from typing import Callable, Any
+from typing import Any, Callable
 
 from app_pages.macro_engine.loaders import (
     JAPAN_HISTORY_START_DATE,
@@ -44,7 +45,56 @@ def refresh_and_save(
     print(f"{display_name} complete.")
 
 
-def refresh_current_environments() -> None:
+def run_refresh_jobs(
+    jobs: list[tuple[str, str, Callable[[], Any]]],
+    *,
+    failure_label: str,
+) -> list[str]:
+    """
+    Run refresh jobs concurrently.
+
+    A failure in one job does not prevent the other jobs from completing.
+    Failed jobs keep their previous cached value because save_cache() is
+    only called after the loader completes successfully.
+    """
+    failures: list[str] = []
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        future_map = {
+            executor.submit(
+                refresh_and_save,
+                display_name=display_name,
+                cache_name=cache_name,
+                loader=loader,
+            ): display_name
+            for display_name, cache_name, loader in jobs
+        }
+
+        for future, display_name in future_map.items():
+            try:
+                future.result()
+
+            except Exception as exc:
+                failures.append(display_name)
+
+                print()
+                print("=" * 60)
+                print(f"ERROR refreshing {display_name}")
+                print(f"{type(exc).__name__}: {exc}")
+                traceback.print_exc()
+                print("=" * 60)
+                print()
+
+    if failures:
+        print(
+            f"WARNING: Some {failure_label} failed to refresh: "
+            + ", ".join(failures)
+        )
+
+    return failures
+
+
+def refresh_current_environments() -> list[str]:
     jobs = [
         (
             "USA environment",
@@ -68,25 +118,13 @@ def refresh_current_environments() -> None:
         ),
     ]
 
-    with ThreadPoolExecutor(
-        max_workers=4
-    ) as executor:
-        futures = [
-            executor.submit(
-                refresh_and_save,
-                display_name=display_name,
-                cache_name=cache_name,
-                loader=loader,
-            )
-            for display_name, cache_name, loader
-            in jobs
-        ]
-
-        for future in futures:
-            future.result()
+    return run_refresh_jobs(
+        jobs,
+        failure_label="current environments",
+    )
 
 
-def refresh_environment_histories() -> None:
+def refresh_environment_histories() -> list[str]:
     today = date.today()
 
     jobs = [
@@ -132,22 +170,10 @@ def refresh_environment_histories() -> None:
         ),
     ]
 
-    with ThreadPoolExecutor(
-        max_workers=4
-    ) as executor:
-        futures = [
-            executor.submit(
-                refresh_and_save,
-                display_name=display_name,
-                cache_name=cache_name,
-                loader=loader,
-            )
-            for display_name, cache_name, loader
-            in jobs
-        ]
-
-        for future in futures:
-            future.result()
+    return run_refresh_jobs(
+        jobs,
+        failure_label="environment histories",
+    )
 
 
 def refresh_all() -> None:
@@ -159,16 +185,41 @@ def refresh_all() -> None:
     print("CURRENT ENVIRONMENTS")
     print("-" * 60)
 
-    refresh_current_environments()
+    current_failures = refresh_current_environments()
 
     print()
     print("ENVIRONMENT HISTORIES")
     print("-" * 60)
 
-    refresh_environment_histories()
+    history_failures = refresh_environment_histories()
 
     print()
-    print("MacroLens refresh complete.")
+    print("=" * 60)
+
+    if current_failures or history_failures:
+        print("MacroLens refresh completed with warnings.")
+
+        if current_failures:
+            print(
+                "Current environment failures: "
+                + ", ".join(current_failures)
+            )
+
+        if history_failures:
+            print(
+                "Environment history failures: "
+                + ", ".join(history_failures)
+            )
+
+        print(
+            "Successful refreshes were saved. "
+            "Failed refreshes retain their previous cached values."
+        )
+
+    else:
+        print("MacroLens refresh complete.")
+
+    print("=" * 60)
 
 
 if __name__ == "__main__":
