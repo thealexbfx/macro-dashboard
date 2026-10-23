@@ -1881,6 +1881,7 @@ def render_market_page(
                             "Price",
                             "Yield Spread",
                             "Percentage Change",
+                            "Changes",
                             "Relative Performance",
                             "Ratio",
                             "Rolling Correlation",
@@ -1891,6 +1892,7 @@ def render_market_page(
                         else [
                             "Price",
                             "Percentage Change",
+                            "Changes",
                             "Relative Performance",
                             "Ratio",
                             "Rolling Correlation",
@@ -2053,6 +2055,22 @@ def render_market_page(
         and compare_asset != "Compare +"
         and not compare_df.empty
     )
+
+    if has_comparison_data:
+        from components.research.comparison import render_comparison
+        tool_description = "Calculations use explicit alignment and metadata-aware transformations."
+        period_insight = "Inspect sample coverage and the research limitations below."
+        primary_config = dict(meta)
+        primary_config["group"] = ("Rates & Bonds" if is_yield else
+                                   "Crypto" if "crypto" in page_key.lower() else
+                                   "FX" if "fx" in page_key.lower() else
+                                   "Commodities" if "commod" in page_key.lower() else "Equities")
+        render_comparison(df_filtered, compare_df, primary_config, compare_config,
+                          indicator, compare_asset, chart_tool, render_chart_controls)
+        with st.expander("Related indicators and key drivers"):
+            st.write(meta.get("related", []))
+            st.write(meta.get("drivers", []))
+        return
 
     tool_descriptions = {
         "Price": (
@@ -2329,7 +2347,18 @@ def render_market_page(
     latest_val = current_market_value
     position_pct = stats["position_pct"]
     slope = stats["slope"]
-    volatility = stats["volatility"]
+    from macro_engine.research.analytics import metadata, changes, FREQUENCIES
+    primary_group = ("Rates & Bonds" if is_yield else "Crypto" if "crypto" in page_key.lower()
+                     else "FX" if "fx" in page_key.lower() else "Commodities" if "commod" in page_key.lower() else "Equities")
+    series_meta = metadata(meta, indicator, primary_group)
+    try:
+        sampled_changes = changes(df_filtered.set_index("date").value, series_meta)
+        periods_per_year = 365 if primary_group == "Crypto" else FREQUENCIES[series_meta.frequency][1]
+        volatility = sampled_changes.std() * periods_per_year ** 0.5
+        volatility_text = f"{volatility:.2f} {series_meta.change_unit}"
+    except ValueError:
+        volatility_text = "Unavailable for invalid price observations"
+
 
     if slope > 0:
         trend = "Upward"
@@ -2344,13 +2373,6 @@ def render_market_page(
         position_label = "Low"
     else:
         position_label = "Mid"
-
-    if volatility > 25:
-        significance = "High"
-    elif volatility > 12:
-        significance = "Moderate"
-    else:
-        significance = "Low"
 
     context_label = (
         "Custom view"
@@ -2369,8 +2391,7 @@ def render_market_page(
             f"{position_pct:.2f}% "
             f"({position_label})"
         ),
-        "Volatility": f"{volatility:.2f}%",
-        "Significance": significance,
+        "Annualized change SD": volatility_text,
         "Context": context_label,
     }
 
@@ -2490,10 +2511,18 @@ def render_market_page(
             primary_name=indicator,
         )
 
+    if not is_yield and not series_meta.return_eligible:
+        price_changes = {}
+        for label, offset in {"1D": pd.DateOffset(days=1), "1W": pd.DateOffset(weeks=1),
+                              "1M": pd.DateOffset(months=1), "6M": pd.DateOffset(months=6),
+                              "1Y": pd.DateOffset(years=1)}.items():
+            past = df[df.date <= df.date.max() - offset]
+            price_changes[label] = "—" if past.empty else f"{current_market_value - past.value.iloc[-1]:+.2f} {series_meta.units}"
+
     analysis_card_title = (
         "Yield Changes"
         if is_yield
-        else "Price Changes"
+        else "Price Changes" if series_meta.return_eligible else "Absolute Changes"
     )
     analysis_card_items = price_changes
 

@@ -151,7 +151,7 @@ def get_euro_economic_sentiment_data():
             "indic": "BS-ESI-I",
             "s_adj": "SA",
             "freq": "M",
-            "lastTimePeriod": "240",
+            "sinceTimePeriod": "2000-01",
         },
     )
 
@@ -162,7 +162,7 @@ def get_euro_economic_sentiment_data():
             "indic": "BS-ESI-I",
             "s_adj": "SA",
             "freq": "M",
-            "lastTimePeriod": "24",
+            "sinceTimePeriod": "2026-01",
         },
     )
 

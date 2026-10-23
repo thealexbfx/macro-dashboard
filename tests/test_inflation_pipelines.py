@@ -194,3 +194,7 @@ def test_labor_cost_pipeline_calls_each_loader_once(
 
     assert result.indicators_used == 5
     assert result.is_valid
+
+# Model-contract tests use synthetic source observations; live providers are tested separately.
+import pytest
+pytestmark = pytest.mark.usefixtures("synthetic_pipeline_data")

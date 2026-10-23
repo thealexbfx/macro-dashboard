@@ -11,3 +11,8 @@ dict
 
 .venv/
 venv/
+frontend/node_modules/
+frontend/.next/
+research_outputs/investigations/
+.pytest_cache/
+.ruff_cache/

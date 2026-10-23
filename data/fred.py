@@ -35,6 +35,8 @@ def get_fred_series(
     """
     if not series_id or not series_id.strip():
         raise ValueError("series_id must be a non-empty string")
+    if not FRED_API_KEY:
+        raise RuntimeError("FRED_API_KEY is required for the authenticated FRED connector.")
 
     params = {
         "series_id": series_id.strip(),

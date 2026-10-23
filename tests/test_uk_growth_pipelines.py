@@ -54,3 +54,7 @@ def test_run_uk_forward_looking():
     assert result.indicators_used == 1
     assert len(result.indicator_results) == 1
     assert result.diagnostics["missing_indicator_ids"] == []
+
+# Model-contract tests use synthetic source observations; live providers are tested separately.
+import pytest
+pytestmark = pytest.mark.usefixtures("synthetic_pipeline_data")

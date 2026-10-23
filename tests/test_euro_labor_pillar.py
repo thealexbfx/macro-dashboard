@@ -59,7 +59,8 @@ def test_euro_labor_scores_are_finite_and_bounded():
 
     assert -1.0 <= result.state_score <= 1.0
     assert -1.0 <= result.trend_score <= 1.0
-    assert 0.0 <= result.breadth_score <= 1.0
+    # Breadth is directional: negative readings indicate broad weakness.
+    assert -1.0 <= result.breadth_score <= 1.0
     assert 0.0 <= result.confidence_score <= 1.0
 
 
@@ -86,3 +87,7 @@ def test_euro_labor_weights_are_correct():
         "euro_total_employment_yoy": 0.5,
         "euro_unemployment_rate": 0.5,
     }
+
+# Model-contract tests use synthetic source observations; live providers are tested separately.
+import pytest
+pytestmark = pytest.mark.usefixtures("synthetic_pipeline_data")

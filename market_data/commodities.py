@@ -235,3 +235,8 @@ COMMODITY_COMPARE_MAP = {
     "Nasdaq": "^IXIC",
     "Bitcoin": "BTC-USD",
 }
+# Explicit quote conventions for research; other futures remain conservative.
+for _name in ("Gold", "Silver"):
+    COMMODITY_MAP[_name].update(unit_label="USD / troy oz", representation="price",
+                              can_be_nonpositive=False, ratio_group="precious-metal-usd-per-troy-oz",
+                              frequency="daily", source="Yahoo Finance futures closing prices")

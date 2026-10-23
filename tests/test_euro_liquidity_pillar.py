@@ -79,3 +79,7 @@ def test_euro_liquidity_weights_are_correct():
         "euro_central_bank_liquidity": 0.55,
         "euro_money_conditions": 0.45,
     }
+
+# Model-contract tests use synthetic source observations; live providers are tested separately.
+import pytest
+pytestmark = pytest.mark.usefixtures("synthetic_pipeline_data")

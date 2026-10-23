@@ -70,3 +70,6 @@ CRYPTO_COMPARE_MAP = {
     "DXY": "DX-Y.NYB",
     "US 10Y Yield": "^TNX",
 }
+for _config in CRYPTO_MAP.values():
+    _config.update(unit_label="USD per coin", representation="price", frequency="daily",
+                   can_be_nonpositive=False, source="Yahoo Finance closing quotes")

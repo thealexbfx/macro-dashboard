@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+from data.http import read_csv
 
 
 @st.cache_data(ttl=60, show_spinner=False)
@@ -14,7 +15,7 @@ def get_ecb_main_refinancing_rate_data():
         "FM/B.U2.EUR.4F.KR.MRR_FR.LEV?format=csvdata"
     )
 
-    df = pd.read_csv(url)
+    df = read_csv(url)
 
     df = df[["TIME_PERIOD", "OBS_VALUE"]].copy()
 
@@ -46,7 +47,7 @@ def get_ecb_negotiated_wages_data():
         "EWT/M.U2.N.WT.INWS._T.4F0.GY?format=csvdata"
     )
 
-    df = pd.read_csv(url)
+    df = read_csv(url)
 
     df = df[["TIME_PERIOD", "OBS_VALUE"]].copy()
 
@@ -80,7 +81,7 @@ def get_ecb_labor_productivity_data():
         "?format=csvdata"
     )
 
-    df = pd.read_csv(url)
+    df = read_csv(url)
 
     df = df[["TIME_PERIOD", "OBS_VALUE"]].copy()
 
@@ -112,7 +113,7 @@ def get_ecb_balance_sheet_data():
         "?format=csvdata"
     )
 
-    df = pd.read_csv(url)
+    df = read_csv(url)
 
     df = df[["TIME_PERIOD", "OBS_VALUE"]].copy()
 
@@ -143,7 +144,7 @@ def get_ecb_house_price_index_data():
         "?format=csvdata"
     )
 
-    df = pd.read_csv(url)
+    df = read_csv(url)
 
     df = df[["TIME_PERIOD", "OBS_VALUE"]].copy()
     df = df.rename(columns={"TIME_PERIOD": "date", "OBS_VALUE": "value"})
@@ -172,8 +173,8 @@ def get_ecb_trade_balance_data():
         "?format=csvdata"
     )
 
-    exports = pd.read_csv(export_url)[["TIME_PERIOD", "OBS_VALUE"]]
-    imports = pd.read_csv(import_url)[["TIME_PERIOD", "OBS_VALUE"]]
+    exports = read_csv(export_url)[["TIME_PERIOD", "OBS_VALUE"]]
+    imports = read_csv(import_url)[["TIME_PERIOD", "OBS_VALUE"]]
 
     exports = exports.rename(columns={
         "TIME_PERIOD": "date",
@@ -216,7 +217,7 @@ def get_ecb_total_employment_yoy_data():
         "?format=csvdata"
     )
 
-    df = pd.read_csv(url)
+    df = read_csv(url)
 
     df = df[["TIME_PERIOD", "OBS_VALUE"]].copy()
 
@@ -259,7 +260,7 @@ def get_ecb_m3_yoy_data():
         "?format=csvdata"
     )
 
-    df = pd.read_csv(url)
+    df = read_csv(url)
 
     df = df[["TIME_PERIOD", "OBS_VALUE"]].copy()
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
+from macro_engine.decision.historical_models import HistoricalEvidence
 from macro_engine.decision.fx_config import get_fx_config
 from macro_engine.decision.models import DecisionEvidence, ResearchIdea
 from macro_engine.models.environment import MacroEnvironmentResult
