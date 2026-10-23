@@ -4,6 +4,7 @@ import streamlit as st
 from config import ESTAT_API_KEY
 from io import BytesIO
 from data.fred import get_fred_series
+from data.http import read_csv, read_excel
 
 
 ESTAT_BASE_URL = "https://api.e-stat.go.jp/rest/3.0/app/json"
@@ -471,7 +472,7 @@ def get_japan_housing_starts_yoy_data():
 def get_japan_trade_balance_data():
     url = "https://www.customs.go.jp/toukei/suii/html/data/d41ma.csv"
 
-    raw = pd.read_csv(url, encoding="cp932")
+    raw = read_csv(url, encoding="cp932")
 
     df = raw.iloc[3:].copy()
 
@@ -500,7 +501,7 @@ def get_japan_trade_balance_data():
 def get_japan_economy_watchers_survey_data():
     url = "https://www5.cao.go.jp/keizai3/watcher-e/di.xls"
 
-    raw = pd.read_excel(url, sheet_name="3. DI by sector(SA)", header=None)
+    raw = read_excel(url, sheet_name="3. DI by sector(SA)", header=None)
 
     rows = []
     current_year = None

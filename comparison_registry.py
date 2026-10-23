@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from macro_engine.research.analytics import metadata
+
 from economy_data.usa import USA_ECONOMY_MAP
 from economy_data.euro import EURO_ECONOMY_MAP
 from economy_data.uk import UK_ECONOMY_MAP
@@ -122,6 +124,17 @@ def build_comparison_registry() -> dict:
         "Japan",
     )
 
+    for entry in registry.values():
+        source_map = {"Commodities": COMMODITY_MAP, "FX": FX_MAP,
+                      "Equities": EQUITIES_MAP, "Crypto": CRYPTO_MAP,
+                      "Rates & Bonds": RATES_BONDS_MAP,
+                      "United States": USA_ECONOMY_MAP, "Euro Area": EURO_ECONOMY_MAP,
+                      "United Kingdom": UK_ECONOMY_MAP, "Japan": JAPAN_ECONOMY_MAP}[entry["group"]]
+        config = source_map[entry["name"]]
+        for field in ("frequency", "unit_label", "source", "representation", "can_be_nonpositive", "ratio_group", "date_convention", "is_policy_rate", "carry_forward_days"):
+            if field in config:
+                entry[field] = config[field]
+        entry["metadata"] = metadata(entry, entry["name"], entry["group"])
     return registry
 
 

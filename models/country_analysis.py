@@ -1,3 +1,7 @@
+import os
+
+IS_PROD = os.getenv("APP_ENV", "dev") == "prod"
+
 import pandas as pd
 import streamlit as st
 

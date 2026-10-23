@@ -73,3 +73,7 @@ def test_euro_inflation_weights_are_correct():
         "euro_wage_cost_pressure": 0.25,
         "euro_monetary_policy_pressure": 0.20,
     }
+
+# Model-contract tests use synthetic source observations; live providers are tested separately.
+import pytest
+pytestmark = pytest.mark.usefixtures("synthetic_pipeline_data")

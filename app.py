@@ -205,9 +205,7 @@ try:
     OPENAI_API_KEY = st.secrets["openai"]["api_key"]
 except Exception:
     # fallback to .env
-    if not OPENAI_API_KEY:
-        st.error("❌ OpenAI API key not found! Set it in .env or Streamlit secrets.")
-        st.stop()
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # ------------------------------
 # Load BLS API key
 # ------------------------------
@@ -222,7 +220,7 @@ try:
 except Exception:
     BEA_API_KEY = os.getenv("BEA_API_KEY")
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 def calculate_summary_stats(df_filtered):
     from scipy.stats import linregress
@@ -305,7 +303,7 @@ def render_summary_bar(stats):
         <div>Change: <b style='color:{change_color};'>{stats["change_since_start"]:+.2f}</b></div>
         <div>Trend: <b>{stats["trend"]}</b></div>
         <div>Position: <b>{stats["position_pct"]:.0f}% ({position_label})</b></div>
-        <div>Volatility: <b>{stats["volatility"]:.1f}%</b></div>
+        <div>Level dispersion (CV): <b>{stats["volatility"]:.1f}%</b></div>
     </div>
     """, unsafe_allow_html=True)
 

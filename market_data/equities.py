@@ -229,3 +229,6 @@ EQUITIES_COMPARE_MAP = {
     "US 10Y Yield": "^TNX",
     "Bitcoin": "BTC-USD",
 }
+for _config in EQUITIES_MAP.values():
+    _config.update(unit_label="index points", representation="index", frequency="daily",
+                   can_be_nonpositive=False, source="Yahoo Finance index closing levels")

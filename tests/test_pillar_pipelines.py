@@ -239,3 +239,7 @@ def test_run_japan_growth():
     assert result.economy == "Japan"
     assert result.buckets_used == 4
     assert result.diagnostics["missing_bucket_ids"] == []
+
+# Model-contract tests use synthetic source observations; live providers are tested separately.
+import pytest
+pytestmark = pytest.mark.usefixtures("synthetic_pipeline_data")

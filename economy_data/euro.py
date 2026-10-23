@@ -340,3 +340,7 @@ EURO_ECONOMY_MAP = {
         "compatible_group": "currency_scale",
     },
 }
+# This connector reports effective ECB policy-rate events, not sampled prices.
+# Persistence is explicit, bounded, and never applied to unrelated macro series.
+EURO_ECONOMY_MAP["Interest Rate"]["carry_forward_days"] = 1096
+EURO_ECONOMY_MAP["Interest Rate"]["date_convention"] = "effective policy-rate dates; bounded state persistence; publication timing unverified"

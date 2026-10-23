@@ -2322,6 +2322,11 @@ def _render_research_limitations(
     )
 
 def render_research_workspace_page() -> None:
+    workspace_mode = st.radio("Research mode", ["Existing asset workspace", "Independent investigation"], horizontal=True)
+    if workspace_mode == "Independent investigation":
+        from components.research.notebook import render_notebook
+        render_notebook()
+        return
     _inject_research_workspace_css()
     _inject_research_tooltip_css()
     
@@ -2399,10 +2404,15 @@ def render_research_workspace_page() -> None:
     with st.spinner(
         f"Building {selected_asset_label} decision workspace..."
     ):
-        workspace = load_decision_workspace(
-            asset_key=selected_asset_key,
-            horizon_months=selected_horizon,
-        )
+        try:
+            workspace = load_decision_workspace(
+                asset_key=selected_asset_key,
+                horizon_months=selected_horizon,
+            )
+        except (ValueError, RuntimeError, OSError):
+            st.warning("Market data is temporarily unavailable for this asset.")
+            st.caption("Try another asset or switch to Independent investigation to use other data sources.")
+            return
 
     idea = workspace.idea
     market = workspace.market

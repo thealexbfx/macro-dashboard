@@ -122,23 +122,10 @@ def common_frequency(primary_meta, compare_meta):
 
 
 def align_series(primary_df, compare_df, primary_meta, compare_meta):
-    """Align two macro series without inventing higher-frequency observations."""
-    frequency = common_frequency(primary_meta, compare_meta)
-    period_alias = FREQUENCY_PERIODS.get(frequency, "M")
-
-    def resample(df, name):
-        sampled = df[["date", "value"]].copy()
-        sampled["period"] = sampled["date"].dt.to_period(period_alias)
-        sampled = sampled.groupby("period", as_index=False)["value"].last()
-        sampled["date"] = sampled["period"].dt.to_timestamp(how="end").dt.normalize()
-        return sampled.set_index("date")["value"].dropna().rename(name)
-
-    aligned = pd.concat(
-        [resample(primary_df, "primary"), resample(compare_df, "compare")],
-        axis=1,
-        join="inner",
-    ).dropna().reset_index()
-    return aligned, frequency
+    """Use the shared explicit grid without inventing higher-frequency observations."""
+    from macro_engine.research.analytics import align, metadata
+    frame, details = align(primary_df, compare_df, metadata(primary_meta), metadata(compare_meta))
+    return frame.rename(columns={"left": "primary", "right": "compare"}).rename_axis("date").reset_index(), details["frequency"]
 
 
 def zscore(series):
@@ -342,17 +329,17 @@ def transform_analysis(
         return result
 
     if analysis == "Correlation":
-        minimum = max(4, correlation_window // 2)
-        corr = aligned["primary"].rolling(
-            correlation_window,
-            min_periods=minimum,
-        ).corr(aligned["compare"])
+        from macro_engine.research.analytics import changes, metadata
+        minimum = correlation_window
+        primary_changes = changes(aligned["primary"], metadata(primary_meta))
+        compare_changes = changes(aligned["compare"], metadata(compare_meta))
+        corr = primary_changes.rolling(correlation_window, min_periods=minimum).corr(compare_changes)
         result["primary"] = pd.DataFrame(
             {"date": aligned["date"], "value": corr}
         ).dropna()
         result["compare"] = None
         result.update(
-            y_title=f"Rolling Correlation ({correlation_window} observations)",
+            y_title=f"Correlation of changes ({correlation_window} {frequency} observations)",
             suffix="",
             decimals=2,
             common_axis=True,
@@ -710,15 +697,16 @@ def comparison_intelligence(
         primary_meta,
         compare_meta,
     )
-    corr = aligned["primary"].corr(aligned["compare"]) if len(aligned) >= 4 else None
+    from macro_engine.research.analytics import changes, metadata
+    corr = changes(aligned["primary"], metadata(primary_meta)).corr(changes(aligned["compare"], metadata(compare_meta))) if len(aligned.dropna()) >= 12 else None
     primary_direction = recent_trend(primary_df).lower()
     compare_direction = recent_trend(compare_df).lower()
     relationship = ""
     if corr is not None and not pd.isna(corr):
         if corr >= 0.6:
-            relationship = f" Their {frequency} readings have moved closely together (r = {corr:.2f})."
+            relationship = f" Their {frequency} changes have moved closely together (r = {corr:.2f})."
         elif corr <= -0.6:
-            relationship = f" Their {frequency} readings have moved in opposite directions (r = {corr:.2f})."
+            relationship = f" Their {frequency} changes have moved in opposite directions (r = {corr:.2f})."
     return (
         f"{primary_name} is {primary_direction}, while {compare_name} is "
         f"{compare_direction}.{relationship}"
@@ -729,7 +717,7 @@ def analysis_explanation(analysis, has_compare, compatible, window):
     if analysis == "Level":
         return (
             "Level preserves each indicator’s original unit. Different units use separate "
-            "axes so the comparison is not distorted."
+            "axes; independently scaled axes can exaggerate apparent co-movement."
         )
     if analysis == "Z-Score":
         return (
@@ -743,7 +731,7 @@ def analysis_explanation(analysis, has_compare, compatible, window):
         )
     if analysis == "Correlation":
         return (
-            f"Rolling correlation measures co-movement over {window} aligned observations. "
+            f"Rolling correlation measures co-movement in economically appropriate changes over {window} aligned observations. "
             "It describes association, not causation."
             if has_compare
             else "Select a comparison indicator to calculate rolling correlation."
@@ -1066,6 +1054,13 @@ def render_economy_page(
         "Context": context_label,
     }
 
+    from macro_engine.research.analytics import LIMITATION
+    st.caption(LIMITATION)
+    if has_compare:
+        coverage, effective_frequency = align_series(df_filtered, compare_df, meta, compare_meta)
+        valid_coverage = coverage.dropna(subset=["primary", "compare"])
+        st.caption(f"Effective frequency: {effective_frequency}; paired observations: {len(valid_coverage)}; "
+                   f"sample: {valid_coverage.date.min()} to {valid_coverage.date.max()}; missing periods: {len(coverage) - len(valid_coverage)}.")
     fig = build_economy_chart(
         transformed=transformed,
         primary_name=indicator,

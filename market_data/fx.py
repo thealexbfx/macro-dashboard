@@ -199,3 +199,7 @@ FX_COMPARE_MAP = {
     "US 10Y Yield": "^TNX",
     "Bitcoin": "BTC-USD",
 }
+for _name, _config in FX_MAP.items():
+    _config.update(unit_label=(f"{_name.split('/')[1]} per {_name.split('/')[0]}" if '/' in _name else "index points"),
+                   representation="price" if '/' in _name else "index", frequency="daily",
+                   can_be_nonpositive=False, source="Yahoo Finance closing quotes")
