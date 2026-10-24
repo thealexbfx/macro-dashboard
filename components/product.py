@@ -80,6 +80,8 @@ def render_today():
 
     st.title("Today")
     st.caption("Markets at a glance. Choose a chart to look closer.")
+    from components.discovery_radar import render_discovery_radar
+    render_discovery_radar()
     names = [
         "Commodities · Gold",
         "Rates & Bonds · US 10Y",
