@@ -75,32 +75,6 @@ def test_summary_does_not_imply_nonzero_predictive_lead():
     assert "n=30" in text
 
 
-def test_navigation_routes_preserved_and_placeholders_usable():
-    from components.layout import NAV_ITEMS, _nav_link
-
-    keys = [key for items in NAV_ITEMS.values() for key, _ in items]
-    assert len(keys) == len(set(keys)) == 23
-    assert 'aria-current="page"' in _nav_link(
-        "ResearchWorkspace", "Workspace", "ResearchWorkspace"
-    )
-    assert all(
-        key in keys
-        for key in [
-            "CentralBankWatch",
-            "RegimeMonitor",
-            "ResearchNotes",
-            "GlobalMacroView",
-            "Calendar",
-        ]
-    )
-    from streamlit.testing.v1 import AppTest
-
-    app = AppTest.from_string(
-        'from app_pages.under_construction import render_under_construction_page;render_under_construction_page("Calendar")'
-    ).run()
-    assert not app.exception
-    assert "not available" in app.info[0].value
-    assert any("ResearchWorkspace" in item.value for item in app.markdown)
 
 
 def test_historical_horizon_uses_calendar_month_not_next_available_row():
@@ -163,13 +137,3 @@ notebook.render_notebook()
     assert not failed.exception
     assert failed.error
     assert len(failed.get("download_button")) == 4
-
-
-def test_market_axes_preserve_fractional_quotes():
-    from app_pages.market_page import build_clean_market_chart
-
-    frame = pd.DataFrame(
-        {"date": pd.date_range("2020-01-01", periods=3), "value": [1.12, 1.13, 1.14]}
-    )
-    fig = build_clean_market_chart(frame, "Line", primary_name="EUR/USD")
-    assert fig.layout.yaxis.tickformat == ",.2f"

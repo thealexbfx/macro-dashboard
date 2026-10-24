@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 from typing import Any, Callable
 
-from app_pages.macro_engine.loaders import (
+from macro_engine.refresh.loaders import (
     JAPAN_HISTORY_START_DATE,
     STANDARD_HISTORY_START_DATE,
 )

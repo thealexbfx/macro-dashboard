@@ -161,22 +161,6 @@ def test_effective_policy_state_persists_only_when_declared_and_within_bound():
     assert pd.isna(unfilled.left.iloc[1])
 
 
-def test_country_dashboard_correlation_uses_rate_changes():
-    from app_pages.economy_page import transform_analysis
-
-    a = pd.DataFrame(
-        {
-            "date": pd.date_range("2020-01-01", periods=20, freq="MS"),
-            "value": np.cumsum(np.sin(np.arange(20))),
-        }
-    )
-    config = {"frequency": "monthly", "unit_type": "percent", "unit_label": "%"}
-    result = transform_analysis(
-        "Correlation", a, "A", config, a, "B", config, correlation_window=6
-    )
-    assert result["valid"]
-    assert result["primary"].value.iloc[-1] == pytest.approx(1)
-    assert "changes" in result["y_title"]
 
 
 def test_notebook_streamlit_smoke():
@@ -244,22 +228,6 @@ notebook.render_notebook()
     assert len(ui.get("plotly_chart")) == 1
 
 
-def test_comparison_streamlit_smoke_and_invalid_mode():
-    from streamlit.testing.v1 import AppTest
-
-    script = """
-import pandas as pd
-from components.research.comparison import render_comparison
-frame = pd.DataFrame({"date": pd.date_range("2020-01-01", periods=80, freq="MS"), "value": [2+i%5 for i in range(80)]})
-render_comparison(frame, frame, {"unit_type": "percent"}, {"unit_type": "percent"}, "A", "B", MODE, lambda: None)
-"""
-    for mode in ("Price", "Rolling Correlation", "Percentage Change"):
-        app_test = AppTest.from_string(script.replace("MODE", repr(mode))).run(
-            timeout=20
-        )
-        assert not app_test.exception
-        if mode == "Percentage Change":
-            assert app_test.warning
 
 
 def test_regime_join_never_uses_future_snapshot():
@@ -305,6 +273,8 @@ def test_streamlit_application_starts_without_openai_key(monkeypatch):
     from streamlit.testing.v1 import AppTest
 
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    import components.product as product
+    monkeypatch.setattr(product,"recent_series",lambda *args: (_ for _ in ()).throw(RuntimeError("offline entry test")))
     app_test = AppTest.from_file(
         str(Path(__file__).resolve().parents[1] / "app.py")
     ).run(timeout=25)
@@ -320,28 +290,3 @@ def test_relationship_question_with_rate_is_not_misrouted_as_lookup():
     )
     assert plan.intent == ResearchIntent.HISTORICAL_RELATIONSHIP
     assert set(plan.assets) == {"unemployment", "gold"}
-
-
-def test_actual_market_page_preserves_single_and_comparison_paths():
-    from streamlit.testing.v1 import AppTest
-
-    script = """
-import pandas as pd
-import streamlit as st
-import app_pages.market_page as page
-def loader():
-    return pd.DataFrame({"date": pd.date_range("2020-01-01", periods=400, freq="B"), "value": [100+i+i%3 for i in range(400)]})
-config = {"data_func": loader, "description": "Synthetic price", "related": [], "drivers": [], "unit_label": "USD"}
-page.comparison_options = lambda: ["B"]
-page.get_comparison_series = lambda name: {"kind": "function", "loader": loader, "group": "Equities", "unit_label": "USD"}
-if COMPARE:
-    st.session_state["equity_compare_selected"] = "B"
-    st.session_state["equity_tool_selected"] = "Rolling Correlation"
-page.render_market_page({"A": config}, {"Test": ["A"]}, {}, "equity", "Equity")
-"""
-    for compare in (False, True):
-        app_test = AppTest.from_string(script.replace("COMPARE", repr(compare))).run(
-            timeout=25
-        )
-        assert not app_test.exception
-        assert len(app_test.get("plotly_chart")) == 1

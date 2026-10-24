@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from app_pages.macro_engine.loaders import (
+from macro_engine.refresh.loaders import (
     load_usa_macro_environment,
     load_euro_macro_environment,
     load_uk_macro_environment,
