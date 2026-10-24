@@ -7,32 +7,33 @@ NAV_ITEMS = {
         ("MacroEngineGlobal", "Global Macro Monitor"),
     ],
 
-    "Decisions": [
+    "Investigate markets": [
         ("ActiveIdeas", "Active Ideas"),
         ("ResearchWorkspace", "Research Workspace"),
        ## ("DecisionHistory", "Decision History"),
     ],
 
-    "Macro Engine": [
+    "Regional model views": [
         ("MacroEngineUSA", "United States"),
         ("MacroEngineEuro", "Euro Area"),
         ("MacroEngineUK", "United Kingdom"),
         ("MacroEngineJapan", "Japan"),
     ],
 
-    "Historical Research": [
+    "Historical evidence": [
         ("HistoricalRegimeExplorer", "Regime Explorer"),
-        ("RegimeMonitor", "Regime Monitor"),
+
     ],
 
-    "Research Tools": [
+    "Coming soon": [
+        ("RegimeMonitor", "Regime Monitor"),
         ("CentralBankWatch", "Central Bank Watch"),
         ("Calendar", "Calendar"),
         ("ResearchNotes", "Research Notes"),
         ("GlobalMacroView", "Global Macro Outlook"),
     ],
 
-    "Economic + Market Data": [
+    "Data explorer": [
         ("UnitedStates", "United States"),
         ("EuroArea", "Euro Area"),
         ("UnitedKingdom", "United Kingdom"),
@@ -48,20 +49,22 @@ NAV_ITEMS = {
 
 def _nav_link(page_key: str, label: str, active_page: str) -> str:
     active_class = " active" if page_key == active_page else ""
-    return f'<a class="ml-nav-link{active_class}" href="?page={page_key}" target="_self">{label}</a>'
+    current = ' aria-current="page"' if page_key == active_page else ""
+    return f'<a class="ml-nav-link{active_class}" {current} href="?page={page_key}" target="_self">{label}</a>'
 
 
 def render_sidebar(active_page: str = "HowItWorks"):
     nav_html = ""
 
-    for section, items in NAV_ITEMS.items():
+    for section in ["Dashboard", "Investigate markets", "Regional model views", "Historical evidence", "Data explorer", "Coming soon"]:
+        items = NAV_ITEMS[section]
         nav_html += f'<div class="ml-nav-section">{section}</div>'
         for page_key, label in items:
             nav_html += _nav_link(page_key, label, active_page)
 
     st.html(
         f"""
-        <input type="checkbox" id="ml-menu-toggle" class="ml-menu-toggle">
+        <input type="checkbox" id="ml-menu-toggle" class="ml-menu-toggle" aria-label="Open navigation menu">
 
         <label for="ml-menu-toggle" class="ml-mobile-menu-btn">
             ☰
@@ -69,12 +72,12 @@ def render_sidebar(active_page: str = "HowItWorks"):
 
         <label for="ml-menu-toggle" class="ml-mobile-backdrop"></label>
 
-        <aside class="ml-sidebar">
+        <nav class="ml-sidebar" aria-label="Main navigation">
             <label for="ml-menu-toggle" class="ml-mobile-close">×</label>
 
             <div class="ml-logo">Macro<span>Lens</span></div>
             {nav_html}
-        </aside>
+        </nav>
         """
     )
 

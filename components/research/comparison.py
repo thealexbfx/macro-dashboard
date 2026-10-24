@@ -52,34 +52,31 @@ def comparison_figure(values, details, left_name, right_name):
             row=2,
             col=1,
         )
+    fig.update_layout(
+        title=dict(
+            text=f"{left_name}<br>{right_name} · {details['mode']}", font=dict(size=13)
+        ),
+        template="plotly_white",
+        colorway=["#1d4ed8", "#b45309"],
+        legend=dict(orientation="h", y=-0.12, x=0),
+        margin=dict(l=45, r=15, t=90, b=105),
+        hovermode="x unified",
+        meta=details,
+    )
+    fig.update_xaxes(title_text="Observation period", row=2 if separate else 1, col=1)
+    if details["mode"] != "Price":
+        fig.add_hline(y=0, line_color="#64748b", line_width=1)
     fig.add_annotation(
         x=0,
-        y=-0.2,
+        y=-0.30,
         xref="paper",
         yref="paper",
-        showarrow=False,
         xanchor="left",
-        text=f"{details['frequency']} | n={details['observations']} | {details['start']} to {details['end']} | window={details.get('window', 'n/a')}",
-    )
-    fig.add_annotation(
-        x=0,
-        y=-0.28,
-        xref="paper",
-        yref="paper",
         showarrow=False,
-        xanchor="left",
-        text="Latest-vintage descriptive evidence; publication timing unverified. Not a point-in-time backtest.",
+        text=f"{details['frequency']} · paired n={details['observations']}<br>{details['start']} to {details['end']}<br>Latest-vintage observations; publication timing unverified.<br>Not a point-in-time backtest.",
+        font=dict(size=10),
     )
-    fig.add_annotation(
-        x=0,
-        y=-0.36,
-        xref="paper",
-        yref="paper",
-        showarrow=False,
-        xanchor="left",
-        text=f"Sources: {details['left_source']}; {details['right_source']}",
-    )
-    fig.update_layout(margin=dict(b=160))
+    fig.update_layout(margin=dict(b=175))
     return fig
 
 

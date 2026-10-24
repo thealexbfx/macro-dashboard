@@ -581,7 +581,7 @@ def build_clean_market_chart(
                 size=14,
                 color="#111827",
             ),
-            tickformat=",.0f",
+            tickformat=",.2f",
             fixedrange=True,
         ),
     )
@@ -605,7 +605,7 @@ def build_clean_market_chart(
                 size=14,
                 color="#111827",
             ),
-            tickformat=",.0f",
+            tickformat=",.2f",
             fixedrange=True,
         )
 
