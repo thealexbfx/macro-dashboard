@@ -161,8 +161,6 @@ def test_effective_policy_state_persists_only_when_declared_and_within_bound():
     assert pd.isna(unfilled.left.iloc[1])
 
 
-
-
 def test_notebook_streamlit_smoke():
     from streamlit.testing.v1 import AppTest
 
@@ -182,7 +180,12 @@ notebook.render_notebook()
     app_test.button[0].click().run(timeout=20)
     assert not app_test.exception
     assert len(app_test.get("plotly_chart")) == 1
-    assert {button.label for button in app_test.get("download_button")} == {"Export investigation", "Export observations", "Export rolling correlations", "Export research chart"}
+    assert {button.label for button in app_test.get("download_button")} == {
+        "Export investigation",
+        "Export observations",
+        "Export rolling correlations",
+        "Export research chart",
+    }
 
 
 def test_notebook_saves_reopens_and_updates_same_record(tmp_path):
@@ -228,8 +231,6 @@ notebook.render_notebook()
     assert len(ui.get("plotly_chart")) == 1
 
 
-
-
 def test_regime_join_never_uses_future_snapshot():
     from types import SimpleNamespace
 
@@ -273,8 +274,13 @@ def test_streamlit_application_starts_without_openai_key(monkeypatch):
     from streamlit.testing.v1 import AppTest
 
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    import components.product as product
-    monkeypatch.setattr(product,"recent_series",lambda *args: (_ for _ in ()).throw(RuntimeError("offline entry test")))
+    import components.chart_workspace as charts
+
+    monkeypatch.setattr(
+        charts,
+        "load_series",
+        lambda *args: (_ for _ in ()).throw(RuntimeError("offline entry test")),
+    )
     app_test = AppTest.from_file(
         str(Path(__file__).resolve().parents[1] / "app.py")
     ).run(timeout=25)
