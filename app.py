@@ -174,7 +174,7 @@ try:
     OPENAI_API_KEY = st.secrets["openai"]["api_key"]
 except Exception:
     # fallback to .env
-    if not OPENAI_API_KEY:
+    if not OPENAI_API_KEY and st.query_params.get("page") != "DiscoveryRadar":
         st.error("❌ OpenAI API key not found! Set it in .env or Streamlit secrets.")
         st.stop()
 # ------------------------------
@@ -191,7 +191,7 @@ try:
 except Exception:
     BEA_API_KEY = os.getenv("BEA_API_KEY")
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 def calculate_summary_stats(df_filtered):
     from scipy.stats import linregress
@@ -741,6 +741,7 @@ inject_global_css()
 page = st.query_params.get("page", "Home")
 
 page_titles = {
+    "DiscoveryRadar": "Discovery Radar",
     "Home": "Overview",
     "UnitedStates": "United States",
     "EuroArea": "Euro Area",
@@ -761,7 +762,11 @@ page_titles = {
 render_sidebar(active_page=page)
 render_top_strip(page_titles.get(page, page))
 
-if page == "Home":
+if page == "DiscoveryRadar":
+    from app_pages.discovery_radar import render_discovery_radar
+    safe_render(render_discovery_radar, "Discovery Radar")
+
+elif page == "Home":
     render_home_page()
 
 elif page == "UnitedStates":

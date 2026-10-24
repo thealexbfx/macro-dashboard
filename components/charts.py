@@ -4,6 +4,19 @@ import plotly.graph_objects as go
 import numpy as np
 
 
+def plot_comparison_chart(series):
+    """Shared-date panels retain native units/frequencies without interpolation."""
+    from plotly.subplots import make_subplots
+    fig = make_subplots(rows=len(series), cols=1, shared_xaxes=True,
+                        subplot_titles=list(series), vertical_spacing=.08)
+    for row, (name, frame) in enumerate(series.items(), 1):
+        fig.add_trace(go.Scatter(x=frame['date'], y=frame['value'],
+                                name=name, mode='lines+markers', connectgaps=False), row=row, col=1)
+    fig.update_layout(height=max(450,240*len(series)), showlegend=False,
+                      template='plotly_white', margin=dict(l=50,r=25,t=50,b=40))
+    return fig
+
+
 # -------- Helper Functions --------
 def plot_chart(
     df,

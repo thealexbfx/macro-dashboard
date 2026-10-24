@@ -4,9 +4,9 @@ services:
     env: python
     repo: https://github.com/thealexbfx/macro-dashboard
     branch: main
-    buildCommand: ""
-    startCommand: streamlit run app.py
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: streamlit run app.py --server.address 0.0.0.0 --server.port $PORT
     plan: free
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10
+        value: "3.12.15"

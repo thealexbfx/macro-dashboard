@@ -4,6 +4,7 @@ import streamlit as st
 NAV_ITEMS = {
     "Dashboard": [("Home", "Overview")],
     "Research": [
+        ("DiscoveryRadar", "Discovery Radar"),
         ("GlobalMacroView", "Global Macro View"),
         ("RegimeMonitor", "Regime Monitor"),
         ("CentralBankWatch", "Central Bank Watch"),

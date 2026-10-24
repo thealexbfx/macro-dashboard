@@ -15,12 +15,17 @@ def get_fred_series(series_id: str):
         "file_type": "json",
     }
 
-    r = requests.get(url, params=params, timeout=20)
+    if not FRED_API_KEY:
+        raise RuntimeError('FRED_API_KEY is not configured')
+    try:
+        r = requests.get(url, params=params, timeout=20)
+    except requests.RequestException:
+        raise RuntimeError(f'FRED connection/timeout failure for {series_id}') from None
 
     if r.status_code != 200:
         raise RuntimeError(
             f"FRED request failed for {series_id}: "
-            f"{r.status_code} - {r.text[:300]}"
+            f"HTTP {r.status_code} (check credential and provider status)"
         )
 
     data = r.json()
@@ -36,7 +41,7 @@ def get_fred_series(series_id: str):
     df = df[["date", "value"]]
     df["date"] = pd.to_datetime(df["date"])
     df["value"] = pd.to_numeric(df["value"], errors="coerce")
-    df = df.dropna().sort_values("date").reset_index(drop=True)
+    df = df.sort_values("date").reset_index(drop=True)
 
     return df
 
