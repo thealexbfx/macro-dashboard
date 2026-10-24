@@ -115,3 +115,51 @@ Eight unittest cases passed locally. A live provider request successfully retrie
 The runtime required a writable Yahoo cache path; set yfinance.set_tz_cache_location
 to a writable directory on restricted hosts. No live economic request was verified.
 Full Streamlit startup was not exercised because application credentials are absent.
+
+## Focused hardening pass
+
+Current mode is now the default. `--start` and exclusive `--end` configure
+retrieval; absent dates default to two years before today through today.
+`--mode historical --start 2019-01-01 --end 2021-01-01` retains historical scans.
+Both modes discard observations dated today or later in UTC. This intentionally
+waits until the next UTC day even if an exchange has already closed. It prevents
+incomplete bars for the supported US markets and UTC crypto daily bars; it is
+not an exchange-calendar implementation for arbitrary international instruments.
+Current mode emits only signals on the latest completed returned observation.
+A stale provider can therefore return an old latest observation; check the
+reported latest_completed_observation before operational alerting.
+
+Reversals require an absolute-change prior percentile of at least 0.90 and
+strictly exceed Config.reversal_minimum (default zero in the metric's units).
+No reversal is emitted without enough prior history. This replaces the earlier
+every-sign-change behavior. The percentile gate is asset-specific, while the
+optional absolute floor allows domain-specific economic significance.
+
+Consecutive trends use an episode ID anchored to the first changed observation.
+Continuations evolve that signal. Direction changes, flat values and gaps end
+an episode. Each episode snapshot includes its full observation history; SQLite
+signal_history retains material versions. Scans collapse historical snapshots to
+one latest snapshot per episode; older observations cannot overwrite newer ones.
+Episode identity needs a stable start in the retrieval window: use a sufficiently
+long or fixed --start for very long trends. Pre-hardening date-based signal IDs
+are not automatically migrated; use a fresh scanner database for rollout.
+
+Anomaly scores now use unusualness and quality only. Trend scores use cumulative
+magnitude percentile, persistence and quality. Cumulative magnitude compares
+prior windows of the same duration as the episode; market cumulative returns
+compound prices, while economic rates use percentage-point differences. When
+history is insufficient, magnitude contributes zero with an explicit warning.
+Momentum and cumulative changes are undefined across missing interior periods.
+Weekday inputs reject weekend dates rather than silently remapping them.
+Absolute-change percentile remains a prior-only empirical midrank; tied changes
+receive half credit, and a new extreme can rank 1.0. This is not a tail probability.
+
+Fourteen automated tests pass, including current-date exclusion, explicit date
+bounds, provider failure isolation, repeated scans, episode evolution/history,
+gap termination, reversal gates, magnitude ranking, and weekend rejection.
+A new live current-mode run successfully fetched GC=F, BTC-USD and ^GSPC;
+provider errors were empty. This verifies retrieval and scanning, not bar-finality
+claims from exchange metadata. Completion filtering and failure isolation were
+verified using controlled provider fixtures. Economic live data, exact exchange
+holidays, revised-history episode migration and Streamlit startup remain untested.
+No website, relationship engine, background service or main-branch change.
