@@ -193,6 +193,32 @@ def render_investigate():
     st.title("Investigate")
     st.caption("Pick two things. See how they moved.")
     options = [n for n in CORE if n in COMPARISON_REGISTRY]
+    context = None
+    if st.query_params.get('discovery'):
+        try:
+            start_link=date.fromisoformat(st.query_params['start'])
+            end_link=date.fromisoformat(st.query_params['end'])
+            observation=date.fromisoformat(st.query_params['observation'])
+            target=st.query_params['left']
+            if target not in COMPARISON_REGISTRY or not start_link <= observation <= end_link < date.today():
+                raise ValueError('Invalid discovery context')
+            context={'signal_id':st.query_params['discovery'],'name':target,'start':start_link,'end':end_link,'observation':observation}
+        except (ValueError, KeyError):
+            st.warning('Discovery link is invalid. Using the standard comparison workspace.')
+    active_related=None
+    if context:
+        from discovery.radar import SPECS, RELATED
+        identity=next((key for key,spec in SPECS.items() if spec[0]==context['name']),None)
+        suggestions=[(name,why) for name,why in RELATED.get(identity,[]) if name in COMPARISON_REGISTRY]
+        st.caption(f"Discovery observation: {context['observation']} · requested history {context['start']} to {context['end']}")
+        for name,why in suggestions:
+            st.caption(f'{short(name)} — {why}')
+        queue=st.multiselect('Related comparison queue',[n for n,_ in suggestions],default=[suggestions[0][0]] if suggestions else [],
+                             format_func=short,key='discovery_queue_'+context['signal_id'])
+        if queue:
+            active_related=st.radio('Queued comparison',queue,format_func=short,horizontal=True)
+        for name in queue:
+            if name not in options: options.append(name)
     for side in ("left", "right"):
         linked = st.query_params.get(side)
         if linked in COMPARISON_REGISTRY and linked not in options:
@@ -218,7 +244,7 @@ def render_investigate():
     a, b, c = st.columns([2, 2, 1])
 
     def default(side, fallback):
-        requested = st.query_params.get(side, fallback)
+        requested = active_related if side=='right' and active_related else st.query_params.get(side, fallback)
         return (
             options.index(requested)
             if requested in options
@@ -238,18 +264,21 @@ def render_investigate():
             options,
             index=default("right", "Rates & Bonds · US 10Y"),
             format_func=short,
+            **({'key':'discovery_pair_'+context['signal_id']+'_'+str(active_related)} if context else {}),
         )
     with c:
-        period = st.selectbox("Time", list(PERIODS), index=1)
+        period = st.selectbox("Time", ['Discovery window'] if context else list(PERIODS), index=0 if context else 1)
     if left == right:
         st.info("Choose two different things.")
         return
     end = date.today()
-    start = (
+    start = context['start'] if context else (
         date(2000, 1, 1)
         if PERIODS[period] is None
         else end - timedelta(days=PERIODS[period])
     )
+    if context:
+        start,end=context['start'],context['end']
     try:
         with st.spinner("Loading charts…"):
             x, y = load_series(left, start, end), load_series(right, start, end)
@@ -260,9 +289,10 @@ def render_investigate():
             levels, details = analyze(x, y, lm, rm, "Price")
             changed, change_details = analyze(x, y, lm, rm, "Changes")
             evidence = relationship(changed, window=60)
-        st.plotly_chart(
-            pair_chart(levels, details, left, right), use_container_width=True
-        )
+        chart=pair_chart(levels, details, left, right)
+        if context:
+            chart.add_vline(x=str(context['observation']),line_dash='dot',line_color='#d4a344')
+        st.plotly_chart(chart, use_container_width=True)
         st.write(plain_finding(evidence["full_sample"]["correlation"]))
         st.caption(
             f"{details['start']} to {details['end']} · Past patterns do not predict the next move."
@@ -296,7 +326,10 @@ def render_investigate():
                     },
                 },
             )
-            save_key = f"chart_saved_{left}_{right}_{period}"
+            if context:
+                payload['discovery']={'signal_id':context['signal_id'],'observation_date':str(context['observation']),
+                                      'target':context['name'],'queue':queue}
+            save_key = f"chart_saved_{left}_{right}_{period}" + (f"_{context['start']}_{context['end']}" if context else '')
             try:
                 saved = save_investigation(
                     payload, investigation_id=st.session_state.get(save_key)
