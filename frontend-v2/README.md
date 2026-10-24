@@ -1,5 +1,7 @@
 # MacroLens V2 — Phase 2
 
+The current frontend includes the focused [Phase 2.1 usability refinement](PHASE_2_1.md). Run `npm test` for deterministic presentation checks or `npm run test:integration` for explicit real-provider verification through the isolated backend.
+
 The approved navy UI remains the same. This isolated application retrieves real observations through a separate FastAPI process. Nothing is deployed, and the existing production Streamlit/Next.js/API services are not changed.
 
 ## Launch together
