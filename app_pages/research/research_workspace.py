@@ -2322,6 +2322,7 @@ def _render_research_limitations(
     )
 
 def render_research_workspace_page() -> None:
+    st.caption("Asset workspace starts with the model’s interpretation. Independent investigation starts with your question and lets you save evidence and notes.")
     workspace_mode = st.radio("Research mode", ["Existing asset workspace", "Independent investigation"], horizontal=True)
     if workspace_mode == "Independent investigation":
         from components.research.notebook import render_notebook

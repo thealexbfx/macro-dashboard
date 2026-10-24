@@ -793,6 +793,8 @@ page_titles = {
     "MacroEngineJapan": "Japan Macro Engine",
 }
 render_sidebar(active_page=page)
+from components.page_context import render_page_context
+render_page_context(page)
 #if page != "Home":
  #   render_top_strip(page_titles.get(page, page))
 

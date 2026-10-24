@@ -198,7 +198,7 @@ notebook.render_notebook()
     app_test.button[0].click().run(timeout=20)
     assert not app_test.exception
     assert len(app_test.get("plotly_chart")) == 1
-    assert len(app_test.get("download_button")) == 3
+    assert {button.label for button in app_test.get("download_button")} == {"Export investigation", "Export observations", "Export rolling correlations", "Export research chart"}
 
 
 def test_notebook_saves_reopens_and_updates_same_record(tmp_path):

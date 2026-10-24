@@ -11,6 +11,7 @@ CSS_FILES = [
     "dashboard.css",
     "charts.css",
     "research.css",
+    "quality.css",
 ]
 
 

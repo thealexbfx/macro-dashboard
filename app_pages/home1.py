@@ -513,7 +513,7 @@ def render_home_page() -> None:
                         </div>
 
                         <div class="ml-home-concept-text">
-                            How reliable the model considers the classification. High confidence means there is
+                            Classification agreement and data coverage, not a calibrated probability of future market direction. A high reading means there is
                             enough underlying data and the indicators broadly agree on what environment we are in.     
                         </div>
                     </article>

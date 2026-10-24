@@ -228,13 +228,21 @@ def add_forward_outcomes(
 
     result = data.copy()
 
+    if "month" not in result:
+        raise ValueError("Monthly outcomes require an explicit month column.")
+    months = pd.PeriodIndex(result["month"], freq="M")
+    if months.has_duplicates:
+        raise ValueError("Monthly outcomes require unique months.")
+    prices = pd.Series(result["asset_close"].to_numpy(), index=months)
+
     for horizon in horizons:
-        if horizon <= 0:
+        if not isinstance(horizon, int) or horizon <= 0:
             raise ValueError(
                 "Forward horizons must be positive."
             )
 
-        future_value = result["asset_close"].shift(-horizon)
+        # Calendar-month lookup prevents a missing month from lengthening the horizon.
+        future_value = pd.Series(prices.reindex(months + horizon).to_numpy(), index=result.index)
 
         if outcome_mode == "percentage_return":
             outcome = (
@@ -248,7 +256,7 @@ def add_forward_outcomes(
                 - result["asset_close"]
             ) * outcome_multiplier
 
-        result[f"forward_outcome_{horizon}m"] = outcome
+        result[f"forward_outcome_{horizon}m"] = outcome.replace([float("inf"), -float("inf")], float("nan"))
 
     return result
 
