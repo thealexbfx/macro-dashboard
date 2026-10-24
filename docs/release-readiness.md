@@ -1,5 +1,9 @@
 # Discovery Radar integration and release gate
 
+The later [deployment checklist](deployment-checklist.md) supersedes the runtime
+blocker below with the proposed exact Python 3.12.15 configuration and records
+clean-environment verification, credential requirements and manual rollout steps.
+
 ## Dependency and merge order
 
 Checked 2026-10-24: PR #5 is open against main at

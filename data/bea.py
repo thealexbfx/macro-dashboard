@@ -122,8 +122,9 @@ def get_bea_nipa_series(table_name: str, line_number: int, frequency: str = "Q")
         if cache_file.exists():
             st.warning(
                 f"BEA request failed for {table_name} line {line_number}. "
-                f"Using cached data instead. Error: {e}"
+                f"Using cached data instead. Failure type: {type(e).__name__}."
             )
             return _read_cached_series(cache_file)
 
-        raise
+        # Request exceptions can embed the URL including UserID (the API key).
+        raise RuntimeError(f'BEA retrieval failed for {table_name} line {line_number} ({type(e).__name__})') from None
