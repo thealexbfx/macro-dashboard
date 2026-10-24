@@ -12,7 +12,7 @@ class EngineTests(unittest.TestCase):
         m,s=analyze(self.frame([3.3,3.5,2.6]),Dataset('cpi','M','percent','synthetic'))
         self.assertAlmostEqual(m.change.iloc[-1],-.9)
         self.assertAlmostEqual(m.acceleration.iloc[-1],-1.1)
-        self.assertEqual(s[-1]['actual_measured_change']['unit'],'percentage_points')
+        self.assertEqual(s, [])  # insufficient baseline suppresses reversal noise
     def test_unemployment(self):
         m,s=analyze(self.frame([3.5,3.6,3.7,3.8]),Dataset('unemployment','M','percent','synthetic'))
         self.assertEqual(s[-1]['trend_context']['consecutive_movements'],3)
