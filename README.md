@@ -1,15 +1,13 @@
 # MacroLens
 
-A small Streamlit application for checking markets, investigating an economic question, and continuing personal research.
+Three chart-first pages: **Today**, **Investigate**, **My Research**.
 
-- **Today**: four dated market moves, their sources and a path into research. No inferred news or catalysts.
-- **Investigate**: a question, two indicators and a comparison chart. Sample dates, transformations, frequencies and statistical tools are optional. Prices use appropriate returns; yields use basis-point changes. Missing observations remain missing.
-- **My Research**: reopen local investigations, write conclusions, export records and restore exported version-1 records.
+Today: four compact market readings, four large market charts, and US inflation/unemployment charts. Dates stay visible; prices are daily closes, not live quotes or explanations of causes.
 
-Run `streamlit run app.py`. Run tests with `python -m pytest -q`; live-provider checks require `--run-live` and provider credentials where applicable. The default suite blocks unintended HTTP access.
+Investigate: choose two series and one of three time ranges. Charts appear automatically. No text, number or date-entry fields. Save comparisons with generated names. One short finding describes correlation of appropriate changes, not level correlation or a forecast.
 
-Saved JSON lives in `research_outputs/investigations/`. This is temporary server storage, not durable per-user cloud storage. Export a copy. Restored records are labelled unverified until recalculated.
+My Research: choose a saved comparison, view its chart and any earlier written notes, and download the original record. Local saves belong to the server and may disappear on restart. Existing version-1 records remain readable. New UI intentionally omits writing/editing notes and advanced statistical forms.
 
-The production entry imports neither the retired regional/model dashboards nor the separate Next.js/FastAPI application. Statistical and economic model engines remain for tested backend and research consumers. Refresh loaders now live under `macro_engine/refresh/`. No deployment or secrets configuration was changed.
+Run `streamlit run app.py`. Tests: `python -m pytest -q`; live checks opt in with `--run-live`. Provider failure and missing observations do not create invented values.
 
-See `docs/PRODUCT_SIMPLIFICATION.md`, `docs/REMOVED_PRODUCT_SURFACES.md` and `docs/REBUILD_VALIDATION.md` for decisions, removals and validation. Older audit documents describe the previous product and are retained as historical context, not current navigation instructions.
+Methodology/engine safeguards remain unchanged. Backend/frontend remain separate consumers. Older notebooks and UI tests remain as compatibility/reference code; production routes call `components/chart_workspace.py`, never the old typing form. See docs/CHART_FIRST_DESIGN.md for verification and limits.

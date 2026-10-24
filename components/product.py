@@ -76,54 +76,84 @@ def daily_reading(frame, meta, as_of):
 
 
 def render_today():
-    st.title("What changed?")
-    st.write("A quick market check. Follow a question that interests you.")
-    st.caption(
-        "Latest recorded moves, not live quotes. Price movements alone do not identify their causes."
-    )
-    watch = [
-        ("Commodities · Gold", "Rates & Bonds · US 10Y"),
-        ("Rates & Bonds · US 10Y", "Commodities · Gold"),
-        ("Equities · S&P 500", "Commodities · Gold"),
-        ("FX · EUR/USD", "Rates & Bonds · US 10Y"),
+    from components.chart_workspace import load_series, line_chart
+
+    st.title("Today")
+    st.caption("Markets at a glance. Choose a chart to look closer.")
+    names = [
+        "Commodities · Gold",
+        "Rates & Bonds · US 10Y",
+        "Equities · S&P 500",
+        "FX · EUR/USD",
     ]
-    for name, other in watch:
-        with st.container(border=True):
-            st.markdown("**" + name.split(" · ")[-1] + "**")
-            try:
-                with st.spinner("Checking observations…"):
-                    result = daily_reading(
-                        recent_series(name, date.today()),
-                        COMPARISON_REGISTRY[name]["metadata"],
-                        date.today(),
-                    )
-                move = (
-                    "Unavailable"
-                    if result["change"] is None
-                    else f"{result['change']:+.2f} {result['unit']}"
-                )
-                st.write(move + " since previous observation")
-                st.caption(
-                    f"{result['previous']} → {result['latest']} · latest value {result['value']:,.2f} · {COMPARISON_REGISTRY[name]['metadata'].source}"
-                )
-                if result["age"] > 3:
-                    st.warning(
-                        f"Data is {result['age']} calendar days old. The move is not today's return."
-                    )
-            except (ValueError, RuntimeError, OSError, KeyError):
-                st.info("Source unavailable. No move has been estimated.")
-            internal_link("Investigate a relationship", investigation_url(name, other))
-    st.caption(
-        "Market responses to releases require verified event and surprise data. This overview does not supply a news feed or infer catalysts."
-    )
-    recent = load_investigations()[:3]
-    if recent:
-        st.subheader("Continue a question")
-        for record in recent:
-            internal_link(
-                record.get("title", "Untitled investigation"),
-                "?page=Investigate&record=" + record["id"],
+    frames = {}
+    for name in names:
+        try:
+            frames[name] = load_series(
+                name, date.today() - timedelta(days=365), date.today()
             )
+        except (ValueError, RuntimeError, OSError, KeyError):
+            frames[name] = None
+    for col, name in zip(st.columns(4), names):
+        with col:
+            st.caption(name.split(" · ")[-1])
+            try:
+                reading = daily_reading(
+                    frames[name], COMPARISON_REGISTRY[name]["metadata"], date.today()
+                )
+                value = f"{reading['value']:,.2f}" + (
+                    "%" if name.startswith("Rates") else ""
+                )
+                move = (
+                    "No change available"
+                    if reading["change"] is None
+                    else f"{reading['change']:+.2f} { {'basis points': 'bp', 'percentage points': 'pp'}.get(reading['unit'], reading['unit']) }"
+                )
+                st.metric(
+                    name.split(" · ")[-1], value, move, label_visibility="collapsed"
+                )
+                st.caption(
+                    str(reading["latest"])
+                    + (" · delayed" if reading["age"] > 3 else "")
+                )
+            except (ValueError, RuntimeError, KeyError, TypeError, AttributeError):
+                st.info("Source unavailable")
+    for offset in [0, 2]:
+        for col, name in zip(st.columns(2), names[offset : offset + 2]):
+            with col:
+                st.subheader(name.split(" · ")[-1])
+                frame = frames[name]
+                if frame is not None and not frame.empty:
+                    st.plotly_chart(line_chart(frame, name), use_container_width=True)
+                    other = (
+                        "Rates & Bonds · US 10Y"
+                        if name != "Rates & Bonds · US 10Y"
+                        else "Commodities · Gold"
+                    )
+                    internal_link("Look closer", investigation_url(name, other))
+                else:
+                    st.info("Chart unavailable right now.")
+    st.subheader("The economy")
+    for col, name in zip(
+        st.columns(2), ["United States · CPI YoY", "United States · Unemployment Rate"]
+    ):
+        with col:
+            st.markdown(
+                "**" + ("Inflation" if "CPI" in name else "Unemployment") + "**"
+            )
+            try:
+                frame = load_series(
+                    name, date.today() - timedelta(days=1826), date.today()
+                )
+                if frame.empty:
+                    raise ValueError("No data")
+                st.plotly_chart(line_chart(frame, name, 250), use_container_width=True)
+                st.caption("US · through " + str(frame.date.max().date()))
+            except (ValueError, RuntimeError, OSError, KeyError):
+                st.info("Chart unavailable right now.")
+    st.caption(
+        "Daily closes, not live prices. Moves alone do not explain why markets changed."
+    )
 
 
 def render_research():
@@ -222,13 +252,45 @@ def validate_restore(record):
             for k in ["csv", "details", "lead_lag", "stability", "source_csv"]
         ):
             raise ValueError("Incomplete evidence")
-        details=evidence['details']
-        if not isinstance(details,dict) or not all(k in details for k in ['mode','frequency','observations','valid_statistics','missing_periods','limitation','left_units','right_units','left_change_unit','right_change_unit','output_units','start','end']): raise ValueError('Invalid methodology')
-        stability=evidence['stability']
-        if not isinstance(stability,dict) or not all(k in stability for k in ['full_sample','first_half','second_half']): raise ValueError('Invalid stability')
-        if any(not isinstance(v,dict) or not all(k in v for k in ['correlation','observations']) for v in stability.values()): raise ValueError('Invalid statistics')
-        if not isinstance(evidence['lead_lag'],list): raise ValueError('Invalid lag estimates')
-        if any(not isinstance(v,dict) or not all(k in v for k in ['lag','correlation','observations']) for v in evidence['lead_lag']): raise ValueError('Invalid lag fields')
+        details = evidence["details"]
+        if not isinstance(details, dict) or not all(
+            k in details
+            for k in [
+                "mode",
+                "frequency",
+                "observations",
+                "valid_statistics",
+                "missing_periods",
+                "limitation",
+                "left_units",
+                "right_units",
+                "left_change_unit",
+                "right_change_unit",
+                "output_units",
+                "start",
+                "end",
+            ]
+        ):
+            raise ValueError("Invalid methodology")
+        stability = evidence["stability"]
+        if not isinstance(stability, dict) or not all(
+            k in stability for k in ["full_sample", "first_half", "second_half"]
+        ):
+            raise ValueError("Invalid stability")
+        if any(
+            not isinstance(v, dict)
+            or not all(k in v for k in ["correlation", "observations"])
+            for v in stability.values()
+        ):
+            raise ValueError("Invalid statistics")
+        if not isinstance(evidence["lead_lag"], list):
+            raise ValueError("Invalid lag estimates")
+        if any(
+            not isinstance(v, dict)
+            or not all(k in v for k in ["lag", "correlation", "observations"])
+            for v in evidence["lead_lag"]
+        ):
+            raise ValueError("Invalid lag fields")
         frame = pd.read_csv(
             StringIO(evidence["csv"]), index_col="date", parse_dates=["date"]
         )

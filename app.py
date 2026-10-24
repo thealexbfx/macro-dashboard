@@ -2,7 +2,8 @@
 
 import streamlit as st
 from components.layout import render_navigation, resolve_page
-from components.product import render_today, render_research
+from components.product import render_today
+from components.chart_workspace import render_investigate, render_chart_research
 from styles.theme import inject_global_css
 
 st.set_page_config(page_title="MacroLens", page_icon="logo_favicon.png", layout="wide")
@@ -17,8 +18,6 @@ if raw != page:
 if page == "Today":
     render_today()
 elif page == "Investigate":
-    from components.research.notebook import render_notebook
-
-    render_notebook()
+    render_investigate()
 else:
-    render_research()
+    render_chart_research()

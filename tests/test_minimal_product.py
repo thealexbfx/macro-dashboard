@@ -65,14 +65,17 @@ def test_today_failure_and_library_empty_states(monkeypatch):
 
     script = """
 import components.product as product
-product.recent_series=lambda *args: (_ for _ in ()).throw(RuntimeError('offline'))
+import components.chart_workspace as charts
+charts.load_series=lambda *args: (_ for _ in ()).throw(RuntimeError('offline'))
 product.load_investigations=lambda:[]
 product.render_today()
 product.render_research()
 """
     import components.product as product
 
-    monkeypatch.setattr(product, "recent_series", product.recent_series)
+    import components.chart_workspace as charts
+
+    monkeypatch.setattr(charts, "load_series", charts.load_series)
     monkeypatch.setattr(product, "load_investigations", product.load_investigations)
     app = AppTest.from_string(script).run(timeout=20)
     assert not app.exception
@@ -87,17 +90,22 @@ def test_today_real_calculation_with_provider_fixture(monkeypatch):
 import pandas as pd
 from datetime import date,timedelta
 import components.product as product
-product.recent_series=lambda *args: pd.DataFrame({'date':pd.to_datetime([date.today()-timedelta(days=2),date.today()-timedelta(days=1)]),'value':[100.,101.]})
+import components.chart_workspace as charts
+charts.load_series=lambda *args: pd.DataFrame({'date':pd.to_datetime([date.today()-timedelta(days=2),date.today()-timedelta(days=1)]),'value':[100.,101.]})
 product.load_investigations=lambda:[]
 product.render_today()
 """
     import components.product as product
 
-    monkeypatch.setattr(product, "recent_series", product.recent_series)
+    import components.chart_workspace as charts
+
+    monkeypatch.setattr(charts, "load_series", charts.load_series)
     monkeypatch.setattr(product, "load_investigations", product.load_investigations)
     app = AppTest.from_string(script).run(timeout=20)
     assert not app.exception
-    assert any("previous observation" in x.value for x in app.markdown)
+    assert len(app.metric) == 4
+    assert len(app.get("plotly_chart")) == 6
+    assert not app.text_input and not app.text_area and not app.number_input
 
 
 def test_yahoo_missing_observations_preserved_and_tls_verified(monkeypatch):
