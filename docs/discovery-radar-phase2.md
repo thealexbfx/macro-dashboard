@@ -1,5 +1,9 @@
 # Discovery Radar
 
+The integration pass in [release-readiness.md](release-readiness.md) supersedes
+the original ranking defaults, retry/cache policies and deployment checklist
+below. Review that document before merging or deploying.
+
 ## Compatibility gate for PR #5
 
 Installed the existing requirements.txt in a workspace-only environment (Python
