@@ -4,7 +4,7 @@ import streamlit as st
 from discovery.radar import CATALOG, RELATIONSHIPS, collect, load_series, select_discoveries
 from components.charts import plot_chart, plot_comparison_chart
 
-@st.cache_data(ttl=1800, show_spinner=False)
+@st.cache_data(ttl=300, show_spinner=False)
 def radar_data(start,end):
     return collect(start,end)
 
@@ -21,6 +21,10 @@ def render_discovery_radar():
         end=st.date_input('History ends (exclusive)',date.today(),key='radar_end')
         if st.button('Refresh provider data'):
             radar_data.clear(); related_data.clear()
+            from data.bls import get_bls_series
+            from data.fred import get_fred_series
+            get_bls_series.clear(); get_fred_series.clear()
+            st.caption('Memory caches cleared. Fresh BLS disk snapshots remain reusable for one day.')
     if start>=end:
         st.warning('Choose an end date after the start date.'); return
     with st.spinner('Scanning provider history…'):
@@ -28,15 +32,19 @@ def render_discovery_radar():
     for key,state in status.items():
         if 'error' in state: st.warning(f"{CATALOG[key][0]} unavailable: {state['error']}")
         elif state['stale']: st.warning(f"{CATALOG[key][0]} may be stale. Latest observation: {state['latest']}")
-    with st.expander('Provider freshness'):
+    with st.expander('Data-source status and definitions'):
+        from config import BLS_API_KEY, FRED_API_KEY
+        st.json({'BLS_registration_configured':bool(BLS_API_KEY),'FRED_key_configured':bool(FRED_API_KEY),'radar_cache_seconds':300,'BLS_disk_cache_days':1,'BLS_attempt_limit':3})
+        st.caption('CPI: NSA CPI-U index transformed to YoY percent. Unemployment: seasonally adjusted U-3 percent. Changes in both displayed rates are percentage points. FRED fallback, cached data and failure reasons are identified below.')
         st.json(status)
     a,b=st.columns(2)
     categories=a.multiselect('Category',['Markets','Economy'],default=['Markets','Economy'])
     options=sorted({s['signal_type'] for s in signals})
     types=b.multiselect('Signal type',options,default=options)
+    order=st.radio('Discovery ranking',['Latest discoveries','Most unusual discoveries'],horizontal=True)
     since=st.date_input('Discoveries since',max(start,end-timedelta(days=90)),min_value=start,max_value=end)
-    chosen=select_discoveries(signals,categories,types,since,end)
-    st.caption('Five highest-priority distinct datasets within the filters. Continuing trends are grouped.')
+    chosen=select_discoveries(signals,categories,types,since,end,order=order)
+    st.caption('Up to five distinct datasets. Latest sorts by observation date, then priority; Most unusual sorts by the family-specific historical percentile. Continuing trends are grouped.')
     if not chosen: st.info('No discoveries match this window. Widen the date range or check provider availability.')
     for s in chosen:
         with st.container(border=True):
