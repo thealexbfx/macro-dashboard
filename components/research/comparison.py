@@ -1,12 +1,9 @@
 """Shared evidence view for existing market comparison controls."""
 
-import json
 
 import plotly.graph_objects as go
-import streamlit as st
 from plotly.subplots import make_subplots
 
-from macro_engine.research.analytics import analyze, metadata, relationship
 
 
 def comparison_figure(values, details, left_name, right_name):
@@ -78,86 +75,3 @@ def comparison_figure(values, details, left_name, right_name):
     )
     fig.update_layout(margin=dict(b=175))
     return fig
-
-
-def render_comparison(
-    left, right, left_config, right_config, left_name, right_name, mode, controls
-):
-    controls()
-    lm = metadata(left_config, left_name, left_config.get("group", ""))
-    rm = right_config.get("metadata") or metadata(right_config, right_name)
-    window = None
-    if mode in {"Rolling Correlation", "Rolling Volatility"}:
-        window = int(
-            st.number_input(
-                "Rolling window (comparison periods)",
-                min_value=3,
-                max_value=1000,
-                value=60 if mode == "Rolling Correlation" else 30,
-            )
-        )
-    try:
-        values, details = analyze(left, right, lm, rm, mode, window=window)
-    except ValueError as exc:
-        st.warning(str(exc))
-        st.caption(
-            "Choose Price for original levels or Changes for economically appropriate changes."
-        )
-        return
-    fig = comparison_figure(values, details, left_name, right_name)
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption(
-        f"{details['frequency']} • {details['observations']} paired observations • "
-        f"{details['start']} to {details['end']} • {details['output_units']} • "
-        f"{details['missing_periods']} missing periods • {details['alignment']}"
-    )
-    st.caption(
-        f"Sources: {details['left_source']}; {details['right_source']}. "
-        f"{details.get('transformations', '')}"
-    )
-    st.info(details.get("warning") or details["limitation"])
-    if "warning" in details:
-        st.caption(details["limitation"])
-    if mode == "Price":
-        st.caption(
-            "Separate panels retain each series' units. Visual co-movement does not establish a relationship."
-        )
-    valid = values.dropna()
-    if not valid.empty:
-        st.dataframe(valid.tail(5))
-    with st.expander("Lead/lag and historical stability"):
-        st.caption(
-            "Uses percentage returns for eligible prices, basis-point yield changes, and absolute changes elsewhere."
-        )
-        try:
-            changes_frame, _ = analyze(left, right, lm, rm, "Changes")
-        except ValueError as exc:
-            st.warning(str(exc))
-            return
-        stability_window = int(
-            st.number_input("Stability window (comparison periods)", 3, 1000, 12)
-        )
-        report = relationship(changes_frame, window=stability_window)
-        st.dataframe(report["lead_lag"])
-        st.write({k: report[k] for k in ("full_sample", "first_half", "second_half")})
-        st.line_chart(report["rolling"].rename("Rolling correlation of changes"))
-        for limitation in report["limitations"]:
-            st.caption(limitation)
-    st.download_button(
-        "Export calculation data (CSV)",
-        values.to_csv(index_label="date"),
-        "macrolens-analysis.csv",
-        "text/csv",
-    )
-    st.download_button(
-        "Export methodology (JSON)",
-        json.dumps(details, indent=2),
-        "macrolens-methodology.json",
-        "application/json",
-    )
-    st.download_button(
-        "Export interactive research chart",
-        fig.to_html(include_plotlyjs=True),
-        "macrolens-chart.html",
-        "text/html",
-    )

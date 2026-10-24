@@ -20,7 +20,7 @@ from macro_engine.research.notebook import load_investigations, save_investigati
 
 
 def render_notebook():
-    st.subheader("Independent relationship investigation")
+    st.subheader("What do you want to investigate?")
     saved = load_investigations()
     by_id = {item["id"]: item for item in saved}
     if "notebook_open_after_save" in st.session_state:
@@ -28,14 +28,21 @@ def render_notebook():
             "notebook_open_after_save"
         )
         st.success("Investigation and calculation snapshot saved.")
-    chosen = st.selectbox(
-        "Open saved investigation",
-        [None] + list(by_id),
-        format_func=lambda i: (
-            "New investigation" if i is None else by_id[i].get("title", i)
-        ),
-        key="notebook_selected_id",
-    )
+    requested = st.query_params.get("record")
+    if requested in by_id and st.session_state.get("opened_record") != requested:
+        st.session_state["notebook_selected_id"] = requested
+        st.session_state["opened_record"] = requested
+    chosen = None
+    if by_id:
+        with st.expander("Switch investigation"):
+            chosen = st.selectbox(
+                "Open saved investigation",
+                [None] + list(by_id),
+                format_func=lambda i: (
+                    "New investigation" if i is None else by_id[i].get("title", i)
+                ),
+                key="notebook_selected_id",
+            )
     record = {} if chosen is None else by_id[chosen]
     suffix = record.get("id", "new")
     options = sorted(COMPARISON_REGISTRY)
@@ -47,40 +54,56 @@ def render_notebook():
             "This saved investigation references a series no longer in the registry. Its original file remains unchanged; choose a new investigation to continue."
         )
         return
-    st.markdown("#### 1. Research question")
+
     title = st.text_input(
         "Investigation title",
-        record.get("title", "Relationship investigation"),
+        record.get("title", "Do yields and gold move together?"),
         key=f"title_{suffix}",
     )
-    hypothesis = st.text_area(
-        "Hypothesis", record.get("hypothesis", ""), key=f"hypothesis_{suffix}"
-    )
-    st.markdown("#### 2. Data selection")
     left_name = st.selectbox(
         "Left indicator",
         options,
-        index=options.index(record.get("left", options[0])),
+        index=options.index(
+            record.get(
+                "left",
+                st.query_params.get("left")
+                if st.query_params.get("left") in options
+                else "Commodities · Gold"
+                if "Commodities · Gold" in options
+                else options[0],
+            )
+        ),
         key=f"left_{suffix}",
     )
     right_name = st.selectbox(
         "Right indicator",
         options,
-        index=options.index(record.get("right", options[1])),
+        index=options.index(
+            record.get(
+                "right",
+                st.query_params.get("right")
+                if st.query_params.get("right") in options
+                else "Rates & Bonds · US 10Y"
+                if "Rates & Bonds · US 10Y" in options
+                else options[1],
+            )
+        ),
         key=f"right_{suffix}",
     )
-    start = st.date_input(
-        "Sample start",
-        date.fromisoformat(record.get("start", "2000-01-01")),
-        key=f"start_{suffix}",
-    )
-    end = st.date_input(
-        "Sample end",
-        date.fromisoformat(record.get("end", date.today().isoformat())),
-        key=f"end_{suffix}",
-    )
-    with st.expander("3. Methodology and advanced controls", expanded=False):
-        st.markdown("#### 3. Methodology")
+    with st.expander("Options: sample, method and hypothesis"):
+        hypothesis = st.text_area(
+            "Hypothesis", record.get("hypothesis", ""), key=f"hypothesis_{suffix}"
+        )
+        start = st.date_input(
+            "Sample start",
+            date.fromisoformat(record.get("start", "2000-01-01")),
+            key=f"start_{suffix}",
+        )
+        end = st.date_input(
+            "Sample end",
+            date.fromisoformat(record.get("end", date.today().isoformat())),
+            key=f"end_{suffix}",
+        )
         st.caption(
             "Changes uses percentage returns for eligible prices and basis-point changes for yields. Statistical evidence always compares changes, even when the main chart displays levels."
         )
@@ -208,7 +231,7 @@ def render_notebook():
     evidence = st.session_state.get(f"evidence_{suffix}")
     if not evidence and record.get("evidence"):
         st.caption(
-            "Saved evidence snapshot. Run again to refresh data; the snapshot records the original calculation."
+            "Imported snapshot; values have not been independently verified. Run again to recalculate from providers." if record.get("imported") else "Saved evidence snapshot. Run again to refresh data; the snapshot records the original calculation."
         )
         snapshot = record["evidence"]
         values = pd.read_csv(
@@ -247,8 +270,12 @@ def render_notebook():
         window,
         frequency,
     ]:
-        st.markdown("#### 4. Calculated evidence")
-        st.info(evidence_summary(evidence["stability"], evidence["lead_lag"]))
+        st.subheader("What the data shows")
+        st.info(
+            evidence_summary(evidence["stability"], evidence["lead_lag"]).split(
+                ". First-half"
+            )[0]
+        )
         st.plotly_chart(
             comparison_figure(
                 evidence["values"], evidence["details"], left_name, right_name
@@ -262,89 +289,95 @@ def render_notebook():
         st.caption(details["limitation"])
         with st.expander("Full methodology and data coverage"):
             st.json(details)
-        st.markdown("##### Historical stability of changes")
-        st.dataframe(
-            stability_rows(evidence["stability"]),
-            hide_index=True,
-            use_container_width=True,
-        )
-        st.caption(
-            "Descriptive |r| thresholds: <0.10 very weak; <0.30 weak; <0.50 moderate; <0.70 strong; otherwise very strong. These are not significance tests. Halves split the comparison grid, not the valid observation count."
-        )
-        with st.expander("Inspect individual lead/lag estimates"):
-            rows = [
-                {
-                    "Lag (comparison periods)": x["lag"],
-                    "Relationship": "Same period"
-                    if x["lag"] == 0
-                    else f"Left leads right by {x['lag']}"
-                    if x["lag"] > 0
-                    else f"Right leads left by {-x['lag']}",
-                    "Observations": x["observations"],
-                    "Correlation": x["correlation"],
-                }
-                for x in evidence["lead_lag"]
-            ]
-            st.dataframe(rows, hide_index=True, use_container_width=True)
-        st.markdown("##### Rolling correlation of changes")
-        st.caption(
-            f"{window} consecutive comparison periods, each with both changes available; no filling. A missing observation can invalidate several successive windows. Closed-market calendar days are not automatically missing observations."
-        )
-        valid_rolling = evidence["rolling"].dropna()
-        if len(valid_rolling):
+        with st.expander("Explore stability, rolling windows and lead/lag"):
+            st.write(evidence_summary(evidence["stability"], evidence["lead_lag"]))
+            st.markdown("##### Historical stability of changes")
+            st.dataframe(
+                stability_rows(evidence["stability"]),
+                hide_index=True,
+                use_container_width=True,
+            )
             st.caption(
-                f"Latest valid result: {valid_rolling.index[-1].date()} · r={valid_rolling.iloc[-1]:.3f}. {len(valid_rolling)} valid windows out of {len(evidence['rolling'])} comparison periods."
+                "Descriptive |r| thresholds: <0.10 very weak; <0.30 weak; <0.50 moderate; <0.70 strong; otherwise very strong. These are not significance tests. Halves split the comparison grid, not the valid observation count."
             )
-        if len(evidence["rolling"]) and pd.isna(evidence["rolling"].iloc[-1]):
-            st.warning(
-                "The latest comparison period has no valid rolling result; the latest valid result shown above is older."
+            with st.expander("Inspect individual lead/lag estimates"):
+                rows = [
+                    {
+                        "Lag (comparison periods)": x["lag"],
+                        "Relationship": "Same period"
+                        if x["lag"] == 0
+                        else f"Left leads right by {x['lag']}"
+                        if x["lag"] > 0
+                        else f"Right leads left by {-x['lag']}",
+                        "Observations": x["observations"],
+                        "Correlation": x["correlation"],
+                    }
+                    for x in evidence["lead_lag"]
+                ]
+                st.dataframe(rows, hide_index=True, use_container_width=True)
+            st.markdown("##### Rolling correlation of changes")
+            st.caption(
+                f"{window} consecutive comparison periods, each with both changes available; no filling. A missing observation can invalidate several successive windows. Closed-market calendar days are not automatically missing observations."
             )
-        if evidence.get("changed_csv"):
-            changed = pd.read_csv(
-                StringIO(evidence["changed_csv"]),
-                index_col="date",
-                parse_dates=["date"],
-            )
-            with st.expander("Why are rolling results missing?"):
-                diagnostic = rolling_diagnostics(changed, evidence["rolling"], window)
-                st.dataframe(
-                    [
-                        {"Reason": label, "Periods": diagnostic[key]}
-                        for key, label in [
-                            ("warmup_periods", "Initial window warm-up"),
-                            ("incomplete_windows", "Incomplete paired changes"),
-                            (
-                                "undefined_complete_windows",
-                                "Complete window but undefined variation",
-                            ),
-                            ("valid_windows", "Valid rolling calculation"),
-                        ]
-                    ],
-                    hide_index=True,
-                    use_container_width=True,
+            valid_rolling = evidence["rolling"].dropna()
+            if len(valid_rolling):
+                st.caption(
+                    f"Latest valid result: {valid_rolling.index[-1].date()} · r={valid_rolling.iloc[-1]:.3f}. {len(valid_rolling)} valid windows out of {len(evidence['rolling'])} comparison periods."
                 )
-        if not evidence["rolling"].dropna().empty:
-            st.line_chart(evidence["rolling"].rename("Rolling correlation of changes"))
-        else:
-            st.info(
-                "No valid rolling correlation is available for this window and sample."
+            if len(evidence["rolling"]) and pd.isna(evidence["rolling"].iloc[-1]):
+                st.warning(
+                    "The latest comparison period has no valid rolling result; the latest valid result shown above is older."
+                )
+            if evidence.get("changed_csv"):
+                changed = pd.read_csv(
+                    StringIO(evidence["changed_csv"]),
+                    index_col="date",
+                    parse_dates=["date"],
+                )
+                with st.expander("Why are rolling results missing?"):
+                    diagnostic = rolling_diagnostics(
+                        changed, evidence["rolling"], window
+                    )
+                    st.dataframe(
+                        [
+                            {"Reason": label, "Periods": diagnostic[key]}
+                            for key, label in [
+                                ("warmup_periods", "Initial window warm-up"),
+                                ("incomplete_windows", "Incomplete paired changes"),
+                                (
+                                    "undefined_complete_windows",
+                                    "Complete window but undefined variation",
+                                ),
+                                ("valid_windows", "Valid rolling calculation"),
+                            ]
+                        ],
+                        hide_index=True,
+                        use_container_width=True,
+                    )
+            if not evidence["rolling"].dropna().empty:
+                st.line_chart(
+                    evidence["rolling"].rename("Rolling correlation of changes")
+                )
+            else:
+                st.info(
+                    "No valid rolling correlation is available for this window and sample."
+                )
+            st.caption(
+                "Positive lag: left leads right. Exploratory correlations; no significance, causal or predictive claim. Lag searches entail multiple comparisons."
             )
-        st.caption(
-            "Positive lag: left leads right. Exploratory correlations; no significance, causal or predictive claim. Lag searches entail multiple comparisons."
-        )
-        st.markdown("#### 5. Your interpretation and limitations")
+        st.markdown("#### Your conclusion and next question")
         st.caption(
             "These editable notes are your interpretation, separate from calculated evidence. Consider alternative frequencies, crisis periods or real yields as further tests, not established explanations."
         )
         supporting = st.text_area(
-            "Supporting evidence", record.get("supporting", ""), key=f"support_{suffix}"
+            "Your conclusion", record.get("supporting", ""), key=f"support_{suffix}"
         )
         counterarguments = st.text_area(
             "Counterarguments and alternative explanations",
             record.get("counterarguments", ""),
             key=f"counter_{suffix}",
         )
-        st.markdown("#### 6. Save and export")
+        st.markdown("#### Keep this research")
         st.caption(
             "Local saves belong to this server and may be lost on a hosting restart. Export a copy for durable storage."
         )
