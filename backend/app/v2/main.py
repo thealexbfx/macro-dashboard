@@ -21,6 +21,7 @@ from pydantic import BaseModel, Field
 from backend.app.registry.markets import MarketRegistry
 from backend.app.services.direct_answers import PublicTimeSeriesProvider
 from backend.app.v2.definitions import SPECS, Spec
+from backend.app.v2.discovery import DiscoveryService
 from backend.app.v2.integrity import (
     assess_freshness,
     evaluate_evidence,
@@ -670,3 +671,12 @@ def comparison(req: ComparisonRequest):
 @app.get("/health")
 def health():
     return {"status": "ok", "mode": "v2-real-observations"}
+
+
+# Additive Discovery endpoint; the existing comparison/data contracts are unchanged.
+discovery_service = DiscoveryService(service, transform)
+
+
+@app.get("/api/v2/discovery")
+def discovery_radar():
+    return discovery_service.get()

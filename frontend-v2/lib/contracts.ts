@@ -101,6 +101,7 @@ export interface Comparison {
     raw_observations: Record<string, Observation[]>;
 }
 export interface Investigation {
+    discovery?: import('./discovery').DiscoverySnapshot;
     id: string;
     title: string;
     datasets: string[];
