@@ -71,3 +71,7 @@ export function mergeObservations(series:Comparison['series']):ChartRow[]{
 export function hoverValues(row:ChartRow,series:Comparison['series'],hidden:string[]){
     return series.filter(s=>!hidden.includes(s.id)).map(s=>({id:s.id,name:s.name,value:row.values[s.id]??null,units:s.units,transformation:s.transformation,source_date:row.sources[s.id]??null}));
 }
+
+export function dualAxisSettings(settings:WorkspaceSettings,ids:string[]):WorkspaceSettings {
+    return {...changeMode(settings,'overlay'),axes:'dual',axis_assignment:Object.fromEntries(ids.map((id,i)=>[id,i===0?'left':'right']))};
+}

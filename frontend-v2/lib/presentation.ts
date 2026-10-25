@@ -71,3 +71,18 @@ export function formatHeadlineValue(d:Dataset):string{
 export function recentObservations(d: Dataset): Observation[] {
     return d.status === 'unavailable' || !d.latest_observation_date ? [] : d.observations.filter(o => o.date <= d.latest_observation_date!).slice(-22);
 }
+
+// Compact session view only; analytical inputs retain every missing cell.
+export function sparklineObservations(d: Dataset): Observation[] {
+    return recentObservations(d).filter(o => o.value !== null && Number.isFinite(o.value));
+}
+export const tooltipNumber = (value: unknown): string =>
+    typeof value === 'number' ? formatNumber(value, 2) : 'Unavailable';
+export function defaultRollingWindow(frequency: string): number {
+    return frequency === 'daily' ? 60 : 12;
+}
+export function correlationInterpretation(value: number | null): string {
+    if (value === null || !Number.isFinite(value)) return 'Not enough overlapping, varying observations to measure a relationship.';
+    const strength = Math.abs(value) < .2 ? 'Little linear relationship' : Math.abs(value) < .4 ? 'A weak linear relationship' : Math.abs(value) < .7 ? 'A moderate linear relationship' : 'A strong linear relationship';
+    return `${strength}${Math.abs(value) < .2 ? '' : value > 0 ? ': the series tended to move together' : ': the series tended to move in opposite directions'} over this period. This does not establish causation.`;
+}
