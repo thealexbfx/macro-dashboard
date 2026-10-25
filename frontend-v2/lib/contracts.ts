@@ -1,5 +1,5 @@
-export type Transformation = 'level' | 'percent' | 'yoy' | 'mom' | 'pp' | 'indexed' | 'standardized';
-export const transformLabels: Record<Transformation, string> = { level: 'Original levels', percent: '% per observation', yoy: 'Year-over-year %', mom: 'Month-over-month %', pp: 'Percentage-point change', indexed: 'Indexed to 100', standardized: 'Standardized deviations' };
+export type Transformation = 'level' | 'percent' | 'yoy' | 'mom' | 'pp' | 'indexed' | 'standardized' | 'jobs';
+export const transformLabels: Record<Transformation, string> = { level: 'Original levels', percent: '% per observation', yoy: 'Year-over-year %', mom: 'Month-over-month %', pp: 'Percentage-point change', indexed: 'Indexed to 100', standardized: 'Standardized deviations', jobs: 'Monthly jobs added/lost' };
 export interface Observation {
     date: string;
     value: number | null;
@@ -30,6 +30,22 @@ export interface Dataset {
     change: number | null;
     change_units: string | null;
     previous_observation_date: string | null;
+    provider?: string;
+    definition?: string;
+    source_type?: string;
+    observation_type?: string;
+    recommended_headline_transformation?: Transformation;
+    headline_name?: string;
+    primary_source_url?: string;
+    freshness_expectation?: string;
+    known_limitations?: string[];
+    headline?: {name:string;transformation:Transformation;value:number|null;units:string;reference_period:string;seasonal_adjustment:string|null;source_dataset_id:string;calculation_status:string};
+    verification?: {status:string;raw_status?:string;headline_status?:string;audit_checked_at?:string;source_url?:string;limitation?:string;headline_reconciliation?:{reference:string;release_date:string|null;published_value:number;calculated_value:number;rounded_to_release_precision:number;difference_at_release_precision:number;source_url:string;vintage_note:string}};
+    quality_warnings?: string[];
+    release_metadata?: {release_date?:string|null;next_release_date?:string|null;distributor_updated_at?:string|null;release_url?:string|null;audit_checked_at?:string;freshness_assessment?:string};
+    provider_metadata?:Record<string,unknown>;
+    revision_count?:number;
+    market_movement?:{value:number|null;unit:string;label:string;previous_date?:string;reference_date?:string;calculation_status?:string};
 }
 export interface Comparison {
     series: {

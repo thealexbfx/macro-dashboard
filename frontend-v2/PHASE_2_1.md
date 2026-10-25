@@ -19,7 +19,7 @@ The navy visual identity, Python providers, research calculations and API contra
 
 Price change is `(latest / previous - 1) * 100`, using the source dates identified by the existing backend. Percent-quoted Treasury yield differences are multiplied by 100 to display basis points. WTI's API absolute difference is unchanged; its widget displays the equivalent percentage for positive prior prices. Nonpositive prior futures prices use labelled absolute changes. Rounding affects display only; observations and downloads are unchanged.
 
-Verified October 24 observations: gold 4,007.90 / -1.29%; S&P 500 7,623.68 / -0.52%; US 10Y 4.96% / -17.00 bp; DXY 101.81 / +0.20%; WTI 103.27 / +3.82%. These are delayed observations.
+Provider-returned October 24 observations (not independently verified market prices; see DATA_INTEGRITY_AUDIT.md): gold 4,007.90 / -1.29%; S&P 500 7,623.68 / -0.52%; US 10Y 4.96% / -17.00 bp; DXY 101.81 / +0.20%; WTI 103.27 / +3.82%. These are delayed observations.
 
 ## Run
 

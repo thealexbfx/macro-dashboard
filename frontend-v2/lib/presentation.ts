@@ -57,19 +57,17 @@ export function marketMovement(d: Dataset): {
     unit: string;
     label: string;
 } {
-    const unit = d.representation === 'rate' ? 'bp' : '%';
-    if (d.status === 'unavailable' || d.latest_value === null || !d.latest_observation_date || !d.previous_observation_date)
-        return { value: null, unit, label: 'Change unavailable' };
-    const latest = d.observations.find(o => o.date === d.latest_observation_date)?.value;
-    const previous = d.observations.find(o => o.date === d.previous_observation_date)?.value;
-    if (latest === undefined || latest === null || previous === undefined || previous === null || !Number.isFinite(latest) || !Number.isFinite(previous))
-        return { value: null, unit, label: 'Change unavailable' };
-    // Display conversion only: yield percentage points to bp; positive price bases to %.
-    if (d.representation !== 'rate' && previous <= 0)
-        return { value: latest - previous, unit: d.units, label: 'Absolute change (nonpositive prior price)' };
-    const value = d.representation === 'rate' ? (latest - previous) * 100 : (latest / previous - 1) * 100;
-    return { value, unit, label: d.representation === 'rate' ? 'Yield change; not a bond return' : 'Change vs previous available close' };
+    const unit=d.representation==='rate'?'bp':'%';
+    if(d.status==='unavailable'||d.latest_value===null||!d.market_movement||!d.previous_observation_date||!d.observations.some(o=>o.date===d.previous_observation_date))return {value:null,unit,label:'Server-validated change unavailable'};
+    return d.market_movement;
 }
+export function formatHeadlineValue(d:Dataset):string{
+    const h=d.headline;
+    if(d.status==='unavailable'||!h||h.value===null)return 'Unavailable';
+    if(h.transformation==='jobs')return `${h.value>0?'+':''}${formatNumber(h.value,0)}`;
+    return `${formatNumber(h.value,d.id==='fed_funds'?2:1)}${h.units.toLowerCase().startsWith('percent')?'%':''}`;
+}
+
 export function recentObservations(d: Dataset): Observation[] {
     return d.status === 'unavailable' || !d.latest_observation_date ? [] : d.observations.filter(o => o.date <= d.latest_observation_date!).slice(-22);
 }

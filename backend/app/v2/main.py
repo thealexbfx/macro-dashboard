@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+import csv
+import json
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from datetime import UTC, date, datetime, timedelta
+from io import StringIO
 from threading import Lock
 from time import monotonic
 from typing import Literal
+from urllib.parse import quote
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
@@ -13,115 +18,20 @@ import requests
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from backend.app.registry.economic_indicators import EconomicIndicatorRegistry
 from backend.app.registry.markets import MarketRegistry
 from backend.app.services.direct_answers import PublicTimeSeriesProvider
+from backend.app.v2.definitions import SPECS, Spec
+from backend.app.v2.integrity import (
+    assess_freshness,
+    evaluate_evidence,
+    market_change,
+    validate_frame,
+)
 from macro_engine.research.analytics import SeriesMetadata, align, clean, relationship
 
-Transform = Literal["level", "percent", "yoy", "mom", "pp", "indexed", "standardized"]
-
-
-@dataclass(frozen=True)
-class Spec:
-    id: str
-    name: str
-    provider_id: str
-    source: str
-    category: str
-    region: str
-    frequency: str
-    units: str
-    seasonal_adjustment: str | None
-    representation: str
-    original_transformation: str
-    source_url: str
-    allowed_transformations: tuple[str, ...]
-
-
-def registry():
-    out = {}
-    for s in EconomicIndicatorRegistry().specs:
-        index = s.key in ("cpi", "core_cpi", "pce", "core_pce")
-        rate = s.key in ("unemployment", "fed_funds", "real_gdp_growth")
-        units = {
-            "CPIAUCSL": "Index 1982–1984=100",
-            "CPILFESL": "Index 1982–1984=100",
-            "PCEPI": "Index 2017=100",
-            "PCEPILFE": "Index 2017=100",
-            "PAYEMS": "Thousands of persons",
-            "UNRATE": "Percent",
-            "FEDFUNDS": "Percent",
-            "A191RL1Q225SBEA": "Percent change, quarterly annualized",
-        }[s.series_id]
-        allowed = (
-            ("level", "pp", "standardized")
-            if rate
-            else ("level", "percent", "yoy", "mom", "indexed", "standardized")
-        )
-        out[s.key] = Spec(
-            s.key,
-            {
-                "cpi": "US Consumer Price Index (CPI)",
-                "core_cpi": "US core Consumer Price Index",
-                "pce": "US PCE price index",
-                "core_pce": "US core PCE price index",
-            }.get(s.key, s.name),
-            s.series_id,
-            s.source_label,
-            s.macro_pillar,
-            "United States",
-            s.frequency,
-            units,
-            "Not seasonally adjusted"
-            if s.key == "fed_funds"
-            else "Seasonally adjusted annual rate"
-            if s.key == "real_gdp_growth"
-            else "Seasonally adjusted",
-            "rate" if rate else "index" if index else "level",
-            "Provider-reported quarterly annualized growth"
-            if s.key == "real_gdp_growth"
-            else "Original provider level",
-            f"https://fred.stlouisfed.org/series/{s.series_id}",
-            allowed,
-        )
-    for key in ("sp500", "gold", "us10y", "dxy", "wti"):
-        s = MarketRegistry().get(key)
-        yield_ = s.kind == "yield"
-        out[key] = Spec(
-            key,
-            s.name + (" — continuous futures" if key in ("gold", "wti") else ""),
-            s.provider_id,
-            "FRED / Federal Reserve" if yield_ else "Yahoo Finance",
-            "Rates"
-            if yield_
-            else "Commodities"
-            if key in ("gold", "wti")
-            else "Equities"
-            if key == "sp500"
-            else "FX",
-            "United States" if key in ("sp500", "us10y", "dxy") else "Global",
-            "daily",
-            "Percent" if yield_ else s.unit,
-            "Not seasonally adjusted" if yield_ else None,
-            "rate" if yield_ else "signed_flow" if key == "wti" else "price",
-            "Daily yield"
-            if yield_
-            else "Unadjusted close; continuous futures roll effects"
-            if key in ("gold", "wti")
-            else "Unadjusted price index close",
-            f"https://fred.stlouisfed.org/series/{s.provider_id}"
-            if yield_
-            else f"https://finance.yahoo.com/quote/{s.provider_id}/history/",
-            ("level", "pp", "standardized")
-            if yield_
-            else ("level", "standardized")
-            if key == "wti"
-            else ("level", "percent", "indexed", "standardized"),
-        )
-    return out
-
-
-SPECS = registry()
+Transform = Literal[
+    "level", "percent", "yoy", "mom", "pp", "indexed", "standardized", "jobs"
+]
 
 
 class Observation(BaseModel):
@@ -143,6 +53,22 @@ class Dataset(BaseModel):
     original_transformation: str
     source_url: str
     allowed_transformations: list[str]
+    provider: str = "fred"
+    definition: str = ""
+    source_type: str = ""
+    observation_type: str = ""
+    recommended_headline_transformation: str = "level"
+    headline_name: str = ""
+    primary_source_url: str = ""
+    freshness_expectation: str = ""
+    known_limitations: list[str] = []
+    headline: dict = {}
+    verification: dict = {}
+    quality_warnings: list[str] = []
+    release_metadata: dict = {}
+    provider_metadata: dict = {}
+    revision_count: int = 0
+    market_movement: dict = {}
     status: Literal["ok", "stale", "unavailable"]
     latest_observation_date: str | None = None
     coverage_start: str | None = None
@@ -184,15 +110,109 @@ class ComparisonResponse(BaseModel):
 
 
 class V2PublicProvider(PublicTimeSeriesProvider):
+    def __init__(self, timeout_seconds=8, now_fn=None):
+        super().__init__(timeout_seconds)
+        self.now_fn = now_fn or (lambda: datetime.now(UTC))
+        self._metadata = {}
+
+    def metadata(self, key):
+        return self._metadata.get(key, {})
+
     def _get(self, url):
-        # Public FRED date-bounded exports intermittently time out; reuse the existing
-        # CSV parser with the canonical full export, then apply bounds in DataService.
         if url.startswith("https://fred.stlouisfed.org/graph/fredgraph.csv?"):
-            url = url.split("&cosd=")[0]
-            response = requests.get(url, timeout=self.timeout_seconds)
+            response = requests.get(
+                url.split("&cosd=")[0], timeout=self.timeout_seconds
+            )
             response.raise_for_status()
             return response.content
         return super()._get(url)
+
+    def fred_series(self, series_id, start, end):
+        raw = self._get(
+            f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={quote(series_id)}"
+        ).decode("utf-8-sig")
+        reader = csv.DictReader(StringIO(raw))
+        if not reader.fieldnames or series_id not in reader.fieldnames:
+            raise ValueError("FRED response series identity mismatch")
+        rows = []
+        for row in reader:
+            label = row.get("observation_date") or row.get("DATE")
+            if not label:
+                raise ValueError("Missing FRED reference date")
+            day = date.fromisoformat(label)
+            value = row.get(series_id)
+            if start <= day <= end:
+                rows.append(
+                    (day, None if value in ("", ". ", ".", None) else float(value))
+                )
+        return rows
+
+    def market_series(self, spec, start, end):
+        p1 = int(datetime.combine(start, datetime.min.time(), tzinfo=UTC).timestamp())
+        p2 = int(
+            datetime.combine(
+                end + timedelta(days=1), datetime.min.time(), tzinfo=UTC
+            ).timestamp()
+        )
+        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(spec.provider_id, safe='')}?period1={p1}&period2={p2}&interval=1d&events=history"
+        raw = json.loads(self._get(url))
+        chart = raw.get("chart", {})
+        result = (chart.get("result") or [None])[0]
+        if chart.get("error") or not result:
+            raise ValueError(
+                "Yahoo returned no requested instrument; no substitution allowed"
+            )
+        meta = result.get("meta", {})
+        expected_type = "FUTURE" if spec.key in ("gold", "wti") else "INDEX"
+        if (
+            meta.get("symbol") != spec.provider_id
+            or meta.get("instrumentType") != expected_type
+            or meta.get("currency") != "USD"
+        ):
+            raise ValueError(
+                "Yahoo symbol, instrument type or currency does not match registered definition"
+            )
+        try:
+            tz = ZoneInfo(meta["exchangeTimezoneName"])
+        except (KeyError, ValueError) as exc:
+            raise ValueError("Provider-local time zone unavailable") from exc
+        stamps = result.get("timestamp") or []
+        closes = ((result.get("indicators") or {}).get("quote") or [{}])[0].get(
+            "close"
+        ) or []
+        if len(stamps) != len(closes):
+            raise ValueError("Yahoo timestamp/close length mismatch")
+        now = self.now_fn()
+        rows = []
+        kept = []
+        for stamp, close in zip(stamps, closes):
+            instant = datetime.fromtimestamp(stamp, tz=UTC)
+            day = instant.astimezone(tz).date()
+            if (
+                start <= day <= end
+                and day < now.astimezone(tz).date()
+                and instant.date() < now.date()
+            ):
+                rows.append((day, None if close is None else float(close)))
+                kept.append(instant.isoformat())
+        self._metadata[spec.key] = {
+            "symbol": meta.get("symbol"),
+            "exchange": meta.get("fullExchangeName"),
+            "instrument_type": meta.get("instrumentType"),
+            "currency": meta.get("currency"),
+            "timezone": meta.get("exchangeTimezoneName"),
+            "contract_label": meta.get("shortName"),
+            "regular_quote_timestamp": datetime.fromtimestamp(
+                meta["regularMarketTime"], tz=UTC
+            ).isoformat()
+            if meta.get("regularMarketTime")
+            else None,
+            "regular_quote_value": meta.get("regularMarketPrice"),
+            "last_completed_bar_timestamp": kept[-1] if kept else None,
+            "close_field": "indicators.quote.close (unadjusted); no adjclose or settlement substitution",
+            "date_convention": "Provider-local daily bar label, not an exchange settlement timestamp",
+        }
+        return rows
 
 
 class DataService:
@@ -222,7 +242,7 @@ class DataService:
                 if spec.source.startswith("FRED")
                 else self.provider.market_series(MarketRegistry().get(key), start, end)
             )
-            frame = clean(pd.DataFrame(rows, columns=["date", "value"]))
+            frame, quality_warnings = validate_frame(rows, spec)
             frame = frame[
                 (frame.date >= pd.Timestamp(start)) & (frame.date <= pd.Timestamp(end))
             ]
@@ -230,33 +250,50 @@ class DataService:
             if valid.empty:
                 raise RuntimeError("No usable observations")
             latest = valid.iloc[-1]
-            previous = valid.iloc[-2] if len(valid) > 1 else None
-            stale = (end - latest.date.date()).days > (
-                7
-                if spec.frequency == "daily"
-                else 95
-                if spec.frequency == "monthly"
-                else 200
+            stale, freshness_reason, release = assess_freshness(
+                spec, latest.date.date(), self.today_fn()
             )
-            change = None if previous is None else float(latest.value - previous.value)
-            change_units = (
-                "percentage points" if spec.representation == "rate" else spec.units
+            change, change_units, previous_date, movement = market_change(frame, spec)
+            headline = make_headline(frame, spec, str(latest.date.date()))
+            verification = evaluate_evidence(
+                spec, str(latest.date.date()), float(latest.value), headline
             )
-            if (
-                spec.representation == "price"
-                and previous is not None
-                and previous.value > 0
-            ):
-                change = 100 * (float(latest.value) / float(previous.value) - 1)
-                change_units = "percent"
+            previous_frame = (
+                {o.date: o.value for o in cached[1].observations} if cached else {}
+            )
+            revisions = sum(
+                1
+                for r in valid.itertuples()
+                if str(r.date.date()) in previous_frame
+                and previous_frame[str(r.date.date())] is not None
+                and abs(float(r.value) - previous_frame[str(r.date.date())]) > 1e-9
+            )
+            if revisions:
+                quality_warnings.append(
+                    f"{revisions} previously retrieved observations changed; revised history, not an immutable vintage."
+                )
+            if verification.get("status") == "Discrepancy":
+                quality_warnings.append(
+                    "Latest value differs from the dated audit reference; inspect revision/source reconciliation."
+                )
             payload = Dataset(
                 **asdict(spec),
                 status="stale" if stale else "ok",
                 latest_observation_date=str(latest.date.date()),
+                quality_warnings=quality_warnings,
+                headline=headline,
+                market_movement=movement,
+                verification=verification,
+                release_metadata={**release, "freshness_assessment": freshness_reason},
+                provider_metadata=self.provider.metadata(spec.id)
+                if hasattr(self.provider, "metadata")
+                else {},
+                revision_count=revisions,
+                publication_date=release.get("release_date"),
                 coverage_start=str(valid.date.min().date()),
                 coverage_end=str(valid.date.max().date()),
                 retrieved_at=datetime.now(UTC).isoformat(),
-                message="Latest completed daily observation; delayed, not a live quote."
+                message="Historical daily close; delayed, not a live quote or independently verified settlement."
                 if spec.frequency == "daily"
                 else "Dates are economic reference periods, not publication dates; latest revised values.",
                 observations=[
@@ -269,9 +306,7 @@ class DataService:
                 latest_value=float(latest.value),
                 change=change,
                 change_units=change_units,
-                previous_observation_date=None
-                if previous is None
-                else str(previous.date.date()),
+                previous_observation_date=previous_date,
             )
             with self.lock:
                 self.cache[key] = (monotonic(), payload)
@@ -282,11 +317,17 @@ class DataService:
             RuntimeError,
             KeyError,
             TypeError,
-        ):
+        ) as exc:
+            reason = (
+                str(exc)
+                if isinstance(exc, ValueError)
+                else "Provider unavailable; no substitute instrument used."
+            )
             if cached and cached[1].observations:
                 stale = cached[1].model_copy(
                     update={
                         "status": "stale",
+                        "quality_warnings": [reason],
                         "message": "Provider unavailable; showing previously retrieved observations. Check retrieval timestamp.",
                     }
                 )
@@ -296,6 +337,11 @@ class DataService:
             unavailable = Dataset(
                 **asdict(spec),
                 status="unavailable",
+                quality_warnings=[reason],
+                verification={
+                    "status": "Unavailable",
+                    "audit_checked_at": "2026-10-24",
+                },
                 message="Provider unavailable or returned invalid observations. Retry later; no synthetic replacement.",
             )
             with self.lock:
@@ -310,7 +356,7 @@ class DataService:
             ]
 
 
-def transform(frame, spec, mode, start):
+def transform(frame, spec: Spec, mode, start):
     if mode not in spec.allowed_transformations:
         raise ValueError(f"{mode} is incompatible with {spec.name}")
     s = frame.set_index("date").value
@@ -338,6 +384,9 @@ def transform(frame, spec, mode, start):
             if mode == "mom"
             else "Percent per observation"
         )
+    elif mode == "jobs":
+        s = s.diff() * 1000
+        units = "Jobs per month"
     elif mode == "pp":
         s = s.diff()
         units = "Percentage points per observation"
@@ -357,6 +406,25 @@ def transform(frame, spec, mode, start):
         s = (s - s.mean()) / std
         units = "Sample standard deviations (selected period)"
     return s, units
+
+
+def make_headline(frame, spec, reference):
+    mode = spec.recommended_headline_transformation
+    values, units = transform(frame, spec, mode, date(1990, 1, 1))
+    at = pd.Timestamp(reference)
+    value = values.get(at)
+    return {
+        "name": spec.headline_name,
+        "transformation": mode,
+        "value": None if value is None or pd.isna(value) else float(value),
+        "units": units,
+        "reference_period": reference,
+        "seasonal_adjustment": spec.seasonal_adjustment,
+        "source_dataset_id": spec.id,
+        "calculation_status": "Calculation verified"
+        if value is not None and pd.notna(value)
+        else "Unavailable",
+    }
 
 
 def records(s):

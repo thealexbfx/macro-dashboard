@@ -1,6 +1,6 @@
 # MacroLens V2 — Phase 2
 
-The current frontend includes the focused [Phase 2.1 usability refinement](PHASE_2_1.md). Run `npm test` for deterministic presentation checks or `npm run test:integration` for explicit real-provider verification through the isolated backend.
+The current frontend includes the [Phase 2.2 data integrity corrections](PHASE_2_2.md) and [complete dataset audit](DATA_INTEGRITY_AUDIT.md), preserving the focused [Phase 2.1 usability refinement](PHASE_2_1.md). Run `npm test` for deterministic presentation checks or `npm run test:integration` for explicit real-provider verification through the isolated backend.
 
 The approved navy UI remains the same. This isolated application retrieves real observations through a separate FastAPI process. Nothing is deployed, and the existing production Streamlit/Next.js/API services are not changed.
 
@@ -50,6 +50,8 @@ No changes to the Streamlit app, existing `frontend`, production API entry point
 |---|---|---|---|---|
 | cpi | CPIAUCSL | FRED / BLS | Monthly | SA index, 1982–84=100 |
 | core_cpi | CPILFESL | FRED / BLS | Monthly | SA index, 1982–84=100 |
+| cpi_nsa | CPIAUCNS | FRED / BLS | Monthly | NSA index; official annual headline |
+| core_cpi_nsa | CPILFENS | FRED / BLS | Monthly | NSA core index; official annual headline |
 | pce | PCEPI | FRED / BEA | Monthly | SA index, 2017=100 |
 | core_pce | PCEPILFE | FRED / BEA | Monthly | SA index, 2017=100 |
 | unemployment | UNRATE | FRED / BLS | Monthly | SA percent |
@@ -62,7 +64,7 @@ No changes to the Streamlit app, existing `frontend`, production API entry point
 | dxy | DX-Y.NYB | Yahoo Finance | Daily | US Dollar Index, index points |
 | wti | CL=F | Yahoo Finance | Daily | Continuous futures close, USD/barrel |
 
-Economic metadata checked against the [FRED catalogue](https://fred.stlouisfed.org/series/CPIAUCSL), including [UNRATE](https://fred.stlouisfed.org/series/UNRATE), [PCEPI](https://fred.stlouisfed.org/series/PCEPI), [core PCE](https://fred.stlouisfed.org/series/PCEPILFE), [payrolls](https://fred.stlouisfed.org/series/PAYEMS), [FEDFUNDS](https://fred.stlouisfed.org/series/FEDFUNDS), [GDP](https://fred.stlouisfed.org/series/A191RL1Q225SBEA), and [DGS10](https://fred.stlouisfed.org/series/DGS10). Economic price indices are served as levels, not silently relabelled as inflation rates. Select YoY or MoM explicitly.
+Economic metadata checked against the [FRED catalogue](https://fred.stlouisfed.org/series/CPIAUCSL), including [UNRATE](https://fred.stlouisfed.org/series/UNRATE), [PCEPI](https://fred.stlouisfed.org/series/PCEPI), [core PCE](https://fred.stlouisfed.org/series/PCEPILFE), [payrolls](https://fred.stlouisfed.org/series/PAYEMS), [FEDFUNDS](https://fred.stlouisfed.org/series/FEDFUNDS), [GDP](https://fred.stlouisfed.org/series/A191RL1Q225SBEA), and [DGS10](https://fred.stlouisfed.org/series/DGS10). Underlying indices remain levels in Explorer. Today uses explicitly labelled recommended transformations from the central registry; opening a headline selects the same transformation in Investigate. See the Phase 2.2 audit for SA/NSA conventions.
 
 ## Analytical semantics
 
@@ -93,10 +95,10 @@ Python: install root, backend and dev requirements plus `httpx`, then `python -m
 
 Controlled automated tests cover every transformation, missing monthly observations, incompatible transforms, constants/zero inputs, duplicates, invalid/future ranges, cache hits, stale fallback, cold outages, current-day market exclusion, mixed-frequency consent, three-series shared frequency, Pydantic validation and HTTP routes. Fixture observations exist only in tests.
 
-Real-provider verification is separate: all 13 datasets retrieved successfully on October 24, 2026. S&P/gold/DXY/WTI latest completed labels were October 23; DGS10 October 22. CPI/unemployment September 2026, PCE/core PCE August 2026, GDP Q2 2026. These are observations, not live quotes. Real CPI YoY vs unemployment percentage-point changes produced a valid comparison via the HTTP API.
+Historical Phase 2 retrieval checks (superseded by the Phase 2.2 audit; successful retrieval is not independent price verification): all 13 original datasets retrieved successfully on October 24, 2026. S&P/gold/DXY/WTI latest completed labels were October 23; DGS10 October 22. CPI/unemployment September 2026, PCE/core PCE August 2026, GDP Q2 2026. These are observations, not live quotes. Real CPI YoY vs unemployment percentage-point changes produced a valid comparison via the HTTP API.
 
 Browser verification: Today real observations, CPI search, unemployment search, selection, historical charts, 3Y preset, CPI YoY/unemployment percentage-point changes, CSV download, save with a note, My Research reopen with settings/note retained. Downloaded CSV parsed successfully: 138 rows (68 raw, 70 analytical including explicit null cells). Desktop/mobile verification and final totals are recorded in the task handoff.
 
 No production deployment or merge. Draft PR #8 continues to target `redesign-ui`.
 
-Final local validation: **368 passed, 5 skipped** Python tests; 19 non-failing upstream/deprecation warnings. New V2 tests: **23 passed**. Python dependency consistency (`pip check`) and Ruff on new Python code passed. Frontend lint and strict typecheck passed without warnings; production build passed. Browser exercised the complete real-data acceptance workflow, mixed-frequency rejection and explicit quarterly recovery, disabled Ask, and responsive desktop/mobile layouts (no page-width overflow at the tested mobile viewport). Browser checks are tool-driven acceptance checks, not a committed browser automation suite. External-provider tests skipped by pytest were separately verified via the V2 API; no paid AI calls were made.
+Historical Phase 2 validation (current totals are in PHASE_2_2.md): **368 passed, 5 skipped** Python tests; 19 non-failing upstream/deprecation warnings. New V2 tests: **23 passed**. Python dependency consistency (`pip check`) and Ruff on new Python code passed. Frontend lint and strict typecheck passed without warnings; production build passed. Browser exercised the complete real-data acceptance workflow, mixed-frequency rejection and explicit quarterly recovery, disabled Ask, and responsive desktop/mobile layouts (no page-width overflow at the tested mobile viewport). Browser checks are tool-driven acceptance checks, not a committed browser automation suite. External-provider tests skipped by pytest were separately verified via the V2 API; no paid AI calls were made.
