@@ -27,6 +27,7 @@ from backend.app.v2.integrity import (
     market_change,
     validate_frame,
 )
+from backend.app.v2.workspace import RecessionContext, prepare_series, source_at
 from macro_engine.research.analytics import SeriesMetadata, align, clean, relationship
 
 Transform = Literal[
@@ -83,6 +84,12 @@ class Dataset(BaseModel):
     previous_observation_date: str | None = None
 
 
+class LeadLag(BaseModel):
+    dataset_id: str
+    periods: int = Field(default=0, ge=-12, le=12)
+    unit: Literal["months", "quarters", "calendar_days"]
+
+
 class ComparisonRequest(BaseModel):
     datasets: list[str] = Field(min_length=1, max_length=4)
     transformations: dict[str, Transform] = {}
@@ -90,9 +97,14 @@ class ComparisonRequest(BaseModel):
     end: date
     alignment: Literal["native", "period_end"] = "native"
     rolling_window: int = Field(default=12, ge=3, le=252)
+    lead_lag: LeadLag | None = None
 
 
 class ChartSeries(BaseModel):
+    native_frequency: str = ""
+    source_dates: dict[str, str | None] = Field(default_factory=dict)
+    shift_periods: int = 0
+    shift_unit: str | None = None
     id: str
     name: str
     units: str
@@ -101,6 +113,8 @@ class ChartSeries(BaseModel):
 
 
 class ComparisonResponse(BaseModel):
+    scatter: list[dict] = Field(default_factory=list)
+    lead_lag: dict | None = None
     series: list[ChartSeries]
     datasets: list[Dataset]
     statistics: list[dict]
@@ -359,6 +373,17 @@ class DataService:
 def transform(frame, spec: Spec, mode, start):
     if mode not in spec.allowed_transformations:
         raise ValueError(f"{mode} is incompatible with {spec.name}")
+    units = {
+        "percent": "Percent per observation",
+        "mom": "Percent MoM",
+        "yoy": "Percent YoY",
+        "jobs": "Jobs per month",
+        "pp": "Percentage points per observation",
+        "indexed": "Index: first selected observation = 100",
+        "standardized": "Sample standard deviations (selected period)",
+    }.get(mode, spec.units)
+    if frame.empty:
+        return pd.Series(dtype=float, index=pd.DatetimeIndex([])), units
     s = frame.set_index("date").value
     if spec.frequency in ("monthly", "quarterly"):
         alias = "M" if spec.frequency == "monthly" else "Q"
@@ -369,7 +394,6 @@ def transform(frame, spec: Spec, mode, start):
             )
         s.index = periods
         s = s.reindex(pd.period_range(s.index.min(), s.index.max(), freq=alias))
-    units = spec.units
     if mode in ("percent", "mom", "yoy"):
         if (s.dropna() <= 0).any():
             raise ValueError(
@@ -377,34 +401,25 @@ def transform(frame, spec: Spec, mode, start):
             )
         lag = 12 if mode == "yoy" else 1
         s = s.pct_change(lag, fill_method=None) * 100
-        units = (
-            "Percent YoY"
-            if mode == "yoy"
-            else "Percent MoM"
-            if mode == "mom"
-            else "Percent per observation"
-        )
     elif mode == "jobs":
         s = s.diff() * 1000
-        units = "Jobs per month"
     elif mode == "pp":
         s = s.diff()
-        units = "Percentage points per observation"
     if isinstance(s.index, pd.PeriodIndex):
         s.index = s.index.to_timestamp()
     s = s[s.index >= pd.Timestamp(start)]
+    if s.dropna().empty:
+        return s, units
     if mode == "indexed":
         first = s.dropna()
-        if first.empty or first.iloc[0] <= 0:
+        if first.iloc[0] <= 0:
             raise ValueError("Positive base observation required")
         s = s / first.iloc[0] * 100
-        units = "Index: first selected observation = 100"
     elif mode == "standardized":
         std = s.std()
         if pd.isna(std) or std == 0:
             raise ValueError("Standardization requires nonconstant observations")
         s = (s - s.mean()) / std
-        units = "Sample standard deviations (selected period)"
     return s, units
 
 
@@ -470,6 +485,7 @@ def compare(service, req):
         chart.append(
             ChartSeries(
                 id=spec.id,
+                native_frequency=spec.frequency,
                 name=spec.name,
                 units=units,
                 transformation=mode,
@@ -479,25 +495,40 @@ def compare(service, req):
     common_frequency = max(
         (s.frequency for s in specs), key=["daily", "monthly", "quarterly"].index
     )
-    if req.alignment == "period_end" and len(specs) > 1:
-        freq = max(
-            (s.frequency for s in specs), key=["daily", "monthly", "quarterly"].index
+    shift = req.lead_lag
+    if shift and shift.periods:
+        if len(specs) < 2 or shift.dataset_id not in req.datasets:
+            raise ValueError(
+                "Lead-lag requires at least two datasets and a selected shifted series"
+            )
+        expected_unit = {
+            "monthly": "months",
+            "quarterly": "quarters",
+            "daily": "calendar_days",
+        }[common_frequency]
+        if shift.unit != expected_unit:
+            raise ValueError(
+                "Lead-lag units must match the common comparison frequency"
+            )
+    for c in chart:
+        values, sources = prepare_series(
+            frames[c.id],
+            common_frequency,
+            req.alignment,
+            req.start,
+            req.end,
+            shift.periods if shift and c.id == shift.dataset_id else 0,
+            source_labels=[
+                pd.Timestamp(o.date)
+                for o in data[req.datasets.index(c.id)].observations
+            ],
         )
-        alias = {"daily": "D", "monthly": "M", "quarterly": "Q"}[freq]
-        for c in chart:
-            s = frames[c.id]
-            if freq != "daily":
-                periods = s.index.to_period(alias)
-                s = s.groupby(periods).tail(1)
-                s.index = s.index.to_period(alias).to_timestamp(how="end").normalize()
-                if len(s):
-                    s = s.reindex(
-                        pd.period_range(s.index.min(), s.index.max(), freq=alias)
-                        .to_timestamp(how="end")
-                        .normalize()
-                    )
-            c.observations = records(s)
-            frames[c.id] = s
+        frames[c.id] = values
+        c.observations = records(values)
+        c.source_dates = sources
+        if shift and shift.periods and c.id == shift.dataset_id:
+            c.shift_periods, c.shift_unit = shift.periods, shift.unit
+    scatter = []
     statistics = []
     for i in range(len(specs)):
         for j in range(i + 1, len(specs)):
@@ -506,25 +537,59 @@ def compare(service, req):
             def input_(key):
                 return frames[key].rename("value").rename_axis("date").reset_index()
 
-            pair, details = align(
-                input_(a.id),
-                input_(b.id),
-                SeriesMetadata(
-                    frequency=common_frequency
-                    if req.alignment == "period_end"
-                    else a.frequency
-                ),
-                SeriesMetadata(
-                    frequency=common_frequency
-                    if req.alignment == "period_end"
-                    else b.frequency
-                ),
-            )
+            if frames[a.id].empty or frames[b.id].empty:
+                pair = pd.DataFrame(
+                    columns=["left", "right"], index=pd.DatetimeIndex([]), dtype=float
+                )
+                details = {
+                    "frequency": common_frequency,
+                    "alignment": "No overlapping coverage; no filling",
+                    "missing_periods": 0,
+                }
+            else:
+                pair, details = align(
+                    input_(a.id),
+                    input_(b.id),
+                    SeriesMetadata(
+                        frequency=common_frequency
+                        if req.alignment == "period_end"
+                        else a.frequency
+                    ),
+                    SeriesMetadata(
+                        frequency=common_frequency
+                        if req.alignment == "period_end"
+                        else b.frequency
+                    ),
+                )
+            if req.alignment == "native" and common_frequency != "daily":
+                alias = "M" if common_frequency == "monthly" else "Q"
+                pair.index = pair.index.to_period(alias).to_timestamp()
+                details["alignment"] = "native reference-period labels; no filling"
+            pair = pair.loc[
+                (pair.index >= pd.Timestamp(req.start))
+                & (pair.index <= pd.Timestamp(req.end))
+            ]
             evidence = relationship(
                 pair, lags=[0], window=req.rolling_window, minimum=3
             )
+            if len(specs) == 2:
+                for label, row in pair.dropna().iterrows():
+                    scatter.append(
+                        {
+                            "date": str(label.date()),
+                            "x": float(row.left),
+                            "y": float(row.right),
+                            "x_source_date": source_at(
+                                chart[i].source_dates, label, common_frequency
+                            ),
+                            "y_source_date": source_at(
+                                chart[j].source_dates, label, common_frequency
+                            ),
+                        }
+                    )
             statistics.append(
                 {
+                    "lead_lag": shift.model_dump() if shift and shift.periods else None,
                     "left": a.id,
                     "right": b.id,
                     "transformations": [
@@ -540,7 +605,7 @@ def compare(service, req):
                 }
             )
     warnings = [
-        "Latest revised observations; publication dates and historical vintages are unavailable. Reference periods are not release dates.",
+        "Latest revised observations; full historical publication dates and vintage archives are unavailable. Reference periods are not release dates.",
         "Correlation describes the selected transformations, not causation. Level correlations may reflect shared trends.",
         "Coverage is retrieved history since 1990, not asserted full provider coverage. Missing cells are never filled.",
         "Market dates are provider daily labels; current UTC date excluded. Futures have roll effects.",
@@ -549,11 +614,20 @@ def compare(service, req):
         warnings.append(
             "Transformations are calculated at native frequency first, then sampled at the last observation of each common lower-frequency period for charts AND statistics. No filling; final period may be incomplete."
         )
+    if shift and shift.periods:
+        warnings.append(
+            f"Analytical comparison: {shift.dataset_id} labels shifted {shift.periods:+d} {shift.unit}. "
+            "Positive shifts compare that series with other series later; negative shifts compare it with earlier observations. "
+            "Original source dates are retained; both source and comparison labels are restricted to the selected window. "
+            "Exploratory retrospective correlation is not predictive evidence or a publication-time backtest."
+        )
     if any(d.status == "stale" for d in data):
         warnings.append(
             "One or more series are stale; inspect source and retrieval timestamps."
         )
     return ComparisonResponse(
+        scatter=scatter,
+        lead_lag=shift.model_dump() if shift and shift.periods else None,
         series=chart,
         datasets=[d.model_copy(update={"observations": []}) for d in data],
         statistics=statistics,
@@ -564,7 +638,18 @@ def compare(service, req):
 
 
 service = DataService()
+context_service = RecessionContext(service.provider, service.today_fn)
 app = FastAPI(title="MacroLens V2 Research API", version="2.0.0")
+
+
+@app.get("/api/v2/context/recessions")
+def recession_context(start: date, end: date):
+    try:
+        return context_service.get(start, end)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc)) from exc
 
 
 @app.get("/api/v2/datasets", response_model=list[Dataset])

@@ -4,6 +4,25 @@ export interface Observation {
     date: string;
     value: number | null;
 }
+export type ChartMode = 'overlay' | 'separate' | 'scatter';
+export type ChartType = 'line' | 'area' | 'bar' | 'scatter';
+export interface LeadLag { dataset_id: string; periods: number; unit: 'months' | 'quarters' | 'calendar_days' }
+export interface WorkspaceSettings {
+    mode: ChartMode;
+    chart_type: ChartType;
+    layout: 'stacked' | 'grid';
+    axes: 'shared' | 'dual';
+    axis_assignment: Record<string, 'left' | 'right'>;
+    recession: boolean;
+    lead_lag: LeadLag;
+    hidden: string[];
+}
+export interface HistoricalContext {
+    kind: string; source_id: string; source: string; source_url: string;
+    status: 'ok' | 'stale'; message: string | null; latest_reference: string;
+    retrieved_at: string; coverage_start: string; coverage_end: string; methodology: string;
+    periods: {id:string;start:string;end:string;original_start:string;original_end:string;label:string}[];
+}
 export interface Dataset {
     id: string;
     name: string;
@@ -49,12 +68,18 @@ export interface Dataset {
 }
 export interface Comparison {
     series: {
+        native_frequency?: string;
+        source_dates?: Record<string, string | null>;
+        shift_periods?: number;
+        shift_unit?: string | null;
         id: string;
         name: string;
         units: string;
         transformation: Transformation;
         observations: Observation[];
     }[];
+    scatter?: {date:string;x:number;y:number;x_source_date:string|null;y_source_date:string|null}[];
+    lead_lag?: LeadLag | null;
     datasets: Dataset[];
     statistics: {
         left: string;
@@ -67,6 +92,7 @@ export interface Comparison {
         rolling: Observation[];
         observations: number;
         correlation: number | null;
+        lead_lag?: LeadLag | null;
         start: string | null;
         end: string | null;
     }[];
@@ -80,7 +106,9 @@ export interface Investigation {
     datasets: string[];
     note: string;
     collection: string;
-    version?: 2;
+    version?: 2 | 3;
+    workspace?: WorkspaceSettings;
+    timeframe?: string;
     transformations?: Record<string, Transformation>;
     start?: string;
     end?: string;
