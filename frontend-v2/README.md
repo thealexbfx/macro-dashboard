@@ -102,3 +102,6 @@ Browser verification: Today real observations, CPI search, unemployment search, 
 No production deployment or merge. Draft PR #8 continues to target `redesign-ui`.
 
 Historical Phase 2 validation (current totals are in PHASE_2_2.md): **368 passed, 5 skipped** Python tests; 19 non-failing upstream/deprecation warnings. New V2 tests: **23 passed**. Python dependency consistency (`pip check`) and Ruff on new Python code passed. Frontend lint and strict typecheck passed without warnings; production build passed. Browser exercised the complete real-data acceptance workflow, mixed-frequency rejection and explicit quarterly recovery, disabled Ask, and responsive desktop/mobile layouts (no page-width overflow at the tested mobile viewport). Browser checks are tool-driven acceptance checks, not a committed browser automation suite. External-provider tests skipped by pytest were separately verified via the V2 API; no paid AI calls were made.
+
+
+Phase 3.2: see [PHASE_3_2.md](PHASE_3_2.md) for persistent Discovery Radar, expanded data, historical comparisons, optional AI budget controls, Windows preview startup and validation limitations.

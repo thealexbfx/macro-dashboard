@@ -2,11 +2,16 @@ from __future__ import annotations
 
 import csv
 import json
+import logging
+import os
+import secrets
+import sqlite3
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import UTC, date, datetime, timedelta
 from io import StringIO
-from threading import Lock
+from threading import Event, Lock, Thread
 from time import monotonic
 from typing import Literal
 from urllib.parse import quote
@@ -15,19 +20,23 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 import requests
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
 from backend.app.registry.markets import MarketRegistry
 from backend.app.services.direct_answers import PublicTimeSeriesProvider
+from backend.app.v2.ai_guard import AIGuard, BudgetBlocked
 from backend.app.v2.definitions import SPECS, Spec
-from backend.app.v2.discovery import DiscoveryService
 from backend.app.v2.integrity import (
     assess_freshness,
     evaluate_evidence,
     market_change,
     validate_frame,
 )
+from backend.app.v2.movements import movement
+from backend.app.v2.refresh import scheduled_service_class
+from backend.app.v2.runtime import DynamicDiscovery
+from backend.app.v2.state import Store
 from backend.app.v2.workspace import RecessionContext, prepare_series, source_at
 from macro_engine.research.analytics import SeriesMetadata, align, clean, relationship
 
@@ -88,7 +97,7 @@ class Dataset(BaseModel):
 class LeadLag(BaseModel):
     dataset_id: str
     periods: int = Field(default=0, ge=-12, le=12)
-    unit: Literal["months", "quarters", "calendar_days"]
+    unit: Literal["months", "quarters", "calendar_days", "weeks"]
 
 
 class ComparisonRequest(BaseModel):
@@ -99,10 +108,15 @@ class ComparisonRequest(BaseModel):
     alignment: Literal["native", "period_end"] = "native"
     rolling_window: int = Field(default=12, ge=3, le=252)
     lead_lag: LeadLag | None = None
+    horizons: dict[str, int] = Field(default_factory=dict)
+    observation_basis: Literal["native", "trading_sessions"] = "native"
 
 
 class ChartSeries(BaseModel):
     native_frequency: str = ""
+    horizon_observations: int = 1
+    observation_basis: str = "native"
+    calendar_quality: dict = Field(default_factory=dict)
     source_dates: dict[str, str | None] = Field(default_factory=dict)
     shift_periods: int = 0
     shift_unit: str | None = None
@@ -386,6 +400,16 @@ def transform(frame, spec: Spec, mode, start):
     if frame.empty:
         return pd.Series(dtype=float, index=pd.DatetimeIndex([])), units
     s = frame.set_index("date").value
+    weekly_sources = {}
+    if spec.frequency == "weekly":
+        periods = s.index.to_period("W-SUN")
+        if periods.duplicated().any():
+            raise ValueError(
+                "Duplicate weekly periods require explicit vintage selection"
+            )
+        weekly_sources = dict(zip(periods, s.index))
+        s.index = periods
+        s = s.reindex(pd.period_range(periods.min(), periods.max(), freq="W-SUN"))
     if spec.frequency in ("monthly", "quarterly"):
         alias = "M" if spec.frequency == "monthly" else "Q"
         periods = s.index.to_period(alias)
@@ -407,7 +431,13 @@ def transform(frame, spec: Spec, mode, start):
     elif mode == "pp":
         s = s.diff()
     if isinstance(s.index, pd.PeriodIndex):
-        s.index = s.index.to_timestamp()
+        s.index = (
+            pd.DatetimeIndex(
+                [weekly_sources.get(p, p.end_time.normalize()) for p in s.index]
+            )
+            if spec.frequency == "weekly"
+            else s.index.to_timestamp()
+        )
     s = s[s.index >= pd.Timestamp(start)]
     if s.dropna().empty:
         return s, units
@@ -454,6 +484,8 @@ def records(s):
 
 
 def compare(service, req):
+    if any(k not in req.datasets for k in req.horizons):
+        raise ValueError("Horizon must refer to a selected dataset")
     if len(set(req.datasets)) != len(req.datasets):
         raise ValueError("Choose distinct datasets")
     if (
@@ -481,12 +513,25 @@ def compare(service, req):
             o for o in d.observations if str(req.start) <= o.date <= str(req.end)
         ]
         mode = req.transformations.get(spec.id, "level")
-        values, units = transform(frame, spec, mode, req.start)
+        values, units, quality, _ = movement(
+            frame,
+            spec,
+            mode,
+            req.start,
+            transform,
+            req.horizons.get(spec.id, 1),
+            req.observation_basis,
+        )
         frames[spec.id] = values
         chart.append(
             ChartSeries(
                 id=spec.id,
                 native_frequency=spec.frequency,
+                horizon_observations=req.horizons.get(spec.id, 1),
+                observation_basis=req.observation_basis,
+                calendar_quality={
+                    k: v for k, v in quality.items() if k != "session_dates"
+                },
                 name=spec.name,
                 units=units,
                 transformation=mode,
@@ -494,7 +539,8 @@ def compare(service, req):
             )
         )
     common_frequency = max(
-        (s.frequency for s in specs), key=["daily", "monthly", "quarterly"].index
+        (s.frequency for s in specs),
+        key=["daily", "weekly", "monthly", "quarterly"].index,
     )
     shift = req.lead_lag
     if shift and shift.periods:
@@ -503,6 +549,7 @@ def compare(service, req):
                 "Lead-lag requires at least two datasets and a selected shifted series"
             )
         expected_unit = {
+            "weekly": "weeks",
             "monthly": "months",
             "quarterly": "quarters",
             "daily": "calendar_days",
@@ -547,6 +594,22 @@ def compare(service, req):
                     "alignment": "No overlapping coverage; no filling",
                     "missing_periods": 0,
                 }
+            elif common_frequency == "weekly":
+                pair = pd.concat(
+                    [frames[a.id].rename("left"), frames[b.id].rename("right")], axis=1
+                ).sort_index()
+                pair = pair.loc[
+                    max(frames[a.id].index.min(), frames[b.id].index.min()) : min(
+                        frames[a.id].index.max(), frames[b.id].index.max()
+                    )
+                ]
+                details = {
+                    "frequency": "weekly",
+                    "alignment": "Exact native source dates; use explicit period-end for matching calendar weeks"
+                    if req.alignment == "native"
+                    else "Explicit common Sunday-ending week; actual source labels retained",
+                    "missing_periods": int(pair.isna().any(axis=1).sum()),
+                }
             else:
                 pair, details = align(
                     input_(a.id),
@@ -562,7 +625,10 @@ def compare(service, req):
                         else b.frequency
                     ),
                 )
-            if req.alignment == "native" and common_frequency != "daily":
+            if req.alignment == "native" and common_frequency in (
+                "monthly",
+                "quarterly",
+            ):
                 alias = "M" if common_frequency == "monthly" else "Q"
                 pair.index = pair.index.to_period(alias).to_timestamp()
                 details["alignment"] = "native reference-period labels; no filling"
@@ -638,9 +704,32 @@ def compare(service, req):
     )
 
 
-service = DataService()
+state_store = Store()
+service = scheduled_service_class(DataService, Dataset)(state_store)
 context_service = RecessionContext(service.provider, service.today_fn)
-app = FastAPI(title="MacroLens V2 Research API", version="2.0.0")
+
+
+@asynccontextmanager
+async def lifespan(app):
+    stop = Event()
+
+    def tick():
+        while not stop.wait(60):
+            try:
+                discovery_service.get()
+            except (sqlite3.Error, OSError, RuntimeError, ValueError, KeyError):
+                logging.getLogger(__name__).warning(
+                    "Discovery refresh failed; persisted evidence retained. Check source availability and local state permissions."
+                )
+
+    worker = Thread(target=tick, daemon=True, name="macrolens-discovery")
+    worker.start()
+    yield
+    stop.set()
+    worker.join(timeout=2)
+
+
+app = FastAPI(title="MacroLens V2 Research API", version="3.2.0", lifespan=lifespan)
 
 
 @app.get("/api/v2/context/recessions")
@@ -673,10 +762,52 @@ def health():
     return {"status": "ok", "mode": "v2-real-observations"}
 
 
-# Additive Discovery endpoint; the existing comparison/data contracts are unchanged.
-discovery_service = DiscoveryService(service, transform)
+# Additive V2 Discovery endpoint; older comparison requests retain native defaults.
+discovery_service = DynamicDiscovery(service, transform, state_store)
+ai_guard = AIGuard(state_store)
 
 
 @app.get("/api/v2/discovery")
 def discovery_radar():
-    return discovery_service.get()
+    try:
+        return discovery_service.get()
+    except (sqlite3.Error, OSError, RuntimeError) as exc:
+        raise HTTPException(
+            503,
+            "Discovery state or source scan unavailable. Persisted records were not reset; inspect backend logs.",
+        ) from exc
+
+
+@app.post("/api/v2/discovery/refresh")
+def refresh_discoveries():
+    try:
+        return discovery_service.manual()
+    except (sqlite3.Error, OSError, RuntimeError) as exc:
+        raise HTTPException(
+            503, "Discovery refresh unavailable; persisted records retained."
+        ) from exc
+
+
+def require_admin(authorization):
+    token = os.getenv("MACROLENS_ADMIN_TOKEN", "")
+    if (
+        not token
+        or not authorization
+        or not secrets.compare_digest(authorization, "Bearer " + token)
+    ):
+        raise HTTPException(403, "Admin access required.")
+
+
+@app.get("/api/v2/discovery/admin/usage")
+def ai_usage(authorization: str | None = Header(default=None)):
+    require_admin(authorization)
+    return ai_guard.usage()
+
+
+@app.post("/api/v2/discovery/admin/generate")
+def ai_generate(authorization: str | None = Header(default=None)):
+    require_admin(authorization)
+    try:
+        return ai_guard.generate(discovery_service.get()["findings"])
+    except BudgetBlocked as exc:
+        raise HTTPException(409, str(exc)) from exc

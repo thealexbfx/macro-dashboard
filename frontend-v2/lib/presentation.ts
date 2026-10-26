@@ -24,13 +24,13 @@ export function formatNumber(value: number | null | undefined, digits = 2): stri
 export function formatDatasetValue(d: Dataset): string {
     if (d.status === 'unavailable')
         return 'Unavailable';
-    const digits = d.id === 'payrolls' ? 0 : d.id === 'unemployment' || d.id === 'real_gdp_growth' ? 1 : 2;
+    const digits = ['payrolls','initial_claims','job_openings','housing_starts','building_permits','retail_sales'].includes(d.id) ? 0 : d.id === 'unemployment' || d.id === 'real_gdp_growth' ? 1 : 2;
     const number = formatNumber(d.latest_value, digits);
     if (d.latest_value === null)
         return number;
     if (d.units.toLowerCase().startsWith('percent'))
         return `${number}%`;
-    return d.units.startsWith('USD /') ? `$${number}` : number;
+    return (d.units.startsWith('USD /')||d.id==='hourly_earnings') ? `$${number}` : number;
 }
 export function dateLabel(value: string | null | undefined): string {
     if (!value)
@@ -79,7 +79,7 @@ export function sparklineObservations(d: Dataset): Observation[] {
 export const tooltipNumber = (value: unknown): string =>
     typeof value === 'number' ? formatNumber(value, 2) : 'Unavailable';
 export function defaultRollingWindow(frequency: string): number {
-    return frequency === 'daily' ? 60 : 12;
+    return frequency === 'daily' ? 60 : frequency === 'weekly' ? 26 : 12;
 }
 export function correlationInterpretation(value: number | null): string {
     if (value === null || !Number.isFinite(value)) return 'Not enough overlapping, varying observations to measure a relationship.';

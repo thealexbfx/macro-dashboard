@@ -182,10 +182,10 @@ def deduplicate(findings):
     return result[:8]
 
 
-def configuration(ids, start, end, frequency):
+def configuration(ids, start, end, frequency, transforms=None):
     return {
         "datasets": ids,
-        "transformations": {i: MODES[i] for i in ids},
+        "transformations": {i: (transforms or MODES)[i] for i in ids},
         "start": start,
         "end": end,
         "timeframe": "Custom",
@@ -220,6 +220,7 @@ def base_finding(
     completeness,
     headline,
     rationale,
+    transforms=None,
 ):
     end = evidence["observation_date"]
     start = evidence["baseline"]["start"]
@@ -243,7 +244,7 @@ def base_finding(
         "rationale": rationale,
         "frequency": frequency,
         "ranking": rank_score(magnitude, rarity, sample, completeness, 1),
-        "configuration": configuration(ids, start, end, frequency),
+        "configuration": configuration(ids, start, end, frequency, transforms),
         "sources": [
             {
                 "id": d.id,
@@ -274,7 +275,7 @@ def base_finding(
         "preview": [
             {
                 "id": i,
-                "name": NAMES[i],
+                "name": NAMES.get(i, SPECS[i].name),
                 "units": series[i][1],
                 "observations": rows(series[i][0].loc[:end].tail(36)),
             }
@@ -346,7 +347,7 @@ def unusual(key, series, source):
     )
 
 
-def relationships(ids, series, source, rationale):
+def relationships(ids, series, source, rationale, transforms=None):
     a, b = ids
     frequency = SPECS[a].frequency
     pair = pair_frame(series[a][0], series[b][0], frequency, SPECS[b].frequency)
@@ -415,7 +416,7 @@ def relationships(ids, series, source, rationale):
         "effective_recent_n": effective_sample(recent),
         "effective_baseline_n": effective_sample(baseline),
         "pair_rationale": rationale,
-        "transformations": {i: MODES[i] for i in ids},
+        "transformations": {i: (transforms or MODES)[i] for i in ids},
         "paired_observations": rows(pd.concat([baseline, recent])),
         "alignment": "Same native frequency, exact reference dates; no filling. Missing periods retained.",
         "method": "Non-overlapping recent/baseline Pearson correlations on native changes. Alternate windows are predeclared. Influence check removes the single greatest combined absolute standardized change in each window for diagnosis only; reported correlations retain every observation. AR(1) effective sample is a diagnostic, not an inferential test.",
@@ -443,8 +444,9 @@ def relationships(ids, series, source, rationale):
                     window_info(recent)["completeness"],
                     window_info(baseline)["completeness"],
                 ),
-                f"{NAMES[a]} / {NAMES[b]}: recent correlation is {'higher' if delta > 0 else 'lower'} than its baseline.",
+                f"{NAMES.get(a, SPECS[a].name)} / {NAMES.get(b, SPECS[b].name)}: recent correlation is {'higher' if delta > 0 else 'lower'} than its baseline.",
                 "Correlation differs by at least 0.50; alternate windows and an extreme-observation influence check support the same direction (at least 0.30).",
+                transforms=transforms,
             )
         )
     if (
@@ -501,8 +503,9 @@ def relationships(ids, series, source, rationale):
                 rarity,
                 len(baseline.dropna()) / baseline_n,
                 window_info(baseline)["completeness"],
-                f"{NAMES[a]} / {NAMES[b]}: recent standardized changes have diverged from baseline co-movement.",
+                f"{NAMES.get(a, SPECS[a].name)} / {NAMES.get(b, SPECS[b].name)}: recent standardized changes have diverged from baseline co-movement.",
                 "Baseline |r| ≥ 0.40; three-period divergence exceeds |z| 2.5 and 97.5th empirical percentile, with a same-direction six-period check.",
+                transforms=transforms,
             )
         )
     if result and result[-1]["type"] == "divergence" and extreme_sensitive:

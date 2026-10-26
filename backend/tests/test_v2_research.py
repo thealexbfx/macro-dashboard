@@ -164,7 +164,8 @@ def test_routes(monkeypatch, service):
     client = TestClient(v2.app)
     assert client.get("/health").status_code == 200
     catalogue = client.get("/api/v2/datasets").json()
-    assert len(catalogue) == 15
+    assert len(catalogue) == 30
+    assert {"cpi","unemployment","gold","initial_claims","mortgage_30y"}.issubset({d["id"] for d in catalogue})
     assert all("provider_id" in d and "seasonal_adjustment" in d for d in catalogue)
     assert (
         client.post("/api/v2/compare", json=req().model_dump(mode="json")).status_code

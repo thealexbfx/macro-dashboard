@@ -4,6 +4,7 @@ const palette: Record<string,string> = {
     cpi:'#6399ff',core_cpi:'#b09aff',cpi_nsa:'#f1bd71',core_cpi_nsa:'#ee91cb',
     unemployment:'#4ed4b5',payrolls:'#65ceef',pce:'#e5d185',core_pce:'#abcc79',
     fed_funds:'#eaa28c',real_gdp_growth:'#ce9de8',us10y:'#8fb9eb',
+    initial_claims:'#e8b35b',job_openings:'#8ac9ae',participation:'#90a9f8',hourly_earnings:'#df9ebd',breakeven_5y:'#b7cb7f',retail_sales:'#7cceca',real_consumption:'#b6a7e7',consumer_sentiment:'#e7bd8c',housing_starts:'#8ab5d4',building_permits:'#d3bc7d',mortgage_30y:'#b6d0e9',industrial_production:'#c6a1c5',yield_curve:'#a4bf93',high_yield_spread:'#e5a39b',investment_grade_spread:'#9dbdd5',
     sp500:'#ef93a4',gold:'#dbbf54',wti:'#9cbd78',dxy:'#9ba8f5',
 };
 export const seriesColor = (id:string) => palette[id] || '#c8d7e9';
@@ -34,10 +35,10 @@ export function restoreWorkspace(investigation:Investigation):WorkspaceSettings 
         lead_lag:shift&&investigation.datasets.includes(shift.dataset_id)&&Number.isInteger(shift.periods)&&Math.abs(shift.periods)<=12?shift:defaults.lead_lag};
 }
 export function commonFrequency(datasets:Dataset[]):string {
-    return ['quarterly','monthly','daily'].find(f=>datasets.some(d=>d.frequency===f))||'monthly';
+    return ['quarterly','monthly','weekly','daily'].find(f=>datasets.some(d=>d.frequency===f))||'monthly';
 }
 export function shiftUnit(frequency:string):WorkspaceSettings['lead_lag']['unit']{
-    return frequency==='daily'?'calendar_days':frequency==='quarterly'?'quarters':'months';
+    return frequency==='weekly'?'weeks':frequency==='daily'?'calendar_days':frequency==='quarterly'?'quarters':'months';
 }
 export function shiftDescription(lead:WorkspaceSettings['lead_lag'],datasets:Dataset[]):string {
     if(!lead.periods)return 'No lead-lag shift';

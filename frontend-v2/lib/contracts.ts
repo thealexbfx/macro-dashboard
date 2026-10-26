@@ -1,12 +1,13 @@
 export type Transformation = 'level' | 'percent' | 'yoy' | 'mom' | 'pp' | 'indexed' | 'standardized' | 'jobs';
-export const transformLabels: Record<Transformation, string> = { level: 'Original levels', percent: '% per observation', yoy: 'Year-over-year %', mom: 'Month-over-month %', pp: 'Percentage-point change', indexed: 'Indexed to 100', standardized: 'Standardized deviations', jobs: 'Monthly jobs added/lost' };
+export const transformLabels: Record<Transformation, string> = { level: 'Original levels', percent: 'Percentage change', yoy: 'Year-over-year %', mom: 'Month-over-month %', pp: 'Percentage-point change', indexed: 'Indexed to 100', standardized: 'Standardized deviations', jobs: 'Monthly jobs added/lost' };
+export function transformationLabel(mode:Transformation,horizon=1):string { return horizon>1&&mode==='mom'?'Multi-period percentage change':horizon>1&&mode==='jobs'?'Multi-period net employment change':transformLabels[mode]; }
 export interface Observation {
     date: string;
     value: number | null;
 }
 export type ChartMode = 'overlay' | 'separate' | 'scatter';
 export type ChartType = 'line' | 'area' | 'bar' | 'scatter';
-export interface LeadLag { dataset_id: string; periods: number; unit: 'months' | 'quarters' | 'calendar_days' }
+export interface LeadLag { dataset_id: string; periods: number; unit: 'months' | 'quarters' | 'calendar_days' | 'weeks' }
 export interface WorkspaceSettings {
     mode: ChartMode;
     chart_type: ChartType;
@@ -69,6 +70,9 @@ export interface Dataset {
 export interface Comparison {
     series: {
         native_frequency?: string;
+        horizon_observations?: number;
+        observation_basis?: string;
+        calendar_quality?: Record<string,unknown>;
         source_dates?: Record<string, string | null>;
         shift_periods?: number;
         shift_unit?: string | null;
@@ -101,6 +105,9 @@ export interface Comparison {
     raw_observations: Record<string, Observation[]>;
 }
 export interface Investigation {
+    horizons?: Record<string,number>;
+    observation_basis?: 'native' | 'trading_sessions';
+    historical_context?: import('./discovery').HistoricalRecord;
     discovery?: import('./discovery').DiscoverySnapshot;
     id: string;
     title: string;

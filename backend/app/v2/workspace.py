@@ -25,16 +25,26 @@ def prepare_series(
         }
     )
     if alignment == "period_end" and frequency != "daily" and not table.empty:
-        alias = "M" if frequency == "monthly" else "Q"
+        alias = (
+            "W-SUN" if frequency == "weekly" else "M" if frequency == "monthly" else "Q"
+        )
         table = table.groupby(table.index.to_period(alias)).tail(1)
         table.index = table.index.to_period(alias).to_timestamp(how="end").normalize()
         grid = pd.period_range(table.index.min(), table.index.max(), freq=alias)
         table = table.reindex(grid.to_timestamp(how="end").normalize())
     if shift:
-        if frequency == "daily":
-            table.index = table.index + pd.Timedelta(days=shift)
+        if frequency in ("daily", "weekly"):
+            table.index = table.index + pd.Timedelta(
+                days=shift * (7 if frequency == "weekly" else 1)
+            )
         else:
-            alias = "M" if frequency == "monthly" else "Q"
+            alias = (
+                "W-SUN"
+                if frequency == "weekly"
+                else "M"
+                if frequency == "monthly"
+                else "Q"
+            )
             periods = table.index.to_period(alias) + shift
             table.index = periods.to_timestamp(
                 how="end" if alignment == "period_end" else "start"
@@ -50,9 +60,9 @@ def prepare_series(
 
 
 def source_at(sources, label, frequency):
-    if frequency == "daily":
+    if frequency in ("daily", "weekly"):
         return sources.get(str(label.date()))
-    alias = "M" if frequency == "monthly" else "Q"
+    alias = "W-SUN" if frequency == "weekly" else "M" if frequency == "monthly" else "Q"
     period = label.to_period(alias)
     return next(
         (v for k, v in sources.items() if pd.Timestamp(k).to_period(alias) == period),

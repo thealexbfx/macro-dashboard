@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from backend.app.v2.expanded import SCHEDULES
 from macro_engine.research.analytics import clean
 
 EVIDENCE = json.loads(
@@ -60,6 +61,18 @@ def validate_frame(rows, spec):
             warnings.append(
                 f"{missing} absent or missing reference periods; calendar lags retain gaps and never use row-count substitution."
             )
+    elif spec.frequency == "weekly":
+        periods = frame.date.dt.to_period("W-SUN")
+        if periods.duplicated().any():
+            raise ValueError("Duplicate native weekly reference periods")
+        if spec.id == "initial_claims" and (frame.date.dt.day_of_week != 5).any():
+            raise ValueError("Initial claims require Saturday-ending source labels")
+        expected = pd.period_range(periods.min(), periods.max(), freq="W-SUN")
+        missing = len(expected.difference(pd.PeriodIndex(periods))) + int(
+            frame.value.isna().sum()
+        )
+        if missing:
+            warnings.append(f"{missing} missing weekly reference periods; no filling.")
     elif len(frame) > 5 and frame.date.diff().dropna().median() > pd.Timedelta(days=7):
         warnings.append(
             "Daily series has unusually sparse observations; frequency/source coverage requires review."
@@ -84,6 +97,19 @@ def validate_frame(rows, spec):
 def assess_freshness(spec, reference, today):
     evidence = EVIDENCE.get(spec.id, {})
     metadata = {}
+    hint = SCHEDULES.get(spec.id)
+    if hint and str(reference) == hint[0]:
+        due = date.fromisoformat(hint[1])
+        return (
+            today > due + timedelta(days=2),
+            "Prospective FRED schedule hint; no primary publication timestamp inferred.",
+            {
+                "next_release_date": hint[1],
+                "schedule_source": spec.source_url,
+                "schedule_checked_at": "2026-10-25",
+                "release_date": None,
+            },
+        )
     if str(reference) == evidence.get("reference"):
         metadata = {
             k: evidence[k]
@@ -116,10 +142,18 @@ def assess_freshness(spec, reference, today):
             "Business-day age check, not a verified exchange-holiday/release calendar.",
             metadata,
         )
+    if spec.frequency == "weekly":
+        return (
+            today > reference + timedelta(days=16),
+            "Weekly reference-age check; source week labels are not release timestamps.",
+            metadata,
+        )
     period = pd.Period(reference, freq="M" if spec.frequency == "monthly" else "Q") + 1
     lag = (
         35
-        if spec.frequency == "quarterly" or spec.id in ("pce", "core_pce")
+        if spec.frequency == "quarterly"
+        or spec.id
+        in ("pce", "core_pce", "job_openings", "real_consumption", "consumer_sentiment")
         else 7
         if spec.id == "fed_funds"
         else 15

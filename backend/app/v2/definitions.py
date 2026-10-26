@@ -2,6 +2,7 @@ from dataclasses import dataclass, replace
 
 from backend.app.registry.economic_indicators import EconomicIndicatorRegistry
 from backend.app.registry.markets import MarketRegistry
+from backend.app.v2.expanded import ROWS, extend
 
 CANONICAL_UNITS = {
     "CPIAUCSL": "Index 1982–1984=100",
@@ -20,6 +21,8 @@ CANONICAL_UNITS = {
     "^GSPC": "index points",
     "DX-Y.NYB": "index points",
 }
+
+CANONICAL_UNITS.update({row[1]: row[5] for row in ROWS})
 
 
 @dataclass(frozen=True)
@@ -55,7 +58,10 @@ class Spec:
             raise ValueError(
                 "Units conflict with audited canonical provider definition"
             )
-        if self.frequency not in ("daily", "monthly", "quarterly") or not self.units:
+        if (
+            self.frequency not in ("daily", "weekly", "monthly", "quarterly")
+            or not self.units
+        ):
             raise ValueError("Invalid units or frequency in dataset definition")
         if "pp" in self.allowed_transformations and not self.units.lower().startswith(
             "percent"
@@ -330,4 +336,4 @@ def enrich(out):
     return out
 
 
-SPECS = registry()
+SPECS = extend(registry(), Spec)
