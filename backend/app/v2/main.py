@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 from dataclasses import asdict
 from datetime import UTC, date, datetime, timedelta
 from io import StringIO
-from threading import Event, Lock, Thread
+from threading import Lock
 from time import monotonic
 from typing import Literal
 from urllib.parse import quote
@@ -20,7 +20,9 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 import requests
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Query
+from fastapi import Path as ApiPath
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from backend.app.registry.markets import MarketRegistry
@@ -35,8 +37,11 @@ from backend.app.v2.integrity import (
 )
 from backend.app.v2.movements import movement
 from backend.app.v2.refresh import scheduled_service_class
+from backend.app.v2.request_bounds import RequestBounds
 from backend.app.v2.runtime import DynamicDiscovery
+from backend.app.v2.scheduler import RefreshScheduler
 from backend.app.v2.state import Store
+from backend.app.v2.workload import WorkloadBusy, analytical_workload
 from backend.app.v2.workspace import RecessionContext, prepare_series, source_at
 from macro_engine.research.analytics import SeriesMetadata, align, clean, relationship
 
@@ -711,31 +716,60 @@ context_service = RecessionContext(service.provider, service.today_fn)
 
 @asynccontextmanager
 async def lifespan(app):
-    stop = Event()
-
-    def tick():
-        while not stop.wait(60):
-            try:
-                discovery_service.get()
-            except (sqlite3.Error, OSError, RuntimeError, ValueError, KeyError):
-                logging.getLogger(__name__).warning(
-                    "Discovery refresh failed; persisted evidence retained. Check source availability and local state permissions."
-                )
-
-    worker = Thread(target=tick, daemon=True, name="macrolens-discovery")
-    worker.start()
-    yield
-    stop.set()
-    worker.join(timeout=2)
+    try:
+        state_store.probe()
+    except (sqlite3.Error, OSError) as exc:
+        logging.getLogger(__name__).warning(
+            "V2 database readiness failed (%s); existing state was not reset.",
+            type(exc).__name__,
+        )
+    refresh_scheduler.start()
+    try:
+        yield
+    finally:
+        refresh_scheduler.stop()
 
 
 app = FastAPI(title="MacroLens V2 Research API", version="3.2.0", lifespan=lifespan)
+app.add_middleware(RequestBounds)
+
+
+@app.exception_handler(WorkloadBusy)
+async def research_busy(request, exc):
+    return JSONResponse(
+        {"detail": "Research worker is busy; retry shortly."},
+        status_code=503,
+        headers={"Retry-After": "2", "Cache-Control": "no-store"},
+    )
+
+
+@app.get("/ready")
+def readiness():
+    try:
+        state_store.probe()
+        database_ok = True
+    except (sqlite3.Error, OSError):
+        database_ok = False
+    status = refresh_scheduler.status()
+    ok = database_ok and status["ready"]
+    return JSONResponse(
+        {
+            "status": "ready" if ok else "not_ready",
+            "database": database_ok,
+            "scheduler": status,
+        },
+        status_code=200 if ok else 503,
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @app.get("/api/v2/context/recessions")
 def recession_context(start: date, end: date):
     try:
-        return context_service.get(start, end)
+        with analytical_workload.enter():
+            return context_service.get(start, end)
+    except WorkloadBusy:
+        raise
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
     except RuntimeError as exc:
@@ -744,13 +778,17 @@ def recession_context(start: date, end: date):
 
 @app.get("/api/v2/datasets", response_model=list[Dataset])
 def catalogue():
-    return service.catalogue()
+    with analytical_workload.enter():
+        return service.catalogue()
 
 
 @app.post("/api/v2/compare", response_model=ComparisonResponse)
 def comparison(req: ComparisonRequest):
     try:
-        return compare(service, req)
+        with analytical_workload.enter():
+            return compare(service, req)
+    except WorkloadBusy:
+        raise
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
     except RuntimeError as exc:
@@ -765,12 +803,15 @@ def health():
 # Additive V2 Discovery endpoint; older comparison requests retain native defaults.
 discovery_service = DynamicDiscovery(service, transform, state_store)
 ai_guard = AIGuard(state_store)
+refresh_scheduler = RefreshScheduler(lambda: discovery_service.get(force_check=True))
 
 
 @app.get("/api/v2/discovery")
 def discovery_radar():
     try:
         return discovery_service.get()
+    except WorkloadBusy:
+        raise
     except (sqlite3.Error, OSError, RuntimeError) as exc:
         raise HTTPException(
             503,
@@ -782,6 +823,8 @@ def discovery_radar():
 def refresh_discoveries():
     try:
         return discovery_service.manual()
+    except WorkloadBusy:
+        raise
     except (sqlite3.Error, OSError, RuntimeError) as exc:
         raise HTTPException(
             503, "Discovery refresh unavailable; persisted records retained."
@@ -811,3 +854,61 @@ def ai_generate(authorization: str | None = Header(default=None)):
         return ai_guard.generate(discovery_service.get()["findings"])
     except BudgetBlocked as exc:
         raise HTTPException(409, str(exc)) from exc
+
+
+def discovery_read(operation, *args, **kwargs):
+    try:
+        return operation(*args, **kwargs)
+    except WorkloadBusy:
+        raise
+    except (sqlite3.Error, OSError, RuntimeError) as exc:
+        raise HTTPException(
+            503, "Discovery state temporarily unavailable; evidence retained."
+        ) from exc
+
+
+@app.get("/api/v2/discovery/stories")
+def discovery_stories(
+    state: Literal["archived", "following"] = "archived",
+    kind: Literal["all", "unusual", "correlation", "divergence"] = "all",
+    limit: int = Query(default=20, ge=1, le=20),
+    offset: int = Query(default=0, ge=0, le=100000),
+):
+    return discovery_read(
+        discovery_service.summaries,
+        archived=state == "archived",
+        limit=limit,
+        offset=offset,
+        kind=kind,
+    )
+
+
+@app.get("/api/v2/discovery/stories/{story_id}")
+def discovery_story(story_id: str = ApiPath(max_length=128)):
+    finding = discovery_read(discovery_service.story, story_id)
+    if finding is None:
+        raise HTTPException(404, "Discovery not found.")
+    return finding
+
+
+@app.get("/api/v2/discovery/historical")
+def historical_discoveries(
+    limit: int = Query(default=6, ge=1, le=6),
+    offset: int = Query(default=0, ge=0, le=100000),
+):
+    return discovery_read(discovery_service.historical_page, limit=limit, offset=offset)
+
+
+@app.get("/api/v2/discovery/admin/diagnostics")
+def discovery_diagnostics(authorization: str | None = Header(default=None)):
+    require_admin(authorization)
+    return {
+        "scheduler": refresh_scheduler.status(),
+        "source_checks": service.freshness_summary(),
+        "limits": {
+            "analytical_operations_per_process": 1,
+            "api_inflight_per_process": 8,
+            "request_bytes": 65536,
+        },
+        "discovery_cache_seconds": discovery_service.cache_seconds,
+    }

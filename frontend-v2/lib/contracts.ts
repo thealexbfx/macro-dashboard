@@ -123,5 +123,27 @@ export interface Investigation {
     alignment?: 'native' | 'period_end';
     rolling_window?: number;
 }
-export async function request<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> { const r = await fetch(`/api/v2/${path}`, { method: body ? 'POST' : 'GET', body: body ? JSON.stringify(body) : undefined, headers: { 'Content-Type': 'application/json' }, signal }); const json = await r.json(); if (!r.ok)
-    throw Error(typeof json.detail === 'string' ? json.detail : 'Invalid research request'); return json; }
+async function retryDelay(milliseconds: number, signal?: AbortSignal) {
+    signal?.throwIfAborted();
+    return new Promise<void>((resolve,reject)=>{
+        const abort=()=>{clearTimeout(timer);reject(signal?.reason);};
+        const timer=setTimeout(()=>{signal?.removeEventListener('abort',abort);resolve();},milliseconds);
+        signal?.addEventListener('abort',abort,{once:true});
+    });
+}
+export async function request<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
+    // Retry only rejected reads/pure comparisons, never refresh or administrative actions.
+    const retryable=(!body||path==='compare')&&!path.includes('/admin/');
+    for(let attempt=0;;attempt++){
+        signal?.throwIfAborted();
+        const r=await fetch(`/api/v2/${path}`,{method:body?'POST':'GET',body:body?JSON.stringify(body):undefined,headers:{'Content-Type':'application/json'},signal});
+        const json=await r.json();
+        const retryAfter=r.headers.get('retry-after');
+        if(retryable&&attempt<2&&[429,503].includes(r.status)&&retryAfter!==null&&Number.isFinite(Number(retryAfter))){
+            await retryDelay(Math.max(0,Math.min(5,Number(retryAfter)))*1000,signal);
+            continue;
+        }
+        if(!r.ok)throw Error(typeof json.detail==='string'?json.detail:'Invalid research request');
+        return json;
+    }
+}

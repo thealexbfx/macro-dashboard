@@ -251,73 +251,155 @@ class DiscoveryMemory:
             )
         return changed
 
-    def list(self, active_keys=None, data=None, now=None):
+    def counts(self):
+        with self.store.connection() as db:
+            counts = {
+                r["status"]: r["n"]
+                for r in db.execute(
+                    "SELECT status,COUNT(*) n FROM stories GROUP BY status"
+                )
+            }
+            historical = db.execute("SELECT COUNT(*) FROM library").fetchone()[0]
+        return {
+            "active": sum(n for k, n in counts.items() if k != "Archived"),
+            "archived": counts.get("Archived", 0),
+            "historical": historical,
+        }
+
+    @staticmethod
+    def selection(archived=None, identity=None, event_keys=None, exclude=()):
+        clauses = []
+        params = []
+        if archived is not None:
+            clauses.append(
+                "status='Archived'"
+                if archived
+                else "status IN ('New','Updated','Ongoing')"
+            )
+        if identity is not None:
+            clauses.append("id=?")
+            params.append(identity)
+        if event_keys is not None:
+            keys = sorted(event_keys)
+            clauses.append(
+                "event_key IN (" + ",".join("?" for _ in keys) + ")" if keys else "0"
+            )
+            params.extend(keys)
+        if exclude:
+            clauses.append("id NOT IN (" + ",".join("?" for _ in exclude) + ")")
+            params.extend(exclude)
+        return (" WHERE " + " AND ".join(clauses) if clauses else ""), params
+
+    def summaries(self, archived=True, limit=20, offset=0, exclude=(), kind="all"):
+        where, params = self.selection(archived=archived, exclude=exclude)
+        if kind != "all":
+            where += " AND json_extract(snapshot,'$.type')=?"
+            params.append(kind)
+        with self.store.connection() as db:
+            total = db.execute(
+                "SELECT COUNT(*) FROM stories" + where, params
+            ).fetchone()[0]
+            rows = db.execute(
+                "SELECT id,status,version evidence_version,last_meaningful,last_observation observation_date,json_extract(snapshot,'$.headline') headline,json_extract(snapshot,'$.frequency') frequency,json_extract(snapshot,'$.type') type FROM stories"
+                + where
+                + " ORDER BY last_meaningful DESC,id LIMIT ? OFFSET ?",
+                [*params, limit, offset],
+            ).fetchall()
+        return {
+            "items": [dict(r) for r in rows],
+            "total": total,
+            "offset": offset,
+            "next_offset": offset + limit if offset + limit < total else None,
+        }
+
+    def list(
+        self,
+        active_keys=None,
+        data=None,
+        now=None,
+        *,
+        archived=None,
+        limit=None,
+        offset=0,
+        identity=None,
+        event_keys=None,
+        exclude=(),
+    ):
         now = now or datetime.now(UTC)
         active_keys = set(active_keys or [])
         sources = {d.id: d for d in data or []}
+        # Commit the tiny lifecycle write before reading/parsing evidence.
         with self.store.connection(True) as db:
             db.execute(
                 "UPDATE stories SET status='Ongoing' WHERE status IN ('New','Updated') AND substr(last_meaningful,1,10)<?",
                 (now.date().isoformat(),),
             )
-            records = db.execute(
-                "SELECT * FROM stories ORDER BY last_meaningful DESC,id"
-            ).fetchall()
-            result = []
-            for row in records:
-                f = json.loads(row["snapshot"])
-                status = row["status"]
-                qualifies = row["event_key"] in active_keys
-                versions = []
-                for v in reversed(
-                    db.execute(
-                        "SELECT * FROM story_versions WHERE story_id=? ORDER BY version DESC LIMIT 3",
-                        (row["id"],),
-                    ).fetchall()
-                ):
-                    previous = json.loads(v["snapshot"])
-                    versions.append(
-                        {
-                            "version": v["version"],
-                            "detected_at": v["detected_at"],
-                            "reason": v["reason"],
-                            "headline": previous["headline"],
-                            "evidence": {
-                                k: value
-                                for k, value in previous["evidence"].items()
-                                if k not in ARRAYS
-                            },
-                            "configuration": previous["configuration"],
-                        }
-                    )
-                f.update(
-                    id=row["id"],
-                    evidence_version=row["version"],
-                    evidence_fingerprint=row["evidence_hash"],
-                    lifecycle={
-                        "status": status,
-                        "first_detected": row["first_detected"],
-                        "last_meaningful_update": row["last_meaningful"],
-                        "last_seen_qualifying": row["last_seen"],
-                        "qualifies_now": qualifies,
-                        "what_changed": row["reason"],
-                        "related_discoveries": list(
-                            dict.fromkeys(
-                                json.loads(row["related"])
-                                + [
-                                    r["id"]
-                                    for r in records
-                                    if r["event_key"] in f.get("related_signals", [])
-                                ]
-                            )
-                        ),
-                    },
-                    history=versions,
+        where, params = self.selection(archived, identity, event_keys, exclude)
+        sql = "SELECT * FROM stories" + where + " ORDER BY last_meaningful DESC,id"
+        if limit is not None:
+            sql += " LIMIT ? OFFSET ?"
+            params.extend([limit, offset])
+        with self.store.connection() as db:
+            records = db.execute(sql, params).fetchall()
+            version_rows = {
+                r["id"]: db.execute(
+                    "SELECT * FROM story_versions WHERE story_id=? ORDER BY version DESC LIMIT 3",
+                    (r["id"],),
+                ).fetchall()
+                for r in records
+            }
+        result = []
+        for row in records:
+            f = json.loads(row["snapshot"])
+            versions = []
+            for v in reversed(version_rows[row["id"]]):
+                previous = json.loads(v["snapshot"])
+                versions.append(
+                    {
+                        "version": v["version"],
+                        "detected_at": v["detected_at"],
+                        "reason": v["reason"],
+                        "headline": previous["headline"],
+                        "evidence": {
+                            k: value
+                            for k, value in previous["evidence"].items()
+                            if k not in ARRAYS
+                        },
+                        "configuration": previous["configuration"],
+                    }
                 )
-                f["current_source_status"] = {
-                    i: sources[i].status if i in sources else "not checked"
-                    for i in f["datasets"]
-                }
-                f["ranking"] = priority(f, status)
-                result.append(f)
-            return result
+            related = json.loads(row["related"])
+            keys = f.get("related_signals", [])
+            if keys:
+                with self.store.connection() as db:
+                    related.extend(
+                        r["id"]
+                        for r in db.execute(
+                            "SELECT id FROM stories WHERE event_key IN ("
+                            + ",".join("?" for _ in keys)
+                            + ") LIMIT 50",
+                            keys,
+                        )
+                    )
+            f.update(
+                id=row["id"],
+                evidence_version=row["version"],
+                evidence_fingerprint=row["evidence_hash"],
+                lifecycle={
+                    "status": row["status"],
+                    "first_detected": row["first_detected"],
+                    "last_meaningful_update": row["last_meaningful"],
+                    "last_seen_qualifying": row["last_seen"],
+                    "qualifies_now": row["event_key"] in active_keys,
+                    "what_changed": row["reason"],
+                    "related_discoveries": list(dict.fromkeys(related)),
+                },
+                history=versions,
+            )
+            f["current_source_status"] = {
+                i: sources[i].status if i in sources else "not checked"
+                for i in f["datasets"]
+            }
+            f["ranking"] = priority(f, row["status"])
+            result.append(f)
+        return result

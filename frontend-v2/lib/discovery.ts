@@ -19,6 +19,7 @@ export interface DiscoveryFinding {
     limitations:string[];methodology_version:string;
 }
 export interface DiscoveryReport {
+    archived_total?:number;following_total?:number;historical_total?:number;
     following?:DiscoveryFinding[];archived?:DiscoveryFinding[];historical?:HistoricalRecord[];source_times?:{id:string;observed:string;retrieved:string;published:string|null;status:string;checked:string;next_check:string}[];
     findings:DiscoveryFinding[];as_of:string;generated_at:string;snapshot_fingerprint:string;
     qualified_before_deduplication:number;excluded:{id:string;reason:string}[];
@@ -39,3 +40,6 @@ export interface HistoricalRecord {id:string;label:string;created_at:string;note
 export function suggestionInvestigation(finding:DiscoveryFinding,suggestion:ResearchSuggestion,report:Pick<DiscoveryReport,'generated_at'|'snapshot_fingerprint'>,id:string):Investigation {
     return {...discoveryInvestigation(finding,report,id),...structuredClone(suggestion.configuration),title:suggestion.label,note:suggestion.origin+'. '+suggestion.context};
 }
+
+export interface DiscoverySummary {id:string;headline:string;observation_date:string;frequency:string;type:DiscoveryFinding['type'];status:string;evidence_version:number}
+export interface DiscoveryPage<T> {items:T[];total:number;offset:number;next_offset:number|null}

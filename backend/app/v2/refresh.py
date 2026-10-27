@@ -64,9 +64,20 @@ def scheduled_service_class(base, dataset_class):
                 owner = uuid.uuid4().hex
                 if not self.store.acquire("source:" + key, owner, now.timestamp(), 120):
                     if cached:
-                        return dataset_class.model_validate(
-                            json.loads(cached["payload"])
-                        )
+                        d = dataset_class.model_validate(json.loads(cached["payload"]))
+                        if d.status == "ok" and d.latest_observation_date:
+                            stale, reason, _ = assess_freshness(
+                                SPECS[key],
+                                datetime.fromisoformat(
+                                    d.latest_observation_date
+                                ).date(),
+                                self.today_fn(),
+                            )
+                            if stale:
+                                d = d.model_copy(
+                                    update={"status": "stale", "message": reason}
+                                )
+                        return d
                     return dataset_class(
                         **SPECS[key].__dict__,
                         status="unavailable",

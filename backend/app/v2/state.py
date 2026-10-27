@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS source_cache (id TEXT PRIMARY KEY,payload TEXT NOT NU
 CREATE TABLE IF NOT EXISTS leases (name TEXT PRIMARY KEY,owner TEXT NOT NULL,expires_at REAL NOT NULL);
 CREATE TABLE IF NOT EXISTS stories (id TEXT PRIMARY KEY,event_key TEXT NOT NULL,first_detected TEXT NOT NULL,last_meaningful TEXT NOT NULL,last_seen TEXT NOT NULL,last_observation TEXT NOT NULL,status TEXT NOT NULL,version INTEGER NOT NULL,snapshot TEXT NOT NULL,evidence_hash TEXT NOT NULL,reason TEXT NOT NULL,related TEXT NOT NULL DEFAULT '[]');
 CREATE INDEX IF NOT EXISTS story_key ON stories(event_key,last_meaningful);
+CREATE INDEX IF NOT EXISTS story_status_order ON stories(status,last_meaningful DESC,id);
 CREATE TABLE IF NOT EXISTS story_versions (story_id TEXT NOT NULL,version INTEGER NOT NULL,detected_at TEXT NOT NULL,reason TEXT NOT NULL,snapshot TEXT NOT NULL,PRIMARY KEY(story_id,version));
 CREATE TABLE IF NOT EXISTS library (id TEXT PRIMARY KEY,label TEXT NOT NULL,created_at TEXT NOT NULL,snapshot TEXT NOT NULL,notes TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS reports (id TEXT PRIMARY KEY,fingerprint TEXT NOT NULL,payload TEXT NOT NULL,calculated_at TEXT NOT NULL);
@@ -42,12 +43,12 @@ class Store:
         self._init_lock = Lock()
 
     @contextmanager
-    def connection(self, write=False):
+    def connection(self, write=False, timeout=30):
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        db = sqlite3.connect(self.path, timeout=30, isolation_level=None)
+        db = sqlite3.connect(self.path, timeout=timeout, isolation_level=None)
         db.row_factory = sqlite3.Row
         try:
-            db.execute("PRAGMA busy_timeout=30000")
+            db.execute(f"PRAGMA busy_timeout={int(timeout * 1000)}")
             with self._init_lock:
                 if not self._initialized:
                     if db.execute("PRAGMA journal_mode").fetchone()[0] != "wal":
@@ -87,3 +88,10 @@ class Store:
     def release(self, name, owner):
         with self.connection(True) as db:
             db.execute("DELETE FROM leases WHERE name=? AND owner=?", (name, owner))
+
+    def probe(self):
+        # No network and no record changes: verify schema/read access and a writable transaction.
+        with self.connection(True, timeout=1) as db:
+            db.execute("SELECT id FROM reports LIMIT 1").fetchone()
+            db.execute("SELECT json_extract(?, ?)", ('{"ok":1}', "$.ok")).fetchone()
+        return True

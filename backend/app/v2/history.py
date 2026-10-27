@@ -8,13 +8,16 @@ from datetime import date
 import numpy as np
 import pandas as pd
 
+from backend.app.v2.definitions import SPECS
 from backend.app.v2.discovery import effective_sample
 from backend.app.v2.dynamic_scan import (
     MODES,
     definition_hash,
     detect_change,
+    frame_for,
     pattern_values,
 )
+from backend.app.v2.movements import session_frame
 from backend.app.v2.state import dumps
 
 CURATED = [
@@ -47,6 +50,29 @@ def pattern(d, transform_fn, horizon, cutoff):
     }
 
 
+def evidence_start(dataset, horizon, mode, first_date):
+    lookback = 12 if mode == "yoy" else horizon
+    first = pd.Timestamp(first_date)
+    if dataset.frequency == "daily":
+        # Actual declared session positions, not a guessed business-day offset.
+        frame = frame_for(dataset, date.fromisoformat(dataset.latest_observation_date))
+        grid, _ = session_frame(frame, SPECS[dataset.id])
+        dates = pd.DatetimeIndex(grid.date)
+        position = dates.searchsorted(first)
+        return str(dates[max(0, position - lookback)].date())
+    if dataset.frequency == "weekly":
+        anchor = first.to_period("W-SUN") - lookback
+        labels = {
+            pd.Timestamp(o.date).to_period("W-SUN"): o.date
+            for o in dataset.observations
+        }
+        return labels.get(anchor, str(anchor.start_time.date()))
+    delta = pd.DateOffset(
+        months=lookback * (3 if dataset.frequency == "quarterly" else 1)
+    )
+    return str((first - delta).date())
+
+
 def similarity(then, now, compatible=True):
     result = {
         "matches": False,
@@ -77,6 +103,11 @@ def similarity(then, now, compatible=True):
         < 365
     ):
         return {**result, "reason": "Windows must be separated by at least one year."}
+    # Require disjoint source evidence, including transformation lookback when supplied.
+    a_start = then.get("evidence_start", a[0]["date"])
+    b_start = now.get("evidence_start", b[0]["date"])
+    if max(a_start, b_start) <= min(a[-1]["date"], b[-1]["date"]):
+        return {**result, "reason": "Historical and current evidence windows overlap."}
     x = np.array([r["value"] for r in a])
     y = np.array([r["value"] for r in b])
     if min(x.std(), y.std()) < 1e-10:
@@ -175,11 +206,15 @@ class HistoricalLibrary:
                     (identity, label, now.isoformat(), dumps(snapshot), NOTE),
                 )
 
-    def records(self, data):
+    def records(self, data, limit=None, offset=0):
         sources = {d.id: d for d in data}
         records = []
         with self.store.connection() as db:
-            rows = db.execute("SELECT * FROM library ORDER BY id").fetchall()
+            rows = db.execute(
+                "SELECT * FROM library ORDER BY id"
+                + (" LIMIT ? OFFSET ?" if limit is not None else ""),
+                (limit, offset) if limit is not None else (),
+            ).fetchall()
         for row in rows:
             snapshot = json.loads(row["snapshot"])
             f = snapshot["finding"]
@@ -204,7 +239,16 @@ class HistoricalLibrary:
                     and snapshot.get("basis")
                     == ("trading_sessions" if d.frequency == "daily" else "native")
                 )
-                comparison = similarity(snapshot["pattern"], current, compatible)
+                historical_pattern = dict(snapshot["pattern"])
+                for p in (historical_pattern, current):
+                    if p["observations"]:
+                        p["evidence_start"] = evidence_start(
+                            d,
+                            snapshot["horizon"],
+                            snapshot["transformation"],
+                            p["observations"][0]["date"],
+                        )
+                comparison = similarity(historical_pattern, current, compatible)
             records.append(
                 {
                     "id": row["id"],
