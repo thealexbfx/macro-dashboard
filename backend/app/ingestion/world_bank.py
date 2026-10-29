@@ -9,6 +9,7 @@ import posixpath
 import re
 import xml.etree.ElementTree as ET
 from datetime import UTC, datetime
+from email.utils import parsedate_to_datetime
 from hashlib import sha256
 from io import BytesIO
 from time import monotonic
@@ -236,6 +237,46 @@ def parse_workbook(data, now=None):
         raise ProviderError("malformed_workbook") from exc
 
 
+XLSX_TYPES = {
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/octet-stream",
+    "application/zip",
+}
+
+
+def retry_after_seconds(value, now):
+    """Honor delta-seconds or HTTP-date, bounded before integer conversion."""
+    if not isinstance(value, str) or len(value) > 128:
+        return 0
+    value = value.strip()
+    if value.isascii() and value.isdigit():
+        return min(86400, int(value)) if len(value) <= 10 else 86400
+    try:
+        target = parsedate_to_datetime(value)
+        if target.tzinfo is None:
+            return 0
+        return min(86400, max(0, math.ceil((target - now).total_seconds())))
+    except (ValueError, TypeError, OverflowError):
+        return 0
+
+
+def response_diagnostics(response):
+    """Fixed, non-sensitive categories only; never echo arbitrary headers/bodies."""
+    raw_type = response.headers.get("Content-Type", "")
+    mime = raw_type.split(";", 1)[0].strip().lower()
+    return {
+        "http_status": response.status_code,
+        "content_type": mime
+        if mime in XLSX_TYPES | {"text/html", "application/json"}
+        else "other",
+        "redirect": 300 <= response.status_code < 400,
+        "edge": "cloudflare"
+        if "cloudflare" in response.headers.get("Server", "").lower()
+        else "unknown",
+        "challenge": response.headers.get("cf-mitigated", "").lower() == "challenge",
+    }
+
+
 class WorldBank:
     id = "world_bank"
     series = PILOT
@@ -246,6 +287,7 @@ class WorldBank:
         self.now_fn = now_fn or (lambda: datetime.now(UTC))
         self._cached = None
         self._expires = 0
+        self.download_diagnostics = {}
 
     def _check_cancelled(self):
         if self.cancel_event is not None and self.cancel_event.is_set():
@@ -257,16 +299,37 @@ class WorldBank:
         if self._cached and monotonic() < self._expires:
             return self._cached
         start = monotonic()
+        self.download_diagnostics = {"state": "attempting"}
         try:
             with self.session.get(
                 URL, stream=True, timeout=(5, 10), allow_redirects=False
             ) as response:
+                self.download_diagnostics = response_diagnostics(response)
                 if response.status_code != 200:
-                    retry = response.headers.get("Retry-After", "0")
+                    retry = retry_after_seconds(
+                        response.headers.get("Retry-After", ""), self.now_fn()
+                    )
                     raise ProviderError(
                         f"http_{response.status_code}",
-                        int(retry) if retry.isdigit() else 0,
+                        retry,
                     )
+                mime = (
+                    response.headers.get("Content-Type", "")
+                    .split(";", 1)[0]
+                    .strip()
+                    .lower()
+                )
+                # Absent MIME is tolerated only if the strict ZIP/XML parser validates.
+                # A 200 HTML challenge/login page must not masquerade as a workbook.
+                if mime and mime not in XLSX_TYPES:
+                    raise ProviderError("unexpected_content_type")
+                length = response.headers.get("Content-Length", "")
+                if (
+                    length.isascii()
+                    and length.isdigit()
+                    and (len(length) > 10 or int(length) > MAX_BYTES)
+                ):
+                    raise ProviderError("download_too_large")
                 data = bytearray()
                 for chunk in response.iter_content(65536):
                     self._check_cancelled()
@@ -277,7 +340,14 @@ class WorldBank:
                     data.extend(chunk)
             self._check_cancelled()
             batch = parse_workbook(bytes(data), self.now_fn())
+        except requests.exceptions.SSLError as exc:
+            self.download_diagnostics = {"state": "tls_error"}
+            raise ProviderError("tls_error") from exc
+        except requests.Timeout as exc:
+            self.download_diagnostics = {"state": "download_timeout"}
+            raise ProviderError("download_timeout") from exc
         except requests.RequestException as exc:
+            self.download_diagnostics = {"state": "provider_unavailable"}
             raise ProviderError("provider_unavailable") from exc
         self._cached, self._expires = batch, monotonic() + 300
         return batch
