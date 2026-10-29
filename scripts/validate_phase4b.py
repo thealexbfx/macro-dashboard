@@ -234,9 +234,7 @@ def serve(out, port, disabled):
     server = uvicorn.Server(
         uvicorn.Config(
             v.app,
-            host="0.0.0.0"
-            if os.getenv("MACROLENS_PHASE4C_CONTAINER") == "1"
-            else "127.0.0.1",
+            host="127.0.0.1",
             port=port,
             access_log=False,
             log_level="warning",
@@ -472,11 +470,9 @@ def parent(out, workbook, disabled):
                 "--memory=512m",
                 "--memory-swap=512m",
                 "--cpus=0.5",
-                "--network=macrolens-phase4c-internal",
+                "--network=none",
                 "--user",
                 f"{os.getuid()}:{os.getgid()}",
-                "-p",
-                f"127.0.0.1:{port}:{port}",
                 "-v",
                 f"{ROOT}:/workspace/phase4b-staging",
                 "-e",
@@ -499,6 +495,19 @@ def parent(out, workbook, disabled):
             )
         until(lambda: (out / "server-pid").exists())
         backend_pid = int((out / "server-pid").read_text())
+        if docker_image:
+            info = docker_inspect()
+            host_pid = info["State"]["Pid"]
+            client_cgroup = Path("/proc/self/cgroup").read_text()
+            backend_cgroup = Path(f"/proc/{host_pid}/cgroup").read_text()
+            assert client_cgroup != backend_cgroup
+            fd = os.open(f"/proc/{host_pid}/ns/net", os.O_RDONLY)
+            try:
+                os.setns(fd, 0)
+            finally:
+                os.close(fd)
+            assert Path("/proc/self/cgroup").read_text() == client_cgroup
+            checks["clients_outside_backend_cgroup"] = True
 
         def sample():
             try:

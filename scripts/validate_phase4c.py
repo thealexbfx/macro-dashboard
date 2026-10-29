@@ -46,13 +46,10 @@ def run(mode, workbook, docker_image=None):
         raise SystemExit(
             "Docker backend isolation is required; clients must remain outside the cap"
         )
-    network = json.loads(
-        subprocess.check_output(
-            ["docker", "network", "inspect", "macrolens-phase4c-internal"], text=True
+    if os.geteuid() != 0 or not hasattr(os, "setns"):
+        raise SystemExit(
+            "Require a privileged Linux CI host for isolated loopback clients"
         )
-    )[0]
-    if not network["Internal"]:
-        raise SystemExit("Require an internal test network")
     fs = os.statvfs(ROOT)
     filesystem_bytes = fs.f_blocks * fs.f_frsize
     if not 900 * MIB <= filesystem_bytes <= 1024 * MIB:

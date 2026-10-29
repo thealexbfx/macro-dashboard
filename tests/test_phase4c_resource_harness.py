@@ -77,7 +77,7 @@ def test_ci_is_feature_only_and_has_hard_limits_without_secrets():
     launcher = (ROOT / "scripts/validate_phase4b.py").read_text(encoding="utf8")
     for bound in ["--memory=512m", "--memory-swap=512m", "--cpus=0.5"]:
         assert bound in launcher
-    assert "--internal" in text and "truncate -s 1G" in text
+    assert "--network=none" in launcher and "truncate -s 1G" in text
     assert "--docker-image macrolens-phase4c" in text
     assert "secrets." not in text and "render.com" not in text
     assert "no database or workbook" in text

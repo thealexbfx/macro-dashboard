@@ -39,10 +39,9 @@ jobs:
           mkfs.ext4 -F "$image"
           sudo mount -o loop "$image" "$mountpoint"
           sudo chown "$(id -u):$(id -g)" "$mountpoint"
-          docker network create --internal macrolens-phase4c-internal
-          trap 'docker rm -f macrolens-phase4c >/dev/null 2>&1 || true; docker network rm macrolens-phase4c-internal >/dev/null 2>&1 || true; sudo umount "$mountpoint" || true' EXIT
+          trap 'docker rm -f macrolens-phase4c >/dev/null 2>&1 || true; sudo umount "$mountpoint" || true' EXIT
           set +e
-          python3 scripts/validate_phase4c.py --mode "$MODE" --workbook "$RUNNER_TEMP/phase4c-input/worldbank.xlsx" --docker-image macrolens-phase4c
+          sudo -E python3 scripts/validate_phase4c.py --mode "$MODE" --workbook "$RUNNER_TEMP/phase4c-input/worldbank.xlsx" --docker-image macrolens-phase4c
           code=$?
           set -e
           cp "$RUNNER_TEMP/phase4c-input/worldbank.json" "$RUNNER_TEMP/phase4c-artifacts/resource-fixture.json"
