@@ -92,3 +92,17 @@ def test_test_image_does_not_copy_local_databases_or_env_files():
     assert "COPY . " not in text
     assert "COPY backend/app backend/app" in text
     assert ".env" not in text and "backend/.local" not in text
+
+
+def test_synthetic_workbook_is_labelled_and_at_least_captured_size():
+    from backend.app.ingestion.world_bank import parse_workbook
+    from scripts.build_resource_workbook import build
+
+    data, manifest = build()
+    batch = parse_workbook(data)
+    assert len(batch.points) == 2403
+    assert "not_economic_data" in manifest["kind"]
+    assert manifest["compressed_bytes"] >= 586099
+    assert manifest["monthly_sheet_bytes"] >= 2375828
+    assert manifest["shared_strings_bytes"] >= 50756
+    assert sum(p.value is None for p in batch.points) == 1

@@ -334,6 +334,9 @@ def parent(out, workbook, disabled):
     child = None
     sampler = None
     result = {
+        "fixture_kind": os.getenv(
+            "MACROLENS_RESOURCE_FIXTURE", "supplied_workbook_snapshot"
+        ),
         "mode": "disabled" if disabled else "enabled",
         "platform": sys.platform,
         "workbook_hash": sha256(raw).hexdigest(),

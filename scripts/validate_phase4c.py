@@ -57,10 +57,16 @@ def run(mode, workbook):
     ]
     if mode == "disabled":
         args.append("--disabled")
-    env = dict(os.environ, MACROLENS_PHASE4C_PRESSURE="1", MACROLENS_AI_ENABLED="false")
+    env = dict(
+        os.environ,
+        MACROLENS_PHASE4C_PRESSURE="1",
+        MACROLENS_AI_ENABLED="false",
+        MACROLENS_RESOURCE_FIXTURE="synthetic_sized_workbook",
+    )
     completed = subprocess.run(args, cwd=REPO, env=env, timeout=900, check=False)
     after = snapshot()
     result = {
+        "fixture": json.loads(workbook.with_suffix(".json").read_text()),
         "mode": mode,
         "platform": platform.platform(),
         "python": sys.version,

@@ -6,6 +6,7 @@ on:
       - '.github/workflows/phase4c-linux.yml'
       - 'scripts/*phase4c*'
       - 'scripts/linux_cgroup.py'
+      - 'scripts/build_resource_workbook.py'
       - 'scripts/validate_phase4b.py'
       - 'backend/app/ingestion/**'
       - 'backend/app/v2/**'
@@ -24,20 +25,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build isolated test image
         run: docker build -f scripts/phase4c.Dockerfile -t macrolens-phase4c .
-      - name: Fetch official pilot workbook
-        run: |
-          mkdir -p "$RUNNER_TEMP/phase4c-input"
-          python3 - <<'PY'
-          import urllib.request
-          from pathlib import Path
-          import os
-          url = "https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Historical-Data-Monthly.xlsx"
-          with urllib.request.urlopen(url, timeout=30) as response:
-              body = response.read(4 * 1024 * 1024 + 1)
-          if len(body) > 4 * 1024 * 1024 or not body.startswith(b"PK"):
-              raise SystemExit("Invalid/oversized official workbook")
-          (Path(os.environ["RUNNER_TEMP"])/"phase4c-input"/"worldbank.xlsx").write_bytes(body)
-          PY
+      - name: Build labelled synthetic resource workbook
+        run: python3 scripts/build_resource_workbook.py "$RUNNER_TEMP/phase4c-input/worldbank.xlsx"
       - name: Run under hard Linux limits
         env:
           MODE: ${{ matrix.mode }}
@@ -58,6 +47,7 @@ jobs:
           python3 scripts/phase4c_host_metrics.py macrolens-phase4c "$RUNNER_TEMP/phase4c-artifacts"
           code=$?
           set -e
+          cp "$RUNNER_TEMP/phase4c-input/worldbank.json" "$RUNNER_TEMP/phase4c-artifacts/resource-fixture.json"
           docker logs macrolens-phase4c > "$RUNNER_TEMP/phase4c-artifacts/container.log" 2>&1
           docker cp macrolens-phase4c:/runtime-packages.txt "$RUNNER_TEMP/phase4c-artifacts/runtime-packages.txt"
           docker image inspect macrolens-phase4c > "$RUNNER_TEMP/phase4c-artifacts/image.json"
