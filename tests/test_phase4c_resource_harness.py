@@ -102,3 +102,29 @@ def test_synthetic_workbook_is_labelled_and_at_least_captured_size():
     assert manifest["monthly_sheet_bytes"] >= 2375828
     assert manifest["shared_strings_bytes"] >= 50756
     assert sum(p.value is None for p in batch.points) == 1
+
+
+def test_container_lookup_does_not_accidentally_resolve_an_image(monkeypatch):
+    from unittest.mock import Mock
+
+    from scripts.validate_phase4b import inspect_disposable_container
+
+    mock = Mock(return_value=SimpleNamespace(returncode=1, stdout=""))
+    monkeypatch.setattr("scripts.validate_phase4b.subprocess.run", mock)
+    assert inspect_disposable_container("macrolens-phase4c") is None
+    assert mock.call_args.args[0][:3] == ["docker", "container", "inspect"]
+
+
+def test_container_lookup_refuses_unlabelled_resources(monkeypatch):
+    from unittest.mock import Mock
+
+    from scripts.validate_phase4b import inspect_disposable_container
+
+    mock = Mock(
+        return_value=SimpleNamespace(
+            returncode=0, stdout='[{"Config":{"Labels":null}}]'
+        )
+    )
+    monkeypatch.setattr("scripts.validate_phase4b.subprocess.run", mock)
+    with pytest.raises(RuntimeError, match="unrelated container"):
+        inspect_disposable_container("macrolens-phase4c")

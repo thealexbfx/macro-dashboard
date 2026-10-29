@@ -321,6 +321,22 @@ def current_metrics():
     }
 
 
+def inspect_disposable_container(name):
+    found = subprocess.run(
+        ["docker", "container", "inspect", name],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if found.returncode:
+        return None
+    info = json.loads(found.stdout)[0]
+    labels = info["Config"].get("Labels") or {}
+    if labels.get("macrolens.phase4c") != "disposable":
+        raise RuntimeError("Refuse to operate on an unrelated container")
+    return info
+
+
 def parent(out, workbook, disabled):
     if not out.is_relative_to(ROOT) or out == ROOT:
         raise ValueError("Output must be a new directory inside work/phase4b-staging")
@@ -407,18 +423,7 @@ def parent(out, workbook, disabled):
         raise TimeoutError("Staging condition timed out in phase " + phase[0])
 
     def docker_inspect():
-        found = subprocess.run(
-            ["docker", "inspect", docker_name],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if found.returncode:
-            return None
-        info = json.loads(found.stdout)[0]
-        if info["Config"].get("Labels", {}).get("macrolens.phase4c") != "disposable":
-            raise RuntimeError("Refuse to operate on an unrelated container")
-        return info
+        return inspect_disposable_container(docker_name)
 
     def record_docker():
         info = docker_inspect()
