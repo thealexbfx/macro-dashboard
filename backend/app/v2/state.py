@@ -9,6 +9,8 @@ from contextlib import contextmanager
 from pathlib import Path
 from threading import Lock
 
+from backend.app.ingestion.schema import SCHEMA as INGESTION_SCHEMA
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS source_cache (id TEXT PRIMARY KEY,payload TEXT NOT NULL,checked_at TEXT NOT NULL,next_due TEXT NOT NULL,failures INTEGER NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS leases (name TEXT PRIMARY KEY,owner TEXT NOT NULL,expires_at REAL NOT NULL);
@@ -53,7 +55,7 @@ class Store:
                 if not self._initialized:
                     if db.execute("PRAGMA journal_mode").fetchone()[0] != "wal":
                         db.execute("PRAGMA journal_mode=WAL")
-                    db.executescript(SCHEMA)
+                    db.executescript(SCHEMA + INGESTION_SCHEMA)
                     self._initialized = True
             if write:
                 db.execute("BEGIN IMMEDIATE")
@@ -74,8 +76,8 @@ class Store:
                 (key,),
             )
 
-    def acquire(self, name, owner, now, seconds=120):
-        with self.connection(True) as db:
+    def acquire(self, name, owner, now, seconds=120, timeout=30):
+        with self.connection(True, timeout=timeout) as db:
             row = db.execute("SELECT * FROM leases WHERE name=?", (name,)).fetchone()
             if row and row["expires_at"] > now:
                 return False
@@ -85,8 +87,8 @@ class Store:
             )
             return True
 
-    def release(self, name, owner):
-        with self.connection(True) as db:
+    def release(self, name, owner, timeout=30):
+        with self.connection(True, timeout=timeout) as db:
             db.execute("DELETE FROM leases WHERE name=? AND owner=?", (name, owner))
 
     def probe(self):

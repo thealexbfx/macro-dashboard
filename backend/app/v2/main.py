@@ -25,6 +25,7 @@ from fastapi import Path as ApiPath
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from backend.app.ingestion.runner import IngestionWorker
 from backend.app.registry.markets import MarketRegistry
 from backend.app.services.direct_answers import PublicTimeSeriesProvider
 from backend.app.v2.ai_guard import AIGuard, BudgetBlocked
@@ -723,11 +724,13 @@ async def lifespan(app):
             "V2 database readiness failed (%s); existing state was not reset.",
             type(exc).__name__,
         )
+    ingestion_worker.start()
     refresh_scheduler.start()
     try:
         yield
     finally:
         refresh_scheduler.stop()
+        ingestion_worker.stop()
 
 
 app = FastAPI(title="MacroLens V2 Research API", version="3.2.0", lifespan=lifespan)
@@ -803,7 +806,25 @@ def health():
 # Additive V2 Discovery endpoint; older comparison requests retain native defaults.
 discovery_service = DynamicDiscovery(service, transform, state_store)
 ai_guard = AIGuard(state_store)
-refresh_scheduler = RefreshScheduler(lambda: discovery_service.get(force_check=True))
+# Disabled by default, independently of AI. Only the three internal pilot datasets.
+ingestion_worker = IngestionWorker(
+    state_store, enabled=os.getenv("MACROLENS_INGESTION_ENABLED", "0") == "1"
+)
+
+
+def background_refresh():
+    # Dispatch before a potentially slow cold Discovery scan. Failure of the
+    # optional worker must never prevent the established research refresh.
+    try:
+        ingestion_worker.tick()
+    except Exception as exc:  # noqa: BLE001 -- optional worker admission boundary
+        logging.getLogger(__name__).warning(
+            "Ingestion dispatch failed (%s); Discovery continues.", type(exc).__name__
+        )
+    return discovery_service.get(force_check=True)
+
+
+refresh_scheduler = RefreshScheduler(background_refresh)
 
 
 @app.get("/api/v2/discovery")
@@ -905,6 +926,7 @@ def discovery_diagnostics(authorization: str | None = Header(default=None)):
     return {
         "scheduler": refresh_scheduler.status(),
         "source_checks": service.freshness_summary(),
+        "ingestion": ingestion_worker.status(),
         "limits": {
             "analytical_operations_per_process": 1,
             "api_inflight_per_process": 8,
