@@ -21,6 +21,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+import uuid
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
@@ -80,6 +81,7 @@ def db_write(out, sql, args=()):
 
 def serve(out, port, disabled):
     assert out.is_relative_to(ROOT) and (out / "DISPOSABLE").exists()
+    instance = uuid.uuid4().hex
     (out / "server-pid").write_text(str(os.getpid()))
     os.environ["MACROLENS_V2_STATE_DB"] = str(out / "state.sqlite3")
     os.environ["MACROLENS_INGESTION_ENABLED"] = "0" if disabled else "1"
@@ -231,7 +233,13 @@ def serve(out, port, disabled):
     v.discovery_service.get = discovery
     server = uvicorn.Server(
         uvicorn.Config(
-            v.app, host="127.0.0.1", port=port, access_log=False, log_level="warning"
+            v.app,
+            host="0.0.0.0"
+            if os.getenv("MACROLENS_PHASE4C_CONTAINER") == "1"
+            else "127.0.0.1",
+            port=port,
+            access_log=False,
+            log_level="warning",
         )
     )
 
@@ -239,6 +247,7 @@ def serve(out, port, disabled):
         while not server.should_exit:
             metrics = current_metrics()
             metrics["sampled_at"] = time.monotonic()
+            metrics["instance"] = instance
             atomic_json(out / "metrics.json", metrics)
             time.sleep(0.2)
 
@@ -333,6 +342,10 @@ def parent(out, workbook, disabled):
     stop_sampling = Event()
     child = None
     sampler = None
+    docker_image = os.getenv("MACROLENS_PHASE4C_DOCKER_IMAGE")
+    docker_name = "macrolens-phase4c"
+    docker_states = []
+    container_out = Path("/workspace/phase4b-staging") / out.name
     result = {
         "fixture_kind": os.getenv(
             "MACROLENS_RESOURCE_FIXTURE", "supplied_workbook_snapshot"
@@ -393,6 +406,38 @@ def parent(out, workbook, disabled):
             time.sleep(0.2)
         raise TimeoutError("Staging condition timed out in phase " + phase[0])
 
+    def docker_inspect():
+        found = subprocess.run(
+            ["docker", "inspect", docker_name],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if found.returncode:
+            return None
+        info = json.loads(found.stdout)[0]
+        if info["Config"].get("Labels", {}).get("macrolens.phase4c") != "disposable":
+            raise RuntimeError("Refuse to operate on an unrelated container")
+        return info
+
+    def record_docker():
+        info = docker_inspect()
+        if info is None:
+            return
+        entry = {
+            "id": info["Id"],
+            "state": info["State"],
+            "limits": {
+                k: info["HostConfig"][k]
+                for k in ["Memory", "MemorySwap", "NanoCpus", "NetworkMode"]
+            },
+        }
+        if docker_states and docker_states[-1]["id"] == entry["id"]:
+            docker_states[-1] = entry
+        else:
+            docker_states.append(entry)
+        atomic_json(out / "docker-states.json", docker_states)
+
     def spawn():
         nonlocal child, sampler
         args = [
@@ -405,6 +450,42 @@ def parent(out, workbook, disabled):
         ]
         if disabled:
             args += ["--disabled"]
+        if docker_image:
+            if sys.platform != "linux":
+                raise RuntimeError("Docker backend validation requires a Linux host")
+            if docker_inspect():
+                subprocess.run(
+                    ["docker", "rm", docker_name], check=True, capture_output=True
+                )
+            args = [
+                "docker",
+                "run",
+                "--name",
+                docker_name,
+                "--label",
+                "macrolens.phase4c=disposable",
+                "--memory=512m",
+                "--memory-swap=512m",
+                "--cpus=0.5",
+                "--network=macrolens-phase4c-internal",
+                "--user",
+                f"{os.getuid()}:{os.getgid()}",
+                "-p",
+                f"127.0.0.1:{port}:{port}",
+                "-v",
+                f"{ROOT}:/workspace/phase4b-staging",
+                "-e",
+                "MACROLENS_PHASE4C_CONTAINER=1",
+                docker_image,
+                "python",
+                "scripts/validate_phase4b.py",
+                "--serve",
+                str(container_out),
+                "--port",
+                str(port),
+            ]
+            if disabled:
+                args += ["--disabled"]
         (out / "server-pid").unlink(missing_ok=True)
         (out / "metrics.json").unlink(missing_ok=True)
         with open(out / "server.log", "ab") as log:
@@ -455,14 +536,28 @@ def parent(out, workbook, disabled):
 
     def stop(graceful=True):
         t = time.monotonic()
-        if graceful:
+        if docker_image:
+            if graceful:
+                subprocess.run(
+                    ["docker", "stop", "--time", "20", docker_name],
+                    check=True,
+                    capture_output=True,
+                )
+            else:
+                subprocess.run(
+                    ["docker", "kill", "--signal", "KILL", docker_name],
+                    check=True,
+                    capture_output=True,
+                )
+            child.wait(timeout=10)
+            record_docker()
+        elif graceful:
             command(shutdown=True)
             child.wait(timeout=20)
         else:
-            os.kill(
-                int((out / "server-pid").read_text()),
-                signal.SIGTERM if os.name == "nt" else signal.SIGKILL,
-            )
+            pid = int((out / "server-pid").read_text())
+            assert pid > 1
+            os.kill(pid, signal.SIGTERM if os.name == "nt" else signal.SIGKILL)
             child.wait(timeout=10)
         sampler.join(timeout=2)
         return round(time.monotonic() - t, 3)
@@ -565,8 +660,8 @@ def parent(out, workbook, disabled):
         if not disabled:
             force_due()
         with ThreadPoolExecutor(max_workers=6) as pool:
-            responses = list(pool.map(workflow, range(36)))
-        assert all(code in {200, 429, 503} for code, _ in responses)
+            responses = list(pool.map(lambda i: workflow(i)[0], range(36)))
+        assert all(code in {200, 429, 503} for code in responses)
         checks["no_unhandled_http_500"] = True
         public_check()
         if os.getenv("MACROLENS_PHASE4C_PRESSURE") == "1":
@@ -576,14 +671,23 @@ def parent(out, workbook, disabled):
             command(fault="normal")
             if not disabled:
                 force_due()
-            probe = subprocess.Popen(
-                [
-                    sys.executable,
-                    str(REPO / "scripts/validate_phase4c.py"),
+            probe_args = [
+                sys.executable,
+                str(REPO / "scripts/validate_phase4c.py"),
+                "--pressure-probe",
+                str(out),
+            ]
+            if docker_image:
+                probe_args = [
+                    "docker",
+                    "exec",
+                    docker_name,
+                    "python",
+                    "scripts/validate_phase4c.py",
                     "--pressure-probe",
-                    str(out),
+                    str(container_out),
                 ]
-            )
+            probe = subprocess.Popen(probe_args)
             try:
                 deadline = time.monotonic() + 15
                 while (
@@ -599,6 +703,7 @@ def parent(out, workbook, disabled):
                     assert code in {200, 429, 503}
                 checks["pressure_api_live"] = statuses == [200, 200]
                 probe.wait(timeout=15)
+                time.sleep(0.5)
                 checks["pressure_probe_completed"] = (
                     checks["pressure_probe_completed"] and probe.returncode == 0
                 )
@@ -754,7 +859,7 @@ def parent(out, workbook, disabled):
             cpu = sum(
                 max(0, b["cpu_seconds"] - a["cpu_seconds"])
                 for a, b in itertools.pairwise(part)
-                if a["pid"] == b["pid"]
+                if a.get("instance", a["pid"]) == b.get("instance", b["pid"])
             )
             summaries[name] = {
                 "samples": len(part),
@@ -824,11 +929,19 @@ def parent(out, workbook, disabled):
         raise
     finally:
         stop_sampling.set()
-        if child and child.poll() is None:
-            os.kill(
-                int((out / "server-pid").read_text()),
-                signal.SIGTERM if os.name == "nt" else signal.SIGKILL,
-            )
+        if docker_image:
+            info = docker_inspect()
+            if info and info["State"]["Running"]:
+                subprocess.run(
+                    ["docker", "kill", docker_name], check=False, capture_output=True
+                )
+                if child:
+                    child.wait(timeout=10)
+            record_docker()
+        elif child and child.poll() is None:
+            pid = int((out / "server-pid").read_text())
+            assert pid > 1
+            os.kill(pid, signal.SIGTERM if os.name == "nt" else signal.SIGKILL)
             child.wait(timeout=10)
 
 

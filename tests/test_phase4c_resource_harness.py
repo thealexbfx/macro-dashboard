@@ -57,11 +57,10 @@ def test_driver_refuses_non_linux(monkeypatch):
         module.run("enabled", Path("unused"))
 
 
-def test_driver_refuses_missing_cgroup(monkeypatch):
+def test_driver_refuses_client_inside_backend_cap(monkeypatch):
     module = driver(monkeypatch)
     monkeypatch.setattr(module, "sys", SimpleNamespace(platform="linux"))
-    monkeypatch.setattr(module, "snapshot", lambda: {"available": False})
-    with pytest.raises(SystemExit, match="cgroup v2"):
+    with pytest.raises(SystemExit, match="Docker backend isolation"):
         module.run("enabled", Path("unused"))
 
 
@@ -75,14 +74,11 @@ def test_ci_is_feature_only_and_has_hard_limits_without_secrets():
         "disabled",
         "enabled",
     ]
-    for bound in [
-        "--memory=512m",
-        "--memory-swap=512m",
-        "--cpus=0.5",
-        "--network=none",
-        "truncate -s 1G",
-    ]:
-        assert bound in text
+    launcher = (ROOT / "scripts/validate_phase4b.py").read_text(encoding="utf8")
+    for bound in ["--memory=512m", "--memory-swap=512m", "--cpus=0.5"]:
+        assert bound in launcher
+    assert "--internal" in text and "truncate -s 1G" in text
+    assert "--docker-image macrolens-phase4c" in text
     assert "secrets." not in text and "render.com" not in text
     assert "no database or workbook" in text
 

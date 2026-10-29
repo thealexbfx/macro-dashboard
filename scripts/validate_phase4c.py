@@ -1,16 +1,13 @@
-"""Resource-limit gate for the disposable Phase 4B Linux harness; no production IO."""
+"""Host-side resource gate; only the backend and pressure probe enter the capped cgroup."""
 
 import argparse
 import json
 import os
 import platform
-import sqlite3
 import subprocess
 import sys
 import time
 from pathlib import Path
-
-from linux_cgroup import snapshot
 
 REPO = Path(__file__).resolve().parents[1]
 ROOT = REPO.parent / "phase4b-staging"
@@ -21,7 +18,6 @@ def pressure_probe(out):
     assert (
         out.resolve().is_relative_to(ROOT.resolve()) and (out / "DISPOSABLE").exists()
     )
-    # Sacrifice only this synthetic pressure process first if the test reaches OOM.
     Path("/proc/self/oom_score_adj").write_text("1000")
     allocation = bytearray(64 * MIB)
     for i in range(0, len(allocation), 4096):
@@ -31,17 +27,32 @@ def pressure_probe(out):
     assert allocation[-4096] == 1
 
 
-def run(mode, workbook):
+def valid_limits(group):
+    if not group.get("available"):
+        return False
+    quota, period = group["cpu_max"].split()
+    return (
+        group["memory_max"] == 512 * MIB
+        and group["swap_max"] == 0
+        and quota != "max"
+        and abs(int(quota) / int(period) - 0.5) < 0.001
+    )
+
+
+def run(mode, workbook, docker_image=None):
     if sys.platform != "linux":
         raise SystemExit("Linux validation requires Linux; no fallback to Windows")
-    before = snapshot()
-    if not before.get("available"):
-        raise SystemExit("Readable cgroup v2 telemetry is required")
-    if before["memory_max"] != 512 * MIB or before["swap_max"] != 0:
-        raise SystemExit("Require an enforced 512 MiB limit and disabled swap")
-    quota, period = before["cpu_max"].split()
-    if quota == "max" or abs(int(quota) / int(period) - 0.5) > 0.001:
-        raise SystemExit("Require half a CPU")
+    if not docker_image:
+        raise SystemExit(
+            "Docker backend isolation is required; clients must remain outside the cap"
+        )
+    network = json.loads(
+        subprocess.check_output(
+            ["docker", "network", "inspect", "macrolens-phase4c-internal"], text=True
+        )
+    )[0]
+    if not network["Internal"]:
+        raise SystemExit("Require an internal test network")
     fs = os.statvfs(ROOT)
     filesystem_bytes = fs.f_blocks * fs.f_frsize
     if not 900 * MIB <= filesystem_bytes <= 1024 * MIB:
@@ -62,21 +73,22 @@ def run(mode, workbook):
         MACROLENS_PHASE4C_PRESSURE="1",
         MACROLENS_AI_ENABLED="false",
         MACROLENS_RESOURCE_FIXTURE="synthetic_sized_workbook",
+        MACROLENS_PHASE4C_DOCKER_IMAGE=docker_image,
     )
     completed = subprocess.run(args, cwd=REPO, env=env, timeout=900, check=False)
-    after = snapshot()
     result = {
-        "fixture": json.loads(workbook.with_suffix(".json").read_text()),
         "mode": mode,
-        "platform": platform.platform(),
-        "python": sys.version,
-        "sqlite": sqlite3.sqlite_version,
+        "host_platform": platform.platform(),
+        "host_python": sys.version,
+        "fixture": json.loads(workbook.with_suffix(".json").read_text()),
         "filesystem_bytes": filesystem_bytes,
-        "cgroup_before": before,
-        "cgroup_after": after,
         "harness_exit": completed.returncode,
-        "runtime_image": Path("/etc/os-release").read_text(),
+        "clients_outside_memory_cgroup": True,
+        "resource_gate_passed": False,
     }
+    states_path = out / "docker-states.json"
+    states = json.loads(states_path.read_text()) if states_path.exists() else []
+    result["container_states"] = states
     source = out / "results.json"
     if source.exists():
         harness = json.loads(source.read_text())
@@ -95,23 +107,35 @@ def run(mode, workbook):
         result.update(
             checks=harness["checks"],
             max_backend_rss_bytes=max(s["peak_rss"] for s in samples),
-            max_normal_cgroup_bytes=max(normal),
+            max_normal_cgroup_bytes=max(normal) if normal else None,
             max_pressure_cgroup_bytes=max(pressure) if pressure else None,
+            cgroup_peak_bytes=max(s["cgroup"]["memory_peak"] for s in observed)
+            if observed
+            else None,
+            max_oom_kills=max(
+                s["cgroup"]["memory_events"].get("oom_kill", 0) for s in observed
+            )
+            if observed
+            else None,
             telemetry_samples=len(observed),
             responses=harness["status_counts"],
             sqlite_peak_bytes=max(s["sqlite_bytes"] for s in samples),
             final_disk_bytes=harness["final_disk_bytes"],
+            backend_runtime=harness["runtime"],
+            sampled_limits=observed[0]["cgroup"] if observed else None,
         )
         result["resource_gate_passed"] = (
             completed.returncode == 0
+            and bool(observed)
+            and all(valid_limits(s["cgroup"]) for s in observed)
             and all(harness["checks"].values())
-            and after["memory_events"].get("oom_kill", 0)
-            == before["memory_events"].get("oom_kill", 0)
+            and result["max_oom_kills"] == 0
+            and bool(states)
+            and not any(x["state"]["OOMKilled"] for x in states)
+            and bool(normal)
             and max(normal) <= 448 * MIB
             and bool(pressure)
         )
-    else:
-        result["resource_gate_passed"] = False
     (ROOT / ("phase4c-" + mode + ".json")).write_text(json.dumps(result, indent=2))
     print(json.dumps(result, indent=2), flush=True)
     raise SystemExit(0 if result["resource_gate_passed"] else 2)
@@ -121,11 +145,12 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--mode", choices=["enabled", "disabled"])
     p.add_argument("--workbook", type=Path)
+    p.add_argument("--docker-image")
     p.add_argument("--pressure-probe", type=Path)
     a = p.parse_args()
     if a.pressure_probe:
         pressure_probe(a.pressure_probe)
     elif a.mode and a.workbook:
-        run(a.mode, a.workbook)
+        run(a.mode, a.workbook, a.docker_image)
     else:
-        p.error("Choose --mode/--workbook or --pressure-probe")
+        p.error("Choose --mode/--workbook/--docker-image or --pressure-probe")
