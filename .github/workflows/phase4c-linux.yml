@@ -1,7 +1,7 @@
 name: Phase 4C Linux resource validation
 on:
   push:
-    branches: [feature/macrolens-v2]
+    branches: [feature/macrolens-v2, feature/macrolens-batch0-foundation]
     paths:
       - '.github/workflows/phase4c-linux.yml'
       - 'scripts/*phase4c*'
@@ -10,6 +10,9 @@ on:
       - 'scripts/validate_phase4b.py'
       - 'backend/app/ingestion/**'
       - 'backend/app/v2/**'
+      - 'backend/app/catalog/**'
+      - 'catalog/**'
+      - 'scripts/validate_batch0_foundation.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -27,6 +30,10 @@ jobs:
         run: docker build -f scripts/phase4c.Dockerfile -t macrolens-phase4c .
       - name: Build labelled synthetic resource workbook
         run: python3 scripts/build_resource_workbook.py "$RUNNER_TEMP/phase4c-input/worldbank.xlsx"
+      - name: Measure offline Batch 0 manifest and restore probe within 512 MiB
+        run: |
+          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
+            --entrypoint python macrolens-phase4c scripts/validate_batch0_foundation.py
       - name: Run backend under hard Linux limits with external clients
         env:
           MODE: ${{ matrix.mode }}

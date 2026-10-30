@@ -99,6 +99,19 @@ def serve(out, port, disabled):
     from backend.app.v2.definitions import SPECS
     from backend.app.v2.state import dumps
 
+    # Batch 0 test-only load: measure the full planning registry alongside the
+    # unchanged backend. No production startup hook or public route is added.
+    from backend.app.catalog.manifest import Manifest
+    from backend.app.catalog.schema import migrate
+
+    v.app.state.batch0_manifest = Manifest.load()
+    assert v.app.state.batch0_manifest.page(audience="planning")["total"] == 309
+    assert v.app.state.batch0_manifest.page()["total"] == 30
+    with v.state_store.connection(True) as db:
+        migrate(db)
+        assert db.execute("SELECT count(*) FROM catalog_scope_reviews").fetchone()[0] == 0
+        assert db.execute("SELECT count(*) FROM catalog_dataset_completeness").fetchone()[0] == 0
+
     def forbidden(*args, **kwargs):
         raise AssertionError("External network and AI are prohibited in this harness")
 
