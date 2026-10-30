@@ -4,6 +4,7 @@ export function transformationLabel(mode:Transformation,horizon=1):string { retu
 export interface Observation {
     date: string;
     value: number | null;
+    key?: string; native_label?: string; period_start?:string; period_end?:string; event_id?:string|null; source_flags?:string[]; release_at?:string|null; revision?:number;
 }
 export type ChartMode = 'overlay' | 'separate' | 'scatter';
 export type ChartType = 'line' | 'area' | 'bar' | 'scatter';
@@ -25,6 +26,10 @@ export interface HistoricalContext {
     periods: {id:string;start:string;end:string;original_start:string;original_end:string;label:string}[];
 }
 export interface Dataset {
+    native_storage?:boolean;
+    native_history_start?:string|null;
+    native_calendar?:Record<string,unknown>;
+    latest_native_label?:string;
     id: string;
     name: string;
     provider_id: string;
@@ -134,7 +139,7 @@ async function retryDelay(milliseconds: number, signal?: AbortSignal) {
 }
 export async function request<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
     // Retry only rejected reads/pure comparisons, never refresh or administrative actions.
-    const retryable=(!body||path==='compare')&&!path.includes('/admin/');
+    const retryable=(!body||path==='compare'||path==='catalog/search')&&!path.includes('/admin/');
     for(let attempt=0;;attempt++){
         signal?.throwIfAborted();
         const r=await fetch(`/api/v2/${path}`,{method:body?'POST':'GET',body:body?JSON.stringify(body):undefined,headers:{'Content-Type':'application/json'},signal});

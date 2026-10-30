@@ -12,16 +12,15 @@ const tickStyle={fill:'#9eB3ce',fontSize:12};
 
 function ValuesTooltip({row,series,hidden,analytical}:{row?:ChartRow;series:Comparison['series'];hidden:string[];analytical:boolean}){
     if(!row)return null;
-    return <div className="chart-tooltip workspace-tooltip"><b>{analytical?'Comparison date':'Observation date'} · {dateLabel(row.date)}</b>{hoverValues(row,series,hidden).map(s=><div className="tooltip-series" key={s.id} style={{color:seriesColor(s.id)}}><strong>{s.name}</strong><span>{s.value===null?'Missing observation':tooltipNumber(s.value)} {s.value!==null&&s.units}</span><small>{transformationLabel(s.transformation,series.find(v=>v.id===s.id)?.horizon_observations)}{s.source_date&&s.source_date!==row.date?` · Source reference ${s.source_date}`:''}</small></div>)}<small>Values shown to two decimals · Missing observations stay empty</small></div>;
+    return <div className="chart-tooltip workspace-tooltip"><b>{analytical?'Comparison date':'Observation date'} · {dateLabel(row.date)}{row.date.includes('T')?` · ${new Date(row.date).toISOString().slice(11,23)} UTC`:null}</b>{hoverValues(row,series,hidden).map(s=><div className="tooltip-series" key={s.id} style={{color:seriesColor(s.id)}}><strong>{s.name}</strong><span>{s.value===null?'Missing observation':tooltipNumber(s.value)} {s.value!==null&&s.units}</span><small>{s.native_label&&`${s.native_label} · `}{transformationLabel(s.transformation,series.find(v=>v.id===s.id)?.horizon_observations)}{s.source_date&&s.source_date!==row.date?` · Source reference ${s.source_date}`:''}</small></div>)}<small>Values shown to two decimals · Missing observations stay empty</small></div>;
 }
 
 export function ResearchCharts({comparison,settings,start,end,context,onSettings,onTransform}:{comparison:Comparison;settings:WorkspaceSettings;start:string;end:string;context:HistoricalContext|null;onSettings:(s:WorkspaceSettings)=>void;onTransform:(t:'standardized'|'indexed')=>void}){
     const rows=useMemo(()=>mergeObservations(comparison.series),[comparison]);
-    const lookup=useMemo(()=>new Map(rows.map(r=>[r.time,r])),[rows]);
     const visible=comparison.series.filter(s=>!settings.hidden.includes(s.id));
     const axesError=validateAxes(visible,settings);
     const analytical=Boolean(comparison.lead_lag?.periods)||comparison.alignment==='period_end';
-    const domain:[number,number]=[Date.parse(`${start}T00:00:00Z`),Date.parse(`${end}T00:00:00Z`)];
+    const domain:[number,number]=[Date.parse(`${start}T00:00:00Z`),Date.parse(`${end}T23:59:59.999Z`)];
     const axisFor=(id:string)=>settings.axes==='dual'?(settings.axis_assignment[id]||'left'):'left';
 
     function chart(series:Comparison['series'],sync=true){
@@ -35,9 +34,9 @@ export function ResearchCharts({comparison,settings,start,end,context,onSettings
             {dual&&<YAxis yAxisId="right" orientation="right" tickFormatter={tickNumber} tick={{...tickStyle,fill:seriesColor(axisSeries('right')?.id||'')}} label={axisLabel('right')} width={86} domain={settings.chart_type==='bar'?[(v:number)=>Math.min(0,v),(v:number)=>Math.max(0,v)]:['auto','auto']} axisLine={false} tickLine={false}/>}
             {context?.periods.map(p=><ReferenceArea key={p.id} yAxisId="left" x1={Date.parse(`${p.start}T00:00:00Z`)} x2={Date.parse(`${p.end}T00:00:00Z`)} fill="#afbfdd" fillOpacity={.10} strokeOpacity={0} ifOverflow="hidden"/>)}
             {settings.chart_type==='bar'&&<ReferenceLine yAxisId="left" y={0} stroke="#60758f"/>}
-            <Tooltip filterNull={false} cursor={{stroke:'#9ab9e0',strokeDasharray:'3 4'}} content={({active,label})=>active?<ValuesTooltip row={lookup.get(Number(label))} series={comparison.series} hidden={settings.hidden} analytical={analytical}/>:null}/>
+            <Tooltip filterNull={false} cursor={{stroke:'#9ab9e0',strokeDasharray:'3 4'}} content={({active,payload})=>active?<ValuesTooltip row={payload?.[0]?.payload as ChartRow|undefined} series={comparison.series} hidden={settings.hidden} analytical={analytical}/>:null}/>
             {series.map(s=>{const props={dataKey:(r:ChartRow)=>r.values[s.id],name:s.name,yAxisId:dual?axisFor(s.id):'left',stroke:seriesColor(s.id),fill:seriesColor(s.id),isAnimationActive:false};
-                return settings.chart_type==='bar'?<Bar {...props} key={s.id} fillOpacity={.75} maxBarSize={16}/>:settings.chart_type==='area'?<Area {...props} key={s.id} type="linear" fillOpacity={.10} strokeWidth={1.8} dot={false} connectNulls={false} baseValue="dataMin"/>:<Line {...props} key={s.id} type="linear" strokeWidth={1.8} dot={rows.length<40?{r:2,strokeWidth:0}:false} activeDot={{r:4}} connectNulls={false}/>;
+                return ['event','irregular'].includes(s.native_frequency||'')?<Scatter {...props} key={s.id} data={rows.filter(r=>r.values[s.id]!==null)} shape="circle"/>:settings.chart_type==='bar'?<Bar {...props} key={s.id} fillOpacity={.75} maxBarSize={16}/>:settings.chart_type==='area'?<Area {...props} key={s.id} type="linear" fillOpacity={.10} strokeWidth={1.8} dot={false} connectNulls={false} baseValue="dataMin"/>:<Line {...props} key={s.id} type="linear" strokeWidth={1.8} dot={rows.length<40?{r:2,strokeWidth:0}:false} activeDot={{r:4}} connectNulls={false}/>;
             })}
         </ComposedChart></ResponsiveContainer>;
     }

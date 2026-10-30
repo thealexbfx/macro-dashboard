@@ -99,6 +99,19 @@ def serve(out, port, disabled):
     from backend.app.v2.definitions import SPECS
     from backend.app.v2.state import dumps
 
+    # Batch 0 test-only load: measure the full planning registry alongside the
+    # unchanged backend. No production startup hook or public route is added.
+    from backend.app.catalog.manifest import Manifest
+    from backend.app.catalog.schema import migrate
+
+    v.app.state.batch0_manifest = Manifest.load()
+    assert v.app.state.batch0_manifest.page(audience="planning")["total"] == 309
+    assert v.app.state.batch0_manifest.page()["total"] == 30
+    with v.state_store.connection(True) as db:
+        migrate(db)
+        assert db.execute("SELECT count(*) FROM catalog_scope_reviews").fetchone()[0] == 0
+        assert db.execute("SELECT count(*) FROM catalog_dataset_completeness WHERE dataset_id NOT LIKE 'fixture_native_%'").fetchone()[0] == 0
+
     def forbidden(*args, **kwargs):
         raise AssertionError("External network and AI are prohibited in this harness")
 
@@ -240,6 +253,26 @@ def serve(out, port, disabled):
             log_level="warning",
         )
     )
+
+    def native_partition_fixture():
+        # Test-only mixed-frequency writes run alongside the unchanged API,
+        # Discovery and optional WB worker in this same capped backend process.
+        # The caller's store is already guaranteed disposable above.
+        from scripts.batch0_partition_fixture import exercise
+
+        try:
+            for _ in range(1200):
+                if server.started:
+                    atomic_json(out / "native-partitions.json", exercise(v.state_store))
+                    return
+                if server.should_exit:
+                    return
+                time.sleep(0.1)
+            raise RuntimeError("Fixture server did not start")
+        except Exception as exc:  # noqa: BLE001 -- test result, never a worker leak
+            atomic_json(out / "native-partitions.json", {"failed": type(exc).__name__})
+
+    Thread(target=native_partition_fixture, daemon=True, name="batch0-native-fixture").start()
 
     def own_metrics():
         while not server.should_exit:
@@ -854,6 +887,11 @@ def parent(out, workbook, disabled):
             assert request("/ready")[1]["scheduler"]["last_attempt"] != attempt
             checks["actual_60s_scheduler_tick"] = True
         phase[0] = "shutdown"
+        native_result = json.loads((out / "native-partitions.json").read_text())
+        assert native_result.get("observations") == 2880, native_result
+        assert native_result.get("private_ai_discovery_denied") is True
+        checks["native_partitions_six_frequencies_private_and_revision_safe"] = True
+        result["native_partitions"] = native_result
         result["final_shutdown_seconds"] = stop()
         checks["sqlite_integrity"] = (
             db_read(out, "PRAGMA integrity_check")[0]["integrity_check"] == "ok"

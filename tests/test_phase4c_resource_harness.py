@@ -68,7 +68,9 @@ def test_ci_is_feature_only_and_has_hard_limits_without_secrets():
     path = ROOT / ".github/workflows/phase4c-linux.yml"
     text = path.read_text(encoding="utf-8-sig")
     workflow = yaml.load(text, Loader=yaml.BaseLoader)
-    assert workflow["on"]["push"]["branches"] == ["feature/macrolens-v2"]
+    assert workflow["on"]["push"]["branches"] == [
+        "feature/macrolens-v2", "feature/macrolens-batch0-foundation"
+    ]
     assert workflow["permissions"] == {"contents": "read"}
     assert workflow["jobs"]["linux_512mb"]["strategy"]["matrix"]["mode"] == [
         "disabled",
@@ -77,6 +79,8 @@ def test_ci_is_feature_only_and_has_hard_limits_without_secrets():
     launcher = (ROOT / "scripts/validate_phase4b.py").read_text(encoding="utf8")
     for bound in ["--memory=512m", "--memory-swap=512m", "--cpus=0.5"]:
         assert bound in launcher
+        assert bound in text  # New offline manifest/restore probe has the same cap.
+    assert "scripts/validate_batch0_foundation.py" in text
     assert "--network=none" in launcher and "truncate -s 1G" in text
     assert "--docker-image macrolens-phase4c" in text
     assert "secrets." not in text and "render.com" not in text

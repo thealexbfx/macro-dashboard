@@ -1,0 +1,2 @@
+# Research originals are evidence: preserve their original bytes on every OS.
+research/planning/batch0/originals/* -text -whitespace
