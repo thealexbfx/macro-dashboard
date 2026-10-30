@@ -39,6 +39,11 @@ class NativePublication:
 
 # Real datasets remain unreviewed/private. Only disposable tests inject approvals.
 NATIVE_PUBLICATIONS = MappingProxyType({})
+MAX_RANGE_BYTES = 2 * 1024 * 1024
+
+
+class RangeLimit(ValueError):
+    """An authorized range must be shortened; this is not a permission failure."""
 
 
 class NativeReader:
@@ -78,6 +83,8 @@ class NativeReader:
 
                 db.set_progress_handler(progress, 1000)
                 yield db
+        except RangeLimit:
+            raise
         except (
             sqlite3.Error,
             OSError,
@@ -281,10 +288,18 @@ class NativeReader:
                     (end + timedelta(days=1)).isoformat() + "T00:00:00+00:00",
                 ]
             order = "DESC" if preview else "ASC"
-            rows = db.execute(
+            cursor = db.execute(
                 f"SELECT * FROM norm_observations WHERE dataset_id=? AND reference_start BETWEEN ? AND ?{clause} ORDER BY reference_start {order},period_key {order} LIMIT ? OFFSET ?",
                 (*args, limit + 1, offset),
-            ).fetchall()
+            )
+            rows, payload_bytes = [], 0
+            for row in cursor:
+                payload_bytes += len(row["payload"].encode("utf-8"))
+                if payload_bytes > MAX_RANGE_BYTES:
+                    raise RangeLimit(
+                        "Range exceeds the 2 MiB source-evidence budget; reduce the page size or date range"
+                    )
+                rows.append(row)
             more, rows = len(rows) > limit, rows[:limit]
             if preview:
                 rows.reverse()

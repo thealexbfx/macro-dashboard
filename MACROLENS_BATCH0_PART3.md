@@ -16,6 +16,9 @@ Base: `5ae4836086d4358bb380b636e4a90f5b3a1374fc`. Development only,
   the visible page. Unknown and private IDs use the same 404 response.
 * `GET /api/v2/observations/{id}`: explicit start/end dates, limit <=1,000,
   offset <=100,000, `next_offset`/`has_more`; tail previews <=40 points.
+  Native source evidence also has a 2 MiB per-range byte budget, enforced while
+  stepping the SQLite cursor, before buffering/decoding all rows. Large source
+  flags cannot bypass the memory bound merely by staying under the row count.
   Selection uses native reference-period **start** dates, UTC instants for events.
   Previews never fill missing periods. Legacy source-cache JSON is sliced inside
   SQLite; a cold/expired request refreshes only its requested legacy source.

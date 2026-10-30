@@ -408,6 +408,24 @@ def test_missing_native_schema_does_not_break_legacy_catalog(catalog, tmp_path):
     assert not reader.path.exists()
 
 
+def test_native_evidence_byte_budget_streams_rows_before_decoding(catalog, monkeypatch):
+    from backend.app.v2 import native_reader
+
+    monkeypatch.setattr(native_reader, "MAX_RANGE_BYTES", 8192)
+    client = TestClient(v.app)
+    assert client.get("/api/v2/catalog/fixture_catalog_002").status_code == 200
+    large = client.get(
+        "/api/v2/observations/fixture_catalog_002?start=2000-01-01&end=2010-01-01&limit=1000"
+    )
+    assert large.status_code == 422 and "budget" in large.text
+    small = client.get(
+        "/api/v2/observations/fixture_catalog_002?start=2000-01-01&end=2010-01-01&limit=2"
+    )
+    assert (
+        small.status_code == 200 and len(small.json()["dataset"]["observations"]) == 2
+    )
+
+
 def test_legacy_metadata_and_observations_share_one_revision(tmp_path):
     from contextlib import contextmanager
     from datetime import UTC, datetime
