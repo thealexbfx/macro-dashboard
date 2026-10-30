@@ -46,7 +46,7 @@ from backend.app.v2.runtime import DynamicDiscovery
 from backend.app.v2.scheduler import RefreshScheduler
 from backend.app.v2.state import Store
 from backend.app.v2.stored_datasets import PermissionedDataService, StoredDatasetReader
-from backend.app.v2.workload import WorkloadBusy, analytical_workload
+from backend.app.v2.workload import WorkloadBusy, WorkloadLimit, analytical_workload
 from backend.app.v2.workspace import RecessionContext, prepare_series, source_at
 from macro_engine.research.analytics import SeriesMetadata, align, clean, relationship
 
@@ -729,6 +729,9 @@ context_service = RecessionContext(service.provider, service.today_fn)
 public_catalog = PublicCatalog(
     legacy_service, service.reader, NativeReader(state_store.path)
 )
+# Short bounded reads do not queue behind a full Discovery refresh/comparison.
+# Heavy analysis keeps its existing one-worker cap; HTTP requests remain bounded.
+catalog_reads = WorkloadLimit(2)
 
 
 @asynccontextmanager
@@ -814,7 +817,7 @@ class CatalogSearch(BaseModel):
 
 @app.post("/api/v2/catalog/search")
 def catalog_search(req: CatalogSearch):
-    with analytical_workload.enter():
+    with catalog_reads.enter():
         return public_catalog.page(**req.model_dump())
 
 
@@ -828,7 +831,7 @@ def catalog_page(
     offset: int = Query(0, ge=0, le=100000),
     limit: int = Query(20, ge=1, le=100),
 ):
-    with analytical_workload.enter():
+    with catalog_reads.enter():
         return public_catalog.page(
             query=query,
             region=region,
@@ -843,7 +846,7 @@ def catalog_page(
 @app.get("/api/v2/catalog/{key}")
 def catalog_metadata(key: str = ApiPath(max_length=128)):
     try:
-        with analytical_workload.enter():
+        with catalog_reads.enter():
             return public_catalog.metadata(key)
     except ValueError as exc:
         raise HTTPException(404, "Dataset unavailable") from exc
@@ -859,7 +862,7 @@ def observation_range(
     preview: bool = False,
 ):
     try:
-        with analytical_workload.enter():
+        with catalog_reads.enter():
             public_catalog.metadata(key)
             return public_catalog.observations(
                 key,
@@ -869,7 +872,7 @@ def observation_range(
                     if key in public_catalog.native.publications
                     else date(1990, 1, 1)
                 ),
-                end or (legacy_service.today_fn() - timedelta(days=1)),
+                end or (public_catalog.legacy.today_fn() - timedelta(days=1)),
                 limit=min(limit, 40) if preview else limit,
                 offset=offset,
                 preview=preview,
@@ -887,7 +890,11 @@ def comparison(req: ComparisonRequest):
     try:
         with analytical_workload.enter():
             if any(k in public_catalog.native.publications for k in req.datasets):
-                return JSONResponse(compare_native(public_catalog, req))
+                return JSONResponse(
+                    compare_native(
+                        public_catalog, req, lambda single: compare(service, single)
+                    )
+                )
             return compare(service, req)
     except WorkloadBusy:
         raise

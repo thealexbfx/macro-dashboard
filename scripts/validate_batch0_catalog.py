@@ -14,6 +14,7 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from threading import Event, Thread
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -24,6 +25,10 @@ def serve(port):
             MACROLENS_V2_STATE_DB=str(Path(directory) / "disposable.sqlite3"),
             MACROLENS_AI_ENABLED="false",
             MACROLENS_INGESTION_ENABLED="0",
+        )
+        print(
+            json.dumps({"fixture_database": os.environ["MACROLENS_V2_STATE_DB"]}),
+            flush=True,
         )
         from backend.app.v2 import main as v
         from backend.app.v2.catalog_api import PublicCatalog
@@ -102,6 +107,26 @@ def probe():
                 stdout=log,
                 stderr=log,
             )
+            peak_files = {suffix: 0 for suffix in ("", "-wal", "-shm")}
+            stop = Event()
+
+            def sample_files():
+                while not stop.wait(0.1):
+                    try:
+                        with logpath.open() as stream:
+                            first = json.loads(stream.readline())
+                        path = first["fixture_database"]
+                        for suffix, previous_peak in peak_files.items():
+                            file = Path(path + suffix)
+                            peak_files[suffix] = max(
+                                previous_peak,
+                                file.stat().st_size if file.exists() else 0,
+                            )
+                    except (OSError, ValueError, KeyError):
+                        pass
+
+            sampler = Thread(target=sample_files, daemon=True)
+            sampler.start()
 
             def request(path):
                 start = time.perf_counter()
@@ -158,6 +183,8 @@ def probe():
                     "/api/v2/discovery",
                     "/api/v2/compare",
                 ]
+                interactive = [request(path) for path in paths[:5] * 3]
+                assert all(r[0] == 200 for r in interactive), interactive
                 samples = []
                 with ThreadPoolExecutor(max_workers=4) as pool:
                     samples = list(pool.map(request, paths * 12))
@@ -209,6 +236,7 @@ def probe():
                     if line.startswith(("VmRSS:", "VmHWM:"))
                 }
                 successful = sorted(r[1] for r in samples if r[0] == 200)
+                interactive_times = sorted(r[1] for r in interactive)
                 result = {
                     "synthetic_only": True,
                     "public_catalog_size": 309,
@@ -219,7 +247,14 @@ def probe():
                     "page_bytes": cold[2],
                     "latency_ms_p50": round(statistics.median(successful), 2),
                     "latency_ms_p95": round(successful[int(len(successful) * 0.95)], 2),
-                    "normal_status": {
+                    "interactive_status": {"200": len(interactive), "503": 0},
+                    "interactive_latency_ms_p50": round(
+                        statistics.median(interactive_times), 2
+                    ),
+                    "interactive_latency_ms_p95": round(
+                        interactive_times[int(len(interactive_times) * 0.95)], 2
+                    ),
+                    "concurrent_mixed_status": {
                         str(c): sum(r[0] == c for r in samples) for c in (200, 503)
                     },
                     "overload_status": {
@@ -231,6 +266,7 @@ def probe():
                         else 0
                         for suffix in ("", "-wal", "-shm")
                     },
+                    "sampled_peak_sqlite_bytes": dict(peak_files),
                     "backup_restore_and_privacy": True,
                 }
                 child.terminate()
@@ -239,6 +275,8 @@ def probe():
                 result["graceful_shutdown"] = True
                 print(json.dumps(result, indent=2))
             finally:
+                stop.set()
+                sampler.join(timeout=2)
                 if child.poll() is None:
                     child.kill()
                     child.wait(timeout=10)

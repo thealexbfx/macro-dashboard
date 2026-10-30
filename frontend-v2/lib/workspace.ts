@@ -7,7 +7,7 @@ const palette: Record<string,string> = {
     initial_claims:'#e8b35b',job_openings:'#8ac9ae',participation:'#90a9f8',hourly_earnings:'#df9ebd',breakeven_5y:'#b7cb7f',retail_sales:'#7cceca',real_consumption:'#b6a7e7',consumer_sentiment:'#e7bd8c',housing_starts:'#8ab5d4',building_permits:'#d3bc7d',mortgage_30y:'#b6d0e9',industrial_production:'#c6a1c5',yield_curve:'#a4bf93',high_yield_spread:'#e5a39b',investment_grade_spread:'#9dbdd5',
     sp500:'#ef93a4',gold:'#dbbf54',wti:'#9cbd78',dxy:'#9ba8f5',
 };
-export const seriesColor = (id:string) => palette[id] || '#c8d7e9';
+export const seriesColor = (id:string) => palette[id] || ['#6399ff','#4ed4b5','#dbbf54','#ee91cb','#b09aff','#65ceef','#eaa28c','#abcc79'][Array.from(id).reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0,0)%8];
 export const defaultWorkspace = ():WorkspaceSettings => ({mode:'separate',chart_type:'line',layout:'stacked',axes:'shared',axis_assignment:{},recession:false,lead_lag:{dataset_id:'',periods:0,unit:'months'},hidden:[]});
 export function readInvestigations(storage:Pick<Storage,'getItem'>):Investigation[]{
     const records:unknown=JSON.parse(storage.getItem('ml-research')||'[]');

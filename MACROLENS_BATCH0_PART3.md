@@ -34,6 +34,9 @@ Base: `5ae4836086d4358bb380b636e4a90f5b3a1374fc`. Development only,
   are preserved. Native catalog comparisons explicitly reject these conversions
   until source-specific semantics are reviewed. API errors explain this limit.
 * Explorer fetches visible previews with at most three requests in flight.
+  Short metadata/range reads have a separate two-reader bound, so they cannot
+  queue behind a complete Discovery calculation. Heavy analysis retains its
+  existing one-worker limit and the global HTTP admission bounds are unchanged.
   Saved references/settings are hydrated on reopening; missing/private IDs are
   identified without deleting or remapping saved research.
 
@@ -66,7 +69,7 @@ it cannot be imported into production application startup.
 Local full Python suite and frontend lint/type-check/unit tests pass. A real
 Chrome test exercises pagination/filters, saved comparisons, missing/private
 references, frontend proxy denial, failed catalog requests/recovery and desktop/
-mobile rendering. An empty economic-headline object discovered by this test now
+mobile rendering, including native event markers. An empty economic-headline object discovered by this test now
 renders Unavailable rather than crashing.
 
 The full-catalog fixture contains 30 legacy definitions plus 279 fake reviewed
@@ -79,6 +82,9 @@ Linux validation runs this fixture over HTTP with the real Discovery scheduler,
 bounded reads/comparisons and burst overload, inside Docker with **512 MiB,
 no swap, 0.5 CPU**, network disabled. It reports backend RSS/HWM, cgroup peak,
 database/WAL/SHM, response sizes/latency, controlled 503s and graceful shutdown.
+It distinguishes paced interactive reads from unpaced concurrent mixed-analysis
+and 24-client overload bursts; sampled peak database/WAL/SHM sizes are recorded
+at 100 ms intervals. Such sampled peaks are lower bounds on instantaneous file size.
 The existing ingestion-enabled/disabled combined scheduler harness also remains
 required. CI retains measurement JSON and browser screenshots for seven days.
 Exact final results are recorded in the PR review report after CI concludes.

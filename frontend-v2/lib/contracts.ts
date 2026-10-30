@@ -27,6 +27,7 @@ export interface HistoricalContext {
 }
 export interface Dataset {
     native_storage?:boolean;
+    native_history_start?:string|null;
     native_calendar?:Record<string,unknown>;
     latest_native_label?:string;
     id: string;

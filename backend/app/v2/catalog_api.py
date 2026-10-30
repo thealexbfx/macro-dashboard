@@ -59,7 +59,12 @@ class PublicCatalog:
         ):
             raise ValueError("Invalid catalog page")
         rows = [self.metadata(k) for k in SPECS]
-        rows.extend(self.native.catalogue())
+        try:
+            rows.extend(self.native.catalogue())
+        except ValueError:
+            # Missing/unavailable native schema cannot break the existing public catalog.
+            # Without a readable review snapshot no native metadata is authorized.
+            pass
         # No private/planning manifest rows enter counts, facets or search results.
         facets = {
             field: sorted({r.get(field) or "" for r in rows})
@@ -125,6 +130,7 @@ class PublicCatalog:
                 self.legacy.get(key)
             order = "DESC" if preview else "ASC"
             with self.legacy.store.connection() as db:
+                db.execute("BEGIN")  # Metadata and points must use the same cache revision.
                 meta = db.execute(
                     "SELECT json_remove(payload,'$.observations') FROM source_cache WHERE id=?",
                     (key,),

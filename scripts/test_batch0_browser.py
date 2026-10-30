@@ -69,6 +69,36 @@ def main():
             page.get_by_text("110 overlapping observations", exact=False)
         ).to_be_visible(timeout=30000)
         page.screenshot(path=str(output / "investigate-desktop.png"), full_page=True)
+        # Exercise discrete event rendering, including two observations at one instant.
+        events = {
+            "id": "event-browser",
+            "title": "Synthetic event evidence",
+            "datasets": ["fixture_catalog_005"],
+            "version": 3,
+            "note": "events",
+            "collection": "Macro outlook",
+            "start": "2000-01-01",
+            "end": "2000-12-31",
+            "timeframe": "Saved",
+        }
+        page.evaluate(
+            "record=>localStorage.setItem('ml-research',JSON.stringify([...JSON.parse(localStorage.getItem('ml-research')),record]))",
+            events,
+        )
+        page.reload(wait_until="networkidle")
+        page.get_by_role("button", name="My Research", exact=True).click()
+        page.get_by_role("article").filter(
+            has_text="Synthetic event evidence"
+        ).get_by_role("button", name="Open investigation").click()
+        expect(page.locator(".recharts-scatter-symbol").first).to_be_visible(
+            timeout=30000
+        )
+        page.screenshot(path=str(output / "investigate-events.png"), full_page=True)
+        page.evaluate(
+            "records=>localStorage.setItem('ml-research',JSON.stringify(records))",
+            saved,
+        )
+        page.reload(wait_until="networkidle")
         page.get_by_role("button", name="My Research", exact=True).click()
         page.get_by_role("article").filter(has_text="Retired research").get_by_role(
             "button", name="Open investigation"
@@ -113,9 +143,9 @@ def main():
         print(
             json.dumps(
                 {
-                    "browser_checks": 18,
+                    "browser_checks": 20,
                     "passed": True,
-                    "screenshots": 3,
+                    "screenshots": 4,
                     "page_errors": errors,
                 }
             )

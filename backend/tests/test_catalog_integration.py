@@ -112,8 +112,10 @@ def test_all_real_nonpublic_ids_deny_every_direct_read(catalog, monkeypatch):
 
 @pytest.mark.parametrize(
     "index,frequency",
-    enumerate(
-        ("daily", "weekly", "monthly", "quarterly", "annual", "event", "irregular")
+    list(
+        enumerate(
+            ("daily", "weekly", "monthly", "quarterly", "annual", "event", "irregular")
+        )
     ),
 )
 def test_native_frequencies_nulls_zero_negative_and_pagination(
@@ -215,6 +217,7 @@ def test_changes_do_not_skip_missing_native_periods_or_zero_bases():
         "UPDATE norm_datasets SET public_display=0 WHERE id='fixture_catalog_002'",
         "UPDATE norm_datasets SET rights_state='unreviewed' WHERE id='fixture_catalog_002'",
         "UPDATE catalog_scope_reviews SET approved=0 WHERE dataset_id='fixture_catalog_002'",
+        "UPDATE catalog_scope_reviews SET reviewed_at='2100-01-01T00:00:00+00:00' WHERE dataset_id='fixture_catalog_002'",
         "UPDATE catalog_dataset_completeness SET state='partial' WHERE dataset_id='fixture_catalog_002'",
         "UPDATE norm_observations SET value=1234 WHERE dataset_id='fixture_catalog_002'",
         "UPDATE norm_pages SET content_hash='bad' WHERE partition_id IN (SELECT id FROM norm_partitions WHERE generation_id='catalog_fixture_catalog_002')",
@@ -340,3 +343,124 @@ def test_invalid_native_horizons_never_create_lookahead(horizon):
             "percent",
             horizon,
         )
+
+
+def test_native_preview_includes_pre_1990_history(catalog):
+    r = TestClient(v.app).get(
+        "/api/v2/observations/fixture_catalog_004?preview=true&limit=8"
+    )
+    assert r.status_code == 200, r.text
+    d = r.json()["dataset"]
+    assert len(d["observations"]) == 8
+    assert d["native_history_start"] == "1800-01-01"
+    assert d["latest_native_label"] == "1919"
+    assert d["status"] == "stale"
+
+
+def test_short_reads_are_bounded_without_waiting_for_heavy_discovery(catalog):
+    with v.analytical_workload.enter():
+        assert TestClient(v.app).get("/api/v2/catalog?limit=3").status_code == 200
+        with v.catalog_reads.enter(), v.catalog_reads.enter():
+            rejected = TestClient(v.app).get("/api/v2/catalog?limit=3")
+            assert (
+                rejected.status_code == 503 and rejected.headers["retry-after"] == "2"
+            )
+    assert TestClient(v.app).get("/api/v2/catalog?limit=3").status_code == 200
+
+
+def test_mixed_native_comparison_delegates_existing_legacy_calculations(catalog):
+    from backend.app.v2.native_compare import compare_native
+
+    response = {
+        "series": [
+            {
+                "id": "payrolls",
+                "observations": [],
+                "transformation": "jobs",
+                "units": "Net jobs",
+            }
+        ],
+        "datasets": [catalog.metadata("payrolls")],
+        "raw_observations": {"payrolls": []},
+    }
+    calculate = Mock(return_value=SimpleNamespace(model_dump=lambda: response))
+    req = v.ComparisonRequest(
+        datasets=["payrolls", "fixture_catalog_002"],
+        transformations={"payrolls": "jobs"},
+        start="2000-01-01",
+        end="2009-12-31",
+    )
+    result = compare_native(catalog, req, calculate)
+    assert result["series"][0]["units"] == "Net jobs"
+    assert calculate.call_args.args[0].datasets == ["payrolls"]
+    assert calculate.call_args.args[0].transformations == {"payrolls": "jobs"}
+
+
+def test_missing_native_schema_does_not_break_legacy_catalog(catalog, tmp_path):
+    reader = NativeReader(tmp_path / "missing.sqlite3", catalog.native.publications)
+    assert PublicCatalog(catalog.legacy, catalog.stored, reader).page()["total"] == 30
+    assert not reader.path.exists()
+
+
+def test_legacy_metadata_and_observations_share_one_revision(tmp_path):
+    from contextlib import contextmanager
+    from datetime import UTC, datetime
+
+    store = Store(tmp_path / "cache.sqlite3")
+    original = v.Dataset(
+        **v.SPECS["cpi"].__dict__,
+        status="stale",
+        message="SYNTHETIC",
+        observations=[
+            {"date": "2020-01-01", "value": 1},
+            {"date": "2020-02-01", "value": 2},
+        ],
+        latest_value=2,
+    )
+    revised = original.model_copy(
+        update={
+            "latest_value": 999,
+            "observations": [v.Observation(date="2020-02-01", value=999)],
+        }
+    )
+    with store.connection(True) as db:
+        db.execute(
+            "INSERT INTO source_cache VALUES(?,?,?,?,?)",
+            (
+                "cpi",
+                original.model_dump_json(),
+                "2026-01-01T00:00:00+00:00",
+                "2100-01-01T00:00:00+00:00",
+                0,
+            ),
+        )
+    changed = [False]
+
+    @contextmanager
+    def concurrent_connection():
+        with store.connection() as db:
+
+            class Proxy:
+                def execute(self, sql, args=()):
+                    result = db.execute(sql, args)
+                    if "json_remove" in sql and not changed[0]:
+                        changed[0] = True
+                        with store.connection(True) as writer:
+                            writer.execute(
+                                "UPDATE source_cache SET payload=? WHERE id='cpi'",
+                                (revised.model_dump_json(),),
+                            )
+                    return result
+
+            yield Proxy()
+
+    legacy = SimpleNamespace(
+        store=SimpleNamespace(connection=concurrent_connection),
+        today_fn=lambda: date(2026, 2, 1),
+        now_fn=lambda: datetime(2026, 2, 1, tzinfo=UTC),
+    )
+    catalog = PublicCatalog(legacy, v.service.reader, NativeReader(store.path))
+    page = catalog.observations("cpi", date(2020, 1, 1), date(2020, 12, 31))["dataset"]
+    assert page["latest_value"] == page["observations"][-1]["value"] == 2
+    page = catalog.observations("cpi", date(2020, 1, 1), date(2020, 12, 31))["dataset"]
+    assert page["latest_value"] == page["observations"][-1]["value"] == 999

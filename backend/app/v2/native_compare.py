@@ -82,7 +82,7 @@ def transform_native(points, metadata, mode, horizon):
     return result, units
 
 
-def compare_native(catalog, req):
+def compare_native(catalog, req, legacy_compare=None):
     if len(set(req.datasets)) != len(req.datasets) or any(
         k not in req.datasets for k in req.horizons
     ):
@@ -103,6 +103,28 @@ def compare_native(catalog, req):
     series, raw, datasets, frames = [], {}, [], {}
     for d in metadata:
         key, frequency = d["id"], d["frequency"]
+        if not d.get("native_storage") and legacy_compare is not None:
+            # Retain every existing calculation convention in mixed catalog charts,
+            # including payroll scaling, sample standard deviations and sessions.
+            single = req.model_copy(
+                update={
+                    "datasets": [key],
+                    "transformations": {key: req.transformations.get(key, "level")},
+                    "horizons": {key: req.horizons.get(key, 1)},
+                    "alignment": "native",
+                    "lead_lag": None,
+                    "start": max(req.start, date(1990, 1, 1)),
+                }
+            )
+            old = legacy_compare(single).model_dump()
+            if len(old["raw_observations"][key]) > 2000:
+                raise ValueError(
+                    "Range exceeds 2,000 source observations per dataset; choose a shorter range"
+                )
+            series.extend(old["series"])
+            datasets.extend(old["datasets"])
+            raw.update(old["raw_observations"])
+            continue
         mode, horizon = req.transformations.get(key, "level"), req.horizons.get(key, 1)
         # Bounded lookback for exact change baselines; never manufacture missing periods.
         extra = (

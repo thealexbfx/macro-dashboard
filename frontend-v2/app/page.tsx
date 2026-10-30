@@ -96,7 +96,7 @@ export default function Page() {
             setNotice('Browser storage is full or unavailable; investigation was not saved.');
         }
     }
-    function preset(r: Timeframe) { const endpoint = yesterday(); setRange(r); setEnd(endpoint); setStart(r==='MAX'&&datasets.some(d=>selected.includes(d.id)&&d.native_storage)?'0001-01-01':timeframeStart(r, endpoint)); }
+    function preset(r: Timeframe) { const endpoint = yesterday(); setRange(r); setEnd(endpoint); setStart(r==='MAX'&&datasets.some(d=>selected.includes(d.id)&&d.native_storage)?(datasets.filter(d=>selected.includes(d.id)).map(d=>d.native_history_start||(d.native_storage?'0001-01-01':'1990-01-01')).sort()[0]||'0001-01-01'):timeframeStart(r, endpoint)); }
     function download() {
         if (!comparison)
             return;

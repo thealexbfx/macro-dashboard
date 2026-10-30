@@ -41,10 +41,6 @@ class NativePublication:
 NATIVE_PUBLICATIONS = MappingProxyType({})
 
 
-class RangeLimit(ValueError):
-    pass
-
-
 class NativeReader:
     def __init__(self, path, publications=None, now_fn=None):
         self.path = path
@@ -90,8 +86,6 @@ class NativeReader:
             ValueError,
             OverflowError,
         ) as exc:
-            if isinstance(exc, RangeLimit):
-                raise
             raise ValueError("Unknown dataset ID") from exc
 
     def _permission(self, db, key):
@@ -119,6 +113,8 @@ class NativeReader:
         ):
             raise ValueError("Unknown dataset ID")
         stored = json.loads(row["definition"])
+        if instant(datetime.fromisoformat(review["reviewed_at"])) > instant(self.now()):
+            raise ValueError("Unknown dataset ID")
         for field in ("releases", "holidays", "evidence"):
             stored["calendar"].pop(field)
         if digest(stored) != definition.fingerprint:
@@ -180,8 +176,12 @@ class NativeReader:
             ):
                 raise ValueError("Unknown dataset ID")
 
-    def _metadata(self, publication):
+    def _metadata(self, publication, db):
         d = publication.definition
+        first = db.execute(
+            "SELECT reference_start FROM norm_observations WHERE dataset_id=? ORDER BY reference_start,period_key LIMIT 1",
+            (d.id,),
+        ).fetchone()
         allowed = ["level", "indexed", "standardized"]
         if d.frequency not in {"event", "irregular"}:
             allowed += ["percent", "yoy"]
@@ -217,6 +217,7 @@ class NativeReader:
             "change_units": None,
             "previous_observation_date": None,
             "native_storage": True,
+            "native_history_start": first[0] if first else None,
             "native_calendar": {
                 k: v
                 for k, v in asdict(d.calendar).items()
@@ -239,7 +240,7 @@ class NativeReader:
             raise ValueError("Unknown dataset ID")
         with self.connection() as db:
             publication, _active = self._permission(db, key)
-            return self._metadata(publication)
+            return self._metadata(publication, db)
 
     def catalogue(self):
         if not self.publications:
@@ -249,7 +250,7 @@ class NativeReader:
             for key in self.publications:
                 try:
                     publication, _ = self._permission(db, key)
-                    rows.append(self._metadata(publication))
+                    rows.append(self._metadata(publication, db))
                 except (ValueError, TypeError, KeyError):
                     continue
         return rows
@@ -377,7 +378,7 @@ class NativeReader:
                         "revision": row["revision"],
                     }
                 )
-            metadata = self._metadata(publication)
+            metadata = self._metadata(publication, db)
             valid = [r for r in observations if r["value"] is not None]
             checked_at = max((r["checked_at"] for r in rows), default=None)
             pending = db.execute(
@@ -406,7 +407,7 @@ class NativeReader:
                 ).days > days
             metadata.update(
                 observations=observations,
-                status="stale" if stale else "ok",
+                status="unavailable" if not valid else "stale" if stale else "ok",
                 retrieved_at=checked_at,
                 latest_value=valid[-1]["value"] if valid else None,
                 latest_observation_date=valid[-1]["date"] if valid else None,
