@@ -35,7 +35,7 @@ export function restoreWorkspace(investigation:Investigation):WorkspaceSettings 
         lead_lag:shift&&investigation.datasets.includes(shift.dataset_id)&&Number.isInteger(shift.periods)&&Math.abs(shift.periods)<=12?shift:defaults.lead_lag};
 }
 export function commonFrequency(datasets:Dataset[]):string {
-    return ['quarterly','monthly','weekly','daily'].find(f=>datasets.some(d=>d.frequency===f))||'monthly';
+    return ['event','irregular','annual','quarterly','monthly','weekly','daily'].find(f=>datasets.some(d=>d.frequency===f))||'monthly';
 }
 export function shiftUnit(frequency:string):WorkspaceSettings['lead_lag']['unit']{
     return frequency==='weekly'?'weeks':frequency==='daily'?'calendar_days':frequency==='quarterly'?'quarters':'months';
@@ -60,17 +60,19 @@ export function validateAxes(series:Comparison['series'],settings:WorkspaceSetti
     if([...groups.values()].some(g=>g.size>1))return 'These series have different units or index bases. Choose indexed values, z-scores, separate charts, or explicitly assign compatible groups to left/right axes.';
     return null;
 }
-export interface ChartRow {time:number;date:string;values:Record<string,number|null>;sources:Record<string,string|null>}
+export interface ChartRow {time:number;date:string;values:Record<string,number|null>;sources:Record<string,string|null>;labels?:Record<string,string>}
 export function mergeObservations(series:Comparison['series']):ChartRow[]{
     const rows=new Map<string,ChartRow>();
     for(const s of series)for(const o of s.observations){
-        const row=rows.get(o.date)||{time:Date.parse(`${o.date}T00:00:00Z`),date:o.date,values:{},sources:{}};
-        row.values[s.id]=o.value;row.sources[s.id]=s.source_dates?(s.source_dates[o.date]??null):o.date;rows.set(o.date,row);
+        const key=o.event_id||s.native_frequency==='event'||s.native_frequency==='irregular'?`${s.id}:${o.key||o.date}`:o.date;
+        const row=rows.get(key)||{time:Date.parse(o.date.includes('T')?o.date:`${o.date}T00:00:00Z`),date:o.date,values:{},sources:{},labels:{}};
+        row.labels={...row.labels,[s.id]:o.native_label?`${o.native_label} · ${o.period_start} to ${o.period_end}${o.event_id?` · ${o.event_id}`:''}`:''};
+        row.values[s.id]=o.value;row.sources[s.id]=s.source_dates?(s.source_dates[o.date]??null):o.date;rows.set(key,row);
     }
     return [...rows.values()].sort((a,b)=>a.time-b.time).map(row=>({...row,values:Object.fromEntries(series.map(s=>[s.id,row.values[s.id]??null]))}));
 }
 export function hoverValues(row:ChartRow,series:Comparison['series'],hidden:string[]){
-    return series.filter(s=>!hidden.includes(s.id)).map(s=>({id:s.id,name:s.name,value:row.values[s.id]??null,units:s.units,transformation:s.transformation,source_date:row.sources[s.id]??null}));
+    return series.filter(s=>!hidden.includes(s.id)).map(s=>({id:s.id,name:s.name,value:row.values[s.id]??null,units:s.units,transformation:s.transformation,native_label:row.labels?.[s.id],source_date:row.sources[s.id]??null}));
 }
 
 export function dualAxisSettings(settings:WorkspaceSettings,ids:string[]):WorkspaceSettings {

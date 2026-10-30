@@ -29,6 +29,7 @@ from backend.app.ingestion.runner import IngestionWorker
 from backend.app.registry.markets import MarketRegistry
 from backend.app.services.direct_answers import PublicTimeSeriesProvider
 from backend.app.v2.ai_guard import AIGuard, BudgetBlocked
+from backend.app.v2.catalog_api import PublicCatalog
 from backend.app.v2.definitions import SPECS, Spec
 from backend.app.v2.integrity import (
     assess_freshness,
@@ -37,6 +38,8 @@ from backend.app.v2.integrity import (
     validate_frame,
 )
 from backend.app.v2.movements import movement
+from backend.app.v2.native_compare import compare_native
+from backend.app.v2.native_reader import NativeReader
 from backend.app.v2.refresh import scheduled_service_class
 from backend.app.v2.request_bounds import RequestBounds
 from backend.app.v2.runtime import DynamicDiscovery
@@ -723,6 +726,9 @@ service = PermissionedDataService(
     lambda: SPECS,
 )
 context_service = RecessionContext(service.provider, service.today_fn)
+public_catalog = PublicCatalog(
+    legacy_service, service.reader, NativeReader(state_store.path)
+)
 
 
 @asynccontextmanager
@@ -795,10 +801,93 @@ def catalogue():
         return service.catalogue()
 
 
+class CatalogSearch(BaseModel):
+    query: str = Field(default="", max_length=200)
+    region: str = Field(default="", max_length=100)
+    category: str = Field(default="", max_length=100)
+    provider: str = Field(default="", max_length=100)
+    frequency: str = Field(default="", max_length=40)
+    offset: int = Field(default=0, ge=0, le=100000)
+    limit: int = Field(default=20, ge=1, le=100)
+    ids: list[str] | None = Field(default=None, max_length=400)
+
+
+@app.post("/api/v2/catalog/search")
+def catalog_search(req: CatalogSearch):
+    with analytical_workload.enter():
+        return public_catalog.page(**req.model_dump())
+
+
+@app.get("/api/v2/catalog")
+def catalog_page(
+    query: str = Query("", max_length=200),
+    region: str = Query("", max_length=100),
+    category: str = Query("", max_length=100),
+    provider: str = Query("", max_length=100),
+    frequency: str = Query("", max_length=40),
+    offset: int = Query(0, ge=0, le=100000),
+    limit: int = Query(20, ge=1, le=100),
+):
+    with analytical_workload.enter():
+        return public_catalog.page(
+            query=query,
+            region=region,
+            category=category,
+            provider=provider,
+            frequency=frequency,
+            offset=offset,
+            limit=limit,
+        )
+
+
+@app.get("/api/v2/catalog/{key}")
+def catalog_metadata(key: str = ApiPath(max_length=128)):
+    try:
+        with analytical_workload.enter():
+            return public_catalog.metadata(key)
+    except ValueError as exc:
+        raise HTTPException(404, "Dataset unavailable") from exc
+
+
+@app.get("/api/v2/observations/{key}")
+def observation_range(
+    key: str = ApiPath(max_length=128),
+    start: date | None = None,
+    end: date | None = None,
+    limit: int = Query(1000, ge=1, le=1000),
+    offset: int = Query(0, ge=0, le=100000),
+    preview: bool = False,
+):
+    try:
+        with analytical_workload.enter():
+            public_catalog.metadata(key)
+            return public_catalog.observations(
+                key,
+                start
+                or (
+                    date.min
+                    if key in public_catalog.native.publications
+                    else date(1990, 1, 1)
+                ),
+                end or (legacy_service.today_fn() - timedelta(days=1)),
+                limit=min(limit, 40) if preview else limit,
+                offset=offset,
+                preview=preview,
+            )
+    except ValueError as exc:
+        if str(exc) == "Unknown dataset ID":
+            raise HTTPException(404, "Dataset unavailable") from exc
+        raise HTTPException(422, str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(503, "Source unavailable; retry shortly") from exc
+
+
 @app.post("/api/v2/compare", response_model=ComparisonResponse)
 def comparison(req: ComparisonRequest):
     try:
         with analytical_workload.enter():
+            if any(k in public_catalog.native.publications for k in req.datasets):
+                return JSONResponse(compare_native(public_catalog, req))
             return compare(service, req)
     except WorkloadBusy:
         raise

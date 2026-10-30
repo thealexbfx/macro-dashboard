@@ -35,10 +35,11 @@ export function formatDatasetValue(d: Dataset): string {
 export function dateLabel(value: string | null | undefined): string {
     if (!value)
         return 'Date unavailable';
-    const date = new Date(`${value}T00:00:00Z`);
+    const date = new Date(value.includes('T')?value:`${value}T00:00:00Z`);
     return Number.isNaN(date.getTime()) ? 'Date unavailable' : date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 }
 export function referenceLabel(d: Dataset): string {
+    if(d.latest_native_label)return d.latest_native_label;
     if (!d.latest_observation_date)
         return 'Reference unavailable';
     if (d.frequency === 'quarterly')
@@ -63,7 +64,7 @@ export function marketMovement(d: Dataset): {
 }
 export function formatHeadlineValue(d:Dataset):string{
     const h=d.headline;
-    if(d.status==='unavailable'||!h||h.value===null)return 'Unavailable';
+    if(d.status==='unavailable'||!h||h.value==null||!h.units)return 'Unavailable';
     if(h.transformation==='jobs')return `${h.value>0?'+':''}${formatNumber(h.value,0)}`;
     return `${formatNumber(h.value,d.id==='fed_funds'?2:1)}${h.units.toLowerCase().startsWith('percent')?'%':''}`;
 }
