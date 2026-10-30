@@ -42,6 +42,7 @@ from backend.app.v2.request_bounds import RequestBounds
 from backend.app.v2.runtime import DynamicDiscovery
 from backend.app.v2.scheduler import RefreshScheduler
 from backend.app.v2.state import Store
+from backend.app.v2.stored_datasets import PermissionedDataService, StoredDatasetReader
 from backend.app.v2.workload import WorkloadBusy, analytical_workload
 from backend.app.v2.workspace import RecessionContext, prepare_series, source_at
 from macro_engine.research.analytics import SeriesMetadata, align, clean, relationship
@@ -86,6 +87,7 @@ class Dataset(BaseModel):
     provider_metadata: dict = {}
     revision_count: int = 0
     market_movement: dict = {}
+    stored_provenance: dict | None = None
     status: Literal["ok", "stale", "unavailable"]
     latest_observation_date: str | None = None
     coverage_start: str | None = None
@@ -500,9 +502,12 @@ def compare(service, req):
         or req.end >= service.today_fn()
     ):
         raise ValueError("Choose a completed date range from 1990 through yesterday")
-    if any(k not in SPECS for k in req.datasets):
-        raise ValueError("Unknown dataset ID")
-    specs = [SPECS[k] for k in req.datasets]
+    if hasattr(service, "resolve_spec"):
+        specs = [service.resolve_spec(k) for k in req.datasets]
+    else:
+        if any(k not in SPECS for k in req.datasets):
+            raise ValueError("Unknown dataset ID")
+        specs = [SPECS[k] for k in req.datasets]
     if len({s.frequency for s in specs}) > 1 and req.alignment == "native":
         raise ValueError("Mixed frequencies require explicit period-end alignment")
     with ThreadPoolExecutor(max_workers=4) as pool:
@@ -711,7 +716,12 @@ def compare(service, req):
 
 
 state_store = Store()
-service = scheduled_service_class(DataService, Dataset)(state_store)
+legacy_service = scheduled_service_class(DataService, Dataset)(state_store)
+service = PermissionedDataService(
+    legacy_service,
+    StoredDatasetReader(state_store.path, Dataset, today_fn=legacy_service.today_fn),
+    lambda: SPECS,
+)
 context_service = RecessionContext(service.provider, service.today_fn)
 
 

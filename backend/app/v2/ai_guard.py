@@ -193,6 +193,13 @@ class AIGuard:
             }
         selected = []
         for f in findings[:5]:
+            ids = f.get("datasets")
+            # Public research permission is not AI permission. Stored datasets are
+            # excluded even if an approved presentation definition is added later.
+            if not isinstance(ids, list) or not ids or any(
+                not isinstance(key, str) or key not in SPECS for key in ids
+            ):
+                continue
             with self.store.connection() as db:
                 cached = db.execute(
                     "SELECT 1 FROM ai_cache WHERE cache_key=?", (ai_cache_key(f),)

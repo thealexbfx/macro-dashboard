@@ -86,3 +86,18 @@ export function correlationInterpretation(value: number | null): string {
     const strength = Math.abs(value) < .2 ? 'Little linear relationship' : Math.abs(value) < .4 ? 'A weak linear relationship' : Math.abs(value) < .7 ? 'A moderate linear relationship' : 'A strong linear relationship';
     return `${strength}${Math.abs(value) < .2 ? '' : value > 0 ? ': the series tended to move together' : ': the series tended to move in opposite directions'} over this period. This does not establish causation.`;
 }
+
+/** Presentation only: visibility is enforced by backend rights and registry checks. */
+export function storedSourceDetails(d: Dataset): [string, string][] {
+    const p = d.stored_provenance;
+    if (!p) return [];
+    return [
+        ['Benchmark', p.benchmark],
+        ['Attribution', p.attribution.join('; ')],
+        ['Source unit', p.source_unit],
+        ['Stored reference coverage', p.stored_start + ' – ' + p.stored_end],
+        ['Reference convention', p.reference_convention],
+        ['License', p.license_url],
+        ['AI use', 'Not enabled'],
+    ];
+}
