@@ -1,0 +1,1194 @@
+{
+  "checked_at_utc": "2026-10-25T00:56:13.048266+00:00",
+  "purpose": "Application calculation / provider consistency checks, not independent certification of every source observation",
+  "unshifted": {
+    "request": {
+      "datasets": [
+        "unemployment",
+        "cpi_nsa"
+      ],
+      "transformations": {
+        "cpi_nsa": "yoy"
+      },
+      "start": "2016-10-24",
+      "end": "2026-10-24",
+      "alignment": "native",
+      "rolling_window": 12
+    },
+    "statistics": [
+      {
+        "lead_lag": null,
+        "left": "unemployment",
+        "right": "cpi_nsa",
+        "transformations": [
+          "level",
+          "yoy"
+        ],
+        "frequency": "monthly",
+        "alignment": "native reference-period labels; no filling",
+        "missing_periods": 1,
+        "rolling_window": 12,
+        "rolling": [
+          {
+            "date": "2016-11-01",
+            "value": null
+          },
+          {
+            "date": "2016-12-01",
+            "value": null
+          },
+          {
+            "date": "2017-01-01",
+            "value": null
+          },
+          {
+            "date": "2017-02-01",
+            "value": null
+          },
+          {
+            "date": "2017-03-01",
+            "value": null
+          },
+          {
+            "date": "2017-04-01",
+            "value": null
+          },
+          {
+            "date": "2017-05-01",
+            "value": null
+          },
+          {
+            "date": "2017-06-01",
+            "value": null
+          },
+          {
+            "date": "2017-07-01",
+            "value": null
+          },
+          {
+            "date": "2017-08-01",
+            "value": null
+          },
+          {
+            "date": "2017-09-01",
+            "value": null
+          },
+          {
+            "date": "2017-10-01",
+            "value": 0.3120122973262719
+          },
+          {
+            "date": "2017-11-01",
+            "value": 0.4943742139961974
+          },
+          {
+            "date": "2017-12-01",
+            "value": 0.5509916844158057
+          },
+          {
+            "date": "2018-01-01",
+            "value": 0.37300870433574396
+          },
+          {
+            "date": "2018-02-01",
+            "value": -0.1319554167573111
+          },
+          {
+            "date": "2018-03-01",
+            "value": -0.47919266166675345
+          },
+          {
+            "date": "2018-04-01",
+            "value": -0.6896487231032082
+          },
+          {
+            "date": "2018-05-01",
+            "value": -0.8008171914886176
+          },
+          {
+            "date": "2018-06-01",
+            "value": -0.7557701598256007
+          },
+          {
+            "date": "2018-07-01",
+            "value": -0.789760118516134
+          },
+          {
+            "date": "2018-08-01",
+            "value": -0.7707478703000524
+          },
+          {
+            "date": "2018-09-01",
+            "value": -0.6106600730844688
+          },
+          {
+            "date": "2018-10-01",
+            "value": -0.5347420871465652
+          },
+          {
+            "date": "2018-11-01",
+            "value": -0.3752259258457492
+          },
+          {
+            "date": "2018-12-01",
+            "value": -0.23573302790299508
+          },
+          {
+            "date": "2019-01-01",
+            "value": -0.29169743081344895
+          },
+          {
+            "date": "2019-02-01",
+            "value": -0.10733860871694446
+          },
+          {
+            "date": "2019-03-01",
+            "value": -0.0721603172828545
+          },
+          {
+            "date": "2019-04-01",
+            "value": -0.05629009648823973
+          },
+          {
+            "date": "2019-05-01",
+            "value": 0.11510854207689959
+          },
+          {
+            "date": "2019-06-01",
+            "value": 0.015235172646195757
+          },
+          {
+            "date": "2019-07-01",
+            "value": -0.00585539605528511
+          },
+          {
+            "date": "2019-08-01",
+            "value": -0.009998443206805473
+          },
+          {
+            "date": "2019-09-01",
+            "value": 0.1197383555204555
+          },
+          {
+            "date": "2019-10-01",
+            "value": 0.02568705924444862
+          },
+          {
+            "date": "2019-11-01",
+            "value": -0.2165861024933107
+          },
+          {
+            "date": "2019-12-01",
+            "value": -0.38410819783678407
+          },
+          {
+            "date": "2020-01-01",
+            "value": -0.21592306213959947
+          },
+          {
+            "date": "2020-02-01",
+            "value": -0.16939147904031754
+          },
+          {
+            "date": "2020-03-01",
+            "value": -0.42731953064228906
+          },
+          {
+            "date": "2020-04-01",
+            "value": -0.8533837425070093
+          },
+          {
+            "date": "2020-05-01",
+            "value": -0.9127992372323505
+          },
+          {
+            "date": "2020-06-01",
+            "value": -0.9325752586389777
+          },
+          {
+            "date": "2020-07-01",
+            "value": -0.9357096634363047
+          },
+          {
+            "date": "2020-08-01",
+            "value": -0.9400787557334025
+          },
+          {
+            "date": "2020-09-01",
+            "value": -0.950445913648878
+          },
+          {
+            "date": "2020-10-01",
+            "value": -0.951177615012514
+          },
+          {
+            "date": "2020-11-01",
+            "value": -0.9369261763772976
+          },
+          {
+            "date": "2020-12-01",
+            "value": -0.9269304153860226
+          },
+          {
+            "date": "2021-01-01",
+            "value": -0.9297877523878864
+          },
+          {
+            "date": "2021-02-01",
+            "value": -0.9312702300692666
+          },
+          {
+            "date": "2021-03-01",
+            "value": -0.8348058830306789
+          },
+          {
+            "date": "2021-04-01",
+            "value": -0.6650739316026371
+          },
+          {
+            "date": "2021-05-01",
+            "value": -0.5866092681777934
+          },
+          {
+            "date": "2021-06-01",
+            "value": -0.576554755094082
+          },
+          {
+            "date": "2021-07-01",
+            "value": -0.7092014469937121
+          },
+          {
+            "date": "2021-08-01",
+            "value": -0.808600911650148
+          },
+          {
+            "date": "2021-09-01",
+            "value": -0.8622566246683998
+          },
+          {
+            "date": "2021-10-01",
+            "value": -0.8624439748081473
+          },
+          {
+            "date": "2021-11-01",
+            "value": -0.8629515121346226
+          },
+          {
+            "date": "2021-12-01",
+            "value": -0.8558776522192469
+          },
+          {
+            "date": "2022-01-01",
+            "value": -0.8656664130149061
+          },
+          {
+            "date": "2022-02-01",
+            "value": -0.8979682969148738
+          },
+          {
+            "date": "2022-03-01",
+            "value": -0.9174899877125641
+          },
+          {
+            "date": "2022-04-01",
+            "value": -0.9034651914019073
+          },
+          {
+            "date": "2022-05-01",
+            "value": -0.8990527121292378
+          },
+          {
+            "date": "2022-06-01",
+            "value": -0.9348309088314164
+          },
+          {
+            "date": "2022-07-01",
+            "value": -0.9564770360102532
+          },
+          {
+            "date": "2022-08-01",
+            "value": -0.9570059970843724
+          },
+          {
+            "date": "2022-09-01",
+            "value": -0.9060581621389752
+          },
+          {
+            "date": "2022-10-01",
+            "value": -0.7953345708668027
+          },
+          {
+            "date": "2022-11-01",
+            "value": -0.5211199869757139
+          },
+          {
+            "date": "2022-12-01",
+            "value": -0.07177188274894049
+          },
+          {
+            "date": "2023-01-01",
+            "value": 0.267281851479511
+          },
+          {
+            "date": "2023-02-01",
+            "value": 0.3444067632246988
+          },
+          {
+            "date": "2023-03-01",
+            "value": 0.3966574124643484
+          },
+          {
+            "date": "2023-04-01",
+            "value": 0.5658990567279047
+          },
+          {
+            "date": "2023-05-01",
+            "value": 0.2760091142087316
+          },
+          {
+            "date": "2023-06-01",
+            "value": -0.022217842861718413
+          },
+          {
+            "date": "2023-07-01",
+            "value": 0.1425489646223454
+          },
+          {
+            "date": "2023-08-01",
+            "value": -0.16386530157488818
+          },
+          {
+            "date": "2023-09-01",
+            "value": -0.19679649584660655
+          },
+          {
+            "date": "2023-10-01",
+            "value": -0.4288441591102324
+          },
+          {
+            "date": "2023-11-01",
+            "value": -0.5442153273811031
+          },
+          {
+            "date": "2023-12-01",
+            "value": -0.5384459203306351
+          },
+          {
+            "date": "2024-01-01",
+            "value": -0.49890519111822085
+          },
+          {
+            "date": "2024-02-01",
+            "value": -0.6294871420763383
+          },
+          {
+            "date": "2024-03-01",
+            "value": -0.5266680582458421
+          },
+          {
+            "date": "2024-04-01",
+            "value": -0.08121729876198905
+          },
+          {
+            "date": "2024-05-01",
+            "value": 0.18671924780990745
+          },
+          {
+            "date": "2024-06-01",
+            "value": -0.2634652385904553
+          },
+          {
+            "date": "2024-07-01",
+            "value": -0.6304803015474993
+          },
+          {
+            "date": "2024-08-01",
+            "value": -0.7098808540711702
+          },
+          {
+            "date": "2024-09-01",
+            "value": -0.668834659496216
+          },
+          {
+            "date": "2024-10-01",
+            "value": -0.692519355448945
+          },
+          {
+            "date": "2024-11-01",
+            "value": -0.741013641646767
+          },
+          {
+            "date": "2024-12-01",
+            "value": -0.7065060834861377
+          },
+          {
+            "date": "2025-01-01",
+            "value": -0.8148485683888549
+          },
+          {
+            "date": "2025-02-01",
+            "value": -0.7979689619581602
+          },
+          {
+            "date": "2025-03-01",
+            "value": -0.757768508757938
+          },
+          {
+            "date": "2025-04-01",
+            "value": -0.6721904255806173
+          },
+          {
+            "date": "2025-05-01",
+            "value": -0.5554484814933026
+          },
+          {
+            "date": "2025-06-01",
+            "value": -0.5146539017226438
+          },
+          {
+            "date": "2025-07-01",
+            "value": -0.4844841441588945
+          },
+          {
+            "date": "2025-08-01",
+            "value": -0.2640804644024804
+          },
+          {
+            "date": "2025-09-01",
+            "value": -0.05075445160160788
+          },
+          {
+            "date": "2025-10-01",
+            "value": null
+          },
+          {
+            "date": "2025-11-01",
+            "value": null
+          },
+          {
+            "date": "2025-12-01",
+            "value": null
+          },
+          {
+            "date": "2026-01-01",
+            "value": null
+          },
+          {
+            "date": "2026-02-01",
+            "value": null
+          },
+          {
+            "date": "2026-03-01",
+            "value": null
+          },
+          {
+            "date": "2026-04-01",
+            "value": null
+          },
+          {
+            "date": "2026-05-01",
+            "value": null
+          },
+          {
+            "date": "2026-06-01",
+            "value": null
+          },
+          {
+            "date": "2026-07-01",
+            "value": null
+          },
+          {
+            "date": "2026-08-01",
+            "value": null
+          },
+          {
+            "date": "2026-09-01",
+            "value": null
+          }
+        ],
+        "observations": 118,
+        "correlation": -0.3602161497951625,
+        "start": "2016-11-01",
+        "end": "2026-09-01",
+        "direction": "inverse"
+      }
+    ],
+    "scatter_count": 118,
+    "sample_pairs": [
+      {
+        "date": "2016-11-01",
+        "x": 4.7,
+        "y": 1.6925371625037933,
+        "x_source_date": "2016-11-01",
+        "y_source_date": "2016-11-01"
+      },
+      {
+        "date": "2016-12-01",
+        "x": 4.7,
+        "y": 2.074622132966919,
+        "x_source_date": "2016-12-01",
+        "y_source_date": "2016-12-01"
+      },
+      {
+        "date": "2017-01-01",
+        "x": 4.7,
+        "y": 2.5000422090529995,
+        "x_source_date": "2017-01-01",
+        "y_source_date": "2017-01-01"
+      }
+    ],
+    "provenance": [
+      {
+        "id": "unemployment",
+        "provider_id": "UNRATE",
+        "source": "FRED / BLS",
+        "source_url": "https://fred.stlouisfed.org/series/UNRATE",
+        "latest_observation_date": "2026-09-01",
+        "retrieved_at": "2026-10-25T00:56:13.262881+00:00",
+        "verification": {
+          "status": "Verified against primary source",
+          "raw_status": "Verified against primary source",
+          "headline_status": "Verified against primary source",
+          "audit_checked_at": "2026-10-24",
+          "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+          "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage.",
+          "headline_reconciliation": {
+            "reference": "2026-09-01",
+            "release_date": "2026-10-02",
+            "published_value": 4.2,
+            "calculated_value": 4.2,
+            "rounded_to_release_precision": 4.2,
+            "difference_at_release_precision": 0.0,
+            "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+            "vintage_note": "Latest retrieved revised series compared with this dated release, not a claim that all historical vintages match."
+          }
+        }
+      },
+      {
+        "id": "cpi_nsa",
+        "provider_id": "CPIAUCNS",
+        "source": "FRED / BLS",
+        "source_url": "https://fred.stlouisfed.org/series/CPIAUCNS",
+        "latest_observation_date": "2026-09-01",
+        "retrieved_at": "2026-10-25T00:56:16.276862+00:00",
+        "verification": {
+          "status": "Verified against primary source",
+          "raw_status": "Verified against primary source",
+          "headline_status": "Verified against primary source",
+          "audit_checked_at": "2026-10-24",
+          "source_url": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+          "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage.",
+          "headline_reconciliation": {
+            "reference": "2026-09-01",
+            "release_date": "2026-10-14",
+            "published_value": 3.7,
+            "calculated_value": 3.737684729064039,
+            "rounded_to_release_precision": 3.7,
+            "difference_at_release_precision": 0.0,
+            "source_url": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+            "vintage_note": "Latest retrieved revised series compared with this dated release, not a claim that all historical vintages match."
+          }
+        }
+      }
+    ]
+  },
+  "unemployment_leads_6_months": {
+    "request": {
+      "datasets": [
+        "unemployment",
+        "cpi_nsa"
+      ],
+      "transformations": {
+        "cpi_nsa": "yoy"
+      },
+      "start": "2016-10-24",
+      "end": "2026-10-24",
+      "alignment": "native",
+      "rolling_window": 12,
+      "lead_lag": {
+        "dataset_id": "unemployment",
+        "periods": 6,
+        "unit": "months"
+      }
+    },
+    "statistics": [
+      {
+        "lead_lag": {
+          "dataset_id": "unemployment",
+          "periods": 6,
+          "unit": "months"
+        },
+        "left": "unemployment",
+        "right": "cpi_nsa",
+        "transformations": [
+          "level",
+          "yoy"
+        ],
+        "frequency": "monthly",
+        "alignment": "native reference-period labels; no filling",
+        "missing_periods": 2,
+        "rolling_window": 12,
+        "rolling": [
+          {
+            "date": "2017-05-01",
+            "value": null
+          },
+          {
+            "date": "2017-06-01",
+            "value": null
+          },
+          {
+            "date": "2017-07-01",
+            "value": null
+          },
+          {
+            "date": "2017-08-01",
+            "value": null
+          },
+          {
+            "date": "2017-09-01",
+            "value": null
+          },
+          {
+            "date": "2017-10-01",
+            "value": null
+          },
+          {
+            "date": "2017-11-01",
+            "value": null
+          },
+          {
+            "date": "2017-12-01",
+            "value": null
+          },
+          {
+            "date": "2018-01-01",
+            "value": null
+          },
+          {
+            "date": "2018-02-01",
+            "value": null
+          },
+          {
+            "date": "2018-03-01",
+            "value": null
+          },
+          {
+            "date": "2018-04-01",
+            "value": -0.8918548362898657
+          },
+          {
+            "date": "2018-05-01",
+            "value": -0.8777784958042208
+          },
+          {
+            "date": "2018-06-01",
+            "value": -0.8736658453842989
+          },
+          {
+            "date": "2018-07-01",
+            "value": -0.8859176883503164
+          },
+          {
+            "date": "2018-08-01",
+            "value": -0.8933455787245265
+          },
+          {
+            "date": "2018-09-01",
+            "value": -0.7154544229082112
+          },
+          {
+            "date": "2018-10-01",
+            "value": -0.6385723776460415
+          },
+          {
+            "date": "2018-11-01",
+            "value": -0.2721255886570295
+          },
+          {
+            "date": "2018-12-01",
+            "value": -0.05058434029700317
+          },
+          {
+            "date": "2019-01-01",
+            "value": 0.36259574449504534
+          },
+          {
+            "date": "2019-02-01",
+            "value": 0.6434855682107227
+          },
+          {
+            "date": "2019-03-01",
+            "value": 0.7564838794106756
+          },
+          {
+            "date": "2019-04-01",
+            "value": 0.7963639674148718
+          },
+          {
+            "date": "2019-05-01",
+            "value": 0.7866158446840867
+          },
+          {
+            "date": "2019-06-01",
+            "value": 0.6966416821213625
+          },
+          {
+            "date": "2019-07-01",
+            "value": 0.6178689245965366
+          },
+          {
+            "date": "2019-08-01",
+            "value": 0.4569963250646661
+          },
+          {
+            "date": "2019-09-01",
+            "value": 0.3741599069221112
+          },
+          {
+            "date": "2019-10-01",
+            "value": 0.047239552622977486
+          },
+          {
+            "date": "2019-11-01",
+            "value": -0.20154727731891706
+          },
+          {
+            "date": "2019-12-01",
+            "value": -0.588189278865298
+          },
+          {
+            "date": "2020-01-01",
+            "value": -0.560840644236273
+          },
+          {
+            "date": "2020-02-01",
+            "value": -0.6471587164989068
+          },
+          {
+            "date": "2020-03-01",
+            "value": -0.314984054854917
+          },
+          {
+            "date": "2020-04-01",
+            "value": 0.03609749820237782
+          },
+          {
+            "date": "2020-05-01",
+            "value": 0.16783182268885827
+          },
+          {
+            "date": "2020-06-01",
+            "value": 0.23480852123510237
+          },
+          {
+            "date": "2020-07-01",
+            "value": 0.26913834124457287
+          },
+          {
+            "date": "2020-08-01",
+            "value": 0.2589731822555024
+          },
+          {
+            "date": "2020-09-01",
+            "value": 0.04275381163072579
+          },
+          {
+            "date": "2020-10-01",
+            "value": -0.07854013345781531
+          },
+          {
+            "date": "2020-11-01",
+            "value": -0.07854606766435336
+          },
+          {
+            "date": "2020-12-01",
+            "value": -0.002516870791948282
+          },
+          {
+            "date": "2021-01-01",
+            "value": 0.14428890456400598
+          },
+          {
+            "date": "2021-02-01",
+            "value": 0.38304009837788633
+          },
+          {
+            "date": "2021-03-01",
+            "value": 0.37828743592025943
+          },
+          {
+            "date": "2021-04-01",
+            "value": 0.12921441129741137
+          },
+          {
+            "date": "2021-05-01",
+            "value": -0.07048979303902408
+          },
+          {
+            "date": "2021-06-01",
+            "value": -0.22668628728902318
+          },
+          {
+            "date": "2021-07-01",
+            "value": -0.4039021606583825
+          },
+          {
+            "date": "2021-08-01",
+            "value": -0.6211426293915056
+          },
+          {
+            "date": "2021-09-01",
+            "value": -0.8570019878431239
+          },
+          {
+            "date": "2021-10-01",
+            "value": -0.8840362828663646
+          },
+          {
+            "date": "2021-11-01",
+            "value": -0.9207461280354229
+          },
+          {
+            "date": "2021-12-01",
+            "value": -0.9275810617458002
+          },
+          {
+            "date": "2022-01-01",
+            "value": -0.9745033851806045
+          },
+          {
+            "date": "2022-02-01",
+            "value": -0.9655652776210766
+          },
+          {
+            "date": "2022-03-01",
+            "value": -0.9565098533468807
+          },
+          {
+            "date": "2022-04-01",
+            "value": -0.9478505982007999
+          },
+          {
+            "date": "2022-05-01",
+            "value": -0.9390185786966481
+          },
+          {
+            "date": "2022-06-01",
+            "value": -0.9434322205975154
+          },
+          {
+            "date": "2022-07-01",
+            "value": -0.930709824845993
+          },
+          {
+            "date": "2022-08-01",
+            "value": -0.9138247633701765
+          },
+          {
+            "date": "2022-09-01",
+            "value": -0.9010270489004559
+          },
+          {
+            "date": "2022-10-01",
+            "value": -0.7736722038780766
+          },
+          {
+            "date": "2022-11-01",
+            "value": -0.41861413901698863
+          },
+          {
+            "date": "2022-12-01",
+            "value": 0.11176159715375548
+          },
+          {
+            "date": "2023-01-01",
+            "value": 0.4528448451074285
+          },
+          {
+            "date": "2023-02-01",
+            "value": 0.6523492109406965
+          },
+          {
+            "date": "2023-03-01",
+            "value": 0.7025784336145379
+          },
+          {
+            "date": "2023-04-01",
+            "value": 0.8192138589053481
+          },
+          {
+            "date": "2023-05-01",
+            "value": 0.7744959083635755
+          },
+          {
+            "date": "2023-06-01",
+            "value": 0.7357575202946297
+          },
+          {
+            "date": "2023-07-01",
+            "value": 0.7325648210558396
+          },
+          {
+            "date": "2023-08-01",
+            "value": 0.6663926849633749
+          },
+          {
+            "date": "2023-09-01",
+            "value": 0.5956472298087513
+          },
+          {
+            "date": "2023-10-01",
+            "value": 0.4975446912305255
+          },
+          {
+            "date": "2023-11-01",
+            "value": 0.31383658084481675
+          },
+          {
+            "date": "2023-12-01",
+            "value": 0.14311444063989218
+          },
+          {
+            "date": "2024-01-01",
+            "value": 0.3692235406350351
+          },
+          {
+            "date": "2024-02-01",
+            "value": 0.07738867164703216
+          },
+          {
+            "date": "2024-03-01",
+            "value": 0.22252950714279407
+          },
+          {
+            "date": "2024-04-01",
+            "value": 0.14447160596868483
+          },
+          {
+            "date": "2024-05-01",
+            "value": 0.16622149815826684
+          },
+          {
+            "date": "2024-06-01",
+            "value": -0.12418110106221597
+          },
+          {
+            "date": "2024-07-01",
+            "value": -0.221473863618185
+          },
+          {
+            "date": "2024-08-01",
+            "value": -0.45222387534405617
+          },
+          {
+            "date": "2024-09-01",
+            "value": -0.49043921712975375
+          },
+          {
+            "date": "2024-10-01",
+            "value": -0.567002032844983
+          },
+          {
+            "date": "2024-11-01",
+            "value": -0.5928066026999693
+          },
+          {
+            "date": "2024-12-01",
+            "value": -0.4686191677159051
+          },
+          {
+            "date": "2025-01-01",
+            "value": -0.34253560494963475
+          },
+          {
+            "date": "2025-02-01",
+            "value": -0.3031786131498714
+          },
+          {
+            "date": "2025-03-01",
+            "value": -0.24230737543500855
+          },
+          {
+            "date": "2025-04-01",
+            "value": -0.3230995374375215
+          },
+          {
+            "date": "2025-05-01",
+            "value": -0.21018177772291416
+          },
+          {
+            "date": "2025-06-01",
+            "value": -0.07296993361251312
+          },
+          {
+            "date": "2025-07-01",
+            "value": 0.18594345886587915
+          },
+          {
+            "date": "2025-08-01",
+            "value": 0.2460428028844181
+          },
+          {
+            "date": "2025-09-01",
+            "value": 0.23155572744380792
+          },
+          {
+            "date": "2025-10-01",
+            "value": null
+          },
+          {
+            "date": "2025-11-01",
+            "value": null
+          },
+          {
+            "date": "2025-12-01",
+            "value": null
+          },
+          {
+            "date": "2026-01-01",
+            "value": null
+          },
+          {
+            "date": "2026-02-01",
+            "value": null
+          },
+          {
+            "date": "2026-03-01",
+            "value": null
+          },
+          {
+            "date": "2026-04-01",
+            "value": null
+          },
+          {
+            "date": "2026-05-01",
+            "value": null
+          },
+          {
+            "date": "2026-06-01",
+            "value": null
+          },
+          {
+            "date": "2026-07-01",
+            "value": null
+          },
+          {
+            "date": "2026-08-01",
+            "value": null
+          },
+          {
+            "date": "2026-09-01",
+            "value": null
+          }
+        ],
+        "observations": 111,
+        "correlation": -0.06662428979222401,
+        "start": "2017-05-01",
+        "end": "2026-09-01",
+        "direction": "inverse"
+      }
+    ],
+    "scatter_count": 111,
+    "sample_pairs": [
+      {
+        "date": "2017-05-01",
+        "x": 4.7,
+        "y": 1.8748777208413614,
+        "x_source_date": "2016-11-01",
+        "y_source_date": "2017-05-01"
+      },
+      {
+        "date": "2017-06-01",
+        "x": 4.7,
+        "y": 1.633487955256463,
+        "x_source_date": "2016-12-01",
+        "y_source_date": "2017-06-01"
+      },
+      {
+        "date": "2017-07-01",
+        "x": 4.7,
+        "y": 1.727978456372492,
+        "x_source_date": "2017-01-01",
+        "y_source_date": "2017-07-01"
+      }
+    ],
+    "provenance": [
+      {
+        "id": "unemployment",
+        "provider_id": "UNRATE",
+        "source": "FRED / BLS",
+        "source_url": "https://fred.stlouisfed.org/series/UNRATE",
+        "latest_observation_date": "2026-09-01",
+        "retrieved_at": "2026-10-25T00:56:13.262881+00:00",
+        "verification": {
+          "status": "Verified against primary source",
+          "raw_status": "Verified against primary source",
+          "headline_status": "Verified against primary source",
+          "audit_checked_at": "2026-10-24",
+          "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+          "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage.",
+          "headline_reconciliation": {
+            "reference": "2026-09-01",
+            "release_date": "2026-10-02",
+            "published_value": 4.2,
+            "calculated_value": 4.2,
+            "rounded_to_release_precision": 4.2,
+            "difference_at_release_precision": 0.0,
+            "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+            "vintage_note": "Latest retrieved revised series compared with this dated release, not a claim that all historical vintages match."
+          }
+        }
+      },
+      {
+        "id": "cpi_nsa",
+        "provider_id": "CPIAUCNS",
+        "source": "FRED / BLS",
+        "source_url": "https://fred.stlouisfed.org/series/CPIAUCNS",
+        "latest_observation_date": "2026-09-01",
+        "retrieved_at": "2026-10-25T00:56:16.276862+00:00",
+        "verification": {
+          "status": "Verified against primary source",
+          "raw_status": "Verified against primary source",
+          "headline_status": "Verified against primary source",
+          "audit_checked_at": "2026-10-24",
+          "source_url": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+          "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage.",
+          "headline_reconciliation": {
+            "reference": "2026-09-01",
+            "release_date": "2026-10-14",
+            "published_value": 3.7,
+            "calculated_value": 3.737684729064039,
+            "rounded_to_release_precision": 3.7,
+            "difference_at_release_precision": 0.0,
+            "source_url": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+            "vintage_note": "Latest retrieved revised series compared with this dated release, not a claim that all historical vintages match."
+          }
+        }
+      }
+    ]
+  },
+  "recession_context": {
+    "kind": "us_recession",
+    "source_id": "USREC",
+    "source": "FRED / Federal Reserve Bank of St. Louis, based on NBER chronology",
+    "source_url": "https://fred.stlouisfed.org/series/USREC",
+    "status": "ok",
+    "message": null,
+    "latest_reference": "2026-09-01",
+    "retrieved_at": "2026-10-25T00:56:13.044684+00:00",
+    "coverage_start": "1990-01-01",
+    "coverage_end": "2026-09-30",
+    "periods": [
+      {
+        "id": "usrec-2020-03-01",
+        "start": "2020-03-01",
+        "end": "2020-04-30",
+        "original_start": "2020-03-01",
+        "original_end": "2020-04-30",
+        "label": "US recession (FRED USREC / NBER)"
+      }
+    ],
+    "methodology": "Monthly NSA binary indicator; month following peak through trough inclusive. Retrospective US context, not causation or real-time recession detection. Missing months are not filled."
+  }
+}

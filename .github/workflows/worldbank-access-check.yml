@@ -1,0 +1,25 @@
+name: World Bank official access diagnostic
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/macrolens-v2]
+    paths:
+      - '.github/workflows/worldbank-access-check.yml'
+      - 'scripts/probe_worldbank_access.py'
+      - 'backend/app/ingestion/world_bank.py'
+permissions:
+  contents: read
+jobs:
+  official_download:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install HTTP client only (no application services)
+        run: python -m pip install 'requests>=2.32,<3'
+      - name: Compare official clients without database, credentials or retries
+        run: python scripts/probe_worldbank_access.py --compare-urllib
+
