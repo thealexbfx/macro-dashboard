@@ -92,6 +92,11 @@ an old database over newer saved research as an ordinary code rollback.
 
 ## Remaining reviewable Batch 0 parts
 
+Part 2 is now implemented on the same draft PR; see
+[BATCH_0_PART_2.md](BATCH_0_PART_2.md) for native periods, inactive bounded private
+partitions, explicit version 2 migration, tests and rollback. The list below is
+the original split; Part 3 remains outstanding. Neither part activates production.
+
 1. **PR 2 — normalized observation/job foundation:** native daily/weekly/monthly/
    quarterly/annual periods, negative/zero values, provider calendars, revisions,
    bounded provider partitions and dataset completeness writer/recovery. No new

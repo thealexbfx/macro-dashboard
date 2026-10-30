@@ -18,8 +18,10 @@ sys.path.insert(0, str(REPO))
 
 from backend.app.catalog.manifest import Manifest
 from backend.app.catalog.schema import migrate
+from backend.app.ingestion.partition_schema import migrate as native_migrate
 from backend.app.ingestion.schema import SCHEMA as INGESTION_SCHEMA
-from backend.app.v2.state import SCHEMA
+from backend.app.v2.state import SCHEMA, Store
+from scripts.batch0_partition_fixture import exercise
 
 TABLES = (
     "source_cache",
@@ -139,14 +141,25 @@ def run():
                 ).fetchone()[0]
                 == 0
             )
+        foundation_bytes = restored.stat().st_size
+        with closing(sqlite3.connect(restored)) as db:
+            native_migrate(db)
+        native_empty_bytes = restored.stat().st_size
+        native = exercise(Store(restored))
+        with closing(sqlite3.connect(restored)) as db:
+            assert snapshot(db) == before
+            assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
         result = {
             "fixture": "synthetic only; no production data",
             "manifest_entries": 309,
             "public_metadata_entries": 30,
             "preserved_observations": 2403,
             "baseline_database_bytes": baseline_bytes,
-            "migrated_database_bytes": restored.stat().st_size,
-            "migration_growth_bytes": restored.stat().st_size - baseline_bytes,
+            "part1_migrated_database_bytes": foundation_bytes,
+            "part1_migration_growth_bytes": foundation_bytes - baseline_bytes,
+            "native_fixture_database_bytes": restored.stat().st_size,
+            "native_empty_schema_growth_bytes": native_empty_bytes - foundation_bytes,
+            "native_partitions": native,
             "elapsed_seconds": round(time.perf_counter() - started, 4),
             "linux_peak_rss_mib": None,
         }
