@@ -32,6 +32,7 @@ jobs:
         run: docker build -f scripts/phase4c.Dockerfile -t macrolens-phase4c .
       - name: Exercise 309-entry catalog and native reads within 512 MiB
         run: |
+          set -euo pipefail
           mkdir -p "$RUNNER_TEMP/phase4c-artifacts"
           docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
             --entrypoint python macrolens-phase4c scripts/validate_batch0_catalog.py | tee "$RUNNER_TEMP/phase4c-artifacts/catalog-resource.json"

@@ -12,6 +12,7 @@ import time
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import closing
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from threading import Event, Thread
@@ -156,9 +157,19 @@ def probe():
                             (time.perf_counter() - start) * 1000,
                             len(payload),
                             json.loads(payload),
+                            path,
+                            r.headers.get("Retry-After"),
                         )
                 except urllib.error.HTTPError as exc:
-                    return exc.code, (time.perf_counter() - start) * 1000, 0, {}
+                    body = exc.read(4096).decode(errors="replace")
+                    return (
+                        exc.code,
+                        (time.perf_counter() - start) * 1000,
+                        0,
+                        {"error": body},
+                        path,
+                        exc.headers.get("Retry-After"),
+                    )
 
             try:
                 for _ in range(240):
@@ -190,7 +201,18 @@ def probe():
                     samples = list(pool.map(request, paths * 12))
                 with ThreadPoolExecutor(max_workers=24) as pool:
                     overload = list(pool.map(request, [paths[2]] * 96))
-                assert all(r[0] in {200, 503} for r in samples + overload)
+                unexpected = [
+                    {"path": r[4], "status": r[0], "response": r[3]}
+                    for r in samples + overload
+                    if r[0] not in {200, 429, 503}
+                ]
+                assert not unexpected, {
+                    "unexpected": unexpected,
+                    "server_log_tail": logpath.read_text()[-12000:],
+                }
+                assert all(
+                    r[5] == "2" for r in samples + overload if r[0] in {429, 503}
+                )
                 assert request("/api/v2/catalog/wb_copper_monthly")[0] == 404
                 assert request("/api/v2/observations/wb_copper_monthly")[0] == 404
                 ready = request("/ready")
@@ -209,8 +231,8 @@ def probe():
                 )
                 dbpath = Path(info["database"])
                 with (
-                    sqlite3.connect(dbpath) as db,
-                    sqlite3.connect(Path(out) / "restored.sqlite3") as restored,
+                    closing(sqlite3.connect(dbpath)) as db,
+                    closing(sqlite3.connect(Path(out) / "restored.sqlite3")) as restored,
                 ):
                     db.backup(restored)
                     assert (
@@ -255,10 +277,11 @@ def probe():
                         interactive_times[int(len(interactive_times) * 0.95)], 2
                     ),
                     "concurrent_mixed_status": {
-                        str(c): sum(r[0] == c for r in samples) for c in (200, 503)
+                        str(c): sum(r[0] == c for r in samples) for c in (200, 429, 503)
                     },
                     "overload_status": {
-                        str(c): sum(r[0] == c for r in overload) for c in (200, 503)
+                        str(c): sum(r[0] == c for r in overload)
+                        for c in (200, 429, 503)
                     },
                     "sqlite_bytes": {
                         suffix or "db": Path(str(dbpath) + suffix).stat().st_size
@@ -271,8 +294,9 @@ def probe():
                 }
                 child.terminate()
                 child.wait(timeout=25)
-                assert child.returncode in (0, -15)
-                result["graceful_shutdown"] = True
+                if sys.platform == "linux":
+                    assert child.returncode in (0, -15)
+                result["graceful_shutdown"] = sys.platform == "linux"
                 print(json.dumps(result, indent=2))
             finally:
                 stop.set()

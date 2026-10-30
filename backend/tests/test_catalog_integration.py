@@ -365,6 +365,12 @@ def test_short_reads_are_bounded_without_waiting_for_heavy_discovery(catalog):
             assert (
                 rejected.status_code == 503 and rejected.headers["retry-after"] == "2"
             )
+            rejected = TestClient(v.app).get(
+                "/api/v2/observations/fixture_catalog_002?preview=true"
+            )
+            assert (
+                rejected.status_code == 503 and rejected.headers["retry-after"] == "2"
+            )
     assert TestClient(v.app).get("/api/v2/catalog?limit=3").status_code == 200
 
 

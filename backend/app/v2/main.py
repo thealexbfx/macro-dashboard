@@ -881,8 +881,12 @@ def observation_range(
         if str(exc) == "Unknown dataset ID":
             raise HTTPException(404, "Dataset unavailable") from exc
         raise HTTPException(422, str(exc)) from exc
+    except WorkloadBusy:
+        raise
     except RuntimeError as exc:
-        raise HTTPException(503, "Source unavailable; retry shortly") from exc
+        raise HTTPException(
+            503, "Source unavailable; retry shortly", headers={"Retry-After": "2"}
+        ) from exc
 
 
 @app.post("/api/v2/compare", response_model=ComparisonResponse)
