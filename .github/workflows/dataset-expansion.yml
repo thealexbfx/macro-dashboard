@@ -44,6 +44,19 @@ jobs:
         run: |
           docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
             --entrypoint python macrolens-expansion scripts/validate_batch0_catalog.py
+      - name: Rehearse the exact first thirteen histories in an independent disposable database
+        run: |
+          set -euo pipefail
+          cp "$RUNNER_TEMP/expansion-data/validation.json" "$RUNNER_TEMP/expansion-data/validation-eight.json"
+          ids="$(python -c 'import json; print(" ".join(json.load(open("research/releases/first-live/selection.json"))["ids"]))')"
+          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 \
+            -v "$RUNNER_TEMP/expansion-data:/tmp/expansion" --entrypoint python macrolens-expansion \
+            -m scripts.collect_expansion --workspace /tmp/expansion --providers eurostat,ons,eia --only-ids $ids
+          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
+            -v "$RUNNER_TEMP/expansion-data:/tmp/expansion" --entrypoint python macrolens-expansion \
+            -m scripts.validate_expansion --workspace /tmp/expansion --database-name disposable-first-thirteen.sqlite3 --ids $ids
+          cp "$RUNNER_TEMP/expansion-data/validation.json" "$RUNNER_TEMP/expansion-data/validation-first-thirteen.json"
+          cp "$RUNNER_TEMP/expansion-data/validation-eight.json" "$RUNNER_TEMP/expansion-data/validation.json"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -76,6 +89,21 @@ jobs:
             sleep 1
           done
           python -m scripts.test_expansion_browser
+          docker rm -f expansion-browser-backend
+          docker run -d --name expansion-browser-backend --memory=512m --memory-swap=512m --cpus=0.5 --network=host \
+            -v "$RUNNER_TEMP/expansion-data:/tmp/expansion" --entrypoint python macrolens-expansion \
+            -m scripts.serve_expansion_preview --workspace /tmp/expansion --database-name disposable-first-thirteen.sqlite3
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8140/health > /dev/null; then break; fi
+            sleep 1
+          done
+          python -m scripts.smoke_first_release --origin http://127.0.0.1:8140 --activated
+          python -m scripts.smoke_first_release --origin http://127.0.0.1:3040 --activated
+          EXPANSION_BROWSER_EXPECTED_PUBLIC=43 \
+            EXPANSION_BROWSER_DATASET=eia_4922b423fe8b2b32866f \
+            EXPANSION_BROWSER_NAME='US commercial crude stocks excluding SPR' \
+            EXPANSION_BROWSER_ARTIFACTS=/tmp/first-release-browser \
+            python -m scripts.test_expansion_browser
       - name: Retain measurements and metadata only
         if: always()
         uses: actions/upload-artifact@v4
@@ -83,8 +111,11 @@ jobs:
           name: expansion-linux-measurements-${{ github.event_name }}
           path: |
             ${{ runner.temp }}/expansion-data/validation.json
+            ${{ runner.temp }}/expansion-data/validation-eight.json
+            ${{ runner.temp }}/expansion-data/validation-first-thirteen.json
             ${{ runner.temp }}/expansion-data/source-results.json
             ${{ runner.temp }}/expansion-data/capture-*-metrics.json
             /tmp/expansion-browser/
+            /tmp/first-release-browser/
             /tmp/expansion-frontend.log
           retention-days: 7

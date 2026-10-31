@@ -245,6 +245,13 @@ def test_reviewed_candidates_never_shadow_public_or_private_pilots():
     from backend.app.v2.definitions import SPECS
 
     reviewed = candidates()
+    for publication in reviewed.values():
+        if publication.definition.provider == "eurostat":
+            assert any(
+                "Eurostat bears no responsibility" in note
+                and "MacroLens calculations" in note
+                for note in publication.limitations
+            )
     assert not set(reviewed) & set(SPECS)
     assert not set(reviewed) & {
         "wb_brent_monthly",
@@ -551,3 +558,34 @@ def test_dol_post_cannot_be_repurposed_for_nonstatistical_forms():
         download(
             "https://oui.doleta.gov/other", payload=b"level=us", opener=NoNetwork()
         )
+
+
+def test_first_release_has_exact_reviewed_definitions_and_no_implicit_grants():
+    from dataclasses import asdict
+
+    from scripts.smoke_first_release import SELECTION
+
+    selection = json.loads(SELECTION.read_text(encoding="utf-8"))
+    assert len(selection["ids"]) == len(set(selection["ids"])) == 13
+    assert not any(
+        selection[k]
+        for k in (
+            "production_approved",
+            "public_display_default",
+            "ai_allowed",
+            "discovery_allowed",
+        )
+    )
+    reviewed = candidates()
+    for row in selection["datasets"]:
+        publication = reviewed[row["id"]]
+        assert publication.definition.provider in {"eurostat", "ons", "eia"}
+        assert row["definition"] == json.loads(
+            json.dumps(asdict(publication.definition))
+        )
+        assert row["attribution"] == list(publication.attribution)
+        assert row["license_url"] == publication.license_url
+        assert row["rights_basis"]
+        if publication.definition.provider == "eia":
+            assert row["publication_evidence"]["date"] in {"2026-10-28", "2026-10-29"}
+            assert row["publication_evidence"]["date"] in row["attribution"][0]

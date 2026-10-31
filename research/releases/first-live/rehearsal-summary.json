@@ -1,0 +1,49 @@
+{
+  "trusted_origin_hash_supplied": false,
+  "freshness_against_live_db_verified": false,
+  "backup_integrity": "ok",
+  "restore_integrity": "ok",
+  "original_tables_unchanged": true,
+  "first_middle_last_nonnull_source_samples": "matched",
+  "world_bank_rows_preserved": 2403,
+  "datasets": 13,
+  "new_observations": 9292,
+  "seconds": 4.74442760006059,
+  "initial_storage": {
+    "database": 4730880,
+    "-wal": 164832,
+    "-shm": 32768
+  },
+  "final_storage": {
+    "database": 18661376,
+    "-wal": 7036992,
+    "-shm": 32768
+  },
+  "sampled_peak_database_wal_shm_bytes": 25731136,
+  "pre_activation": {
+    "passed": true,
+    "public_ids": 30,
+    "private_denials": 12,
+    "comparisons": 0,
+    "server_mutations": 0,
+    "ai_requests": 0
+  },
+  "post_activation": {
+    "passed": true,
+    "public_ids": 43,
+    "private_denials": 12,
+    "comparisons": 2,
+    "server_mutations": 0,
+    "ai_requests": 0
+  },
+  "post_revoke": {
+    "passed": true,
+    "public_ids": 30,
+    "private_denials": 12,
+    "comparisons": 0,
+    "server_mutations": 0,
+    "ai_requests": 0
+  },
+  "same_snapshot_rerun": "unchanged",
+  "production_changed": false
+}

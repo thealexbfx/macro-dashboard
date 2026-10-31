@@ -13,6 +13,19 @@ from backend.app.v2.definitions import SPECS
 ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "research/releases/full-expansion"
 
+# Reviewed publication evidence for this frozen first-release vintage only.
+EIA_RELEASES = {
+    "PET.WCESTUS1.W": (
+        "2026-10-28",
+        "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=WCESTUS1&f=W",
+    ),
+    "PET.WCRFPUS2.W": (
+        "2026-10-28",
+        "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=WCRFPUS2&f=W",
+    ),
+    "NG.NW2_EPG0_SWO_R48_BCF.W": ("2026-10-29", "https://ir.eia.gov/ngs/ngs.html"),
+}
+
 RIGHTS = {
     "dol": (
         "https://www.dol.gov/general/aboutdol/copyright",
@@ -199,6 +212,9 @@ def main():
                 limitation.append(
                     "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained."
                 )
+                limitation.append(
+                    "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+                )
             row = {
                 "id": key,
                 "name": name,
@@ -237,6 +253,17 @@ def main():
                 row["attribution"] = [
                     "SONIA data licensed under the Open Government Licence v3.0 and copyright the Governor and Company of the Bank of England. The trade marks Bank of England and SONIA are registered trade marks of the Bank of England."
                 ]
+            citation = EIA_RELEASES.get(result["definition"]["selector"])
+            if provider == "eia" and citation and result["last"] == "2026-10-23":
+                published, evidence = citation
+                row["attribution"] = [
+                    f"Source: US Energy Information Administration (release {published}); reference week ended 2026-10-23. Current revised historical series; source and licence links retained."
+                ]
+                row["publication_evidence"] = {
+                    "date": published,
+                    "url": evidence,
+                    "reference_week": "2026-10-23",
+                }
             successes.append(row)
             continue
         reason = result.get("reason", "")
