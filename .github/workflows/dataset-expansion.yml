@@ -56,7 +56,6 @@ jobs:
             -v "$RUNNER_TEMP/expansion-data:/tmp/expansion" --entrypoint python macrolens-expansion \
             -m scripts.validate_expansion --workspace /tmp/expansion --database-name disposable-first-thirteen.sqlite3 --ids $ids
           cp "$RUNNER_TEMP/expansion-data/validation.json" "$RUNNER_TEMP/expansion-data/validation-first-thirteen.json"
-          cp "$RUNNER_TEMP/expansion-data/validation-eight.json" "$RUNNER_TEMP/expansion-data/validation.json"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
