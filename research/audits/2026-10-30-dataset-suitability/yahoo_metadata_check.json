@@ -1,0 +1,62 @@
+{
+  "checked_at": "2026-10-30",
+  "note": "Secondary metadata is not proof of daily historical continuity, contract selection/adjustment, settlement identity or redistribution rights. No price observations retained.",
+  "series": [
+    {
+      "symbol": "GC=F",
+      "currency": "USD",
+      "exchangeName": "CMX",
+      "fullExchangeName": "COMEX",
+      "instrumentType": "FUTURE",
+      "firstTradeDate": 967608000,
+      "timezone": "EDT",
+      "exchangeTimezoneName": "America/New_York",
+      "longName": null,
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/GC%3DF?range=5d&interval=1d",
+      "status": "metadata only; continuity/roll mapping unverified",
+      "first_trade_utc": "2000-08-30T04:00:00+00:00"
+    },
+    {
+      "symbol": "CL=F",
+      "currency": "USD",
+      "exchangeName": "NYM",
+      "fullExchangeName": "NY Mercantile",
+      "instrumentType": "FUTURE",
+      "firstTradeDate": 967003200,
+      "timezone": "EDT",
+      "exchangeTimezoneName": "America/New_York",
+      "longName": null,
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/CL%3DF?range=5d&interval=1d",
+      "status": "metadata only; continuity/roll mapping unverified",
+      "first_trade_utc": "2000-08-23T04:00:00+00:00"
+    },
+    {
+      "symbol": "^GSPC",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?range=5d&interval=1d",
+      "status": "metadata only; continuity and index methodology unverified",
+      "currency": "USD",
+      "exchangeName": "SNP",
+      "fullExchangeName": "SNP",
+      "instrumentType": "INDEX",
+      "firstTradeDate": -1325583000,
+      "timezone": "EDT",
+      "exchangeTimezoneName": "America/New_York",
+      "longName": "S&P 500",
+      "first_trade_utc": "1927-12-30T14:30:00+00:00"
+    },
+    {
+      "symbol": "DX-Y.NYB",
+      "currency": "USD",
+      "exchangeName": "NYB",
+      "fullExchangeName": "ICE Futures",
+      "instrumentType": "INDEX",
+      "firstTradeDate": 31813200,
+      "timezone": "EDT",
+      "exchangeTimezoneName": "America/New_York",
+      "longName": "US Dollar Index",
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?range=5d&interval=1d",
+      "status": "metadata only; continuity/roll mapping unverified",
+      "first_trade_utc": "1971-01-04T05:00:00+00:00"
+    }
+  ]
+}
