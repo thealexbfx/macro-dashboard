@@ -1,0 +1,57 @@
+{
+  "eurostat": {
+    "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+    "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data",
+    "attribution": "Eurostat"
+  },
+  "ons": {
+    "url": "https://www.ons.gov.uk/help/terms-conditions",
+    "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material",
+    "attribution": "Office for National Statistics, Crown copyright, OGL v3"
+  },
+  "desnz": {
+    "url": "https://www.gov.uk/government/statistics/energy-trends-september-2026",
+    "basis": "OGL v3; original Energy Trends statistics; native table units and notes retained",
+    "attribution": "DESNZ, Energy Trends September 2026, Crown copyright, OGL v3"
+  },
+  "uk_building_materials": {
+    "url": "https://www.gov.uk/help/reuse-govuk-content",
+    "basis": "OGL v3 applies to selected DBT-authored columns only; BCIS and MPA columns excluded",
+    "attribution": "Department for Business and Trade, Crown copyright, OGL v3"
+  },
+  "eia": {
+    "url": "https://www.eia.gov/about/copyrights_reuse.php",
+    "basis": "EIA-authored statistics in these identified historical files; no separately protected third-party material selected",
+    "attribution": "US Energy Information Administration"
+  },
+  "usgs": {
+    "url": "https://www.usgs.gov/faqs/are-usgs-reportspublications-copyrighted",
+    "basis": "USGS-authored domestic Mineral Industry Surveys tables; estimated totals and units retained",
+    "attribution": "US Geological Survey, Mineral Industry Surveys"
+  },
+  "bls": {
+    "url": "https://www.bls.gov/bls/linksite.htm",
+    "basis": "Original federal BLS statistical observations, public domain; no proprietary third-party index selected",
+    "attribution": "US Bureau of Labor Statistics"
+  },
+  "bea": {
+    "url": "https://www.bea.gov/help/faq/147",
+    "basis": "Original BEA NIPA tables, public domain; no third-party content selected",
+    "attribution": "US Bureau of Economic Analysis"
+  },
+  "census": {
+    "url": "https://www.copyright.gov/title17/92chap1.html#105",
+    "basis": "Original Census C30 statistical tables are federal works; not a licence inference from mere API availability",
+    "attribution": "US Census Bureau, Value of Construction Put in Place"
+  },
+  "federal_reserve": {
+    "url": "https://www.federalreserve.gov/disclaimer.htm",
+    "basis": "Original Board/Treasury statistics; H15 effective federal funds rate requires separate NY Fed reference-rate notice review",
+    "attribution": "Board of Governors of the Federal Reserve System"
+  },
+  "ecb": {
+    "url": "https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html",
+    "basis": "Selected ESCB-produced rates, reference FX and monetary statistics; source metadata unchanged, third-party data excluded",
+    "attribution": "ECB statistics"
+  }
+}

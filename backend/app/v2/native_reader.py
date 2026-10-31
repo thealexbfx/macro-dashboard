@@ -7,6 +7,7 @@ import sqlite3
 from contextlib import closing, contextmanager
 from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime, timedelta
+from hashlib import sha256
 from types import MappingProxyType
 
 from backend.app.catalog.manifest import LEGACY_PUBLIC_SOURCES
@@ -23,6 +24,7 @@ class NativePublication:
     license_url: str
     attribution: tuple[str, ...]
     rights_evidence: str
+    limitations: tuple[str, ...] = ()
 
     def __post_init__(self):
         if (
@@ -49,9 +51,11 @@ class RangeLimit(ValueError):
 class NativeReader:
     def __init__(self, path, publications=None, now_fn=None):
         self.path = path
-        self.publications = dict(
-            NATIVE_PUBLICATIONS if publications is None else publications
-        )
+        if publications is None:
+            from backend.app.catalog.releases import candidates
+
+            publications = dict(NATIVE_PUBLICATIONS) | candidates()
+        self.publications = dict(publications)
         self.now = now_fn or (lambda: datetime.now(UTC))
         if set(self.publications) & (
             set(LEGACY_PUBLIC_SOURCES)
@@ -104,6 +108,16 @@ class NativeReader:
             "SELECT * FROM norm_datasets WHERE id=? AND public_display=1 AND rights_state='permitted'",
             (key,),
         ).fetchone()
+        if (
+            row is None
+            and db.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='catalog_release_grants'"
+            ).fetchone()
+        ):
+            row = db.execute(
+                "SELECT d.* FROM norm_datasets d JOIN catalog_release_grants g ON g.dataset_id=d.id WHERE d.id=? AND g.public_display=1 AND g.rights_state='permitted' AND g.definition_hash=d.definition_hash AND g.evidence=? AND g.ai_allowed=0 AND g.discovery_allowed=0",
+                (key, publication.rights_evidence),
+            ).fetchone()
         review = db.execute(
             "SELECT * FROM catalog_scope_reviews WHERE dataset_id=? AND scope='public_display' AND approved=1 AND rights_state='permitted'",
             (key,),
@@ -209,6 +223,8 @@ class NativeReader:
             "seasonal_adjustment": d.adjustment,
             "representation": "native",
             "original_transformation": "Native source values",
+            "definition": f"{publication.name}. Source selection: {d.selector}. {d.adjustment}.",
+            "known_limitations": list(publication.limitations),
             "source_url": publication.source_url,
             "allowed_transformations": allowed,
             "status": "unavailable",
@@ -250,7 +266,7 @@ class NativeReader:
             return self._metadata(publication, db)
 
     def catalogue(self):
-        if not self.publications:
+        if not self.publications or not self.path.is_file():
             return []
         rows = []
         with self.connection() as db:
@@ -317,12 +333,24 @@ class NativeReader:
                     "SELECT s.*,p.start_date,p.end_date FROM norm_staged s JOIN norm_partitions p ON p.id=s.partition_id WHERE s.generation_id=? AND s.period_key=? AND p.generation_id=s.generation_id",
                     (generation_id, row["period_key"]),
                 ).fetchone()
+                payload_matches = (
+                    stage is not None and stage["payload"] == row["payload"]
+                )
+                if stage is not None and stage["payload"] == "":
+                    proof = db.execute(
+                        "SELECT payload_hash FROM catalog_staging_digests WHERE generation_id=? AND period_key=?",
+                        (generation_id, row["period_key"]),
+                    ).fetchone()
+                    payload_matches = bool(
+                        proof
+                        and proof[0] == sha256(row["payload"].encode()).hexdigest()
+                    )
                 if (
                     not stage
+                    or not payload_matches
                     or any(
                         stage[k] != row[k]
                         for k in (
-                            "payload",
                             "value",
                             "artifact_hash",
                             "checked_at",

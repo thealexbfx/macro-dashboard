@@ -1,0 +1,1497 @@
+{
+  "scope": "Exact original-producer routes and suitability additions; no public legacy IDs retargeted",
+  "datasets": [
+    {
+      "id": "bls_24870509f36ee4ecd234",
+      "name": "Missouri construction employment",
+      "kind": "series",
+      "planning_refs": [
+        "G26"
+      ],
+      "category": "Construction",
+      "region": "US-MO",
+      "units": "Thousands of persons",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally adjusted",
+      "source": {
+        "provider": "bls",
+        "selector": "SMS29000002000000001",
+        "endpoint": "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+      },
+      "history": {
+        "start": null,
+        "end": null
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.bls.gov/bls/linksite.htm"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_INCREMENTAL_RESOURCE_GAPS.md",
+          "reference": "G26",
+          "validation": "documentation_only"
+        }
+      ],
+      "parser": "bls",
+      "definition_note": "SMS prefix uses seasonal-adjustment code S, per BLS State and Area Employment series identifier documentation (https://www.bls.gov/help/hlpforma.htm)."
+    },
+    {
+      "id": "fred_af0743e3dca22c827f61",
+      "name": "Producer Price Index by Commodity: Nonmetallic Mineral Products: Cement, Hydraulic",
+      "kind": "series",
+      "planning_refs": [
+        "ML-061"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Index 1982=100",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Not Seasonally Adjusted",
+      "source": {
+        "provider": "bls",
+        "selector": "WPU1322",
+        "endpoint": "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+      },
+      "history": {
+        "start": "1971-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-061",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bls"
+    },
+    {
+      "id": "fred_beaa8f365a880d8b11a3",
+      "name": "Producer Price Index by Commodity: Nonmetallic Mineral Products: Flat Glass",
+      "kind": "series",
+      "planning_refs": [
+        "ML-063"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Index 1982=100",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Not Seasonally Adjusted",
+      "source": {
+        "provider": "bls",
+        "selector": "WPU1311",
+        "endpoint": "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+      },
+      "history": {
+        "start": "1967-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-063",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bls"
+    },
+    {
+      "id": "fred_e817fca10f959aea0bfc",
+      "name": "Producer Price Index by Commodity: Nonmetallic Mineral Products: Paving Mixtures and Blocks",
+      "kind": "series",
+      "planning_refs": [
+        "ML-062"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Index 1982=100",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Not Seasonally Adjusted",
+      "source": {
+        "provider": "bls",
+        "selector": "WPU1394",
+        "endpoint": "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+      },
+      "history": {
+        "start": "1958-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-062",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bls"
+    },
+    {
+      "id": "fred_b727b84e0caba8c28377",
+      "name": "Producer Price Index by Industry: Cement Manufacturing",
+      "kind": "series",
+      "planning_refs": [
+        "ML-060"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Index Jun 1982=100",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Not Seasonally Adjusted",
+      "source": {
+        "provider": "bls",
+        "selector": "PCU327310327310",
+        "endpoint": "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+      },
+      "history": {
+        "start": "1965-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-060",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bls"
+    },
+    {
+      "id": "fred_f9217275481db858faee",
+      "name": "All Employees, Construction",
+      "kind": "series",
+      "planning_refs": [
+        "ML-028"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Thousands of Persons",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted",
+      "source": {
+        "provider": "bls",
+        "selector": "CES2000000001",
+        "endpoint": "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+      },
+      "history": {
+        "start": "1939-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-028",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bls"
+    },
+    {
+      "id": "fred_da313eba90d5e9a31407",
+      "name": "All Employees, Manufacturing",
+      "kind": "series",
+      "planning_refs": [
+        "ML-029"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Thousands of Persons",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted",
+      "source": {
+        "provider": "bls",
+        "selector": "CES3000000001",
+        "endpoint": "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+      },
+      "history": {
+        "start": "1939-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-029",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bls"
+    },
+    {
+      "id": "fred_f007c60ecacde1bf5fb2",
+      "name": "Federal Funds Effective Rate",
+      "kind": "series",
+      "planning_refs": [
+        "ML-031"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Percent",
+      "frequency": "daily",
+      "seasonal_adjustment": "Not Seasonally Adjusted",
+      "source": {
+        "provider": "federal_reserve",
+        "selector": "H15/RIFSPFF_N.D",
+        "endpoint": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip"
+      },
+      "history": {
+        "start": "1954-07-01",
+        "end": "2026-10-26"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-031",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "federal_reserve",
+      "expected_source_attributes": {
+        "FREQ": "8",
+        "UNIT_MULT": "1",
+        "UNIT": "Percent:_Per_Year"
+      }
+    },
+    {
+      "id": "fred_fb83bc372b6c55d48647",
+      "name": "Market Yield on U.S. Treasury Securities at 2-Year Constant Maturity, Quoted on an Investment Basis",
+      "kind": "series",
+      "planning_refs": [
+        "ML-033"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Percent",
+      "frequency": "daily",
+      "seasonal_adjustment": "Not Seasonally Adjusted",
+      "source": {
+        "provider": "federal_reserve",
+        "selector": "H15/RIFLGFCY02_N.B",
+        "endpoint": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip"
+      },
+      "history": {
+        "start": "1976-06-01",
+        "end": "2026-10-26"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-033",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "federal_reserve",
+      "expected_source_attributes": {
+        "FREQ": "9",
+        "UNIT_MULT": "1",
+        "UNIT": "Percent:_Per_Year"
+      }
+    },
+    {
+      "id": "fred_eb08a1d6ec48181335d9",
+      "name": "Market Yield on U.S. Treasury Securities at 30-Year Constant Maturity, Quoted on an Investment Basis",
+      "kind": "series",
+      "planning_refs": [
+        "ML-035"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Percent",
+      "frequency": "daily",
+      "seasonal_adjustment": "Not Seasonally Adjusted",
+      "source": {
+        "provider": "federal_reserve",
+        "selector": "H15/RIFLGFCY30_N.B",
+        "endpoint": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip"
+      },
+      "history": {
+        "start": "1977-02-15",
+        "end": "2026-10-26"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-035",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "federal_reserve",
+      "expected_source_attributes": {
+        "FREQ": "9",
+        "UNIT_MULT": "1",
+        "UNIT": "Percent:_Per_Year"
+      }
+    },
+    {
+      "id": "fred_cc3466cd68878ef9a36f",
+      "name": "M2",
+      "kind": "series",
+      "planning_refs": [
+        "ML-037"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Billions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted",
+      "source": {
+        "provider": "federal_reserve",
+        "selector": "H6/M2.M",
+        "endpoint": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H6&filetype=zip"
+      },
+      "history": {
+        "start": "1959-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-037",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "federal_reserve",
+      "expected_source_attributes": {
+        "FREQ": "129",
+        "UNIT_MULT": "1e+09",
+        "UNIT": "Currency"
+      }
+    },
+    {
+      "id": "fred_eebc9f99bdbab57ba333",
+      "name": "Reserves of Depository Institutions: Total",
+      "kind": "series",
+      "planning_refs": [
+        "ML-039"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Billions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Not Seasonally Adjusted",
+      "source": {
+        "provider": "federal_reserve",
+        "selector": "H6/RESMO14A_N.M",
+        "endpoint": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H6&filetype=zip"
+      },
+      "history": {
+        "start": "1959-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-039",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "federal_reserve",
+      "expected_source_attributes": {
+        "FREQ": "129",
+        "UNIT_MULT": "1e+09",
+        "UNIT": "Currency"
+      }
+    },
+    {
+      "id": "frb_real_yield_10y_daily",
+      "name": "US 10-year Treasury real constant-maturity yield",
+      "category": "Interest rates",
+      "region": "US",
+      "frequency": "daily",
+      "seasonal_adjustment": "Not seasonally adjusted",
+      "planning_refs": [
+        "SUITABILITY-04"
+      ],
+      "kind": "series",
+      "source": {
+        "provider": "federal_reserve",
+        "selector": "H15/RIFLGFCY10_XII_N.B",
+        "endpoint": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip"
+      },
+      "units": "Percent",
+      "parser": "federal_reserve",
+      "expected_source_attributes": {
+        "FREQ": "9",
+        "UNIT_MULT": "1",
+        "UNIT": "Percent:_Per_Year"
+      }
+    },
+    {
+      "id": "frb_real_yield_5y_daily",
+      "name": "US 5-year Treasury real constant-maturity yield",
+      "category": "Interest rates",
+      "region": "US",
+      "frequency": "daily",
+      "seasonal_adjustment": "Not seasonally adjusted",
+      "planning_refs": [
+        "SUITABILITY-04"
+      ],
+      "kind": "series",
+      "source": {
+        "provider": "federal_reserve",
+        "selector": "H15/RIFLGFCY05_XII_N.B",
+        "endpoint": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip"
+      },
+      "units": "Percent",
+      "parser": "federal_reserve",
+      "expected_source_attributes": {
+        "FREQ": "9",
+        "UNIT_MULT": "1",
+        "UNIT": "Percent:_Per_Year"
+      }
+    },
+    {
+      "id": "eia_wti_spot_daily",
+      "name": "WTI crude oil spot price, Cushing",
+      "category": "Commodities",
+      "region": "US",
+      "frequency": "daily",
+      "units": "Dollars per Barrel",
+      "seasonal_adjustment": "Not seasonally adjusted",
+      "source": {
+        "provider": "eia",
+        "selector": "PET.RWTC.D",
+        "endpoint": "https://www.eia.gov/dnav/pet/hist_xls/RWTCd.xls"
+      },
+      "planning_refs": [
+        "SUITABILITY-08"
+      ],
+      "kind": "series",
+      "parser": "eia"
+    },
+    {
+      "id": "fred_0996d769ba6d991fb4b2",
+      "name": "Total Public Construction Spending: Power in the United States",
+      "kind": "series",
+      "planning_refs": [
+        "ML-059"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Millions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted Annual Rate",
+      "source": {
+        "provider": "census",
+        "selector": "Public SA/Public Power",
+        "endpoint": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx"
+      },
+      "history": {
+        "start": "2002-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105",
+          "https://www.census.gov/construction/c30/historical_data.html"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-059",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "census"
+    },
+    {
+      "id": "fred_1620a0b26fbe7eb42376",
+      "name": "Total Private Construction Spending: Total Construction in the United States",
+      "kind": "series",
+      "planning_refs": [
+        "ML-052"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Millions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted Annual Rate",
+      "source": {
+        "provider": "census",
+        "selector": "Private SA/Total Private Construction1",
+        "endpoint": "https://www.census.gov/construction/c30/xlsx/privsatime.xlsx"
+      },
+      "history": {
+        "start": "1993-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105",
+          "https://www.census.gov/construction/c30/historical_data.html"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-052",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "census"
+    },
+    {
+      "id": "fred_259d141714182247e607",
+      "name": "Total Public Construction Spending: Water Supply in the United States",
+      "kind": "series",
+      "planning_refs": [
+        "ML-057"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Millions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted Annual Rate",
+      "source": {
+        "provider": "census",
+        "selector": "Public SA/Public Water supply",
+        "endpoint": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx"
+      },
+      "history": {
+        "start": "2002-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105",
+          "https://www.census.gov/construction/c30/historical_data.html"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-057",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "census"
+    },
+    {
+      "id": "fred_344b1ec45d2e2a9be4ee",
+      "name": "Total Public Construction Spending: Highway and Street in the United States",
+      "kind": "series",
+      "planning_refs": [
+        "ML-056"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Millions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted Annual Rate",
+      "source": {
+        "provider": "census",
+        "selector": "Public SA/Public Highway and street",
+        "endpoint": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx"
+      },
+      "history": {
+        "start": "2002-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105",
+          "https://www.census.gov/construction/c30/historical_data.html"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-056",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "census"
+    },
+    {
+      "id": "fred_56c8c0f79eb999f4cbbb",
+      "name": "Total Public Construction Spending: Total Construction in the United States",
+      "kind": "series",
+      "planning_refs": [
+        "ML-053"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Millions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted Annual Rate",
+      "source": {
+        "provider": "census",
+        "selector": "Public SA/Total Public Construction1",
+        "endpoint": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx"
+      },
+      "history": {
+        "start": "1993-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105",
+          "https://www.census.gov/construction/c30/historical_data.html"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-053",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "census"
+    },
+    {
+      "id": "fred_6b8b68d870a427695f32",
+      "name": "Total Construction Spending: Total Construction in the United States",
+      "kind": "series",
+      "planning_refs": [
+        "ML-049"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Millions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted Annual Rate",
+      "source": {
+        "provider": "census",
+        "selector": "Total SA/Total Construction1",
+        "endpoint": "https://www.census.gov/construction/c30/xlsx/totsatime.xlsx"
+      },
+      "history": {
+        "start": "1993-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105",
+          "https://www.census.gov/construction/c30/historical_data.html"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-049",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "census"
+    },
+    {
+      "id": "fred_792eaccdffccf3325380",
+      "name": "Total Construction Spending: Residential in the United States",
+      "kind": "series",
+      "planning_refs": [
+        "ML-050"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Millions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted Annual Rate",
+      "source": {
+        "provider": "census",
+        "selector": "Total SA/Total Residential",
+        "endpoint": "https://www.census.gov/construction/c30/xlsx/totsatime.xlsx"
+      },
+      "history": {
+        "start": "2002-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105",
+          "https://www.census.gov/construction/c30/historical_data.html"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-050",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "census"
+    },
+    {
+      "id": "fred_affeb2eb840ba19b589f",
+      "name": "Total Private Construction Spending: Residential in the United States",
+      "kind": "series",
+      "planning_refs": [
+        "ML-055"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Millions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted Annual Rate",
+      "source": {
+        "provider": "census",
+        "selector": "Private SA/Residential (inc. Improvements)2",
+        "endpoint": "https://www.census.gov/construction/c30/xlsx/privsatime.xlsx"
+      },
+      "history": {
+        "start": "1993-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105",
+          "https://www.census.gov/construction/c30/historical_data.html"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-055",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "census"
+    },
+    {
+      "id": "fred_cfc0d3a8fc7e9df5bf55",
+      "name": "Total Public Construction Spending: Transportation in the United States",
+      "kind": "series",
+      "planning_refs": [
+        "ML-058"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Millions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted Annual Rate",
+      "source": {
+        "provider": "census",
+        "selector": "Public SA/Public Transportation",
+        "endpoint": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx"
+      },
+      "history": {
+        "start": "2002-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105",
+          "https://www.census.gov/construction/c30/historical_data.html"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-058",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "census"
+    },
+    {
+      "id": "fred_d6d19d1e7731f8d561c7",
+      "name": "Total Construction Spending: Nonresidential in the United States",
+      "kind": "series",
+      "planning_refs": [
+        "ML-051"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Millions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted Annual Rate",
+      "source": {
+        "provider": "census",
+        "selector": "Total SA/Total Nonresidential",
+        "endpoint": "https://www.census.gov/construction/c30/xlsx/totsatime.xlsx"
+      },
+      "history": {
+        "start": "2002-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105",
+          "https://www.census.gov/construction/c30/historical_data.html"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-051",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "census"
+    },
+    {
+      "id": "fred_ee6f78fdeffb513d53d4",
+      "name": "Total Private Construction Spending: Nonresidential in the United States",
+      "kind": "series",
+      "planning_refs": [
+        "ML-054"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Millions of Dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted Annual Rate",
+      "source": {
+        "provider": "census",
+        "selector": "Private SA/Nonresidential",
+        "endpoint": "https://www.census.gov/construction/c30/xlsx/privsatime.xlsx"
+      },
+      "history": {
+        "start": "1993-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105",
+          "https://www.census.gov/construction/c30/historical_data.html"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-054",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "census"
+    },
+    {
+      "id": "fred_4debaf340f08cd006d1c",
+      "name": "Personal Consumption Expenditures",
+      "kind": "series",
+      "planning_refs": [
+        "ML-004"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Millions of US dollars, annual rate",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally adjusted annual rate",
+      "source": {
+        "provider": "bea",
+        "selector": "T20600-M/DPCERC",
+        "endpoint": "https://apps.bea.gov/national/Release/XLS/Survey/Section2All_xls.xlsx"
+      },
+      "history": {
+        "start": "1959-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-004",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bea",
+      "expected_row_label": "Personal consumption expenditures",
+      "expected_unit_text": "Millions of dollars"
+    },
+    {
+      "id": "fred_50ca9db8f07142c7c5ef",
+      "name": "Government Consumption Expenditures and Gross Investment",
+      "kind": "series",
+      "planning_refs": [
+        "ML-006"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Millions of US dollars, annual rate",
+      "frequency": "quarterly",
+      "seasonal_adjustment": "Seasonally adjusted annual rate",
+      "source": {
+        "provider": "bea",
+        "selector": "T10105-Q/A822RC",
+        "endpoint": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx"
+      },
+      "history": {
+        "start": "1947-01-01",
+        "end": "2026-04-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-006",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bea",
+      "expected_row_label": "Government consumption expenditures and gross investment",
+      "expected_unit_text": "Millions of dollars"
+    },
+    {
+      "id": "fred_587ae491484f07293dc5",
+      "name": "Real Disposable Personal Income",
+      "kind": "series",
+      "planning_refs": [
+        "ML-042"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Millions of chained 2017 US dollars, annual rate",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally adjusted annual rate",
+      "source": {
+        "provider": "bea",
+        "selector": "T20600-M/A067RX",
+        "endpoint": "https://apps.bea.gov/national/Release/XLS/Survey/Section2All_xls.xlsx"
+      },
+      "history": {
+        "start": "1959-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-042",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bea",
+      "expected_row_label": "Total, Millions of chained (2017) dollars",
+      "expected_unit_text": "Millions of chained (2017) dollars"
+    },
+    {
+      "id": "fred_5917067a7da7dd7561f2",
+      "name": "Personal Saving Rate",
+      "kind": "series",
+      "planning_refs": [
+        "ML-043"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Percent",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally adjusted",
+      "source": {
+        "provider": "bea",
+        "selector": "T20600-M/A072RC",
+        "endpoint": "https://apps.bea.gov/national/Release/XLS/Survey/Section2All_xls.xlsx"
+      },
+      "history": {
+        "start": "1959-01-01",
+        "end": "2026-08-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-043",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bea",
+      "expected_row_label": "Personal saving as a percentage of disposable personal income",
+      "expected_unit_text": "percentage"
+    },
+    {
+      "id": "fred_73f5b5c1a9e4f7bff5b6",
+      "name": "Real Exports of Goods and Services",
+      "kind": "series",
+      "planning_refs": [
+        "ML-007"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Millions of chained 2017 US dollars, annual rate",
+      "frequency": "quarterly",
+      "seasonal_adjustment": "Seasonally adjusted annual rate",
+      "source": {
+        "provider": "bea",
+        "selector": "T10106-Q/A020RX",
+        "endpoint": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx"
+      },
+      "history": {
+        "start": "1947-01-01",
+        "end": "2026-04-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-007",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bea",
+      "expected_row_label": "Exports",
+      "expected_unit_text": "Millions of chained (2017) dollars"
+    },
+    {
+      "id": "fred_8d3240bb6b5eae523737",
+      "name": "Real Gross Domestic Product",
+      "kind": "series",
+      "planning_refs": [
+        "ML-001"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Millions of chained 2017 US dollars, annual rate",
+      "frequency": "quarterly",
+      "seasonal_adjustment": "Seasonally adjusted annual rate",
+      "source": {
+        "provider": "bea",
+        "selector": "T10106-Q/A191RX",
+        "endpoint": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx"
+      },
+      "history": {
+        "start": "1947-01-01",
+        "end": "2026-04-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-001",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bea",
+      "expected_row_label": "Gross domestic product",
+      "expected_unit_text": "Millions of chained (2017) dollars"
+    },
+    {
+      "id": "fred_b0bbd188e79316b7fe9c",
+      "name": "Gross Domestic Product",
+      "kind": "series",
+      "planning_refs": [
+        "ML-002"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Millions of US dollars, annual rate",
+      "frequency": "quarterly",
+      "seasonal_adjustment": "Seasonally adjusted annual rate",
+      "source": {
+        "provider": "bea",
+        "selector": "T10105-Q/A191RC",
+        "endpoint": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx"
+      },
+      "history": {
+        "start": "1947-01-01",
+        "end": "2026-04-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-002",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bea",
+      "expected_row_label": "Gross domestic product",
+      "expected_unit_text": "Millions of dollars"
+    },
+    {
+      "id": "fred_be9962a875a7440f41cc",
+      "name": "Real imports of goods and services",
+      "kind": "series",
+      "planning_refs": [
+        "ML-008"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Millions of chained 2017 US dollars, annual rate",
+      "frequency": "quarterly",
+      "seasonal_adjustment": "Seasonally adjusted annual rate",
+      "source": {
+        "provider": "bea",
+        "selector": "T10106-Q/A021RX",
+        "endpoint": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx"
+      },
+      "history": {
+        "start": "1947-01-01",
+        "end": "2026-04-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-008",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bea",
+      "expected_row_label": "Imports",
+      "expected_unit_text": "Millions of chained (2017) dollars"
+    },
+    {
+      "id": "fred_f4d6da21fa8031a3a242",
+      "name": "Real Gross Private Domestic Investment",
+      "kind": "series",
+      "planning_refs": [
+        "ML-005"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Millions of chained 2017 US dollars, annual rate",
+      "frequency": "quarterly",
+      "seasonal_adjustment": "Seasonally adjusted annual rate",
+      "source": {
+        "provider": "bea",
+        "selector": "T10106-Q/A006RX",
+        "endpoint": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx"
+      },
+      "history": {
+        "start": "1947-01-01",
+        "end": "2026-04-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-005",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bea",
+      "expected_row_label": "Gross private domestic investment",
+      "expected_unit_text": "Millions of chained (2017) dollars"
+    },
+    {
+      "id": "frb_broad_usd_daily",
+      "name": "US nominal broad trade-weighted dollar index",
+      "kind": "series",
+      "planning_refs": [
+        "SUITABILITY-05"
+      ],
+      "category": "Currencies",
+      "region": "US",
+      "frequency": "daily",
+      "units": "Index, January 2006 monthly average=100",
+      "seasonal_adjustment": "Not seasonally adjusted",
+      "source": {
+        "provider": "federal_reserve",
+        "selector": "H10/JRXWTFB_N.B",
+        "endpoint": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H10&filetype=zip"
+      },
+      "parser": "federal_reserve",
+      "expected_source_attributes": {
+        "FREQ": "9",
+        "UNIT_MULT": "1",
+        "UNIT": "Index:_1997_Jan_100",
+        "FX": "BRD"
+      },
+      "definition_note": "Current goods-and-services broad USD index, not ICE DXY or V0 goods-only. The DDP XML retains an obsolete UNIT code referring to January 1997. The official H10 technical Q&A documents the June 2019 reindexing to January 2006 monthly average=100. Values are retained exactly, with no local rebasing. See https://www.federalreserve.gov/releases/h10/h10_technical_qa.htm and https://www.federalreserve.gov/releases/h10/summary/jrxwtfb_nb.htm. Annual trade-weight revisions may revise history."
+    }
+  ]
+}

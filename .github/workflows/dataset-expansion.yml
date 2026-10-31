@@ -1,0 +1,87 @@
+name: Dataset expansion Linux validation
+on:
+  push:
+    branches: [feature/macrolens-full-dataset-expansion]
+  pull_request:
+    paths:
+      - 'backend/app/catalog/releases.py'
+      - 'backend/app/catalog/release_cli.py'
+      - 'backend/app/ingestion/**'
+      - 'catalog/release_candidates.json'
+      - 'scripts/*expansion*'
+      - '.github/workflows/dataset-expansion.yml'
+permissions:
+  contents: read
+jobs:
+  linux_512mb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build isolated validation image
+        run: docker build -f scripts/phase4c.Dockerfile -t macrolens-expansion .
+      - name: Capture representative actual official histories under hard limits
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/expansion-data"
+          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 \
+            -v "$RUNNER_TEMP/expansion-data:/tmp/expansion" --entrypoint python macrolens-expansion \
+            -m scripts.collect_expansion --workspace /tmp/expansion --providers eurostat,ons \
+            --only-ids eurostat_03b4d5b0fa407ee1b32e ons_24c4972dca3a5b1bbe32
+          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 \
+            -v "$RUNNER_TEMP/expansion-data:/tmp/expansion" --entrypoint python macrolens-expansion \
+            -m scripts.collect_expansion --workspace /tmp/expansion --providers eia,federal_reserve --overrides \
+            --only-ids eia_wti_spot_daily frb_real_yield_10y_daily
+      - name: Ingest real histories alongside loaded backend and API traffic, offline
+        run: |
+          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
+            -v "$RUNNER_TEMP/expansion-data:/tmp/expansion" --entrypoint python macrolens-expansion \
+            -m scripts.validate_expansion --workspace /tmp/expansion --with-backend \
+            --ids eurostat_03b4d5b0fa407ee1b32e ons_24c4972dca3a5b1bbe32 eia_wti_spot_daily frb_real_yield_10y_daily
+      - name: Retest full synthetic 309-entry workload under the same hard limits
+        run: |
+          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
+            --entrypoint python macrolens-expansion scripts/validate_batch0_catalog.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build standard Linux frontend and install browser test tools
+        working-directory: frontend-v2
+        env:
+          MACROLENS_V2_API_URL: http://127.0.0.1:8140
+        run: |
+          npm ci
+          npm run build
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Browser checks against the four actual-history release candidates
+        env:
+          MACROLENS_V2_API_URL: http://127.0.0.1:8140
+          EXPANSION_BROWSER_EXPECTED_PUBLIC: '34'
+        run: |
+          set -euo pipefail
+          docker run -d --name expansion-browser-backend --memory=512m --memory-swap=512m --cpus=0.5 --network=host \
+            -v "$RUNNER_TEMP/expansion-data:/tmp/expansion" --entrypoint python macrolens-expansion \
+            -m scripts.serve_expansion_preview --workspace /tmp/expansion --database-name disposable-release.sqlite3
+          (cd frontend-v2 && node node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3040) > /tmp/expansion-frontend.log 2>&1 &
+          frontend_pid=$!
+          trap 'kill "$frontend_pid" || true; docker rm -f expansion-browser-backend || true' EXIT
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:3040/ > /dev/null && curl -fsS http://127.0.0.1:8140/health > /dev/null; then break; fi
+            sleep 1
+          done
+          python -m scripts.test_expansion_browser
+      - name: Retain measurements and metadata only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: expansion-linux-measurements-${{ github.event_name }}
+          path: |
+            ${{ runner.temp }}/expansion-data/validation.json
+            ${{ runner.temp }}/expansion-data/source-results.json
+            /tmp/expansion-browser/
+            /tmp/expansion-frontend.log
+          retention-days: 7

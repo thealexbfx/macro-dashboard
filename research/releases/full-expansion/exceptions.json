@@ -1,0 +1,1499 @@
+{
+  "entries": [
+    {
+      "id": "boe_1d553b5bdd1f7e891b14",
+      "name": "Official Bank Rate",
+      "provider": "boe",
+      "selector": "IUDBEDR",
+      "planning_refs": [
+        "ML-210"
+      ],
+      "category": "source access",
+      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
+      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
+      "captured_privately": false
+    },
+    {
+      "id": "boe_78c1b0ddd5b081685915",
+      "name": "M4 sterling liabilities to private sector",
+      "provider": "boe",
+      "selector": "LPMAUYN",
+      "planning_refs": [
+        "ML-212"
+      ],
+      "category": "source access",
+      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
+      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
+      "captured_privately": false
+    },
+    {
+      "id": "boe_7b7637a3b65708d59ec6",
+      "name": "House purchase mortgage approvals",
+      "provider": "boe",
+      "selector": "LPMVTVX",
+      "planning_refs": [
+        "ML-216"
+      ],
+      "category": "source access",
+      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
+      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
+      "captured_privately": false
+    },
+    {
+      "id": "boe_7eaa2557cec31cfd442c",
+      "name": "M4 sterling net lending to private sector",
+      "provider": "boe",
+      "selector": "LPMBC69",
+      "planning_refs": [
+        "ML-213"
+      ],
+      "category": "source access",
+      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
+      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
+      "captured_privately": false
+    },
+    {
+      "id": "boe_9a0264149af073a61bb2",
+      "name": "SONIA overnight rate",
+      "provider": "boe",
+      "selector": "IUDSOIA",
+      "planning_refs": [
+        "ML-211"
+      ],
+      "category": "source access",
+      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
+      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
+      "captured_privately": false
+    },
+    {
+      "id": "boe_9b273c7c43b5805395f8",
+      "name": "Net lending excluding intermediate OFCs outstanding",
+      "provider": "boe",
+      "selector": "RPMB57Q",
+      "planning_refs": [
+        "ML-215"
+      ],
+      "category": "source access",
+      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
+      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
+      "captured_privately": false
+    },
+    {
+      "id": "boe_add9ddfbda80cc7d61b4",
+      "name": "M4 excluding intermediate OFCs outstanding",
+      "provider": "boe",
+      "selector": "RPMB53Q",
+      "planning_refs": [
+        "ML-214"
+      ],
+      "category": "source access",
+      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
+      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
+      "captured_privately": false
+    },
+    {
+      "id": "boj_1318bd34a762698d960c",
+      "name": "Call Rate, Uncollateralized Overnight, Average (Daily)",
+      "provider": "boj",
+      "selector": "FM01/STRDCLUCON",
+      "planning_refs": [
+        "ML-217"
+      ],
+      "category": "licensing",
+      "blocker": "BOJ terms require prior permission for commercial copying; data endpoint works but permission not granted.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "boj_cdb1b8db1014d281405a",
+      "name": "Volumes of Uncollateralized Overnight Call Transactions",
+      "provider": "boj",
+      "selector": "FM01/STRDCLUCV",
+      "planning_refs": [
+        "ML-218"
+      ],
+      "category": "licensing",
+      "blocker": "BOJ terms require prior permission for commercial copying; data endpoint works but permission not granted.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "census_495989ca049225a4737d",
+      "name": "Missouri residential permits by structure",
+      "provider": "census",
+      "selector": "BPS/state monthly/FIPS29/structure types",
+      "planning_refs": [
+        "G25"
+      ],
+      "category": "ambiguous selector",
+      "blocker": "Original-producer transport/parser not completed in this execution; FRED-route redistribution scope remains unresolved. Not a demonstrated provider outage.",
+      "recommended_action": "Pin actual atomic source columns/rows, units and geography; do not invent aggregate observations.",
+      "captured_privately": false
+    },
+    {
+      "id": "comtrade_095b51fb9a71e91e7d58",
+      "name": "China copper-cathode import net weight",
+      "provider": "comtrade",
+      "selector": "C/M/HS/156/0/740311/M/netWgt",
+      "planning_refs": [
+        "G22"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "comtrade_f0508bc7208a262eb1d7",
+      "name": "China iron-ore import net weight",
+      "provider": "comtrade",
+      "selector": "C/M/HS/156/0/2601/M/netWgt",
+      "planning_refs": [
+        "G21"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "eia_132a696ed6bbb64153f3",
+      "name": "Total US net electricity generation",
+      "provider": "eia",
+      "selector": "ELEC.GEN.ALL-US-99.M",
+      "planning_refs": [
+        "ML-245"
+      ],
+      "category": "source access",
+      "blocker": "Electricity source needs a free EIA API credential or reviewed download",
+      "recommended_action": "Use a free operator-supplied EIA key or a documented original downloadable table; no key committed.",
+      "captured_privately": false
+    },
+    {
+      "id": "eia_1c44416da87e7dc868ee",
+      "name": "US coal net electricity generation",
+      "provider": "eia",
+      "selector": "ELEC.GEN.COW-US-99.M",
+      "planning_refs": [
+        "ML-247"
+      ],
+      "category": "source access",
+      "blocker": "Electricity source needs a free EIA API credential or reviewed download",
+      "recommended_action": "Use a free operator-supplied EIA key or a documented original downloadable table; no key committed.",
+      "captured_privately": false
+    },
+    {
+      "id": "eia_b23099f02b20cf7bbe2d",
+      "name": "US industrial electricity retail price",
+      "provider": "eia",
+      "selector": "ELEC.PRICE.US-IND.M",
+      "planning_refs": [
+        "ML-248"
+      ],
+      "category": "source access",
+      "blocker": "Electricity source needs a free EIA API credential or reviewed download",
+      "recommended_action": "Use a free operator-supplied EIA key or a documented original downloadable table; no key committed.",
+      "captured_privately": false
+    },
+    {
+      "id": "eia_fa2f8addeca03b32a1ce",
+      "name": "US natural-gas net electricity generation",
+      "provider": "eia",
+      "selector": "ELEC.GEN.NG-US-99.M",
+      "planning_refs": [
+        "ML-246"
+      ],
+      "category": "source access",
+      "blocker": "Electricity source needs a free EIA API credential or reviewed download",
+      "recommended_action": "Use a free operator-supplied EIA key or a documented original downloadable table; no key committed.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_0743977c6b2ceee64240",
+      "name": "Employment-Population Ratio",
+      "provider": "fred",
+      "selector": "EMRATIO",
+      "planning_refs": [
+        "ML-023"
+      ],
+      "category": "technical failure",
+      "blocker": "BLS CPS employment/population ratio source adapter not completed; no provider outage demonstrated",
+      "recommended_action": "Validate BLS LNS12300000, then use the existing bounded BLS transport with a separately reviewed definition.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_323f37502180ce7bd485",
+      "name": "Manufacturers' New Orders: Nondefense Capital Goods Excluding Aircraft",
+      "provider": "fred",
+      "selector": "NEWORDER",
+      "planning_refs": [
+        "ML-010"
+      ],
+      "category": "ambiguous selector",
+      "blocker": "Census M3 nondefense capital-goods excluding-aircraft row/facet not pinned in a producer-native response",
+      "recommended_action": "Pin the original Census M3 table selection and distinguish this from total durable-goods orders.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_5e43a009a68bedb42dbf",
+      "name": "Continued Claims (Insured Unemployment)",
+      "provider": "fred",
+      "selector": "CCSA",
+      "planning_refs": [
+        "ML-025"
+      ],
+      "category": "technical failure",
+      "blocker": "DOL ETA continued-claims history and Saturday reference calendar parser not completed",
+      "recommended_action": "Pin the ETA insured-unemployment total and native weekly convention; do not infer from initial claims.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_80393bc5f9f3f9e4041f",
+      "name": "Advance Real Retail and Food Services Sales",
+      "provider": "fred",
+      "selector": "RRSFS",
+      "planning_refs": [
+        "ML-041"
+      ],
+      "category": "licensing",
+      "blocker": "St Louis Fed real-retail-sales derived series is not simply an original federal producer table; route/method/rights need review",
+      "recommended_action": "Clear the Bank-created series or register a separately defined original-source alternative; never silently recalculate under this ID.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_848fe5e65c6c554669f1",
+      "name": "Capacity Utilization: Total Index",
+      "provider": "fred",
+      "selector": "TCU",
+      "planning_refs": [
+        "ML-012"
+      ],
+      "category": "infrastructure capacity",
+      "blocker": "Original G17 bulk ZIP exceeded the current 8 MiB transport bound; a selected-series streaming route is not yet implemented",
+      "recommended_action": "Build a bounded disk-streaming G17 selection and measure it before admitting a larger archive.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_890f288b712279e3a9cf",
+      "name": "Manufacturers' New Orders: Durable Goods",
+      "provider": "fred",
+      "selector": "DGORDER",
+      "planning_refs": [
+        "ML-009"
+      ],
+      "category": "technical failure",
+      "blocker": "Census M3 total durable-goods order parser not completed; no provider outage demonstrated",
+      "recommended_action": "Add exact M3 selection and revision/SA tests using the existing snapshot engine.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_895937915aee72f6f703",
+      "name": "Secured Overnight Financing Rate",
+      "provider": "fred",
+      "selector": "SOFR",
+      "planning_refs": [
+        "ML-032"
+      ],
+      "category": "technical failure",
+      "blocker": "Official NY Fed SOFR JSON returned real observations, but the required republication notices have not been integrated/reviewed",
+      "recommended_action": "Use the working original API, retain NY Fed required disclaimer and native business dates; business-use grant exists and no paid subscription is assumed.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_925891ea36ab7371b4f0",
+      "name": "New One Family Houses Sold: United States",
+      "provider": "fred",
+      "selector": "HSN1F",
+      "planning_refs": [
+        "ML-047"
+      ],
+      "category": "technical failure",
+      "blocker": "Census new-home-sales historical workbook parser not completed",
+      "recommended_action": "Use original Census residential-sales tables; preserve SAAR thousands and revisions.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_a5b777ed31c4aa5f0ee4",
+      "name": "S&P Cotality Case-Shiller U.S. National Home Price Index",
+      "provider": "fred",
+      "selector": "CSUSHPINSA",
+      "planning_refs": [
+        "ML-048"
+      ],
+      "category": "licensing",
+      "blocker": "S&P Cotality Case-Shiller is third-party benchmark data, not federal public-domain statistics",
+      "recommended_action": "Obtain source-specific redistribution evidence; FRED availability does not grant onward rights.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_b608c6c5b9dad340617d",
+      "name": "New Privately-Owned Housing Units Started: Single-Family Units",
+      "provider": "fred",
+      "selector": "HOUST1F",
+      "planning_refs": [
+        "ML-045"
+      ],
+      "category": "technical failure",
+      "blocker": "Census one-unit housing starts historical selection/parser not completed",
+      "recommended_action": "Validate single-family units, SAAR and history; do not substitute the existing all-unit starts ID.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_b7b05b9474e87c2c4391",
+      "name": "Assets: Total Assets: Total Assets (Less Eliminations from Consolidation): Wednesday Level",
+      "provider": "fred",
+      "selector": "WALCL",
+      "planning_refs": [
+        "ML-038"
+      ],
+      "category": "infrastructure capacity",
+      "blocker": "Original H41 bulk ZIP exceeded the current 8 MiB transport bound; Wednesday total-assets selection is not yet pinned in the native adapter",
+      "recommended_action": "Use bounded original H41 transport and verify exact total-assets/eliminations/Wednesday-level units.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_f007c60ecacde1bf5fb2",
+      "name": "Federal Funds Effective Rate",
+      "provider": "federal_reserve",
+      "selector": "H15/RIFSPFF_N.D",
+      "planning_refs": [
+        "ML-031"
+      ],
+      "category": "licensing",
+      "blocker": "Full Board daily effective-rate history captured; complete NY Fed reference-rate republication disclaimer review before display. This is not a target-event calendar.",
+      "recommended_action": "Retain the source-specific NY Fed terms/required notice; then activate as a separate release unit.",
+      "captured_privately": true
+    },
+    {
+      "id": "fred_f32c3279ee1106c518f9",
+      "name": "Industrial Production: Manufacturing (NAICS)",
+      "provider": "fred",
+      "selector": "IPMAN",
+      "planning_refs": [
+        "ML-013"
+      ],
+      "category": "infrastructure capacity",
+      "blocker": "Original G17 bulk ZIP exceeded the current 8 MiB transport bound; manufacturing selection requires the same shared streaming adapter",
+      "recommended_action": "Reuse the bounded G17 fix, pin NAICS manufacturing index/base and validate revisions.",
+      "captured_privately": false
+    },
+    {
+      "id": "fred_fa08d6372621c36b7753",
+      "name": "Producer Price Index by Commodity: Final Demand",
+      "provider": "fred",
+      "selector": "PPIFIS",
+      "planning_refs": [
+        "ML-019"
+      ],
+      "category": "ambiguous selector",
+      "blocker": "Exact producer-native final-demand SA PPI selection is not yet validated",
+      "recommended_action": "Validate candidate BLS WPSFD4, native base and adjustment before using the BLS adapter.",
+      "captured_privately": false
+    },
+    {
+      "id": "hmrc_0eb8ded14b6894fd15a4",
+      "name": "UK cement/clinker import-export quantities",
+      "provider": "hmrc",
+      "selector": "HS2523/subheadings/import,export/net mass",
+      "planning_refs": [
+        "G33"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "hmrc_f02d1947285134c80c0b",
+      "name": "UK aggregate import-export quantities",
+      "provider": "hmrc",
+      "selector": "HS251710/import,export/net mass",
+      "planning_refs": [
+        "G34"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "japan_dashboard_3014716f878e22b124be",
+      "name": "CPI excluding fresh food",
+      "provider": "japan_dashboard",
+      "selector": "0703010601010090010 | Japan 00000 / monthly / original",
+      "planning_refs": [
+        "ML-220"
+      ],
+      "category": "source access",
+      "blocker": "Official e-Stat dashboard endpoint returned HTTP 502 in both initial and follow-up checks.",
+      "recommended_action": "Retry after service recovery, validate exact dimensions and source-specific PDL terms.",
+      "captured_privately": false
+    },
+    {
+      "id": "japan_dashboard_d0c2833dc84baa608792",
+      "name": "CPI all items",
+      "provider": "japan_dashboard",
+      "selector": "0703010601010090000 | Japan 00000 / monthly / original",
+      "planning_refs": [
+        "ML-219"
+      ],
+      "category": "source access",
+      "blocker": "Official e-Stat dashboard endpoint returned HTTP 502 in both initial and follow-up checks.",
+      "recommended_action": "Retry after service recovery, validate exact dimensions and source-specific PDL terms.",
+      "captured_privately": false
+    },
+    {
+      "id": "jodi_2234abe93e10dd71b4c9",
+      "name": "Crude imports and exports panel",
+      "provider": "jodi",
+      "selector": "CRUDEOIL/TOTIMPSB,TOTEXPSB/KBD",
+      "planning_refs": [
+        "G08"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "jodi_50d263f0e929e084e5af",
+      "name": "Gas production and demand panel",
+      "provider": "jodi",
+      "selector": "NATGAS/INDPROD,TOTDEMO/M3",
+      "planning_refs": [
+        "G09"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "jodi_80d9e5c76ebdb327cde0",
+      "name": "LNG imports and exports panel",
+      "provider": "jodi",
+      "selector": "NATGAS/IMPLNG,EXPLNG/M3",
+      "planning_refs": [
+        "G10"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "jodi_825df07111b4d9cd8a9b",
+      "name": "Refinery-intake country panel",
+      "provider": "jodi",
+      "selector": "CRUDEOIL/REFINOBS/KBD",
+      "planning_refs": [
+        "G05"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "jodi_83b9c7354cf41478e0a2",
+      "name": "Crude-production country panel",
+      "provider": "jodi",
+      "selector": "CRUDEOIL/INDPROD/KBD",
+      "planning_refs": [
+        "G04"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "jodi_c98e8e7f606343db5396",
+      "name": "Petroleum-products demand panel",
+      "provider": "jodi",
+      "selector": "TOTPRODS/TOTDEMO/KBD",
+      "planning_refs": [
+        "G06"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "jodi_d840583e1c012a0b395d",
+      "name": "Non-US crude-inventory panel",
+      "provider": "jodi",
+      "selector": "CRUDEOIL/CLOSTLV/KBBL",
+      "planning_refs": [
+        "G07"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "lme_b731c1487a759914b8cc",
+      "name": "LME copper and aluminium warehouse stocks",
+      "provider": "lme",
+      "selector": "Stocks breakdown/components unresolved",
+      "planning_refs": [
+        "G20"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "modot_70899a8fcc58ebeaa3de",
+      "name": "Missouri awarded material quantities and unit prices",
+      "provider": "modot",
+      "selector": "Missouri awarded material quantities and unit prices/project,letting,item mapping unresolved",
+      "planning_refs": [
+        "G30"
+      ],
+      "category": "ambiguous selector",
+      "blocker": "Original-producer transport/parser not completed in this execution; FRED-route redistribution scope remains unresolved. Not a demonstrated provider outage.",
+      "recommended_action": "Pin actual atomic source columns/rows, units and geography; do not invent aggregate observations.",
+      "captured_privately": false
+    },
+    {
+      "id": "modot_9ab75d81f608cc7d68df",
+      "name": "Missouri awarded highway contracts",
+      "provider": "modot",
+      "selector": "Missouri awarded highway contracts/project,letting,item mapping unresolved",
+      "planning_refs": [
+        "G29"
+      ],
+      "category": "ambiguous selector",
+      "blocker": "Original-producer transport/parser not completed in this execution; FRED-route redistribution scope remains unresolved. Not a demonstrated provider outage.",
+      "recommended_action": "Pin actual atomic source columns/rows, units and geography; do not invent aggregate observations.",
+      "captured_privately": false
+    },
+    {
+      "id": "mpa_c8c3f1065905db8badb2",
+      "name": "Asphalt sales volume q/q growth",
+      "provider": "mpa",
+      "selector": "Quarterly Sales Volumes Survey / quarter-on-quarter seasonally adjusted / Asphalt",
+      "planning_refs": [
+        "ML-232"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "mpa_d57f6d5700cbae625daa",
+      "name": "Crushed-rock sales volume q/q growth",
+      "provider": "mpa",
+      "selector": "Quarterly Sales Volumes Survey / quarter-on-quarter seasonally adjusted / Crushed rock",
+      "planning_refs": [
+        "ML-233"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "nbs_china_14021f5a2496bd5d1c7d",
+      "name": "Real-estate development investment",
+      "provider": "nbs_china",
+      "selector": "China Statistical Yearbook 2025 / E10-01 / Real Estate Development / Value",
+      "planning_refs": [
+        "ML-262"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "nbs_china_204730faa5a31fe2827a",
+      "name": "Natural gas output",
+      "provider": "nbs_china",
+      "selector": "China Statistical Yearbook 2025 / E09-17 / Natural Gas",
+      "planning_refs": [
+        "ML-259"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "nbs_china_29110de244d505049a13",
+      "name": "Secondary-industry GDP",
+      "provider": "nbs_china",
+      "selector": "China Statistical Yearbook 2025 / E03-01 / Secondary Industry",
+      "planning_refs": [
+        "ML-255"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "nbs_china_4d7531daa19f81c8ee27",
+      "name": "Nominal GDP",
+      "provider": "nbs_china",
+      "selector": "China Statistical Yearbook 2025 / E03-01 / Gross Domestic Product",
+      "planning_refs": [
+        "ML-253"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "nbs_china_4ea08e8371ad162f8fe1",
+      "name": "Coal output",
+      "provider": "nbs_china",
+      "selector": "China Statistical Yearbook 2025 / E09-17 / Coal",
+      "planning_refs": [
+        "ML-257"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "nbs_china_58ebae3104a1ba8a68b1",
+      "name": "Tertiary-industry GDP",
+      "provider": "nbs_china",
+      "selector": "China Statistical Yearbook 2025 / E03-01 / Tertiary Industry",
+      "planning_refs": [
+        "ML-256"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "nbs_china_6a5cd17b031bfdae2564",
+      "name": "Crude oil output",
+      "provider": "nbs_china",
+      "selector": "China Statistical Yearbook 2025 / E09-17 / Crude Oil",
+      "planning_refs": [
+        "ML-258"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "nbs_china_78f5fc92f49aa8e8fdde",
+      "name": "Primary-industry GDP",
+      "provider": "nbs_china",
+      "selector": "China Statistical Yearbook 2025 / E03-01 / Primary Industry",
+      "planning_refs": [
+        "ML-254"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "nbs_china_938c9cbbcb8491e3bbff",
+      "name": "Electricity generation",
+      "provider": "nbs_china",
+      "selector": "China Statistical Yearbook 2025 / E09-17 / Electricity Generation",
+      "planning_refs": [
+        "ML-260"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "nbs_china_bdd67a13c6fee86f13ad",
+      "name": "Building floor space completed",
+      "provider": "nbs_china",
+      "selector": "China Statistical Yearbook 2025 / E14-22 / Floor Space Completed of Buildings Constructed",
+      "planning_refs": [
+        "ML-264"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "nbs_china_cecc1c81a8b168207a9f",
+      "name": "Building floor space under construction",
+      "provider": "nbs_china",
+      "selector": "China Statistical Yearbook 2025 / E14-22 / Floor Space under Construction of Buildings Constructed",
+      "planning_refs": [
+        "ML-263"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "nbs_china_e7a681134d632af05821",
+      "name": "Whole-country fixed-asset investment",
+      "provider": "nbs_china",
+      "selector": "China Statistical Yearbook 2025 / E10-01 / Total Investment in Fixed Assets / Value",
+      "planning_refs": [
+        "ML-261"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "oecd_02522555a0631f62061b",
+      "name": "Composite business confidence / activity C",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / CHN.M.BCICP.PB.C.Y._Z",
+      "planning_refs": [
+        "ML-201"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_063d334dd811a896fe80",
+      "name": "Merchandise exports / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / CHN.M.EX.USD._T.Y._Z",
+      "planning_refs": [
+        "ML-194"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_1be121fa07164c65f1f4",
+      "name": "Final consumption expenditure of general government, volume / Growth rate, period on period / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.Q.P3_S13_Q.GR._T.Y.G1",
+      "planning_refs": [
+        "ML-175"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_297fa6311b3d98e45c27",
+      "name": "Final consumption expenditure of households and non profit institutions serving households, volume / Growth rate, period on period / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.Q.P3_S1M_Q.GR._T.Y.G1",
+      "planning_refs": [
+        "ML-174"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_2af774fd624585ef7209",
+      "name": "Gross domestic product, volume / Growth rate, period on period / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / CHN.Q.B1GQ_Q.GR._T.Y.G1",
+      "planning_refs": [
+        "ML-190"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_2bd30b87e631d698fe16",
+      "name": "Gross fixed capital formation, volume / Growth rate, period on period / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.Q.P51G_Q.GR._T.Y.G1",
+      "planning_refs": [
+        "ML-176"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_31d484ebef4a5e5bc10a",
+      "name": "M1 / activity _Z",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.M.MANM.IX._Z.Y._Z",
+      "planning_refs": [
+        "ML-187"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_31f6bb96dbdb9a672cb0",
+      "name": "Exports of goods and services, volume / Growth rate, period on period / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.Q.P6_Q.GR._T.Y.G1",
+      "planning_refs": [
+        "ML-177"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_3380c974dfaa5e6e9f77",
+      "name": "Composite business confidence / activity C",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.Q.BCICP.PB.C.Y._Z",
+      "planning_refs": [
+        "ML-180"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_33872c678cce6fe4823e",
+      "name": "M3 / activity _Z",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.M.MABM.IX._Z.Y._Z",
+      "planning_refs": [
+        "ML-186"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_35d4af8f9b14a61dc16c",
+      "name": "Current account balance as percentage of GDP / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / CHN.Q.CA_GDP.PT_B1GQ._T.Y._Z",
+      "planning_refs": [
+        "ML-196"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_447baf57e65778283162",
+      "name": "Short-term interest rates / activity _Z",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / CHN.M.IR3TIB.PA._Z._Z._Z",
+      "planning_refs": [
+        "ML-197"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_513f53ea53ec88eeab84",
+      "name": "Composite leading indicator (CLI) / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / CHN.M.LI.IX._T.AA._Z",
+      "planning_refs": [
+        "ML-200"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_54de5f8122933edf9565",
+      "name": "Consumer prices / activity _Z",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / CHN.M.CP.IX._Z._Z._Z",
+      "planning_refs": [
+        "ML-192"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_5a41775a68faa58c811d",
+      "name": "Retail trade volume / activity G47",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.M.TOVM.IX.G47.Y._Z",
+      "planning_refs": [
+        "ML-184"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_6d413fc78e1aecff06d8",
+      "name": "Gross domestic product, volume / Growth rate, period on period / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.Q.B1GQ_Q.GR._T.Y.G1",
+      "planning_refs": [
+        "ML-172"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_74334c0e820246018e5d",
+      "name": "Production volume / activity BTE",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.M.PRVM.IX.BTE.Y._Z",
+      "planning_refs": [
+        "ML-179"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_77b628eaf1783c789f0e",
+      "name": "Employment / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.M.EMP.PS._T.Y._Z",
+      "planning_refs": [
+        "ML-182"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_782a5674fd6b97a4f2cd",
+      "name": "Unemployment / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.M.UNEMP.PT_LF._T.Y._Z",
+      "planning_refs": [
+        "ML-183"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_8547c15bea805bc7d0be",
+      "name": "Gross domestic product, volume / Growth rate, over 1 year / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.Q.B1GQ_Q.GR._T.Y.GY",
+      "planning_refs": [
+        "ML-173"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; real history captured privately",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": true
+    },
+    {
+      "id": "oecd_aef86b1e9564dd2bf50e",
+      "name": "Short-term interest rates / activity _Z",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.M.IR3TIB.PA._Z._Z._Z",
+      "planning_refs": [
+        "ML-188"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; http_429",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "oecd_b18f6034878c5a45bf73",
+      "name": "Hourly earnings / activity C",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.M.H_EARN.IX.C.Y._Z",
+      "planning_refs": [
+        "ML-185"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; http_429",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "oecd_b941781122a8158ddf24",
+      "name": "Gross domestic product, volume / Growth rate, over 1 year / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / CHN.Q.B1GQ_Q.GR._T.Y.GY",
+      "planning_refs": [
+        "ML-191"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; http_429",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "oecd_ccc176ec53192bfaf889",
+      "name": "Long-term interest rates / activity _Z",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / CHN.M.IRLT.PA._Z._Z._Z",
+      "planning_refs": [
+        "ML-198"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; http_429",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "oecd_d5b53a9f2555c0467b1e",
+      "name": "Composite consumer confidence / activity _Z",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.M.CCICP.PB._Z.Y._Z",
+      "planning_refs": [
+        "ML-181"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; http_429",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "oecd_dc8c5446d13020149f6a",
+      "name": "Merchandise imports / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / CHN.M.IM.USD._T.Y._Z",
+      "planning_refs": [
+        "ML-195"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; http_429",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "oecd_dcf2617dc9d85189dbd1",
+      "name": "Consumer prices / Growth rate, over 1 year / activity _Z",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / CHN.M.CP.GR._Z._Z.GY",
+      "planning_refs": [
+        "ML-193"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; http_429",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "oecd_e6c78e6e3df2cd1ce46d",
+      "name": "Long-term interest rates / activity _Z",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.M.IRLT.PA._Z._Z._Z",
+      "planning_refs": [
+        "ML-189"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; http_429",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "oecd_f14c147b817480f68138",
+      "name": "Imports of goods and services, volume / Growth rate, period on period / activity _T",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / JPN.Q.P7_Q.GR._T.Y.G1",
+      "planning_refs": [
+        "ML-178"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; http_429",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "oecd_fd42d19546c28bc094db",
+      "name": "Nominal exchange rates / activity _Z",
+      "provider": "oecd",
+      "selector": "OECD.SDD.STES,DSD_KEI@DF_KEI,4.0 / CHN.M.CC.XDC_USD._Z._Z._Z",
+      "planning_refs": [
+        "ML-199"
+      ],
+      "category": "licensing",
+      "blocker": "OECD underlying national/third-party source ownership not cleared for this exact selection; http_429",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "ons_040ebc14ea35dbb95d25",
+      "name": "GB infrastructure new orders",
+      "provider": "ons",
+      "selector": "bulletindataset7/GB infrastructure new orders/exact sheet,CDID,adjustment unresolved",
+      "planning_refs": [
+        "G32"
+      ],
+      "category": "ambiguous selector",
+      "blocker": "New-order selector still unresolved",
+      "recommended_action": "Pin actual atomic source columns/rows, units and geography; do not invent aggregate observations.",
+      "captured_privately": false
+    },
+    {
+      "id": "ons_38a1353b0aa22724a961",
+      "name": "Gross Value Added - Monthly (Index 1dp) :CVM SA",
+      "provider": "ons",
+      "selector": "ECY2/MGDP",
+      "planning_refs": [
+        "ML-146"
+      ],
+      "category": "benchmark/unit mismatch",
+      "blocker": "ONS unit not supplied; producer metadata review needed",
+      "recommended_action": "Resolve official native unit/reference base and historical changes; then add guarded parser.",
+      "captured_privately": false
+    },
+    {
+      "id": "ons_650afeb147b3cc95848a",
+      "name": "Production Industries - Total (Index 1dp) :CVM SA",
+      "provider": "ons",
+      "selector": "ECY4/MGDP",
+      "planning_refs": [
+        "ML-147"
+      ],
+      "category": "benchmark/unit mismatch",
+      "blocker": "ONS unit not supplied; producer metadata review needed",
+      "recommended_action": "Resolve official native unit/reference base and historical changes; then add guarded parser.",
+      "captured_privately": false
+    },
+    {
+      "id": "ons_7adde813057383e0a9fc",
+      "name": "GB total construction new orders",
+      "provider": "ons",
+      "selector": "bulletindataset7/GB total construction new orders/exact sheet,CDID,adjustment unresolved",
+      "planning_refs": [
+        "G31"
+      ],
+      "category": "ambiguous selector",
+      "blocker": "New-order selector still unresolved",
+      "recommended_action": "Pin actual atomic source columns/rows, units and geography; do not invent aggregate observations.",
+      "captured_privately": false
+    },
+    {
+      "id": "ons_a668480fff760b017cf6",
+      "name": "Water supply; Sewerage,waste management & remediation activities (Index 1dp) :CVM SA",
+      "provider": "ons",
+      "selector": "ECY8/MGDP",
+      "planning_refs": [
+        "ML-149"
+      ],
+      "category": "benchmark/unit mismatch",
+      "blocker": "ONS unit not supplied; producer metadata review needed",
+      "recommended_action": "Resolve official native unit/reference base and historical changes; then add guarded parser.",
+      "captured_privately": false
+    },
+    {
+      "id": "ons_ff6f7b99327d9c731b8d",
+      "name": "Manufacturing (Index 1dp) :CVM SA",
+      "provider": "ons",
+      "selector": "ECY6/MGDP",
+      "planning_refs": [
+        "ML-148"
+      ],
+      "category": "benchmark/unit mismatch",
+      "blocker": "ONS unit not supplied; producer metadata review needed",
+      "recommended_action": "Resolve official native unit/reference base and historical changes; then add guarded parser.",
+      "captured_privately": false
+    },
+    {
+      "id": "uk_building_materials_34c3a60d0372c855c1a0",
+      "name": "Clinker production",
+      "provider": "uk_building_materials",
+      "selector": "September 2026 workbook / sheet-column 8/B",
+      "planning_refs": [
+        "ML-229"
+      ],
+      "category": "licensing",
+      "blocker": "Underlying BCIS/MPA rights need permission; not cleared by OGL alone",
+      "recommended_action": "Obtain underlying BCIS/MPA redistribution permission or use separately selected original statistics.",
+      "captured_privately": false
+    },
+    {
+      "id": "uk_building_materials_3639073e4168ed03a215",
+      "name": "Construction materials price index — repair and maintenance",
+      "provider": "uk_building_materials",
+      "selector": "September 2026 workbook / sheet-column 1a/E",
+      "planning_refs": [
+        "ML-224"
+      ],
+      "category": "licensing",
+      "blocker": "Underlying BCIS/MPA rights need permission; not cleared by OGL alone",
+      "recommended_action": "Obtain underlying BCIS/MPA redistribution permission or use separately selected original statistics.",
+      "captured_privately": false
+    },
+    {
+      "id": "uk_building_materials_74e616c3435360a7c959",
+      "name": "Cement production",
+      "provider": "uk_building_materials",
+      "selector": "September 2026 workbook / sheet-column 8/C",
+      "planning_refs": [
+        "ML-228"
+      ],
+      "category": "licensing",
+      "blocker": "Underlying BCIS/MPA rights need permission; not cleared by OGL alone",
+      "recommended_action": "Obtain underlying BCIS/MPA redistribution permission or use separately selected original statistics.",
+      "captured_privately": false
+    },
+    {
+      "id": "uk_building_materials_8fce2a1dcbb8b561797f",
+      "name": "Construction materials price index — new housing",
+      "provider": "uk_building_materials",
+      "selector": "September 2026 workbook / sheet-column 1a/C",
+      "planning_refs": [
+        "ML-222"
+      ],
+      "category": "licensing",
+      "blocker": "Underlying BCIS/MPA rights need permission; not cleared by OGL alone",
+      "recommended_action": "Obtain underlying BCIS/MPA redistribution permission or use separately selected original statistics.",
+      "captured_privately": false
+    },
+    {
+      "id": "uk_building_materials_a8d3d761ce98bae9099b",
+      "name": "Ready-mixed concrete deliveries",
+      "provider": "uk_building_materials",
+      "selector": "September 2026 workbook / sheet-column 6a/G",
+      "planning_refs": [
+        "ML-227"
+      ],
+      "category": "licensing",
+      "blocker": "Underlying BCIS/MPA rights need permission; not cleared by OGL alone",
+      "recommended_action": "Obtain underlying BCIS/MPA redistribution permission or use separately selected original statistics.",
+      "captured_privately": false
+    },
+    {
+      "id": "uk_building_materials_b524518066dd1b15844b",
+      "name": "Construction materials price index — all work",
+      "provider": "uk_building_materials",
+      "selector": "September 2026 workbook / sheet-column 1a/F",
+      "planning_refs": [
+        "ML-221"
+      ],
+      "category": "licensing",
+      "blocker": "Underlying BCIS/MPA rights need permission; not cleared by OGL alone",
+      "recommended_action": "Obtain underlying BCIS/MPA redistribution permission or use separately selected original statistics.",
+      "captured_privately": false
+    },
+    {
+      "id": "uk_building_materials_cb9d7e0834cdbc461966",
+      "name": "Construction materials price index — other new work",
+      "provider": "uk_building_materials",
+      "selector": "September 2026 workbook / sheet-column 1a/D",
+      "planning_refs": [
+        "ML-223"
+      ],
+      "category": "licensing",
+      "blocker": "Underlying BCIS/MPA rights need permission; not cleared by OGL alone",
+      "recommended_action": "Obtain underlying BCIS/MPA redistribution permission or use separately selected original statistics.",
+      "captured_privately": false
+    },
+    {
+      "id": "usgs_191e0ede68d16a573a6e",
+      "name": "World copper mine and refinery production",
+      "provider": "usgs",
+      "selector": "MCS2026/Copper/World Mine and Refinery Production and Reserves",
+      "planning_refs": [
+        "G23"
+      ],
+      "category": "ambiguous selector",
+      "blocker": "Exact atomic parser/selector not yet resolved",
+      "recommended_action": "Pin actual atomic source columns/rows, units and geography; do not invent aggregate observations.",
+      "captured_privately": false
+    },
+    {
+      "id": "usgs_22b037f1a0732ccda60c",
+      "name": "Missouri construction sand-and-gravel quantity",
+      "provider": "usgs",
+      "selector": "Missouri construction sand-and-gravel quantity/exact file and row unresolved",
+      "planning_refs": [
+        "G28"
+      ],
+      "category": "benchmark/unit mismatch",
+      "blocker": "Unresolved USGS source row/unit; no image extraction",
+      "recommended_action": "Resolve official native unit/reference base and historical changes; then add guarded parser.",
+      "captured_privately": false
+    },
+    {
+      "id": "usgs_43077a26a0f3d70079f3",
+      "name": "Missouri crushed-stone quantity",
+      "provider": "usgs",
+      "selector": "Missouri crushed-stone quantity/exact file and row unresolved",
+      "planning_refs": [
+        "G27"
+      ],
+      "category": "benchmark/unit mismatch",
+      "blocker": "Unresolved USGS source row/unit; no image extraction",
+      "recommended_action": "Resolve official native unit/reference base and historical changes; then add guarded parser.",
+      "captured_privately": false
+    },
+    {
+      "id": "usgs_d2f2407320608177d323",
+      "name": "US refined-copper stock components",
+      "provider": "usgs",
+      "selector": "Copper MIS/Table 10/producer,fabricator,exchange stocks",
+      "planning_refs": [
+        "G19"
+      ],
+      "category": "ambiguous selector",
+      "blocker": "Exact atomic parser/selector not yet resolved",
+      "recommended_action": "Pin actual atomic source columns/rows, units and geography; do not invent aggregate observations.",
+      "captured_privately": false
+    },
+    {
+      "id": "usgs_fb356f1aac80b5705e56",
+      "name": "US copper mine production",
+      "provider": "usgs",
+      "selector": "Copper MIS/Table 2/US mine production",
+      "planning_refs": [
+        "G18"
+      ],
+      "category": "benchmark/unit mismatch",
+      "blocker": "Unresolved USGS source row/unit; no image extraction",
+      "recommended_action": "Resolve official native unit/reference base and historical changes; then add guarded parser.",
+      "captured_privately": false
+    },
+    {
+      "id": "wb_brent_monthly",
+      "name": "Brent crude, monthly nominal price",
+      "provider": "world_bank",
+      "selector": "Crude oil, Brent",
+      "planning_refs": [
+        "G01"
+      ],
+      "category": "licensing",
+      "blocker": "Existing private pilot: underlying benchmark rights remain unreviewed; iron-ore unit/benchmark conflict unresolved. Existing observations untouched.",
+      "recommended_action": "Implement and validate an exact original-producer adapter; keep private until complete.",
+      "captured_privately": false
+    },
+    {
+      "id": "wb_copper_monthly",
+      "name": "Copper, monthly nominal price",
+      "provider": "world_bank",
+      "selector": "Copper",
+      "planning_refs": [
+        "G13"
+      ],
+      "category": "licensing",
+      "blocker": "Existing private pilot: underlying benchmark rights remain unreviewed; iron-ore unit/benchmark conflict unresolved. Existing observations untouched.",
+      "recommended_action": "Implement and validate an exact original-producer adapter; keep private until complete.",
+      "captured_privately": false
+    },
+    {
+      "id": "wb_iron_ore_monthly",
+      "name": "Iron ore CFR spot, source-native monthly price",
+      "provider": "world_bank",
+      "selector": "Iron ore, cfr spot",
+      "planning_refs": [
+        "G15"
+      ],
+      "category": "licensing",
+      "blocker": "Existing private pilot: underlying benchmark rights remain unreviewed; iron-ore unit/benchmark conflict unresolved. Existing observations untouched.",
+      "recommended_action": "Implement and validate an exact original-producer adapter; keep private until complete.",
+      "captured_privately": false
+    },
+    {
+      "id": "world_bank_17a7bb8701e61ad573e6",
+      "name": "Nickel benchmark",
+      "provider": "world_bank",
+      "selector": "Nickel",
+      "planning_refs": [
+        "G16"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "world_bank_1c38f3deaf2c09c996cf",
+      "name": "Aluminium benchmark",
+      "provider": "world_bank",
+      "selector": "Aluminum",
+      "planning_refs": [
+        "G14"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "world_bank_68f535810c67cc780d14",
+      "name": "Zinc benchmark",
+      "provider": "world_bank",
+      "selector": "Zinc",
+      "planning_refs": [
+        "G17"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "world_bank_7ef68d6735115d656648",
+      "name": "Australian thermal coal benchmark",
+      "provider": "world_bank",
+      "selector": "Coal, Australia",
+      "planning_refs": [
+        "G03"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "world_bank_c65b1fe7695f13dcbb1d",
+      "name": "European natural gas benchmark",
+      "provider": "world_bank",
+      "selector": "Natural gas, Europe",
+      "planning_refs": [
+        "G02"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    },
+    {
+      "id": "worldsteel_ab047d9c9ba67fc02273",
+      "name": "Country crude-steel production panel",
+      "provider": "worldsteel",
+      "selector": "country/month/crude steel",
+      "planning_refs": [
+        "G24"
+      ],
+      "category": "licensing",
+      "blocker": "Source-specific onward rights / original-owner evidence not cleared; provider availability is not permission.",
+      "recommended_action": "Resolve exact source-owner rights and required attribution; do not switch flags based on API access.",
+      "captured_privately": false
+    }
+  ]
+}
