@@ -14,6 +14,7 @@ import uuid
 from contextlib import closing
 from dataclasses import asdict
 from datetime import UTC, datetime
+from hashlib import sha256
 from itertools import pairwise
 from threading import Event, Lock
 
@@ -45,6 +46,9 @@ class PartitionedIngestion:
         bounds=DEFAULT_BOUNDS,
         now_fn=None,
         cancel=None,
+        max_generation_rows=10000,
+        compact_completed_staging=False,
+        max_storage_bytes=256 * 1024 * 1024,
     ):
         if not 1 <= len(definitions) <= 64 or len({d.id for d in definitions}) != len(
             definitions
@@ -54,6 +58,21 @@ class PartitionedIngestion:
             raise ValueError(
                 "Existing datasets cannot be shadowed or implicitly registered"
             )
+        if (
+            type(max_generation_rows) is not int
+            or not 1 <= max_generation_rows <= 50000
+        ):
+            raise ValueError("Unsafe generation row budget")
+        self.max_generation_rows = max_generation_rows
+        if type(compact_completed_staging) is not bool:
+            raise TypeError("Explicit staging retention policy required")
+        self.compact_completed_staging = compact_completed_staging
+        if (
+            type(max_storage_bytes) is not int
+            or not 64 * 1024 * 1024 <= max_storage_bytes <= 384 * 1024 * 1024
+        ):
+            raise ValueError("Unsafe storage budget")
+        self.max_storage_bytes = max_storage_bytes
         self.store, self.bounds, self.adapters = store, bounds, dict(adapters)
         self.definitions = {d.id: d for d in definitions}
         self.now = now_fn or (lambda: datetime.now(UTC))
@@ -115,7 +134,7 @@ class PartitionedIngestion:
             if (p := self.store.path.with_name(self.store.path.name + suffix)).exists()
         )
         if (
-            total >= 256 * 1024 * 1024
+            total >= self.max_storage_bytes
             or shutil.disk_usage(self.store.path.parent).free < 64 * 1024 * 1024
         ):
             raise ProviderError("storage_budget")
@@ -331,7 +350,7 @@ class PartitionedIngestion:
                     "SELECT count(*) FROM norm_staged WHERE generation_id=?",
                     (job["generation_id"],),
                 ).fetchone()[0]
-                if total + len(points) > 10000:
+                if total + len(points) > self.max_generation_rows:
                     raise ProviderError("generation_row_budget")
                 for key, payload, value, start, end in points:
                     if db.execute(
@@ -591,6 +610,15 @@ class PartitionedIngestion:
                         generation_id,
                     ),
                 )
+                if self.compact_completed_staging:
+                    db.execute(
+                        "INSERT INTO catalog_staging_digests VALUES(?,?,?)",
+                        (
+                            generation_id,
+                            row["period_key"],
+                            sha256(row["payload"].encode()).hexdigest(),
+                        ),
+                    )
                 quality = quality and not any(
                     x.casefold().split("=", 1)[-1]
                     in {"unit_review", "quarantined", "partial_period"}
@@ -634,3 +662,11 @@ class PartitionedIngestion:
             "INSERT INTO norm_dataset_state VALUES(?,?,?) ON CONFLICT(dataset_id) DO UPDATE SET active_generation=excluded.active_generation,updated_at=excluded.updated_at",
             (definition.id, generation_id, stamp),
         )
+        if self.compact_completed_staging:
+            # Replace only duplicated payload bytes with the exact SHA-256 proof.
+            # Every stage key/partition/value/date/artifact remains. Complete
+            # original payloads remain in observations and revision history.
+            db.execute(
+                "UPDATE norm_staged SET payload='' WHERE generation_id=?",
+                (generation_id,),
+            )
