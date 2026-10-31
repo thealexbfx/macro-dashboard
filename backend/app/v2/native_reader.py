@@ -333,10 +333,19 @@ class NativeReader:
                     "SELECT s.*,p.start_date,p.end_date FROM norm_staged s JOIN norm_partitions p ON p.id=s.partition_id WHERE s.generation_id=? AND s.period_key=? AND p.generation_id=s.generation_id",
                     (generation_id, row["period_key"]),
                 ).fetchone()
-                payload_matches = (
-                    stage is not None and stage["payload"] == row["payload"]
+                compact = False
+                if stage is None:
+                    stage = db.execute(
+                        "SELECT s.*,p.start_date,p.end_date FROM catalog_staging_receipts s JOIN norm_partitions p ON p.id=s.partition_id WHERE s.generation_id=? AND s.period_key=? AND p.generation_id=s.generation_id",
+                        (generation_id, row["period_key"]),
+                    ).fetchone()
+                    compact = stage is not None
+                payload_matches = stage is not None and (
+                    stage["payload_hash"] == sha256(row["payload"].encode()).hexdigest()
+                    if compact
+                    else stage["payload"] == row["payload"]
                 )
-                if stage is not None and stage["payload"] == "":
+                if stage is not None and not compact and stage["payload"] == "":
                     proof = db.execute(
                         "SELECT payload_hash FROM catalog_staging_digests WHERE generation_id=? AND period_key=?",
                         (generation_id, row["period_key"]),

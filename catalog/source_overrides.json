@@ -1492,6 +1492,756 @@
         "FX": "BRD"
       },
       "definition_note": "Current goods-and-services broad USD index, not ICE DXY or V0 goods-only. The DDP XML retains an obsolete UNIT code referring to January 1997. The official H10 technical Q&A documents the June 2019 reindexing to January 2006 monthly average=100. Values are retained exactly, with no local rebasing. See https://www.federalreserve.gov/releases/h10/h10_technical_qa.htm and https://www.federalreserve.gov/releases/h10/summary/jrxwtfb_nb.htm. Annual trade-weight revisions may revise history."
+    },
+    {
+      "id": "boe_1d553b5bdd1f7e891b14",
+      "name": "Official Bank Rate",
+      "kind": "series",
+      "planning_refs": [
+        "ML-210"
+      ],
+      "category": "Macroeconomy",
+      "region": "UK",
+      "units": "Percent",
+      "frequency": "daily",
+      "seasonal_adjustment": "NSA",
+      "source": {
+        "provider": "boe",
+        "selector": "IUDBEDR",
+        "endpoint": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=IUDBEDR&UsingCodes=Y&CSVF=CT",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "Unverified: CSV HTTP 403",
+        "end": "Unverified: CSV HTTP 403"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.bankofengland.co.uk/legal"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-210",
+          "validation": "Official access method researched; selected download blocked HTTP 403"
+        }
+      ],
+      "parser": "boe"
+    },
+    {
+      "id": "boe_78c1b0ddd5b081685915",
+      "name": "M4 sterling liabilities to private sector",
+      "kind": "series",
+      "planning_refs": [
+        "ML-212"
+      ],
+      "category": "Macroeconomy",
+      "region": "UK",
+      "units": "GBP million",
+      "frequency": "monthly",
+      "seasonal_adjustment": "SA",
+      "source": {
+        "provider": "boe",
+        "selector": "LPMAUYN",
+        "endpoint": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=LPMAUYN&UsingCodes=Y&CSVF=CT",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "Unverified: CSV HTTP 403",
+        "end": "Unverified: CSV HTTP 403"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.bankofengland.co.uk/legal"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-212",
+          "validation": "Official access method researched; selected download blocked HTTP 403"
+        }
+      ],
+      "parser": "boe"
+    },
+    {
+      "id": "boe_7b7637a3b65708d59ec6",
+      "name": "House purchase mortgage approvals",
+      "kind": "series",
+      "planning_refs": [
+        "ML-216"
+      ],
+      "category": "Macroeconomy",
+      "region": "UK",
+      "units": "Number of approvals",
+      "frequency": "monthly",
+      "seasonal_adjustment": "SA",
+      "source": {
+        "provider": "boe",
+        "selector": "LPMVTVX",
+        "endpoint": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=LPMVTVX&UsingCodes=Y&CSVF=CT",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "Unverified: CSV HTTP 403",
+        "end": "Unverified: CSV HTTP 403"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.bankofengland.co.uk/legal"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-216",
+          "validation": "Official access method researched; selected download blocked HTTP 403"
+        }
+      ],
+      "parser": "boe"
+    },
+    {
+      "id": "boe_7eaa2557cec31cfd442c",
+      "name": "M4 sterling net lending to private sector",
+      "kind": "series",
+      "planning_refs": [
+        "ML-213"
+      ],
+      "category": "Macroeconomy",
+      "region": "UK",
+      "units": "GBP million",
+      "frequency": "monthly",
+      "seasonal_adjustment": "SA",
+      "source": {
+        "provider": "boe",
+        "selector": "LPMBC69",
+        "endpoint": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=LPMBC69&UsingCodes=Y&CSVF=CT",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "Unverified: CSV HTTP 403",
+        "end": "Unverified: CSV HTTP 403"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.bankofengland.co.uk/legal"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-213",
+          "validation": "Official access method researched; selected download blocked HTTP 403"
+        }
+      ],
+      "parser": "boe"
+    },
+    {
+      "id": "boe_9a0264149af073a61bb2",
+      "name": "SONIA overnight rate",
+      "kind": "series",
+      "planning_refs": [
+        "ML-211"
+      ],
+      "category": "Macroeconomy",
+      "region": "UK",
+      "units": "Percent per annum",
+      "frequency": "daily",
+      "seasonal_adjustment": "NSA",
+      "source": {
+        "provider": "boe",
+        "selector": "IUDSOIA",
+        "endpoint": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=IUDSOIA&UsingCodes=Y&CSVF=CT",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "Unverified: CSV HTTP 403",
+        "end": "Unverified: CSV HTTP 403"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.bankofengland.co.uk/legal"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-211",
+          "validation": "Official access method researched; selected download blocked HTTP 403"
+        }
+      ],
+      "parser": "boe"
+    },
+    {
+      "id": "boe_9b273c7c43b5805395f8",
+      "name": "Net lending excluding intermediate OFCs outstanding",
+      "kind": "series",
+      "planning_refs": [
+        "ML-215"
+      ],
+      "category": "Macroeconomy",
+      "region": "UK",
+      "units": "GBP million",
+      "frequency": "monthly",
+      "seasonal_adjustment": "SA",
+      "source": {
+        "provider": "boe",
+        "selector": "RPMB57Q",
+        "endpoint": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=RPMB57Q&UsingCodes=Y&CSVF=CT",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "Unverified: CSV HTTP 403",
+        "end": "Unverified: CSV HTTP 403"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.bankofengland.co.uk/legal"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-215",
+          "validation": "Official access method researched; selected download blocked HTTP 403"
+        }
+      ],
+      "parser": "boe"
+    },
+    {
+      "id": "boe_add9ddfbda80cc7d61b4",
+      "name": "M4 excluding intermediate OFCs outstanding",
+      "kind": "series",
+      "planning_refs": [
+        "ML-214"
+      ],
+      "category": "Macroeconomy",
+      "region": "UK",
+      "units": "GBP million",
+      "frequency": "monthly",
+      "seasonal_adjustment": "SA",
+      "source": {
+        "provider": "boe",
+        "selector": "RPMB53Q",
+        "endpoint": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=RPMB53Q&UsingCodes=Y&CSVF=CT",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "Unverified: CSV HTTP 403",
+        "end": "Unverified: CSV HTTP 403"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.bankofengland.co.uk/legal"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-214",
+          "validation": "Official access method researched; selected download blocked HTTP 403"
+        }
+      ],
+      "parser": "boe"
+    },
+    {
+      "id": "fred_848fe5e65c6c554669f1",
+      "name": "Capacity Utilization: Total Index",
+      "kind": "series",
+      "planning_refs": [
+        "ML-012"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Percent",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted",
+      "source": {
+        "provider": "federal_reserve",
+        "selector": "G17/CAPUTL.B50001.S",
+        "endpoint": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=G17&filetype=zip"
+      },
+      "history": {
+        "start": "1967-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-012",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "federal_reserve",
+      "expected_source_attributes": {
+        "FREQ": "129",
+        "UNIT": "Percentage",
+        "UNIT_MULT": "1",
+        "SA": "SA"
+      },
+      "definition_note": "Current revised G17 history. Capacity utilization is a percentage level; manufacturing production is a native volume index, not nominal sales or a growth rate."
+    },
+    {
+      "id": "fred_b7b05b9474e87c2c4391",
+      "name": "Assets: Total Assets: Total Assets (Less Eliminations from Consolidation): Wednesday Level",
+      "kind": "series",
+      "planning_refs": [
+        "ML-038"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Millions of US dollars",
+      "frequency": "weekly",
+      "seasonal_adjustment": "Not Seasonally Adjusted",
+      "source": {
+        "provider": "federal_reserve",
+        "selector": "H41/RESPPMA_N.WW",
+        "endpoint": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H41&filetype=zip"
+      },
+      "history": {
+        "start": "2002-12-18",
+        "end": "2026-10-21"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-038",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "federal_reserve",
+      "expected_source_attributes": {
+        "FREQ": "19",
+        "UNIT": "Currency",
+        "UNIT_MULT": "1000000"
+      },
+      "week_ending": 2,
+      "definition_note": "Wednesday level of total assets less consolidation eliminations, not reserve balances or a daily series."
+    },
+    {
+      "id": "fred_f32c3279ee1106c518f9",
+      "name": "Industrial Production: Manufacturing (NAICS)",
+      "kind": "series",
+      "planning_refs": [
+        "ML-013"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Index 2017=100",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally Adjusted",
+      "source": {
+        "provider": "federal_reserve",
+        "selector": "G17/IP.GMF.S",
+        "endpoint": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=G17&filetype=zip"
+      },
+      "history": {
+        "start": "1972-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-013",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "federal_reserve",
+      "expected_source_attributes": {
+        "FREQ": "129",
+        "UNIT": "Index:_2017_100",
+        "UNIT_MULT": "1",
+        "SA": "SA"
+      },
+      "definition_note": "Current revised G17 history. Capacity utilization is a percentage level; manufacturing production is a native volume index, not nominal sales or a growth rate."
+    },
+    {
+      "id": "fred_0743977c6b2ceee64240",
+      "name": "Employment-Population Ratio",
+      "kind": "series",
+      "planning_refs": [
+        "ML-023"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Percent",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally adjusted",
+      "source": {
+        "provider": "bls",
+        "selector": "LNS12300000",
+        "endpoint": "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+      },
+      "history": {
+        "start": "1948-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-023",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bls",
+      "definition_note": "CPS employment-to-population ratio of people aged 16+, not a payroll job count; annual population controls can introduce discontinuities."
+    },
+    {
+      "id": "fred_fa08d6372621c36b7753",
+      "name": "Producer Price Index by Commodity: Final Demand",
+      "kind": "series",
+      "planning_refs": [
+        "ML-019"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Index Nov 2009=100",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally adjusted",
+      "source": {
+        "provider": "bls",
+        "selector": "WPSFD4",
+        "endpoint": "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+      },
+      "history": {
+        "start": "2009-11-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://fred.stlouisfed.org/legal/terms/"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-019",
+          "validation": "Observation response checked"
+        }
+      ],
+      "parser": "bls",
+      "definition_note": "Producer Price Index final demand, seasonally adjusted, November 2009=100; not consumer inflation or physical output."
+    },
+    {
+      "id": "fred_925891ea36ab7371b4f0",
+      "name": "New One Family Houses Sold: United States",
+      "kind": "series",
+      "planning_refs": [
+        "ML-047"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Thousands of units, annual rate",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally adjusted annual rate",
+      "source": {
+        "provider": "census",
+        "selector": "NRS/sold/US/SAAR",
+        "endpoint": "https://www.census.gov/construction/nrs/xls/sold_cust.xlsx"
+      },
+      "history": {
+        "start": "1963-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-047",
+          "validation": "Observation response checked"
+        }
+      ]
+    },
+    {
+      "id": "fred_b608c6c5b9dad340617d",
+      "name": "New Privately-Owned Housing Units Started: Single-Family Units",
+      "kind": "series",
+      "planning_refs": [
+        "ML-045"
+      ],
+      "category": "Construction / infrastructure / materials",
+      "region": "US",
+      "units": "Thousands of units, annual rate",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally adjusted annual rate",
+      "source": {
+        "provider": "census",
+        "selector": "NRC/starts/US/1unit/SAAR",
+        "endpoint": "https://www.census.gov/construction/nrc/xls/starts_cust.xlsx"
+      },
+      "history": {
+        "start": "1959-01-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-045",
+          "validation": "Observation response checked"
+        }
+      ]
+    },
+    {
+      "id": "fred_890f288b712279e3a9cf",
+      "name": "Manufacturers' New Orders: Durable Goods",
+      "kind": "series",
+      "planning_refs": [
+        "ML-009"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Millions of US dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally adjusted",
+      "source": {
+        "provider": "census",
+        "selector": "M3/AMDMNO",
+        "endpoint": "https://www.census.gov/manufacturing/m3/prel/historical_data/histshts/naics/naicsnop.xlsx"
+      },
+      "history": {
+        "start": "1992-02-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-009",
+          "validation": "Observation response checked"
+        }
+      ],
+      "definition_note": "NAICS history only, new orders net of cancellations; official M3 code layout and units: https://www.census.gov/manufacturing/m3/historical_data/naicshist.pdf"
+    },
+    {
+      "id": "fred_323f37502180ce7bd485",
+      "name": "Manufacturers' New Orders: Nondefense Capital Goods Excluding Aircraft",
+      "kind": "series",
+      "planning_refs": [
+        "ML-010"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Millions of US dollars",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Seasonally adjusted",
+      "source": {
+        "provider": "census",
+        "selector": "M3/ANXANO",
+        "endpoint": "https://www.census.gov/manufacturing/m3/prel/historical_data/histshts/naics/naicsnop.xlsx"
+      },
+      "history": {
+        "start": "1992-02-01",
+        "end": "2026-09-01"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.copyright.gov/title17/92chap1.html#105"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-010",
+          "validation": "Observation response checked"
+        }
+      ],
+      "definition_note": "NAICS history only, new orders net of cancellations; official M3 code layout and units: https://www.census.gov/manufacturing/m3/historical_data/naicshist.pdf"
+    },
+    {
+      "id": "fred_5e43a009a68bedb42dbf",
+      "name": "Continued Claims (Insured Unemployment)",
+      "kind": "series",
+      "planning_refs": [
+        "ML-025"
+      ],
+      "category": "Macroeconomy",
+      "region": "US",
+      "units": "Number",
+      "frequency": "weekly",
+      "seasonal_adjustment": "Seasonally adjusted",
+      "source": {
+        "provider": "dol",
+        "selector": "r539cyNational/ContinuedClaims/SA",
+        "endpoint": "https://oui.doleta.gov/unemploy/wkclaims/report.asp"
+      },
+      "history": {
+        "start": "1967-01-07",
+        "end": "2026-10-10"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.dol.gov/general/aboutdol/copyright"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-025",
+          "validation": "Observation response checked"
+        }
+      ],
+      "week_ending": 5,
+      "query_parameters": {
+        "level": "us",
+        "strtdate": "1967",
+        "enddate": "2026",
+        "filetype": "xml",
+        "final_yr": "2027",
+        "submit": "Submit"
+      }
     }
   ]
 }

@@ -69,7 +69,7 @@ class PartitionedIngestion:
         self.compact_completed_staging = compact_completed_staging
         if (
             type(max_storage_bytes) is not int
-            or not 64 * 1024 * 1024 <= max_storage_bytes <= 384 * 1024 * 1024
+            or not 64 * 1024 * 1024 <= max_storage_bytes <= 512 * 1024 * 1024
         ):
             raise ValueError("Unsafe storage budget")
         self.max_storage_bytes = max_storage_bytes
@@ -612,10 +612,16 @@ class PartitionedIngestion:
                 )
                 if self.compact_completed_staging:
                     db.execute(
-                        "INSERT INTO catalog_staging_digests VALUES(?,?,?)",
+                        "INSERT INTO catalog_staging_receipts VALUES(?,?,?,?,?,?,?,?,?)",
                         (
                             generation_id,
                             row["period_key"],
+                            row["reference_start"],
+                            row["reference_end"],
+                            row["partition_id"],
+                            row["value"],
+                            row["artifact_hash"],
+                            row["checked_at"],
                             sha256(row["payload"].encode()).hexdigest(),
                         ),
                     )
@@ -663,10 +669,11 @@ class PartitionedIngestion:
             (definition.id, generation_id, stamp),
         )
         if self.compact_completed_staging:
-            # Replace only duplicated payload bytes with the exact SHA-256 proof.
-            # Every stage key/partition/value/date/artifact remains. Complete
-            # original payloads remain in observations and revision history.
+            # Receipt rows retain every stage identity/partition/value/date and
+            # artifact plus the exact payload hash. Moving completed evidence
+            # frees whole staging pages for reuse without a VACUUM or data loss.
+            # Full payloads remain in observations and revision history.
             db.execute(
-                "UPDATE norm_staged SET payload='' WHERE generation_id=?",
+                "DELETE FROM norm_staged WHERE generation_id=?",
                 (generation_id,),
             )

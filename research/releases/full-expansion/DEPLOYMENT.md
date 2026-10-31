@@ -16,9 +16,12 @@ sequence, not authorization to execute it. No production access was used here.
    independently SHA-256-verified off-Render copy. Record DB/WAL/SHM sizes and
    available disk. Existing production size/headroom is not known from this task.
 4. Select an independent release unit and its exact canonical IDs. The complete
-   new catalog measured about 348 MiB before legacy data/WAL; do not approve an
-   all-at-once import without a combined storage calculation. Keep total DB/WAL
-   below the 384 MiB release guard and enough free space for writes and recovery.
+   catalog storage is reported in `windows-validation.json`, excluding legacy
+   production data. Do not approve an all-at-once import without a combined storage
+   calculation. The default release guard is 384 MiB. The optional
+   `--storage-budget-mib 512` ceiling needs separate approval of combined
+   DB/WAL size and free space for writes and recovery; it is not needed for the
+   measured fresh development catalog with compact staging receipts.
    Keep large source snapshots on ephemeral storage, not the 1 GB persistent disk.
 
 ## Separate approved operations
@@ -35,7 +38,7 @@ python -m backend.app.catalog.release_cli \
 ```
 
 It applies additive foundation versions 1/2 if absent and creates version 3 grant
-and digest tables. It does not seed datasets, alter legacy tables, enable jobs or
+and proof/receipt tables. It does not seed datasets, alter legacy tables, enable jobs or
 change any permissions. The same command can be rehearsed on a disposable restore.
 
 Capture a selected cleared unit outside production first, using only official
@@ -69,7 +72,8 @@ partial jobs retain checkpoints/backoff and existing active histories. Rerun wit
 the **same immutable snapshot index** after the reported cooldown. Do not replace
 an incomplete generation with a different latest-source snapshot. Inconsistent
 snapshots, missing history, units, source hashes or row/disk limits fail closed.
-Exit code is nonzero for failed/waiting work. Verify the complete receipt before
+Only if separately approved headroom requires it, add `--storage-budget-mib 512`.
+The physical disk remains 1 GB. Exit code is nonzero for failed/waiting work. Verify the complete receipt before
 requesting display approval.
 
 Inspect safe internal progress, without printing values, private data or secrets:

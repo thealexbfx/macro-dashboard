@@ -40,6 +40,7 @@ HOSTS = frozenset(
         "www.bea.gov",
         "apps.bea.gov",
         "www.federalreserve.gov",
+        "oui.doleta.gov",
         "markets.newyorkfed.org",
         "www.stats.gov.cn",
         "www.jodidata.org",
@@ -79,7 +80,15 @@ class OfficialRedirects(HTTPRedirectHandler):
 def download(url, *, timeout=25, maximum=MAX_BYTES, opener=None, payload=None):
     """TLS verification stays enabled; 401/403 are never bypassed or retried."""
     safe_url(url)
-    if not 1 <= maximum <= MAX_BYTES or not 1 <= timeout <= 30:
+    parsed = urlsplit(url)
+    large_board_zip = (
+        parsed.hostname == "www.federalreserve.gov"
+        and parsed.path == "/datadownload/Output.aspx"
+        and dict(parse_qsl(parsed.query)).get("filetype") == "zip"
+        and dict(parse_qsl(parsed.query)).get("rel") in {"G17", "H41"}
+    )
+    ceiling = 16 * 1024 * 1024 if large_board_zip else MAX_BYTES
+    if not 1 <= maximum <= ceiling or not 1 <= timeout <= 30:
         raise ValueError("Unsafe download bounds")
     if opener is None:
         import certifi
@@ -90,17 +99,45 @@ def download(url, *, timeout=25, maximum=MAX_BYTES, opener=None, payload=None):
         )
     started = time.monotonic()
     try:
-        if payload is not None and (
-            urlsplit(url).hostname != "api.bls.gov" or len(payload) > 65536
-        ):
-            raise ValueError("Only bounded BLS query POST is supported")
+        form_query = (
+            parsed.hostname == "oui.doleta.gov"
+            and parsed.path == "/unemploy/wkclaims/report.asp"
+        )
+        if payload is not None:
+            if form_query:
+                fields = dict(parse_qsl(payload.decode("ascii")))
+                if (
+                    len(payload) > 2048
+                    or set(fields)
+                    != {
+                        "level",
+                        "strtdate",
+                        "enddate",
+                        "filetype",
+                        "final_yr",
+                        "submit",
+                    }
+                    or fields["level"] != "us"
+                    or fields["filetype"] != "xml"
+                    or not all(
+                        fields[k].isdigit() and 1967 <= int(fields[k]) <= 2100
+                        for k in ("strtdate", "enddate", "final_yr")
+                    )
+                ):
+                    raise ValueError("Unapproved DOL statistical query")
+            elif parsed.hostname != "api.bls.gov" or len(payload) > 65536:
+                raise ValueError(
+                    "Only bounded official statistical query POST is supported"
+                )
         request = Request(
             url,
             data=payload,
             headers={
                 "User-Agent": "MacroLensResearch/2.0 official-data-validation",
                 "Accept": "application/json,text/csv,application/octet-stream,*/*",
-                "Content-Type": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"
+                if form_query
+                else "application/json",
             },
         )
         with opener.open(request, timeout=timeout) as response:

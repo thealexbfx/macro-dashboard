@@ -1,4 +1,14 @@
 {
+  "dol": {
+    "url": "https://www.dol.gov/general/aboutdol/copyright",
+    "basis": "Original federal ETA national weekly UI claims statistics; no third-party protected material selected",
+    "attribution": "US Department of Labor, Employment and Training Administration; BLS seasonal adjustment"
+  },
+  "boe": {
+    "url": "https://www.bankofengland.co.uk/legal",
+    "basis": "IADB data reuse under OGL v3; selected own monetary statistics and rates, not excluded LSEG exchange rates or Crown-dependency material. SONIA-specific attribution retained.",
+    "attribution": "Bank of England IADB, OGL v3"
+  },
   "eurostat": {
     "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
     "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data",
@@ -41,8 +51,8 @@
   },
   "census": {
     "url": "https://www.copyright.gov/title17/92chap1.html#105",
-    "basis": "Original Census C30 statistical tables are federal works; not a licence inference from mere API availability",
-    "attribution": "US Census Bureau, Value of Construction Put in Place"
+    "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability",
+    "attribution": "US Census Bureau"
   },
   "federal_reserve": {
     "url": "https://www.federalreserve.gov/disclaimer.htm",

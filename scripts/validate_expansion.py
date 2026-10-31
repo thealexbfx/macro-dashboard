@@ -28,6 +28,9 @@ def main():
     parser.add_argument("--ids", nargs="*")
     parser.add_argument("--database-name", default="disposable-release.sqlite3")
     parser.add_argument("--with-backend", action="store_true")
+    parser.add_argument(
+        "--storage-budget-mib", type=int, choices=(256, 384, 512), default=384
+    )
     args = parser.parse_args()
     workspace = args.workspace.resolve()
     if not (workspace / "DISPOSABLE_EXPANSION_ONLY").is_file() or str(
@@ -94,7 +97,11 @@ def main():
     for key, publication in publications.items():
         before = time.perf_counter()
         result = ingest(
-            store, publication, index[key]["snapshot_path"], index[key]["snapshot_hash"]
+            store,
+            publication,
+            index[key]["snapshot_path"],
+            index[key]["snapshot_hash"],
+            storage_budget_mib=args.storage_budget_mib,
         )
         if result["state"] not in {"complete", "unchanged"}:
             print(json.dumps({"failed": key, **result}), flush=True)
@@ -247,6 +254,7 @@ def main():
         },
         "restore_integrity": "ok",
         "backend_loaded": args.with_backend,
+        "storage_budget_mib": args.storage_budget_mib,
         "concurrent_api_requests": len(api_results),
         "concurrent_api_errors": sum(r["status"] != 200 for r in api_results),
         "concurrent_api_ms_max": max(

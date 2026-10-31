@@ -1,97 +1,6 @@
 {
   "entries": [
     {
-      "id": "boe_1d553b5bdd1f7e891b14",
-      "name": "Official Bank Rate",
-      "provider": "boe",
-      "selector": "IUDBEDR",
-      "planning_refs": [
-        "ML-210"
-      ],
-      "category": "source access",
-      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
-      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
-      "captured_privately": false
-    },
-    {
-      "id": "boe_78c1b0ddd5b081685915",
-      "name": "M4 sterling liabilities to private sector",
-      "provider": "boe",
-      "selector": "LPMAUYN",
-      "planning_refs": [
-        "ML-212"
-      ],
-      "category": "source access",
-      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
-      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
-      "captured_privately": false
-    },
-    {
-      "id": "boe_7b7637a3b65708d59ec6",
-      "name": "House purchase mortgage approvals",
-      "provider": "boe",
-      "selector": "LPMVTVX",
-      "planning_refs": [
-        "ML-216"
-      ],
-      "category": "source access",
-      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
-      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
-      "captured_privately": false
-    },
-    {
-      "id": "boe_7eaa2557cec31cfd442c",
-      "name": "M4 sterling net lending to private sector",
-      "provider": "boe",
-      "selector": "LPMBC69",
-      "planning_refs": [
-        "ML-213"
-      ],
-      "category": "source access",
-      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
-      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
-      "captured_privately": false
-    },
-    {
-      "id": "boe_9a0264149af073a61bb2",
-      "name": "SONIA overnight rate",
-      "provider": "boe",
-      "selector": "IUDSOIA",
-      "planning_refs": [
-        "ML-211"
-      ],
-      "category": "source access",
-      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
-      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
-      "captured_privately": false
-    },
-    {
-      "id": "boe_9b273c7c43b5805395f8",
-      "name": "Net lending excluding intermediate OFCs outstanding",
-      "provider": "boe",
-      "selector": "RPMB57Q",
-      "planning_refs": [
-        "ML-215"
-      ],
-      "category": "source access",
-      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
-      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
-      "captured_privately": false
-    },
-    {
-      "id": "boe_add9ddfbda80cc7d61b4",
-      "name": "M4 excluding intermediate OFCs outstanding",
-      "provider": "boe",
-      "selector": "RPMB53Q",
-      "planning_refs": [
-        "ML-214"
-      ],
-      "category": "source access",
-      "blocker": "Official CSV endpoint redirected to ErrorPage.asp?ei=905 (HTTP 200 HTML), including documented TN format test. Database OGL terms verified; do not parse the error page as observations.",
-      "recommended_action": "Check official IADB availability and current documented export parameters; no proxy or access-control workaround.",
-      "captured_privately": false
-    },
-    {
       "id": "boj_1318bd34a762698d960c",
       "name": "Call Rate, Uncollateralized Overnight, Average (Daily)",
       "provider": "boj",
@@ -209,45 +118,6 @@
       "captured_privately": false
     },
     {
-      "id": "fred_0743977c6b2ceee64240",
-      "name": "Employment-Population Ratio",
-      "provider": "fred",
-      "selector": "EMRATIO",
-      "planning_refs": [
-        "ML-023"
-      ],
-      "category": "technical failure",
-      "blocker": "BLS CPS employment/population ratio source adapter not completed; no provider outage demonstrated",
-      "recommended_action": "Validate BLS LNS12300000, then use the existing bounded BLS transport with a separately reviewed definition.",
-      "captured_privately": false
-    },
-    {
-      "id": "fred_323f37502180ce7bd485",
-      "name": "Manufacturers' New Orders: Nondefense Capital Goods Excluding Aircraft",
-      "provider": "fred",
-      "selector": "NEWORDER",
-      "planning_refs": [
-        "ML-010"
-      ],
-      "category": "ambiguous selector",
-      "blocker": "Census M3 nondefense capital-goods excluding-aircraft row/facet not pinned in a producer-native response",
-      "recommended_action": "Pin the original Census M3 table selection and distinguish this from total durable-goods orders.",
-      "captured_privately": false
-    },
-    {
-      "id": "fred_5e43a009a68bedb42dbf",
-      "name": "Continued Claims (Insured Unemployment)",
-      "provider": "fred",
-      "selector": "CCSA",
-      "planning_refs": [
-        "ML-025"
-      ],
-      "category": "technical failure",
-      "blocker": "DOL ETA continued-claims history and Saturday reference calendar parser not completed",
-      "recommended_action": "Pin the ETA insured-unemployment total and native weekly convention; do not infer from initial claims.",
-      "captured_privately": false
-    },
-    {
       "id": "fred_80393bc5f9f3f9e4041f",
       "name": "Advance Real Retail and Food Services Sales",
       "provider": "fred",
@@ -258,32 +128,6 @@
       "category": "licensing",
       "blocker": "St Louis Fed real-retail-sales derived series is not simply an original federal producer table; route/method/rights need review",
       "recommended_action": "Clear the Bank-created series or register a separately defined original-source alternative; never silently recalculate under this ID.",
-      "captured_privately": false
-    },
-    {
-      "id": "fred_848fe5e65c6c554669f1",
-      "name": "Capacity Utilization: Total Index",
-      "provider": "fred",
-      "selector": "TCU",
-      "planning_refs": [
-        "ML-012"
-      ],
-      "category": "infrastructure capacity",
-      "blocker": "Original G17 bulk ZIP exceeded the current 8 MiB transport bound; a selected-series streaming route is not yet implemented",
-      "recommended_action": "Build a bounded disk-streaming G17 selection and measure it before admitting a larger archive.",
-      "captured_privately": false
-    },
-    {
-      "id": "fred_890f288b712279e3a9cf",
-      "name": "Manufacturers' New Orders: Durable Goods",
-      "provider": "fred",
-      "selector": "DGORDER",
-      "planning_refs": [
-        "ML-009"
-      ],
-      "category": "technical failure",
-      "blocker": "Census M3 total durable-goods order parser not completed; no provider outage demonstrated",
-      "recommended_action": "Add exact M3 selection and revision/SA tests using the existing snapshot engine.",
       "captured_privately": false
     },
     {
@@ -300,19 +144,6 @@
       "captured_privately": false
     },
     {
-      "id": "fred_925891ea36ab7371b4f0",
-      "name": "New One Family Houses Sold: United States",
-      "provider": "fred",
-      "selector": "HSN1F",
-      "planning_refs": [
-        "ML-047"
-      ],
-      "category": "technical failure",
-      "blocker": "Census new-home-sales historical workbook parser not completed",
-      "recommended_action": "Use original Census residential-sales tables; preserve SAAR thousands and revisions.",
-      "captured_privately": false
-    },
-    {
       "id": "fred_a5b777ed31c4aa5f0ee4",
       "name": "S&P Cotality Case-Shiller U.S. National Home Price Index",
       "provider": "fred",
@@ -323,32 +154,6 @@
       "category": "licensing",
       "blocker": "S&P Cotality Case-Shiller is third-party benchmark data, not federal public-domain statistics",
       "recommended_action": "Obtain source-specific redistribution evidence; FRED availability does not grant onward rights.",
-      "captured_privately": false
-    },
-    {
-      "id": "fred_b608c6c5b9dad340617d",
-      "name": "New Privately-Owned Housing Units Started: Single-Family Units",
-      "provider": "fred",
-      "selector": "HOUST1F",
-      "planning_refs": [
-        "ML-045"
-      ],
-      "category": "technical failure",
-      "blocker": "Census one-unit housing starts historical selection/parser not completed",
-      "recommended_action": "Validate single-family units, SAAR and history; do not substitute the existing all-unit starts ID.",
-      "captured_privately": false
-    },
-    {
-      "id": "fred_b7b05b9474e87c2c4391",
-      "name": "Assets: Total Assets: Total Assets (Less Eliminations from Consolidation): Wednesday Level",
-      "provider": "fred",
-      "selector": "WALCL",
-      "planning_refs": [
-        "ML-038"
-      ],
-      "category": "infrastructure capacity",
-      "blocker": "Original H41 bulk ZIP exceeded the current 8 MiB transport bound; Wednesday total-assets selection is not yet pinned in the native adapter",
-      "recommended_action": "Use bounded original H41 transport and verify exact total-assets/eliminations/Wednesday-level units.",
       "captured_privately": false
     },
     {
@@ -363,32 +168,6 @@
       "blocker": "Full Board daily effective-rate history captured; complete NY Fed reference-rate republication disclaimer review before display. This is not a target-event calendar.",
       "recommended_action": "Retain the source-specific NY Fed terms/required notice; then activate as a separate release unit.",
       "captured_privately": true
-    },
-    {
-      "id": "fred_f32c3279ee1106c518f9",
-      "name": "Industrial Production: Manufacturing (NAICS)",
-      "provider": "fred",
-      "selector": "IPMAN",
-      "planning_refs": [
-        "ML-013"
-      ],
-      "category": "infrastructure capacity",
-      "blocker": "Original G17 bulk ZIP exceeded the current 8 MiB transport bound; manufacturing selection requires the same shared streaming adapter",
-      "recommended_action": "Reuse the bounded G17 fix, pin NAICS manufacturing index/base and validate revisions.",
-      "captured_privately": false
-    },
-    {
-      "id": "fred_fa08d6372621c36b7753",
-      "name": "Producer Price Index by Commodity: Final Demand",
-      "provider": "fred",
-      "selector": "PPIFIS",
-      "planning_refs": [
-        "ML-019"
-      ],
-      "category": "ambiguous selector",
-      "blocker": "Exact producer-native final-demand SA PPI selection is not yet validated",
-      "recommended_action": "Validate candidate BLS WPSFD4, native base and adjustment before using the BLS adapter.",
-      "captured_privately": false
     },
     {
       "id": "hmrc_0eb8ded14b6894fd15a4",

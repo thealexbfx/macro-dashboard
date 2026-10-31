@@ -52,7 +52,17 @@ def main():
         )
         page.goto(origin, wait_until="networkidle")
         page.get_by_role("button", name="Dataset Explorer", exact=True).click()
-        total = int(os.environ.get("EXPANSION_BROWSER_EXPECTED_PUBLIC", "198"))
+        full_catalog = json.loads(
+            (
+                Path(__file__).resolve().parents[1] / "catalog/release_candidates.json"
+            ).read_text(encoding="utf-8")
+        )
+        total = int(
+            os.environ.get(
+                "EXPANSION_BROWSER_EXPECTED_PUBLIC",
+                str(30 + len(full_catalog["datasets"])),
+            )
+        )
         expect(page.get_by_text(f"{total} public datasets", exact=False)).to_be_visible(
             timeout=60000
         )

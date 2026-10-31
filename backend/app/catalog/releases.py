@@ -82,6 +82,12 @@ def migrate(db):
         generation_id TEXT NOT NULL, period_key TEXT NOT NULL,
         payload_hash TEXT NOT NULL CHECK(length(payload_hash)=64),
         PRIMARY KEY(generation_id,period_key))""")
+    db.execute("""CREATE TABLE IF NOT EXISTS catalog_staging_receipts (
+        generation_id TEXT NOT NULL, period_key TEXT NOT NULL,
+        reference_start TEXT NOT NULL, reference_end TEXT NOT NULL,
+        partition_id TEXT NOT NULL, value REAL, artifact_hash TEXT NOT NULL,
+        checked_at TEXT NOT NULL, payload_hash TEXT NOT NULL CHECK(length(payload_hash)=64),
+        PRIMARY KEY(generation_id,period_key))""")
 
 
 def activate(db, publication, reader, *, approved=False):

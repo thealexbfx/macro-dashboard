@@ -14,6 +14,16 @@ ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "research/releases/full-expansion"
 
 RIGHTS = {
+    "dol": (
+        "https://www.dol.gov/general/aboutdol/copyright",
+        "Original federal ETA national weekly UI claims statistics; no third-party protected material selected",
+        "US Department of Labor, Employment and Training Administration; BLS seasonal adjustment",
+    ),
+    "boe": (
+        "https://www.bankofengland.co.uk/legal",
+        "IADB data reuse under OGL v3; selected own monetary statistics and rates, not excluded LSEG exchange rates or Crown-dependency material. SONIA-specific attribution retained.",
+        "Bank of England IADB, OGL v3",
+    ),
     "eurostat": (
         "https://ec.europa.eu/eurostat/help/copyright-notice",
         "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data",
@@ -56,8 +66,8 @@ RIGHTS = {
     ),
     "census": (
         "https://www.copyright.gov/title17/92chap1.html#105",
-        "Original Census C30 statistical tables are federal works; not a licence inference from mere API availability",
-        "US Census Bureau, Value of Construction Put in Place",
+        "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability",
+        "US Census Bureau",
     ),
     "federal_reserve": (
         "https://www.federalreserve.gov/disclaimer.htm",
@@ -106,11 +116,12 @@ def main():
             and key != "fred_f007c60ecacde1bf5fb2"
         ):
             license_url, basis, source = RIGHTS[provider]
+            snapshot = json.loads(
+                Path(result["snapshot_path"]).read_text(encoding="utf-8")
+            )
+            capture_date = snapshot["checked_at"].split("T", 1)[0]
             url = result.get("source_url")
             if not url:
-                snapshot = json.loads(
-                    Path(result["snapshot_path"]).read_text(encoding="utf-8")
-                )
                 url = snapshot["source_url"]
             limitation = [
                 "Native source observations; no resampling/filling. Current revised history is not a real-time vintage."
@@ -145,9 +156,13 @@ def main():
                 limitation.append(
                     "Original ECB data/metadata retained. Any transformed chart is a MacroLens calculation, not an ECB-produced statistic. Policy rates are effective states, not FOMC/ECB announcement timestamps; fixed-tender MRR coverage has genuine gaps."
                 )
+            if provider == "boe":
+                limitation.append(
+                    "BoE monetary stocks and lending outstanding are not monthly credit flows. Bank Rate observations are effective reference-date states, not a timestamped monetary-decision calendar. SONIA methodology changed on 23 April 2018; retain that break in research."
+                )
             if provider == "bls":
                 limitation.append(
-                    "Employment series count payroll jobs, not unique people. Producer price indexes measure specified output prices, not physical construction activity; current seasonal/benchmark revisions are retained."
+                    "CES employment series count payroll jobs; CPS employment-population ratios measure people, not payroll jobs. Producer price indexes measure specified output prices, not physical construction activity; current seasonal/benchmark revisions are retained."
                 )
             if provider == "eia":
                 limitation.append(
@@ -161,7 +176,13 @@ def main():
                 limitation.append(
                     "Total reserves are not total Federal Reserve assets. Reserve requirements fell to zero in March 2020; regulatory/method changes affect comparisons."
                 )
-            name = entry["name"]
+            name = entry["name"].replace("\ufffd", ":")
+            if (
+                provider == "boe"
+                and "outstanding" in m.get("title", "")
+                and "outstanding" not in name
+            ):
+                name += " — amounts outstanding"
             if (
                 provider == "uk_building_materials"
                 and result["definition"]["adjustment"] == "Seasonally adjusted"
@@ -189,7 +210,8 @@ def main():
                 "rights_evidence": "EXPANSION_REVIEW_2026_10_30:" + provider,
                 "rights_basis": basis,
                 "attribution": [
-                    source + "; accessed 2026-10-30. Source link and licence retained."
+                    source
+                    + f"; source snapshot validated {capture_date}. Source link and licence retained."
                 ],
                 "limitations": limitation,
                 "ai_allowed": False,
@@ -211,6 +233,10 @@ def main():
                 "source_metadata": m,
                 "state": "captured_awaiting_ingestion_validation",
             }
+            if provider == "boe" and result["definition"]["selector"] == "IUDSOIA":
+                row["attribution"] = [
+                    "SONIA data licensed under the Open Government Licence v3.0 and copyright the Governor and Company of the Bank of England. The trade marks Bank of England and SONIA are registered trade marks of the Bank of England."
+                ]
             successes.append(row)
             continue
         reason = result.get("reason", "")
@@ -361,7 +387,7 @@ def main():
     REPORT.mkdir(parents=True, exist_ok=True)
     candidate_data = {
         "version": 1,
-        "checked_at": "2026-10-30",
+        "checked_at": "2026-10-31",
         "activation": "Requires separate database grant; no automatic publication",
         "datasets": successes,
     }

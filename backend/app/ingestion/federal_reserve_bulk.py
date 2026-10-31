@@ -16,7 +16,8 @@ def parse_selected(entry, body):
     points, metadata, active = [], {}, False
     with zipfile.ZipFile(io.BytesIO(body)) as archive:
         files = archive.infolist()
-        if len(files) > 24 or sum(f.file_size for f in files) > 96 * 1024 * 1024:
+        ceiling = 192 if release in {"G17", "H41"} else 96
+        if len(files) > 48 or sum(f.file_size for f in files) > ceiling * 1024 * 1024:
             raise ValueError("Federal Reserve ZIP exceeds bounded expansion")
         with archive.open(f"{release}_data.xml") as source:
             # Standard ElementTree does not resolve external entities; reject DTDs.

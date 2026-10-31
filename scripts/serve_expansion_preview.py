@@ -8,7 +8,7 @@ from pathlib import Path
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workspace", type=Path, required=True)
-    parser.add_argument("--database-name", default="disposable-release-v7.sqlite3")
+    parser.add_argument("--database-name", default="disposable-release-v11.sqlite3")
     parser.add_argument("--port", type=int, default=8140)
     args = parser.parse_args()
     w = args.workspace.resolve()

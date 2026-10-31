@@ -25,6 +25,7 @@ def main():
     parser.add_argument("--providers", default="eurostat,ons,oecd,ecb")
     parser.add_argument("--only-ids", nargs="*")
     parser.add_argument("--full-bls-history", action="store_true")
+    parser.add_argument("--bls-start-year", type=int, default=1910)
     parser.add_argument(
         "--refresh",
         action="store_true",
@@ -107,6 +108,10 @@ def main():
             if workbook:
                 cached = workspace / "ons-construction.xlsx"
             payload = None
+            if provider == "dol":
+                from urllib.parse import urlencode
+
+                payload = urlencode(entry["query_parameters"]).encode("ascii")
             if provider == "federal_reserve":
                 cached = workspace / (
                     entry["source"]["selector"].split("/")[0] + ".zip"
@@ -116,13 +121,18 @@ def main():
                     "bea-section" + ("2" if "Section2" in endpoint else "1") + ".xlsx"
                 )
             if provider == "bls":
-                cached = workspace / ("bls-selected-full.json" if args.full_bls_history else "bls-selected.json")
+                cached = workspace / (
+                    "bls-selected-full.json"
+                    if args.full_bls_history
+                    else "bls-selected.json"
+                )
                 payload = json.dumps(
                     {
                         "seriesid": [
                             e["source"]["selector"]
                             for e in manifest
                             if e["source"]["provider"] == "bls"
+                            and (not args.only_ids or e["id"] in args.only_ids)
                         ],
                         "startyear": "2017",
                         "endyear": "2026",
@@ -153,10 +163,22 @@ def main():
                     downloads.clear()  # At most one complete official response resident.
                     if provider == "bls" and args.full_bls_history:
                         from backend.app.ingestion.bls_history import capture
-                        downloads[endpoint] = capture(json.loads(payload)["seriesid"])
+
+                        downloads[endpoint] = capture(
+                            json.loads(payload)["seriesid"], start=args.bls_start_year
+                        )
                         cached.write_bytes(downloads[endpoint][0])
                     else:
-                        downloads[endpoint] = download(endpoint, payload=payload)
+                        maximum = (
+                            16 * 1024 * 1024
+                            if provider == "federal_reserve"
+                            and entry["source"]["selector"].split("/")[0]
+                            in {"G17", "H41"}
+                            else 8 * 1024 * 1024
+                        )
+                        downloads[endpoint] = download(
+                            endpoint, payload=payload, maximum=maximum
+                        )
                 body, response = downloads[endpoint]
             definition, points, metadata = parse(entry, body)
             target, snapshot = freeze(

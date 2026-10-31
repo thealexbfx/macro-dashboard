@@ -25,19 +25,21 @@ jobs:
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/expansion-data"
           docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 \
+            -e EXPANSION_CAPTURE_LABEL=macro \
             -v "$RUNNER_TEMP/expansion-data:/tmp/expansion" --entrypoint python macrolens-expansion \
-            -m scripts.collect_expansion --workspace /tmp/expansion --providers eurostat,ons \
+            -m scripts.measure_expansion_capture --workspace /tmp/expansion --providers eurostat,ons \
             --only-ids eurostat_03b4d5b0fa407ee1b32e ons_24c4972dca3a5b1bbe32
           docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 \
+            -e EXPANSION_CAPTURE_LABEL=large-source \
             -v "$RUNNER_TEMP/expansion-data:/tmp/expansion" --entrypoint python macrolens-expansion \
-            -m scripts.collect_expansion --workspace /tmp/expansion --providers eia,federal_reserve --overrides \
-            --only-ids eia_wti_spot_daily frb_real_yield_10y_daily
+            -m scripts.measure_expansion_capture --workspace /tmp/expansion --providers eia,federal_reserve,boe,dol --overrides \
+            --only-ids eia_wti_spot_daily frb_real_yield_10y_daily boe_1d553b5bdd1f7e891b14 fred_b7b05b9474e87c2c4391 fred_848fe5e65c6c554669f1 fred_5e43a009a68bedb42dbf
       - name: Ingest real histories alongside loaded backend and API traffic, offline
         run: |
           docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
             -v "$RUNNER_TEMP/expansion-data:/tmp/expansion" --entrypoint python macrolens-expansion \
             -m scripts.validate_expansion --workspace /tmp/expansion --with-backend \
-            --ids eurostat_03b4d5b0fa407ee1b32e ons_24c4972dca3a5b1bbe32 eia_wti_spot_daily frb_real_yield_10y_daily
+            --ids eurostat_03b4d5b0fa407ee1b32e ons_24c4972dca3a5b1bbe32 eia_wti_spot_daily frb_real_yield_10y_daily boe_1d553b5bdd1f7e891b14 fred_b7b05b9474e87c2c4391 fred_848fe5e65c6c554669f1 fred_5e43a009a68bedb42dbf
       - name: Retest full synthetic 309-entry workload under the same hard limits
         run: |
           docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
@@ -57,10 +59,10 @@ jobs:
           npm run build
           python -m pip install playwright
           python -m playwright install --with-deps chromium
-      - name: Browser checks against the four actual-history release candidates
+      - name: Browser checks against the eight actual-history release candidates
         env:
           MACROLENS_V2_API_URL: http://127.0.0.1:8140
-          EXPANSION_BROWSER_EXPECTED_PUBLIC: '34'
+          EXPANSION_BROWSER_EXPECTED_PUBLIC: '38'
         run: |
           set -euo pipefail
           docker run -d --name expansion-browser-backend --memory=512m --memory-swap=512m --cpus=0.5 --network=host \
@@ -82,6 +84,7 @@ jobs:
           path: |
             ${{ runner.temp }}/expansion-data/validation.json
             ${{ runner.temp }}/expansion-data/source-results.json
+            ${{ runner.temp }}/expansion-data/capture-*-metrics.json
             /tmp/expansion-browser/
             /tmp/expansion-frontend.log
           retention-days: 7

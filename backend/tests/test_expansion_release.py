@@ -266,7 +266,7 @@ def test_generation_capacity_increase_is_explicit_and_bounded(tmp_path):
             )
     with pytest.raises(ValueError):
         PartitionedIngestion(
-            store, [d], {"ons": object()}, max_storage_bytes=385 * 1024 * 1024
+            store, [d], {"ons": object()}, max_storage_bytes=513 * 1024 * 1024
         )
 
 
@@ -285,9 +285,10 @@ def test_revisions_and_source_proofs_survive_staging_compaction(tmp_path):
     with store.connection(True) as db:
         activate(db, p, reader, approved=True)
         assert db.execute("SELECT count(*) FROM norm_revisions").fetchone()[0] == 1
+        assert db.execute("SELECT count(*) FROM norm_staged").fetchone()[0] == 0
         assert (
-            db.execute("SELECT DISTINCT payload FROM norm_staged").fetchall()[0][0]
-            == ""
+            db.execute("SELECT count(*) FROM catalog_staging_receipts").fetchone()[0]
+            == 2
         )
     assert (
         reader.observations(d.id, date(2020, 1, 1), date(2020, 12, 31))["dataset"][
@@ -355,3 +356,198 @@ def test_bls_backfill_failure_does_not_publish_a_partial_response():
 
     with pytest.raises(ProviderError, match="bls_history_request_failed"):
         capture(["A"], start=2020, end=2026, fetch=fetch, pause=lambda _: None)
+
+
+def test_boe_metadata_blank_lines_and_stock_adjustment_are_source_native():
+    from backend.app.ingestion.expansion_sources import parse_boe
+
+    e = {
+        "id": "fixture_boe",
+        "frequency": "monthly",
+        "units": "GBP million",
+        "seasonal_adjustment": "SA",
+        "source": {"provider": "boe", "selector": "LPMBC69"},
+    }
+    raw = b"SERIES,DESCRIPTION\r\nLPMBC69,Monthly amounts outstanding of M4 lending (in sterling millions) seasonally adjusted\r\n\r\n\r\nDATE,SERIES,VALUE\r\n31 Jan 2020,LPMBC69,0\r\n29 Feb 2020,LPMBC69,-2\r\n"
+    d, points, metadata = parse_boe(e, raw)
+    assert d.adjustment == "Seasonally adjusted" and [p.value for p in points] == [
+        0,
+        -2,
+    ]
+    assert points[1].period == "2020-02" and points[1].label == "29 Feb 2020"
+    assert "Amounts outstanding" in metadata["scope"]
+    with pytest.raises(ValueError):
+        parse_boe(e, b"<html>Error: From date before 1963</html>")
+
+
+def test_bls_dash_is_missing_not_negative_or_zero():
+    entry = {
+        "id": "fixture_cps",
+        "frequency": "monthly",
+        "units": "Percent",
+        "seasonal_adjustment": "SA",
+        "source": {"provider": "bls", "selector": "LNS12300000"},
+        "definition_note": "CPS people, not CES payroll jobs",
+    }
+    body = {
+        "status": "REQUEST_SUCCEEDED",
+        "Results": {
+            "series": [
+                {
+                    "seriesID": "LNS12300000",
+                    "data": [
+                        {"year": "2020", "period": "M01", "value": "-"},
+                        {"year": "2020", "period": "M02", "value": "-1"},
+                        {"year": "2020", "period": "M03", "value": "0"},
+                    ],
+                }
+            ]
+        },
+    }
+    _, points, metadata = parse_bls(entry, json.dumps(body).encode())
+    assert [p.value for p in points] == [None, -1, 0]
+    assert metadata["definition_note"] == entry["definition_note"]
+
+
+def test_fed_weekly_assets_preserve_wednesday_calendar():
+    entry = {
+        "id": "fixture_assets",
+        "frequency": "weekly",
+        "units": "Millions USD",
+        "seasonal_adjustment": "NSA",
+        "week_ending": 2,
+        "source": {"provider": "federal_reserve", "selector": "H41/RESPPMA_N.WW"},
+        "expected_source_attributes": {"FREQ": "19", "UNIT": "Currency"},
+    }
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as archive:
+        archive.writestr(
+            "H41_data.xml",
+            '<root><Series SERIES_NAME="RESPPMA_N.WW" FREQ="19" UNIT="Currency"><Obs TIME_PERIOD="2020-01-01" OBS_VALUE="0"/></Series></root>',
+        )
+    d, points, _ = parse_selected(entry, output.getvalue())
+    assert d.calendar.week_ending == 2
+    assert points[0].validated(d, datetime(2021, 1, 1, tzinfo=UTC)).key == "2020-01-01"
+    entry["week_ending"] = 4
+    d, points, _ = parse_selected(entry, output.getvalue())
+    with pytest.raises(ValueError):
+        points[0].validated(d, datetime(2021, 1, 1, tzinfo=UTC))
+
+
+def test_larger_download_budget_is_limited_to_named_board_archives():
+    from backend.app.ingestion.official_snapshots import download
+
+    for url in (
+        "https://www.ons.gov.uk/test",
+        "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip",
+        "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H41&filetype=xml",
+    ):
+        with pytest.raises(ValueError, match="Unsafe download bounds"):
+            download(url, maximum=16 * 1024 * 1024)
+
+
+def xlsx_fixture(sheet, rows):
+    from openpyxl import Workbook
+
+    workbook = Workbook()
+    workbook.active.title = sheet
+    for row in rows:
+        workbook.active.append(row)
+    stream = io.BytesIO()
+    workbook.save(stream)
+    workbook.close()
+    return stream.getvalue()
+
+
+def test_census_housing_pins_national_one_unit_saar_not_total_or_nsa():
+    from backend.app.ingestion.expansion_sources import parse_census_construction
+
+    e = {
+        "id": "fixture_housing",
+        "frequency": "monthly",
+        "units": "Thousands",
+        "seasonal_adjustment": "SA",
+        "source": {"provider": "census", "selector": "NRC/starts/US/1unit/SAAR"},
+    }
+    rows = [
+        ["New Privately-Owned Housing Units Started"],
+        ["Thousands of units"],
+        [],
+        ["Seasonally adjusted annual rate"],
+        ["Month", "United States"],
+        [None, "Total", "1 unit"],
+        [datetime(2020, 1, 1), 2000, 1000],
+    ]
+    d, points, _ = parse_census_construction(
+        e, xlsx_fixture("Seasonally Adjusted", rows)
+    )
+    assert d.units == "Thousands of units, annual rate" and points[0].value == 1000
+    rows[5][2] = "5 units or more"
+    with pytest.raises(ValueError, match="definition/units/column"):
+        parse_census_construction(e, xlsx_fixture("Seasonally Adjusted", rows))
+
+
+def test_m3_native_code_does_not_splice_sic_or_fill_template_months():
+    from backend.app.ingestion.expansion_sources import parse_census_construction
+
+    e = {
+        "id": "fixture_orders",
+        "frequency": "monthly",
+        "units": "USD",
+        "seasonal_adjustment": "SA",
+        "source": {"provider": "census", "selector": "M3/AMDMNO"},
+    }
+    raw = xlsx_fixture(
+        "m3-outp-nop",
+        [
+            ["AMDMNO", 2020, None, 0, None, -2] + [None] * 8,
+            ["UMDMNO", 2020] + [999] * 12,
+        ],
+    )
+    d, points, metadata = parse_census_construction(e, raw)
+    assert [p.period for p in points] == ["2020-02", "2020-03", "2020-04"]
+    assert [p.value for p in points] == [0, None, -2]
+    assert (
+        d.units == "Millions of US dollars"
+        and "no SIC splice" in metadata["revision_note"]
+    )
+
+
+def test_dol_exact_adjustment_saturday_and_unpublished_templates():
+    from backend.app.ingestion.expansion_sources import parse_dol_claims
+
+    e = {
+        "id": "fixture_claims",
+        "frequency": "weekly",
+        "units": "Number",
+        "week_ending": 5,
+        "seasonal_adjustment": "SA",
+        "source": {"provider": "dol", "selector": "r539cyNational/ContinuedClaims/SA"},
+        "query_parameters": {"level": "us"},
+    }
+    raw = b'<r539cyNational rundate="10/31/2026"><week><weekEnded>01/04/2020</weekEnded><ContinuedClaims><NSA>999</NSA><SA>1,234</SA></ContinuedClaims></week><week><weekEnded>01/11/2020</weekEnded><ContinuedClaims><SA>&#160;</SA></ContinuedClaims></week><week><weekEnded>01/18/2020</weekEnded><ContinuedClaims><SA>0</SA></ContinuedClaims></week><week><weekEnded>12/26/2099</weekEnded><ContinuedClaims><SA>&#160;</SA></ContinuedClaims></week></r539cyNational>'
+    d, points, _ = parse_dol_claims(e, raw)
+    assert [p.value for p in points] == [1234, None, 0]
+    for p in points:
+        p.validated(d, datetime(2021, 1, 1, tzinfo=UTC))
+    with pytest.raises(ValueError, match="Unsafe DOL XML"):
+        parse_dol_claims(e, b"<!DOCTYPE root>" + raw)
+
+
+def test_dol_post_cannot_be_repurposed_for_nonstatistical_forms():
+    from backend.app.ingestion.official_snapshots import download
+
+    class NoNetwork:
+        def open(self, *_args, **_kwargs):
+            raise AssertionError("Invalid query reached network")
+
+    with pytest.raises(ValueError, match="Unapproved DOL statistical query"):
+        download(
+            "https://oui.doleta.gov/unemploy/wkclaims/report.asp",
+            payload=b"level=state",
+            opener=NoNetwork(),
+        )
+    with pytest.raises(ValueError, match="Only bounded official"):
+        download(
+            "https://oui.doleta.gov/other", payload=b"level=us", opener=NoNetwork()
+        )

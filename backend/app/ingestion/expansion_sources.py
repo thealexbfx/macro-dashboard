@@ -20,7 +20,9 @@ def definition(entry, *, dimensions=(), units=None, adjustment=None, multiplier=
         adjustment or entry["seasonal_adjustment"],
         SourceCalendar(
             f"{entry['source']['provider']}_{entry['frequency']}",
-            week_ending=4 if entry["frequency"] == "weekly" else None,
+            week_ending=entry.get("week_ending", 4)
+            if entry["frequency"] == "weekly"
+            else None,
         ),
         tuple(sorted(dimensions)),
         multiplier,
@@ -520,7 +522,12 @@ def parse_bls(entry, body):
         )
         points.append(
             Observation(
-                label, f"{row['year']} {period}", workbook_number(row["value"]), flags
+                label,
+                f"{row['year']} {period}",
+                None
+                if str(row["value"]).strip() == "-"
+                else workbook_number(row["value"]),
+                flags,
             )
         )
     return (
@@ -528,8 +535,11 @@ def parse_bls(entry, body):
         tuple(points),
         {
             "source": "BLS",
-        "history_limit": "All observations actually returned within the requested source windows; no missing earlier years fabricated",
-        "source_windows": data.get("source_windows", [{"start":2017,"end":2026}]),
+            "definition_note": entry.get("definition_note", ""),
+            "history_limit": "All observations actually returned within the requested source windows; no missing earlier years fabricated",
+            "source_windows": data.get(
+                "source_windows", [{"start": 2017, "end": 2026}]
+            ),
             "unit_label": d.units,
         },
     )
@@ -538,7 +548,65 @@ def parse_bls(entry, body):
 PARSERS["bls"] = parse_bls
 
 
+def parse_dol_claims(entry, body):
+    import xml.etree.ElementTree as ET
+
+    if len(body) > 8 * 1024 * 1024 or b"<!DOCTYPE" in body or b"<!ENTITY" in body:
+        raise ValueError("Unsafe DOL XML")
+    if entry["source"]["selector"] != "r539cyNational/ContinuedClaims/SA":
+        raise ValueError("Unreviewed DOL claims selector")
+    root = ET.fromstring(body)
+    if root.tag != "r539cyNational" or len(root) > 10000:
+        raise ValueError("DOL national weekly layout changed")
+    d = definition(entry)
+    if d.calendar.week_ending != 5:
+        raise ValueError("DOL reference weeks end Saturday")
+    points = []
+    for week in root:
+        if week.tag != "week":
+            raise ValueError("Unexpected DOL record")
+        label = week.findtext("weekEnded")
+        day = datetime.strptime(label, "%m/%d/%Y").date()
+        node = week.find("ContinuedClaims/SA")
+        if node is None:
+            raise ValueError("DOL seasonally adjusted continued claims field missing")
+        cell = (node.text or "").strip().replace(",", "")
+        points.append(
+            Observation(
+                day.isoformat(),
+                label,
+                None if not cell else float(cell),
+                ("source_status=missing",) if not cell else (),
+            )
+        )
+    present = [p.period for p in points if p.value is not None]
+    if not present:
+        raise ValueError("DOL selection contains no observations")
+    first, last = min(present), max(present)
+    points = [p for p in points if first <= p.period <= last]
+    return (
+        d,
+        tuple(points),
+        {
+            "source": "US Department of Labor ETA, BLS seasonal adjustment",
+            "query_parameters": entry["query_parameters"],
+            "source_run_date": root.get("rundate"),
+            "unit_label": d.units,
+            "calendar_note": "Unpublished blank year-template rows outside actual series coverage are omitted; internal missing cells remain null",
+            "scope": "Continued weeks claimed, regular UI; not total unemployment or all-program benefits paid",
+            "revision_note": "Weekly and annual seasonal-factor revisions; 2020 pandemic adjustment changes affect historical comparison. Current vintage, no release-time reconstruction.",
+        },
+    )
+
+
+PARSERS["dol"] = parse_dol_claims
+
+
 def parse_census_construction(entry, body):
+    if entry["source"]["selector"].startswith("M3/"):
+        return parse_census_orders(entry, body)
+    if entry["source"]["selector"].startswith(("NRC/", "NRS/")):
+        return parse_census_housing(entry, body)
     sheet, expected = entry["source"]["selector"].split("/")
     rows = excel_rows(body, sheet)
     if "Seasonally Adjusted Annual Rate" not in str(
@@ -582,6 +650,108 @@ def parse_census_construction(entry, body):
 
 
 PARSERS["census"] = parse_census_construction
+
+
+def parse_census_housing(entry, body):
+    """Pin the national one-unit starts and new-house sales SAAR columns."""
+    selector = entry["source"]["selector"]
+    if selector == "NRC/starts/US/1unit/SAAR":
+        rows = excel_rows(body, "Seasonally Adjusted")
+        title, column = "New Privately-Owned Housing Units Started", 2
+        valid_headers = (
+            rows[3][0] == "Seasonally adjusted annual rate"
+            and rows[4][1] == "United States"
+            and rows[5][2] == "1 unit"
+        )
+    elif selector == "NRS/sold/US/SAAR":
+        rows = excel_rows(body, "Monthly")
+        title, column = "New Privately-Owned Houses Sold", 6
+        valid_headers = (
+            rows[4][6] == "Seasonally adjusted annual rate"
+            and rows[5][6] == "United States"
+        )
+    else:
+        raise ValueError("Unreviewed Census housing selector")
+    if (
+        rows[0][0] != title
+        or "Thousands of units" not in str(rows[1][0])
+        or not valid_headers
+    ):
+        raise ValueError("Census housing definition/units/column changed")
+    d = definition(
+        entry,
+        units="Thousands of units, annual rate",
+        adjustment="Seasonally adjusted annual rate",
+    )
+    points = []
+    for row in rows[6:]:
+        if not isinstance(row[0], datetime):
+            continue
+        if row[0].day != 1:
+            raise ValueError("Unexpected Census monthly reference date")
+        value = row[column]
+        missing = str(value).strip() in {"(NA)", "(S)", "(X)"}
+        points.append(
+            Observation(
+                row[0].strftime("%Y-%m"),
+                row[0].date().isoformat(),
+                None if missing else workbook_number(value),
+                (f"source_status={value}",) if missing else (),
+            )
+        )
+    return (
+        d,
+        tuple(points),
+        {
+            "title": title,
+            "source": "US Census Bureau, Survey of Construction",
+            "unit_label": d.units,
+            "scope": "New privately-owned housing, not existing-home transactions",
+            "revision_note": "Current revised history, not release-time vintages; annualized monthly rates are not annual totals",
+        },
+    )
+
+
+def parse_census_orders(entry, body):
+    """Read the documented native M3 code/year/12-month layout, not SIC splices."""
+    code = entry["source"]["selector"].removeprefix("M3/")
+    if code not in {"AMDMNO", "ANXANO"}:
+        raise ValueError("Unreviewed M3 orders selection")
+    rows = [r for r in excel_rows(body, "m3-outp-nop") if r[0] == code]
+    if not rows or any(len(r) != 14 or type(r[1]) is not int for r in rows):
+        raise ValueError("M3 code/year/month layout changed")
+    cells = [
+        (f"{r[1]}-{month:02}", r[month + 1]) for r in rows for month in range(1, 13)
+    ]
+    observed = [period for period, value in cells if value not in {None, "", "N/A"}]
+    if not observed:
+        raise ValueError("M3 selection contains no observations")
+    first, last = min(observed), max(observed)
+    d = definition(
+        entry, units="Millions of US dollars", adjustment="Seasonally adjusted"
+    )
+    points = tuple(
+        Observation(
+            period,
+            period,
+            None if value == "N/A" else workbook_number(value),
+            ("source_status=missing",) if value in {None, "", "N/A"} else (),
+        )
+        for period, value in cells
+        if first <= period <= last
+    )
+    return (
+        d,
+        points,
+        {
+            "source": "US Census Bureau, M3",
+            "series_code": code,
+            "unit_label": d.units,
+            "layout_evidence": "https://www.census.gov/manufacturing/m3/historical_data/naicshist.pdf",
+            "scope": "New orders net of cancellations, current-dollar monthly flow; not SAAR or physical output",
+            "revision_note": "NAICS history only; no SIC splice. Annual benchmarks, seasonal revisions and semiconductor exclusion affect continuity; current revised vintage only.",
+        },
+    )
 
 
 def parse_bea(entry, body):
@@ -633,3 +803,64 @@ def parse_bea(entry, body):
 
 
 PARSERS["bea"] = parse_bea
+
+
+def parse_boe(entry, body):
+    rows = [r for r in csv.reader(io.StringIO(body.decode("utf-8-sig"))) if r]
+    selector = entry["source"]["selector"]
+    if (
+        len(rows) < 4
+        or rows[0] != ["SERIES", "DESCRIPTION"]
+        or rows[1][0] != selector
+        or rows[2] != ["DATE", "SERIES", "VALUE"]
+    ):
+        raise ValueError("BoE CSV selection/header changed; HTML error is not data")
+    description = rows[1][1]
+    if entry["frequency"] == "monthly":
+        if not description.startswith("Monthly"):
+            raise ValueError("BoE frequency changed")
+        if "in sterling millions" in description:
+            units = "GBP million"
+        elif "number of total sterling approvals" in description:
+            units = "Number of approvals"
+        else:
+            raise ValueError("BoE unit not identified")
+        adjustment = (
+            "Seasonally adjusted"
+            if "seasonally adjusted" in description
+            and "not seasonally adjusted" not in description
+            else "Not seasonally adjusted"
+        )
+    elif selector in {"IUDBEDR", "IUDSOIA"}:
+        expected = {
+            "IUDBEDR": "Official Bank Rate",
+            "IUDSOIA": "Daily Sterling overnight index average (SONIA) rate",
+        }
+        if description != expected[selector]:
+            raise ValueError("BoE rate definition changed")
+        units = "Percent per annum"
+        adjustment = "Not seasonally adjusted"
+    else:
+        raise ValueError("Unreviewed BoE rate selection")
+    d = definition(entry, units=units, adjustment=adjustment)
+    points = []
+    for row in rows[3:]:
+        if len(row) != 3 or row[1] != selector:
+            raise ValueError("BoE source series changed")
+        day = datetime.strptime(row[0], "%d %b %Y")
+        period = day.strftime("%Y-%m" if d.frequency == "monthly" else "%Y-%m-%d")
+        points.append(Observation(period, row[0], workbook_number(row[2])))
+    return (
+        d,
+        tuple(points),
+        {
+            "title": description,
+            "unit_label": units,
+            "source": "Bank of England IADB",
+            "scope": "Amounts outstanding are stocks, not monthly net-lending flows; approvals are counts, not loan amounts.",
+            "source_definition_note": "IADB rejects From dates before 1963. The reviewed request starts in 1963; actual available data can begin later. Policy/reference dates are not announcement timestamps.",
+        },
+    )
+
+
+PARSERS["boe"] = parse_boe

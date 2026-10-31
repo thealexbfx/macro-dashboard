@@ -18,7 +18,7 @@ from backend.app.v2.native_reader import NativeReader
 from backend.app.v2.state import Store
 
 
-def ingest(store, publication, snapshot_path, snapshot_hash):
+def ingest(store, publication, snapshot_path, snapshot_hash, *, storage_budget_mib=384):
     adapter = SnapshotAdapter(snapshot_path, snapshot_hash)
     # Verify complete snapshot and identity before registering or queuing a job.
     if Path(snapshot_path).stat().st_size > 16 * 1024 * 1024:
@@ -45,7 +45,7 @@ def ingest(store, publication, snapshot_path, snapshot_hash):
         bounds=Bounds(records=250),
         max_generation_rows=50000,
         compact_completed_staging=True,
-        max_storage_bytes=384 * 1024 * 1024,
+        max_storage_bytes=storage_budget_mib * 1024 * 1024,
     )
     key = "release_" + digest({"id": d.id, "snapshot": snapshot_hash})[:48]
     with store.connection() as db:
@@ -81,6 +81,13 @@ def main():
     parser.add_argument("--ids", nargs="+", default=[])
     parser.add_argument("--source-index", type=Path)
     parser.add_argument("--approve-display", action="store_true")
+    parser.add_argument(
+        "--storage-budget-mib",
+        type=int,
+        choices=(256, 384, 512),
+        default=384,
+        help="Explicit reviewed DB/WAL software budget; never resizes any disk",
+    )
     args = parser.parse_args()
     if not args.database.is_file() or len(args.ids) > 16:
         parser.error("Existing explicit database and at most 16 IDs required")
@@ -107,6 +114,7 @@ def main():
                 publications[key],
                 record["snapshot_path"],
                 record["snapshot_hash"],
+                storage_budget_mib=args.storage_budget_mib,
             )
             print(json.dumps(result), flush=True)
             failed |= result["state"] not in {"complete", "unchanged"}
