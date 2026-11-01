@@ -1,0 +1,55 @@
+name: Catalog refresh capacity
+on:
+  pull_request:
+    paths:
+      - 'backend/app/ingestion/**'
+      - 'backend/app/v2/**'
+      - 'catalog/refresh_policy.json'
+      - 'scripts/*catalog_refresh*'
+      - '.github/workflows/catalog-refresh.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  combined_512m:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        datasets: [20, 50, 70, 100, 150]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build production-Python validation image
+        run: docker build --build-arg PYTHON_VERSION=3.14 -f scripts/phase4c.Dockerfile -t catalog-refresh .
+      - name: Combined API, Discovery, revisions and unchanged checks
+        run: |
+          mkdir -p "$RUNNER_TEMP/refresh"
+          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
+            -v "$RUNNER_TEMP/refresh:/results" --entrypoint python catalog-refresh \
+            -m scripts.validate_catalog_refresh --datasets ${{ matrix.datasets }} --output /results/capacity.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: catalog-refresh-${{ matrix.datasets }}
+          path: ${{ runner.temp }}/refresh/
+          retention-days: 7
+  official_sources:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build isolated test image
+        run: docker build --build-arg PYTHON_VERSION=3.14 -f scripts/phase4c.Dockerfile -t catalog-refresh .
+      - name: Check representative actual source formats within limits
+        run: |
+          mkdir -p "$RUNNER_TEMP/refresh"
+          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 \
+            -v "$RUNNER_TEMP/refresh:/results" --entrypoint python catalog-refresh \
+            -m scripts.check_catalog_refresh_sources --output /results/sources.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: catalog-refresh-official-sources
+          path: ${{ runner.temp }}/refresh/
+          retention-days: 7

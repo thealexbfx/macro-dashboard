@@ -77,7 +77,9 @@ class OfficialRedirects(HTTPRedirectHandler):
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
-def download(url, *, timeout=25, maximum=MAX_BYTES, opener=None, payload=None):
+def download(
+    url, *, timeout=25, maximum=MAX_BYTES, opener=None, payload=None, validators=None
+):
     """TLS verification stays enabled; 401/403 are never bypassed or retried."""
     safe_url(url)
     parsed = urlsplit(url)
@@ -129,10 +131,25 @@ def download(url, *, timeout=25, maximum=MAX_BYTES, opener=None, payload=None):
                 raise ValueError(
                     "Only bounded official statistical query POST is supported"
                 )
+        conditional = {}
+        for name, header in (
+            ("etag", "If-None-Match"),
+            ("last_modified", "If-Modified-Since"),
+        ):
+            value = (validators or {}).get(name)
+            if value:
+                if (
+                    not isinstance(value, str)
+                    or len(value) > 512
+                    or any(c in value for c in "\r\n")
+                ):
+                    raise ValueError("Invalid HTTP validator")
+                conditional[header] = value
         request = Request(
             url,
             data=payload,
             headers={
+                **conditional,
                 "User-Agent": "MacroLensResearch/2.0 official-data-validation",
                 "Accept": "application/json,text/csv,application/octet-stream,*/*",
                 "Content-Type": "application/x-www-form-urlencoded"
@@ -157,6 +174,14 @@ def download(url, *, timeout=25, maximum=MAX_BYTES, opener=None, payload=None):
                 "last_modified": response.headers.get("Last-Modified"),
             }
     except HTTPError as exc:
+        if exc.code == 304 and conditional and payload is None:
+            return None, {
+                "not_modified": True,
+                "url": url,
+                "etag": exc.headers.get("ETag") or (validators or {}).get("etag"),
+                "last_modified": exc.headers.get("Last-Modified")
+                or (validators or {}).get("last_modified"),
+            }
         raise ProviderError(f"http_{exc.code}") from None
     except (URLError, TimeoutError, OSError):
         raise ProviderError("network_or_tls_failure") from None

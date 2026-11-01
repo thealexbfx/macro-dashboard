@@ -7,7 +7,8 @@ import os
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
-from threading import Lock
+from threading import Lock, RLock
+from weakref import WeakValueDictionary
 
 from backend.app.ingestion.schema import SCHEMA as INGESTION_SCHEMA
 
@@ -34,6 +35,9 @@ def dumps(value):
 
 
 class Store:
+    _writers_guard = Lock()
+    _writers = WeakValueDictionary()
+
     def __init__(self, path=None):
         self.path = Path(
             path
@@ -43,12 +47,17 @@ class Store:
 
         self._initialized = False
         self._init_lock = Lock()
+        with self._writers_guard:
+            self._write_lock = self._writers.setdefault(
+                str(self.path.resolve()), RLock()
+            )
 
     @contextmanager
     def connection(self, write=False, timeout=30):
         self.path.parent.mkdir(parents=True, exist_ok=True)
         db = sqlite3.connect(self.path, timeout=timeout, isolation_level=None)
         db.row_factory = sqlite3.Row
+        admitted = False
         try:
             db.execute(f"PRAGMA busy_timeout={int(timeout * 1000)}")
             with self._init_lock:
@@ -58,6 +67,9 @@ class Store:
                     db.executescript(SCHEMA + INGESTION_SCHEMA)
                     self._initialized = True
             if write:
+                admitted = self._write_lock.acquire(timeout=timeout)
+                if not admitted:
+                    raise sqlite3.OperationalError("database writer busy")
                 db.execute("BEGIN IMMEDIATE")
             yield db
             if write:
@@ -68,6 +80,8 @@ class Store:
             raise
         finally:
             db.close()
+            if admitted:
+                self._write_lock.release()
 
     def counter(self, key):
         with self.connection(True) as db:

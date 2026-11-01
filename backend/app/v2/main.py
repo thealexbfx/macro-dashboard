@@ -26,6 +26,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from backend.app.ingestion.runner import IngestionWorker
+from backend.app.ingestion.catalog_refresh import CatalogRefreshWorker
 from backend.app.registry.markets import MarketRegistry
 from backend.app.services.direct_answers import PublicTimeSeriesProvider
 from backend.app.v2.ai_guard import AIGuard, BudgetBlocked
@@ -744,12 +745,14 @@ async def lifespan(app):
             type(exc).__name__,
         )
     ingestion_worker.start()
+    catalog_refresh_worker.start()
     refresh_scheduler.start()
     try:
         yield
     finally:
         refresh_scheduler.stop()
         ingestion_worker.stop()
+        catalog_refresh_worker.stop()
 
 
 app = FastAPI(title="MacroLens V2 Research API", version="3.2.0", lifespan=lifespan)
@@ -920,6 +923,9 @@ ai_guard = AIGuard(state_store)
 ingestion_worker = IngestionWorker(
     state_store, enabled=os.getenv("MACROLENS_INGESTION_ENABLED", "0") == "1"
 )
+catalog_refresh_worker = CatalogRefreshWorker(
+    state_store, enabled=os.getenv("MACROLENS_CATALOG_REFRESH_ENABLED", "0") == "1"
+)
 
 
 def background_refresh():
@@ -927,6 +933,7 @@ def background_refresh():
     # optional worker must never prevent the established research refresh.
     try:
         ingestion_worker.tick()
+        catalog_refresh_worker.tick()
     except Exception as exc:  # noqa: BLE001 -- optional worker admission boundary
         logging.getLogger(__name__).warning(
             "Ingestion dispatch failed (%s); Discovery continues.", type(exc).__name__
@@ -1037,6 +1044,7 @@ def discovery_diagnostics(authorization: str | None = Header(default=None)):
         "scheduler": refresh_scheduler.status(),
         "source_checks": service.freshness_summary(),
         "ingestion": ingestion_worker.status(),
+        "catalog_refresh": catalog_refresh_worker.status(),
         "limits": {
             "analytical_operations_per_process": 1,
             "api_inflight_per_process": 8,

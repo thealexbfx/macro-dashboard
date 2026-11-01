@@ -199,6 +199,22 @@ class NativeReader:
 
     def _metadata(self, publication, db):
         d = publication.definition
+        refresh = None
+        if db.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='catalog_refresh_jobs'"
+        ).fetchone():
+            refresh = db.execute(
+                "SELECT last_success,last_change,error_code,provenance FROM catalog_refresh_jobs WHERE dataset_id=?",
+                (d.id,),
+            ).fetchone()
+        refresh_provenance = json.loads(refresh["provenance"]) if refresh else {}
+        attribution = list(publication.attribution)
+        if refresh and refresh["last_change"] and d.provider == "eia":
+            attribution = [
+                "Source: US Energy Information Administration. Current revised historical series; source and licence links retained. Last source check: "
+                + refresh["last_success"]
+                + ". Reference periods are not publication dates; workbook publication timestamp unavailable."
+            ]
         first = db.execute(
             "SELECT reference_start FROM norm_observations WHERE dataset_id=? ORDER BY reference_start,period_key LIMIT 1",
             (d.id,),
@@ -247,7 +263,10 @@ class NativeReader:
                 if k not in {"releases", "holidays", "evidence"}
             },
             "stored_provenance": {
-                "attribution": list(publication.attribution),
+                "attribution": attribution,
+                "source_checked_at": refresh["last_success"] if refresh else None,
+                "last_changed_at": refresh["last_change"] if refresh else None,
+                "source_release": refresh_provenance.get("source_release"),
                 "license_url": publication.license_url,
                 "benchmark": d.selector,
                 "source_unit": d.units,
@@ -433,6 +452,7 @@ class NativeReader:
             metadata = self._metadata(publication, db)
             valid = [r for r in observations if r["value"] is not None]
             checked_at = max((r["checked_at"] for r in rows), default=None)
+            refresh_check = metadata["stored_provenance"].get("source_checked_at")
             pending = db.execute(
                 "SELECT 1 FROM norm_generations WHERE dataset_id=? AND state='staging' LIMIT 1",
                 (key,),
@@ -449,7 +469,8 @@ class NativeReader:
                 bool(pending)
                 or not checked_at
                 or (
-                    instant(self.now()) - instant(datetime.fromisoformat(checked_at))
+                    instant(self.now())
+                    - instant(datetime.fromisoformat(refresh_check or checked_at))
                 ).days
                 > 7
             )
