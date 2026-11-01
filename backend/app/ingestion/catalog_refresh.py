@@ -442,6 +442,7 @@ class CatalogRefresh:
                             }
                             else min(DAY, 300 * 2 ** min(failures - 1, 9))
                         )
+                        delay = max(delay, getattr(exc, "retry_after", 0))
                         db.execute(
                             "UPDATE catalog_refresh_jobs SET failures=?,error_code=?,next_due=?,last_check=? WHERE dataset_id=?",
                             (
@@ -461,7 +462,10 @@ class CatalogRefresh:
                                 ):
                                     db.execute(
                                         "UPDATE catalog_refresh_jobs SET next_due=max(next_due,?) WHERE dataset_id=?",
-                                        (self.now().timestamp() + 3600, sibling),
+                                        (
+                                            self.now().timestamp() + max(3600, delay),
+                                            sibling,
+                                        ),
                                     )
                 except sqlite3.Error:
                     pass  # No reset; next scheduler tick retries durable state.

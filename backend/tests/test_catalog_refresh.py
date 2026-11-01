@@ -443,3 +443,15 @@ def test_304_updates_success_but_not_change_or_observations(tmp_path):
         ]
         == old
     )
+
+
+def test_official_retry_after_is_preserved():
+    class Limited:
+        def open(self, request, timeout):
+            raise HTTPError(
+                request.full_url, 429, "Busy", {"Retry-After": "7200"}, io.BytesIO()
+            )
+
+    with pytest.raises(ProviderError) as error:
+        download("https://www.ons.gov.uk/example", opener=Limited())
+    assert error.value.code == "http_429" and error.value.retry_after == 7200

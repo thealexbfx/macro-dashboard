@@ -209,7 +209,7 @@ class NativeReader:
             ).fetchone()
         refresh_provenance = json.loads(refresh["provenance"]) if refresh else {}
         attribution = list(publication.attribution)
-        if refresh and refresh["last_change"] and d.provider == "eia":
+        if refresh and refresh["last_success"] and d.provider == "eia":
             attribution = [
                 "Source: US Energy Information Administration. Current revised historical series; source and licence links retained. Last source check: "
                 + refresh["last_success"]

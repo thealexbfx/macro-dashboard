@@ -182,7 +182,18 @@ def download(
                 "last_modified": exc.headers.get("Last-Modified")
                 or (validators or {}).get("last_modified"),
             }
-        raise ProviderError(f"http_{exc.code}") from None
+        retry = (exc.headers or {}).get("Retry-After", "")
+        delay = int(retry) if retry.isdigit() else 0
+        if retry and not delay:
+            from email.utils import parsedate_to_datetime
+
+            try:
+                stamp = parsedate_to_datetime(retry)
+                if stamp.tzinfo is not None:
+                    delay = max(0, int((stamp - datetime.now(UTC)).total_seconds()))
+            except (ValueError, TypeError, OverflowError):
+                pass
+        raise ProviderError(f"http_{exc.code}", retry_after=delay) from None
     except (URLError, TimeoutError, OSError):
         raise ProviderError("network_or_tls_failure") from None
 
