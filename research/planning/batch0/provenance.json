@@ -1,0 +1,33 @@
+{
+  "recovered_at": "2026-10-30",
+  "application_base_commit": "e70e338a546afb64bf1e427f12bd63532f7ec9b4",
+  "original_catalog_research_date": "2026-10-27",
+  "gap_report_research_date": "2026-10-28",
+  "content_preservation": "Originals copied byte-for-byte. Original claims are historical evidence, not new rights approval. No source workbooks, credentials, databases or raw provider responses included.",
+  "files": [
+    {
+      "path": "originals/MACROLENS_DATA_ARCHITECTURE_PROPOSAL.md",
+      "sha256": "9feabedf60b3741a68cf4e7e6cddff35c44a3e45169e0e1281a6531b98db7a02",
+      "bytes": 29441,
+      "original_workspace_path": "outputs/data-architecture-research/MACROLENS_DATA_ARCHITECTURE_PROPOSAL.md"
+    },
+    {
+      "path": "originals/MACROLENS_INCREMENTAL_RESOURCE_GAPS.md",
+      "sha256": "c05bbdd4ccfae13f4f40d9a28dbf249cf44997ec907ba0a259fe7780600c8ca7",
+      "bytes": 13236,
+      "original_workspace_path": "outputs/data-architecture-research/MACROLENS_INCREMENTAL_RESOURCE_GAPS.md"
+    },
+    {
+      "path": "originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+      "sha256": "f2ad500447196ac832781e9a35c0aba84b128c1ae899dc937426834aa6f75590",
+      "bytes": 420906,
+      "original_workspace_path": "outputs/data-architecture-research/MACROLENS_PROPOSED_SERIES_CATALOG.json"
+    },
+    {
+      "path": "originals/MACROLENS_PROPOSED_SERIES_INDEX.md",
+      "sha256": "2711268226e23d6eb3a43a7b6cd0e212334b6b48786165bc882267cc425b18ac",
+      "bytes": 43276,
+      "original_workspace_path": "outputs/data-architecture-research/MACROLENS_PROPOSED_SERIES_INDEX.md"
+    }
+  ]
+}

@@ -6,6 +6,7 @@ COPY requirements.txt requirements.txt
 COPY backend/requirements.txt backend/requirements.txt
 RUN python -m pip install --no-cache-dir -r requirements.txt -r backend/requirements.txt && python -m pip freeze > /runtime-packages.txt
 COPY backend/app backend/app
+COPY catalog catalog
 COPY macro_engine macro_engine
 COPY scripts scripts
 CMD ["python", "scripts/validate_phase4c.py"]

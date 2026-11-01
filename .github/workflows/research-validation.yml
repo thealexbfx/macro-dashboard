@@ -52,3 +52,19 @@ jobs:
           NEXT_TELEMETRY_DISABLED: '1'
       - run: npm run typecheck
       - run: npm test
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install disposable browser fixture dependencies
+        run: |
+          python -m pip install -r ../requirements.txt -r ../backend/requirements.txt playwright
+          python -m playwright install --with-deps chromium
+      - name: Browser integration against synthetic catalog
+        run: python ../scripts/run_batch0_browser.py
+      - name: Retain browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch0-browser-${{ github.event_name }}
+          path: /tmp/batch0-browser/
+          retention-days: 7

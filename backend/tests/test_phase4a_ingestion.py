@@ -9,7 +9,7 @@ from io import BytesIO
 from types import SimpleNamespace
 from unittest.mock import Mock
 from xml.sax.saxutils import escape
-from zipfile import ZipFile
+from zipfile import ZipFile, ZipInfo
 
 import pytest
 import requests
@@ -57,20 +57,28 @@ def workbook(mutate=None, count=24):
     output = BytesIO()
     with ZipFile(output, "w") as z:
         z.writestr(
-            "xl/workbook.xml",
+            ZipInfo("xl/workbook.xml", date_time=(2020, 1, 1, 0, 0, 0)),
             '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Monthly Prices" r:id="rId7"/></sheets></workbook>',
         )
         z.writestr(
-            "xl/_rels/workbook.xml.rels",
+            ZipInfo("xl/_rels/workbook.xml.rels", date_time=(2020, 1, 1, 0, 0, 0)),
             '<Relationships><Relationship Id="rId7" Target="worksheets/prices.xml"/></Relationships>',
         )
         z.writestr(
-            "xl/worksheets/prices.xml",
+            ZipInfo("xl/worksheets/prices.xml", date_time=(2020, 1, 1, 0, 0, 0)),
             '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'
             + "".join(rows)
             + "</sheetData></worksheet>",
         )
     return output.getvalue()
+
+
+def test_synthetic_workbook_has_stable_artifact_hash():
+    assert sha256(workbook()).hexdigest() == sha256(workbook()).hexdigest()
+    with ZipFile(BytesIO(workbook())) as archive:
+        assert {entry.date_time for entry in archive.infolist()} == {
+            (2020, 1, 1, 0, 0, 0)
+        }
 
 
 class Fake:
