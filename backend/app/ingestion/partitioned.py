@@ -49,6 +49,7 @@ class PartitionedIngestion:
         max_generation_rows=10000,
         compact_completed_staging=False,
         max_storage_bytes=256 * 1024 * 1024,
+        preserve_unchanged_rows=False,
     ):
         if not 1 <= len(definitions) <= 64 or len({d.id for d in definitions}) != len(
             definitions
@@ -67,6 +68,9 @@ class PartitionedIngestion:
         if type(compact_completed_staging) is not bool:
             raise TypeError("Explicit staging retention policy required")
         self.compact_completed_staging = compact_completed_staging
+        if type(preserve_unchanged_rows) is not bool:
+            raise TypeError("Explicit unchanged-row policy required")
+        self.preserve_unchanged_rows = preserve_unchanged_rows
         if (
             type(max_storage_bytes) is not int
             or not 64 * 1024 * 1024 <= max_storage_bytes <= 512 * 1024 * 1024
@@ -577,6 +581,21 @@ class PartitionedIngestion:
                 ).fetchone()
                 if old and row["checked_at"] < old["checked_at"]:
                     raise ProviderError("stale_response")
+                if (
+                    self.preserve_unchanged_rows
+                    and old
+                    and old["payload"] == row["payload"]
+                ):
+                    # Keep the existing exact per-observation proof instead of
+                    # duplicating a whole history for one revised value. The new
+                    # generation's full page/completeness proof still covers the
+                    # checked source snapshot. Old readers support mixed proofs.
+                    quality = quality and not any(
+                        x.casefold().split("=", 1)[-1]
+                        in {"unit_review", "quarantined", "partial_period"}
+                        for x in json.loads(row["payload"])["flags"]
+                    )
+                    continue
                 revision = (
                     1
                     if old is None

@@ -108,6 +108,15 @@ def main():
             "observations_ingested": 0,
             "datasets": results,
         }
+        if Path("/proc/self/status").exists():
+            from scripts.linux_cgroup import snapshot
+
+            report["memory"] = {
+                line.split(":")[0]: line.split(":")[1].strip()
+                for line in Path("/proc/self/status").read_text().splitlines()
+                if line.startswith(("VmRSS:", "VmHWM:"))
+            }
+            report["cgroup"] = snapshot()
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(report, indent=2) + "\n")
         if report["validated"] != report["checked"]:

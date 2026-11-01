@@ -318,3 +318,128 @@ def test_explicit_migration_idempotent_and_restore(tmp_path):
     assert restored.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
     assert restored.execute("SELECT notes FROM library").fetchone()[0] == "preserve"
     restored.close()
+
+
+def test_partial_pages_restart_from_frozen_checkpoint_without_refetch(
+    tmp_path, monkeypatch
+):
+    import backend.app.ingestion.catalog_refresh as module
+
+    store, w, reader, clock, result, calls = setup(tmp_path)
+    data = json.loads(body([-2]))
+    months = []
+    for i in range(1000):
+        year, month = divmod(1900 * 12 + i, 12)
+        label = datetime(year, month + 1, 1).strftime("%Y %b").upper()
+        months.append({"date": label, "value": str(i)})
+    data["months"] = months + [{"date": "2020 JAN", "value": "-3"}]
+    result[0] = json.dumps(data).encode()
+    original = module.PartitionedIngestion.run_once
+    count = [0]
+
+    def crash_after_one_page(engine):
+        count[0] += 1
+        if count[0] == 2:
+            raise sqlite3.OperationalError("simulated restart")
+        return original(engine)
+
+    monkeypatch.setattr(module.PartitionedIngestion, "run_once", crash_after_one_page)
+    assert w.run_once()["state"] == "failed"
+    assert (
+        reader.observations(ID, date(2020, 1, 1), date(2020, 2, 1))["dataset"][
+            "observations"
+        ][0]["value"]
+        == -2
+    )
+    assert w.status()[0]["checkpointed"]
+    monkeypatch.setattr(module.PartitionedIngestion, "run_once", original)
+    due(store, clock)
+    resumed = CatalogRefresh(
+        store,
+        config=tmp_path / "policy.json",
+        fetch=lambda *a, **kw: pytest.fail("Checkpoint must not refetch"),
+        now=w.now,
+    )
+    assert resumed.run_once()["state"] == "changed"
+    assert len(calls) == 1
+    assert (
+        reader.observations(ID, date(2020, 1, 1), date(2020, 2, 1))["dataset"][
+            "observations"
+        ][0]["value"]
+        == -3
+    )
+
+
+def test_obsolete_refresh_proofs_compact_but_revisions_and_initial_proofs_survive(
+    tmp_path,
+):
+    store, w, reader, clock, result, _ = setup(tmp_path)
+    for value in (-3, -4, -5, -6):
+        result[0] = body([value, 0, None])
+        assert w.run_once()["state"] == "changed"
+        due(store, clock)
+    with store.connection() as db:
+        assert db.execute("SELECT count(*) FROM norm_revisions").fetchone()[0] == 4
+        assert (
+            db.execute(
+                "SELECT count(*) FROM norm_partitions p JOIN norm_generations g ON g.id=p.generation_id WHERE g.id LIKE 'release_%'"
+            ).fetchone()[0]
+            > 0
+        )
+        assert (
+            db.execute(
+                "SELECT count(DISTINCT generation_id) FROM catalog_staging_receipts WHERE generation_id LIKE 'refresh_%'"
+            ).fetchone()[0]
+            == 3  # Active + preceding obsolete + pinned zero/null observation proofs.
+        )
+        assert (
+            db.execute(
+                "SELECT count(*) FROM catalog_staging_receipts WHERE generation_id LIKE 'refresh_%'"
+            ).fetchone()[0]
+            == 5
+        )
+    assert (
+        reader.observations(ID, date(2020, 1, 1), date(2020, 3, 1))["dataset"][
+            "observations"
+        ][0]["value"]
+        == -6
+    )
+
+
+def test_worker_stop_start_recreates_pool_and_preserves_checkpoint_store(tmp_path):
+    store, engine, _, _, _, _ = setup(tmp_path)
+    worker = CatalogRefreshWorker(store, enabled=True, config=tmp_path / "policy.json")
+    worker.engine = engine
+    worker.start()
+    worker.tick()
+    worker.future.result(timeout=10)
+    worker.stop()
+    worker.start()
+    worker.tick()
+    worker.future.result(timeout=10)
+    assert worker.error_code is None
+    worker.stop()
+
+
+def test_304_updates_success_but_not_change_or_observations(tmp_path):
+    store, w, reader, clock, _, _ = setup(tmp_path)
+    assert w.run_once()["state"] == "changed"
+    before = w.status()[0]
+    old = reader.observations(ID, date(2020, 1, 1), date(2020, 4, 1))["dataset"][
+        "retrieved_at"
+    ]
+    due(store, clock)
+    w.cache = None
+    w.fetch = lambda *a, **kw: (None, {"not_modified": True, "etag": '"fixture"'})
+    assert w.run_once()["state"] == "unchanged"
+    after = w.status()[0]
+    assert (
+        after["last_change"] == before["last_change"]
+        and after["last_success"] > before["last_success"]
+    )
+    assert (
+        reader.observations(ID, date(2020, 1, 1), date(2020, 4, 1))["dataset"][
+            "retrieved_at"
+        ]
+        == old
+    )

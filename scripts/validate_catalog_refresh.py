@@ -97,8 +97,8 @@ def run(root, count, output):
             else:
                 period = str(end.year - back)
             value = None if i % 97 == 0 else float(i % 500 - 100)
-            if version == 2 and i == n // 2:
-                value = -321.0
+            if version >= 2 and i == n // 2:
+                value = float(-320 - version)
             result.append(Observation(period, period, value))
         return tuple(result)
 
@@ -212,7 +212,6 @@ def run(root, count, output):
 
     refresh_module.parse_ons_construction = parse
     engine = CatalogRefresh(store, config=config, fetch=fetch)
-    v.catalog_refresh_worker.enabled = True
     v.catalog_refresh_worker.engine = engine
     v.refresh_scheduler.interval = (
         0.05  # Test acceleration, not a proposed production cadence.
@@ -285,6 +284,19 @@ def run(root, count, output):
     sampler = Thread(target=sample, daemon=True)
     sampler.start()
     with TestClient(v.app) as client:
+        control = []
+        for _ in range(10):
+            before_control = time.perf_counter()
+            assert client.get("/api/v2/catalog?limit=20").status_code == 200
+            control.append((time.perf_counter() - before_control) * 1000)
+        baseline_memory = {}
+        if Path("/proc/self/status").exists():
+            baseline_memory = {
+                line.split(":")[0]: line.split(":")[1].strip()
+                for line in Path("/proc/self/status").read_text().splitlines()
+                if line.startswith(("VmRSS:", "VmHWM:"))
+            }
+        v.catalog_refresh_worker.enabled = True
         api = Thread(target=traffic, args=(client,), daemon=True)
         api.start()
         await_success()  # Identical normalized data, initial hash bootstrap.
@@ -303,6 +315,15 @@ def run(root, count, output):
         with store.connection(True) as db:
             db.execute("UPDATE catalog_refresh_jobs SET next_due=0")
         await_success()  # Full-history revision reconciliation.
+        for version in (
+            3,
+            4,
+        ):  # Repeated releases exercise proof compaction and storage reuse.
+            engine.cache = None
+            phase[0] = version
+            with store.connection(True) as db:
+                db.execute("UPDATE catalog_refresh_jobs SET next_due=0")
+            await_success()
         # Simultaneous explicit Discovery refresh and bounded overload.
         from backend.app.v2.workload import WorkloadBusy
 
@@ -377,6 +398,8 @@ def run(root, count, output):
         "seconds": time.perf_counter() - started,
         "cpu_seconds": time.process_time() - cpu,
         "backend_memory": memory,
+        "baseline_worker_disabled_memory": baseline_memory,
+        "baseline_catalog_p95_ms": sorted(control)[-1],
         "cgroup": snapshot(),
         "sampled_sqlite_peaks": sizes,
         "api_status": dict(Counter(s for s, _ in latencies)),
@@ -393,6 +416,12 @@ def run(root, count, output):
         or v.catalog_refresh_worker.future.done(),
         "production_access": False,
     }
+    if result["cgroup"]["available"]:
+        cg = result["cgroup"]
+        assert cg["memory_max"] == 512 * 1024 * 1024 and cg["swap_max"] == 0
+        assert cg["cpu_max"] == "50000 100000"
+        assert cg["memory_events"].get("oom_kill", 0) == 0
+        result["capacity_headroom_bytes"] = cg["memory_max"] - cg["memory_peak"]
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result), flush=True)

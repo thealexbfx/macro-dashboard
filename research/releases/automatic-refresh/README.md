@@ -62,6 +62,10 @@ OECD, Japan and private World Bank rights are not inferred from API availability
   An unexplained non-null-to-null change is quarantined; explicit flagged missing
   revisions can pass. The existing transactional generation engine records revisions
   and preserves last-good public data on failed/partial imports.
+  Refresh promotion retains existing per-observation proofs for unchanged rows,
+  avoiding full-history rewrites/duplicate receipts for a small revision. The new
+  generation still verifies the complete source response; old readers already
+  support observations backed by multiple completed generations.
 * Publication is still a separate, explicit `release_cli activate --approve-display`
   operation after per-ID approval and complete receipts. No worker writes grants,
   scope reviews, legacy datasets, saved research or World Bank tables. AI and

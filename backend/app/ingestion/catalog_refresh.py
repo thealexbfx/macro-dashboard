@@ -264,6 +264,7 @@ class CatalogRefresh:
             bounds=Bounds(records=250),
             max_generation_rows=50000,
             compact_completed_staging=True,
+            preserve_unchanged_rows=True,
             max_storage_bytes=384 * 1024 * 1024,
             cancel=self.cancel,
         )
@@ -542,9 +543,12 @@ class CatalogRefreshWorker:
         self.cancel, self.lock = Event(), Lock()
         self.pool = self.future = self.engine = None
         self.error_code = None
+        self.restart_requested = False
 
     def start(self):
-        self.cancel.clear()
+        with self.lock:
+            if self.cancel.is_set():
+                self.restart_requested = True
 
     def _run(self):
         try:
@@ -562,6 +566,12 @@ class CatalogRefreshWorker:
 
     def tick(self):
         with self.lock:
+            if self.restart_requested:
+                if self.future and not self.future.done():
+                    return
+                self.pool = self.engine = None
+                self.cancel = Event()
+                self.restart_requested = False
             if (
                 not self.enabled
                 or self.cancel.is_set()
@@ -576,9 +586,11 @@ class CatalogRefreshWorker:
             self.future = self.pool.submit(self._run)
 
     def stop(self):
-        self.cancel.set()
-        if self.pool:
-            self.pool.shutdown(wait=False, cancel_futures=True)
+        with self.lock:
+            self.restart_requested = False
+            self.cancel.set()
+            if self.pool:
+                self.pool.shutdown(wait=False, cancel_futures=True)
 
     def status(self):
         try:

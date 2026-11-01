@@ -25,7 +25,13 @@ jobs:
       - name: Combined API, Discovery, revisions and unchanged checks
         run: |
           mkdir -p "$RUNNER_TEMP/refresh"
+          mkdir -p "$RUNNER_TEMP/refresh-disk"
+          truncate -s 1G "$RUNNER_TEMP/refresh-disk.img"
+          mkfs.ext4 -F "$RUNNER_TEMP/refresh-disk.img"
+          sudo mount -o loop "$RUNNER_TEMP/refresh-disk.img" "$RUNNER_TEMP/refresh-disk"
+          trap 'sudo umount "$RUNNER_TEMP/refresh-disk"' EXIT
           docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
+            -e TMPDIR=/disposable -v "$RUNNER_TEMP/refresh-disk:/disposable" \
             -v "$RUNNER_TEMP/refresh:/results" --entrypoint python catalog-refresh \
             -m scripts.validate_catalog_refresh --datasets ${{ matrix.datasets }} --output /results/capacity.json
       - uses: actions/upload-artifact@v4
