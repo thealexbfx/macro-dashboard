@@ -1,0 +1,469 @@
+{
+  "cpi": {
+    "id": "cpi",
+    "provider": "fred",
+    "provider_id": "CPIAUCSL",
+    "frequency": "monthly",
+    "units": "Index 1982–1984=100",
+    "seasonal_adjustment": "Seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "yoy",
+      "mom",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "index"
+  },
+  "core_cpi": {
+    "id": "core_cpi",
+    "provider": "fred",
+    "provider_id": "CPILFESL",
+    "frequency": "monthly",
+    "units": "Index 1982–1984=100",
+    "seasonal_adjustment": "Seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "yoy",
+      "mom",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "index"
+  },
+  "pce": {
+    "id": "pce",
+    "provider": "fred",
+    "provider_id": "PCEPI",
+    "frequency": "monthly",
+    "units": "Index 2017=100",
+    "seasonal_adjustment": "Seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "yoy",
+      "mom",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "index"
+  },
+  "core_pce": {
+    "id": "core_pce",
+    "provider": "fred",
+    "provider_id": "PCEPILFE",
+    "frequency": "monthly",
+    "units": "Index 2017=100",
+    "seasonal_adjustment": "Seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "yoy",
+      "mom",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "index"
+  },
+  "unemployment": {
+    "id": "unemployment",
+    "provider": "fred",
+    "provider_id": "UNRATE",
+    "frequency": "monthly",
+    "units": "Percent",
+    "seasonal_adjustment": "Seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "pp",
+      "standardized"
+    ],
+    "representation": "rate"
+  },
+  "payrolls": {
+    "id": "payrolls",
+    "provider": "fred",
+    "provider_id": "PAYEMS",
+    "frequency": "monthly",
+    "units": "Thousands of persons",
+    "seasonal_adjustment": "Seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "yoy",
+      "mom",
+      "indexed",
+      "standardized",
+      "jobs"
+    ],
+    "representation": "level"
+  },
+  "real_gdp_growth": {
+    "id": "real_gdp_growth",
+    "provider": "fred",
+    "provider_id": "A191RL1Q225SBEA",
+    "frequency": "quarterly",
+    "units": "Percent change, quarterly annualized",
+    "seasonal_adjustment": "Seasonally adjusted annual rate",
+    "allowed_transformations": [
+      "level",
+      "pp",
+      "standardized"
+    ],
+    "representation": "growth_rate"
+  },
+  "fed_funds": {
+    "id": "fed_funds",
+    "provider": "fred",
+    "provider_id": "FEDFUNDS",
+    "frequency": "monthly",
+    "units": "Percent",
+    "seasonal_adjustment": "Not seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "pp",
+      "standardized"
+    ],
+    "representation": "rate"
+  },
+  "sp500": {
+    "id": "sp500",
+    "provider": "yahoo",
+    "provider_id": "^GSPC",
+    "frequency": "daily",
+    "units": "index points",
+    "seasonal_adjustment": null,
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "price"
+  },
+  "gold": {
+    "id": "gold",
+    "provider": "yahoo",
+    "provider_id": "GC=F",
+    "frequency": "daily",
+    "units": "USD / troy oz",
+    "seasonal_adjustment": null,
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "price"
+  },
+  "us10y": {
+    "id": "us10y",
+    "provider": "fred",
+    "provider_id": "DGS10",
+    "frequency": "daily",
+    "units": "Percent",
+    "seasonal_adjustment": "Not seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "pp",
+      "standardized"
+    ],
+    "representation": "rate"
+  },
+  "dxy": {
+    "id": "dxy",
+    "provider": "yahoo",
+    "provider_id": "DX-Y.NYB",
+    "frequency": "daily",
+    "units": "index points",
+    "seasonal_adjustment": null,
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "price"
+  },
+  "wti": {
+    "id": "wti",
+    "provider": "yahoo",
+    "provider_id": "CL=F",
+    "frequency": "daily",
+    "units": "USD / barrel",
+    "seasonal_adjustment": null,
+    "allowed_transformations": [
+      "level",
+      "standardized"
+    ],
+    "representation": "signed_flow"
+  },
+  "cpi_nsa": {
+    "id": "cpi_nsa",
+    "provider": "fred",
+    "provider_id": "CPIAUCNS",
+    "frequency": "monthly",
+    "units": "Index 1982–1984=100",
+    "seasonal_adjustment": "Not seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "yoy",
+      "mom",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "index"
+  },
+  "core_cpi_nsa": {
+    "id": "core_cpi_nsa",
+    "provider": "fred",
+    "provider_id": "CPILFENS",
+    "frequency": "monthly",
+    "units": "Index 1982–1984=100",
+    "seasonal_adjustment": "Not seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "yoy",
+      "mom",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "index"
+  },
+  "initial_claims": {
+    "id": "initial_claims",
+    "provider": "fred",
+    "provider_id": "ICSA",
+    "frequency": "weekly",
+    "units": "Number of claims",
+    "seasonal_adjustment": "Seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "level"
+  },
+  "job_openings": {
+    "id": "job_openings",
+    "provider": "fred",
+    "provider_id": "JTSJOL",
+    "frequency": "monthly",
+    "units": "Thousands of job openings",
+    "seasonal_adjustment": "Seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "mom",
+      "yoy",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "level"
+  },
+  "participation": {
+    "id": "participation",
+    "provider": "fred",
+    "provider_id": "CIVPART",
+    "frequency": "monthly",
+    "units": "Percent",
+    "seasonal_adjustment": "Seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "pp",
+      "standardized"
+    ],
+    "representation": "rate"
+  },
+  "hourly_earnings": {
+    "id": "hourly_earnings",
+    "provider": "fred",
+    "provider_id": "CES0500000003",
+    "frequency": "monthly",
+    "units": "Dollars per hour",
+    "seasonal_adjustment": "Seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "mom",
+      "yoy",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "level"
+  },
+  "breakeven_5y": {
+    "id": "breakeven_5y",
+    "provider": "fred",
+    "provider_id": "T5YIE",
+    "frequency": "daily",
+    "units": "Percent",
+    "seasonal_adjustment": "Not seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "pp",
+      "standardized"
+    ],
+    "representation": "rate"
+  },
+  "retail_sales": {
+    "id": "retail_sales",
+    "provider": "fred",
+    "provider_id": "RSAFS",
+    "frequency": "monthly",
+    "units": "Millions of dollars",
+    "seasonal_adjustment": "Seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "mom",
+      "yoy",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "level"
+  },
+  "real_consumption": {
+    "id": "real_consumption",
+    "provider": "fred",
+    "provider_id": "PCEC96",
+    "frequency": "monthly",
+    "units": "Billions of chained 2017 dollars",
+    "seasonal_adjustment": "Seasonally adjusted annual rate",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "mom",
+      "yoy",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "level"
+  },
+  "consumer_sentiment": {
+    "id": "consumer_sentiment",
+    "provider": "fred",
+    "provider_id": "UMCSENT",
+    "frequency": "monthly",
+    "units": "Index 1966:Q1=100",
+    "seasonal_adjustment": "Not seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "index"
+  },
+  "housing_starts": {
+    "id": "housing_starts",
+    "provider": "fred",
+    "provider_id": "HOUST",
+    "frequency": "monthly",
+    "units": "Thousands of units",
+    "seasonal_adjustment": "Seasonally adjusted annual rate",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "mom",
+      "yoy",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "level"
+  },
+  "building_permits": {
+    "id": "building_permits",
+    "provider": "fred",
+    "provider_id": "PERMIT",
+    "frequency": "monthly",
+    "units": "Thousands of units",
+    "seasonal_adjustment": "Seasonally adjusted annual rate",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "mom",
+      "yoy",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "level"
+  },
+  "mortgage_30y": {
+    "id": "mortgage_30y",
+    "provider": "fred",
+    "provider_id": "MORTGAGE30US",
+    "frequency": "weekly",
+    "units": "Percent",
+    "seasonal_adjustment": "Not seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "pp",
+      "standardized"
+    ],
+    "representation": "rate"
+  },
+  "industrial_production": {
+    "id": "industrial_production",
+    "provider": "fred",
+    "provider_id": "INDPRO",
+    "frequency": "monthly",
+    "units": "Index 2017=100 (industrial output)",
+    "seasonal_adjustment": "Seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "percent",
+      "mom",
+      "yoy",
+      "indexed",
+      "standardized"
+    ],
+    "representation": "index"
+  },
+  "yield_curve": {
+    "id": "yield_curve",
+    "provider": "fred",
+    "provider_id": "T10Y2Y",
+    "frequency": "daily",
+    "units": "Percent",
+    "seasonal_adjustment": "Not seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "pp",
+      "standardized"
+    ],
+    "representation": "rate"
+  },
+  "high_yield_spread": {
+    "id": "high_yield_spread",
+    "provider": "fred",
+    "provider_id": "BAMLH0A0HYM2",
+    "frequency": "daily",
+    "units": "Percent",
+    "seasonal_adjustment": "Not seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "pp",
+      "standardized"
+    ],
+    "representation": "rate"
+  },
+  "investment_grade_spread": {
+    "id": "investment_grade_spread",
+    "provider": "fred",
+    "provider_id": "BAMLC0A0CM",
+    "frequency": "daily",
+    "units": "Percent",
+    "seasonal_adjustment": "Not seasonally adjusted",
+    "allowed_transformations": [
+      "level",
+      "pp",
+      "standardized"
+    ],
+    "representation": "rate"
+  }
+}
