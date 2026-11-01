@@ -141,15 +141,38 @@ def run(root, count, output):
         with store.connection(True) as db:
             activate(db, pub, reader, approved=True)  # Disposable fixture only.
     now = datetime.now(UTC)
+    import numpy as np
+    import pandas as pd
+
+    legacy_rows = 0
     with store.connection(True) as db:
-        for key, spec in v.SPECS.items():
+        for index, (key, spec) in enumerate(v.SPECS.items()):
+            end = now.date() - timedelta(days=1)
+            if spec.frequency == "monthly":
+                end = now.date().replace(day=1) - timedelta(days=1)
+            elif spec.frequency == "quarterly":
+                end = now.date().replace(
+                    month=((now.month - 1) // 3) * 3 + 1, day=1
+                ) - timedelta(days=1)
+            dates = pd.date_range(
+                "1990-01-01",
+                end,
+                freq={
+                    "daily": "B",
+                    "weekly": "W-THU",
+                    "monthly": "MS",
+                    "quarterly": "QS",
+                }[spec.frequency],
+            )
+            t = np.arange(len(dates))
+            values = 100 + index * 10 + 0.025 * t + 3 * np.sin(t / 13 + index)
+            if spec.units.lower().startswith("percent"):
+                values = 3 + 0.2 * np.sin(t / 13 + index)
             history = [
-                {
-                    "date": f"{2010 + i // 12}-{i % 12 + 1:02d}-01",
-                    "value": 100.0 + i / 20,
-                }
-                for i in range(190)
+                {"date": str(day.date()), "value": float(value)}
+                for day, value in zip(dates, values)
             ]
+            legacy_rows += len(history)
             dataset = v.Dataset(
                 **spec.__dict__,
                 status="ok",
@@ -216,6 +239,17 @@ def run(root, count, output):
     v.refresh_scheduler.interval = (
         0.05  # Test acceleration, not a proposed production cadence.
     )
+    last_scan = [0.0]
+
+    def accelerated_tick():
+        # Accelerate ingestion dispatch without scanning Discovery twenty times
+        # per second. One scan/sec still exceeds production's once/minute tick.
+        if time.monotonic() - last_scan[0] >= 1:
+            last_scan[0] = time.monotonic()
+            return v.background_refresh()
+        return v.catalog_refresh_worker.tick()
+
+    v.refresh_scheduler.target = accelerated_tick
 
     def forbidden(*a, **kw):
         raise AssertionError("External provider access forbidden in resource fixture")
@@ -223,6 +257,7 @@ def run(root, count, output):
     v.service.provider.fred_series = forbidden
     v.service.provider.market_series = forbidden
     stop, latencies = Event(), []
+    status_by_path = Counter()
     sizes = {"db": 0, "wal": 0, "shm": 0}
     keeper = sqlite3.connect(database)
     keeper.execute("PRAGMA journal_mode=WAL")
@@ -253,6 +288,7 @@ def run(root, count, output):
                 latencies.append(
                     (response.status_code, (time.perf_counter() - before) * 1000)
                 )
+                status_by_path[(path.split("?")[0], response.status_code)] += 1
             response = client.post(
                 "/api/v2/compare",
                 json={
@@ -262,6 +298,7 @@ def run(root, count, output):
                 },
             )
             latencies.append((response.status_code, 0))
+            status_by_path[("/api/v2/compare", response.status_code)] += 1
             stop.wait(0.1)
 
     def await_success():
@@ -284,6 +321,12 @@ def run(root, count, output):
     sampler = Thread(target=sample, daemon=True)
     sampler.start()
     with TestClient(v.app) as client:
+        for _ in range(180):
+            if client.get("/api/v2/discovery").status_code == 200:
+                break
+            time.sleep(0.1)
+        else:
+            raise AssertionError("Cold Discovery warmup did not finish")
         control = []
         for _ in range(10):
             before_control = time.perf_counter()
@@ -394,6 +437,7 @@ def run(root, count, output):
         "native_datasets": count,
         "public_datasets": count + 30,
         "observations": observations,
+        "legacy_cached_observations": legacy_rows,
         "revisions": revisions,
         "seconds": time.perf_counter() - started,
         "cpu_seconds": time.process_time() - cpu,
@@ -403,6 +447,9 @@ def run(root, count, output):
         "cgroup": snapshot(),
         "sampled_sqlite_peaks": sizes,
         "api_status": dict(Counter(s for s, _ in latencies)),
+        "api_status_by_path": {
+            f"{path}:{code}": n for (path, code), n in status_by_path.items()
+        },
         "overload_status": dict(Counter(burst)),
         "api_p50_ms": statistics.median(successful),
         "api_p95_ms": successful[int(len(successful) * 0.95)],
