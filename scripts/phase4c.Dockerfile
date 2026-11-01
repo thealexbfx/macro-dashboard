@@ -9,5 +9,6 @@ COPY backend/app backend/app
 COPY catalog catalog
 COPY macro_engine macro_engine
 COPY scripts scripts
+COPY research/releases/first-live/selection.json research/releases/first-live/selection.json
 CMD ["python", "scripts/validate_phase4c.py"]
 

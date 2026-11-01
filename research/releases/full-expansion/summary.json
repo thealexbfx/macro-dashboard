@@ -1,0 +1,28 @@
+{
+  "legacy_public": 30,
+  "additional_development_validated": 185,
+  "development_catalog_total": 215,
+  "native_rows": 203387,
+  "non_null_rows": 194180,
+  "unresolved_ids": 98,
+  "manifest_entries_unchanged": 309,
+  "additional_suitability_ids": 4,
+  "provider_counts": {
+    "bls": 9,
+    "boe": 7,
+    "desnz": 6,
+    "ecb": 8,
+    "eia": 7,
+    "eurostat": 78,
+    "federal_reserve": 10,
+    "census": 15,
+    "bea": 9,
+    "dol": 1,
+    "ons": 26,
+    "uk_building_materials": 4,
+    "usgs": 5
+  },
+  "production_changes": false,
+  "ai_grants": 0,
+  "discovery_grants": 0
+}

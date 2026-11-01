@@ -1,0 +1,1322 @@
+{
+  "platform": "win32",
+  "datasets": [
+    {
+      "id": "bls_24870509f36ee4ecd234",
+      "state": "validated",
+      "observations": 441,
+      "seconds": 0.161,
+      "preview_ms": 3.576
+    },
+    {
+      "id": "boe_1d553b5bdd1f7e891b14",
+      "state": "validated",
+      "observations": 13102,
+      "seconds": 3.945,
+      "preview_ms": 6.432
+    },
+    {
+      "id": "boe_78c1b0ddd5b081685915",
+      "state": "validated",
+      "observations": 532,
+      "seconds": 0.122,
+      "preview_ms": 3.184
+    },
+    {
+      "id": "boe_7b7637a3b65708d59ec6",
+      "state": "validated",
+      "observations": 402,
+      "seconds": 0.095,
+      "preview_ms": 6.084
+    },
+    {
+      "id": "boe_7eaa2557cec31cfd442c",
+      "state": "validated",
+      "observations": 531,
+      "seconds": 0.12,
+      "preview_ms": 3.247
+    },
+    {
+      "id": "boe_9a0264149af073a61bb2",
+      "state": "validated",
+      "observations": 7536,
+      "seconds": 1.725,
+      "preview_ms": 3.411
+    },
+    {
+      "id": "boe_9b273c7c43b5805395f8",
+      "state": "validated",
+      "observations": 207,
+      "seconds": 0.055,
+      "preview_ms": 3.331
+    },
+    {
+      "id": "boe_add9ddfbda80cc7d61b4",
+      "state": "validated",
+      "observations": 207,
+      "seconds": 0.052,
+      "preview_ms": 3.222
+    },
+    {
+      "id": "desnz_545740a2d48ae00c5437",
+      "state": "validated",
+      "observations": 343,
+      "seconds": 0.081,
+      "preview_ms": 3.217
+    },
+    {
+      "id": "desnz_5c8a6875ed4f65582ec8",
+      "state": "validated",
+      "observations": 379,
+      "seconds": 0.101,
+      "preview_ms": 3.39
+    },
+    {
+      "id": "desnz_8790f184e015b31f6bdb",
+      "state": "validated",
+      "observations": 343,
+      "seconds": 0.073,
+      "preview_ms": 3.482
+    },
+    {
+      "id": "desnz_a9eddb44d17898ec397e",
+      "state": "validated",
+      "observations": 376,
+      "seconds": 0.094,
+      "preview_ms": 3.243
+    },
+    {
+      "id": "desnz_b0352af967ee12f9bb5d",
+      "state": "validated",
+      "observations": 355,
+      "seconds": 0.073,
+      "preview_ms": 3.767
+    },
+    {
+      "id": "desnz_b36f0a974575a25cd1b7",
+      "state": "validated",
+      "observations": 366,
+      "seconds": 0.101,
+      "preview_ms": 3.535
+    },
+    {
+      "id": "ecb_116ee9feb5b1ea43cab6",
+      "state": "validated",
+      "observations": 7135,
+      "seconds": 1.695,
+      "preview_ms": 3.451
+    },
+    {
+      "id": "ecb_18cb4fac8e5507865410",
+      "state": "validated",
+      "observations": 10166,
+      "seconds": 2.885,
+      "preview_ms": 3.573
+    },
+    {
+      "id": "ecb_6cfa1fb1a715de4c67d2",
+      "state": "validated",
+      "observations": 10166,
+      "seconds": 2.87,
+      "preview_ms": 3.742
+    },
+    {
+      "id": "ecb_878b696f67ae88b6e877",
+      "state": "validated",
+      "observations": 1814,
+      "seconds": 0.3,
+      "preview_ms": 4.189
+    },
+    {
+      "id": "ecb_93d62599805666a2d00b",
+      "state": "validated",
+      "observations": 561,
+      "seconds": 0.117,
+      "preview_ms": 3.313
+    },
+    {
+      "id": "ecb_b3843342de698c904f6f",
+      "state": "validated",
+      "observations": 7188,
+      "seconds": 1.771,
+      "preview_ms": 4.412
+    },
+    {
+      "id": "ecb_e79d218383e19ee52b84",
+      "state": "validated",
+      "observations": 7188,
+      "seconds": 1.82,
+      "preview_ms": 3.839
+    },
+    {
+      "id": "ecb_f2dc80be2008d28123fe",
+      "state": "validated",
+      "observations": 7188,
+      "seconds": 1.83,
+      "preview_ms": 7.379
+    },
+    {
+      "id": "eia_1f2e8f732156c8e94fdd",
+      "state": "validated",
+      "observations": 548,
+      "seconds": 0.212,
+      "preview_ms": 5.464
+    },
+    {
+      "id": "eia_4922b423fe8b2b32866f",
+      "state": "validated",
+      "observations": 2300,
+      "seconds": 0.482,
+      "preview_ms": 4.735
+    },
+    {
+      "id": "eia_4f9f06aabda8ff167d48",
+      "state": "validated",
+      "observations": 2283,
+      "seconds": 0.481,
+      "preview_ms": 4.448
+    },
+    {
+      "id": "eia_75bb94383fe0738b61e8",
+      "state": "validated",
+      "observations": 1921,
+      "seconds": 0.384,
+      "preview_ms": 4.004
+    },
+    {
+      "id": "eia_ee0bdf88256d8aae541c",
+      "state": "validated",
+      "observations": 2300,
+      "seconds": 0.418,
+      "preview_ms": 4.071
+    },
+    {
+      "id": "eia_feda97c6fccc3ab58f53",
+      "state": "validated",
+      "observations": 878,
+      "seconds": 0.14,
+      "preview_ms": 3.526
+    },
+    {
+      "id": "eia_wti_spot_daily",
+      "state": "validated",
+      "observations": 9532,
+      "seconds": 2.35,
+      "preview_ms": 3.625
+    },
+    {
+      "id": "eurostat_03b4d5b0fa407ee1b32e",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.087,
+      "preview_ms": 4.507
+    },
+    {
+      "id": "eurostat_05596dcf57e38d7402be",
+      "state": "validated",
+      "observations": 31,
+      "seconds": 0.062,
+      "preview_ms": 7.055
+    },
+    {
+      "id": "eurostat_0705d44f64b77a2659b2",
+      "state": "validated",
+      "observations": 561,
+      "seconds": 0.119,
+      "preview_ms": 4.438
+    },
+    {
+      "id": "eurostat_0babd905442f489b51a2",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.104,
+      "preview_ms": 4.421
+    },
+    {
+      "id": "eurostat_0bd5561920a8d7523e9f",
+      "state": "validated",
+      "observations": 187,
+      "seconds": 0.083,
+      "preview_ms": 3.572
+    },
+    {
+      "id": "eurostat_1139dca5ddc9dedec61c",
+      "state": "validated",
+      "observations": 609,
+      "seconds": 0.162,
+      "preview_ms": 3.623
+    },
+    {
+      "id": "eurostat_16f6f277a7cd1ef9c48e",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.088,
+      "preview_ms": 4.487
+    },
+    {
+      "id": "eurostat_1dbf7d4cd20c533f1a81",
+      "state": "validated",
+      "observations": 429,
+      "seconds": 0.098,
+      "preview_ms": 7.217
+    },
+    {
+      "id": "eurostat_2591546ccb87a306e904",
+      "state": "validated",
+      "observations": 369,
+      "seconds": 0.105,
+      "preview_ms": 3.653
+    },
+    {
+      "id": "eurostat_2c7ea5992f61c8117e25",
+      "state": "validated",
+      "observations": 561,
+      "seconds": 0.122,
+      "preview_ms": 7.095
+    },
+    {
+      "id": "eurostat_3043cda8ac2440d7e8dc",
+      "state": "validated",
+      "observations": 561,
+      "seconds": 0.132,
+      "preview_ms": 4.067
+    },
+    {
+      "id": "eurostat_333699a32b1eaa67ad9f",
+      "state": "validated",
+      "observations": 561,
+      "seconds": 0.132,
+      "preview_ms": 3.437
+    },
+    {
+      "id": "eurostat_37c229cd537e5fa533bb",
+      "state": "validated",
+      "observations": 525,
+      "seconds": 0.128,
+      "preview_ms": 3.51
+    },
+    {
+      "id": "eurostat_37e107647944bba02b02",
+      "state": "validated",
+      "observations": 31,
+      "seconds": 0.055,
+      "preview_ms": 4.768
+    },
+    {
+      "id": "eurostat_3e9b736c08d1e26f46f5",
+      "state": "validated",
+      "observations": 885,
+      "seconds": 0.202,
+      "preview_ms": 3.384
+    },
+    {
+      "id": "eurostat_3f8dcd72ad11f4f3b9ef",
+      "state": "validated",
+      "observations": 369,
+      "seconds": 0.109,
+      "preview_ms": 3.445
+    },
+    {
+      "id": "eurostat_4d4786ddbdc8229afff7",
+      "state": "validated",
+      "observations": 429,
+      "seconds": 0.093,
+      "preview_ms": 3.769
+    },
+    {
+      "id": "eurostat_4da3ab1198a88462eb4a",
+      "state": "validated",
+      "observations": 130,
+      "seconds": 0.089,
+      "preview_ms": 4.107
+    },
+    {
+      "id": "eurostat_55b6299390da85f4bc55",
+      "state": "validated",
+      "observations": 31,
+      "seconds": 0.053,
+      "preview_ms": 3.157
+    },
+    {
+      "id": "eurostat_57057d66f4dc2b3e9379",
+      "state": "validated",
+      "observations": 187,
+      "seconds": 0.085,
+      "preview_ms": 3.535
+    },
+    {
+      "id": "eurostat_5aeedc36988eaa3f3449",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.092,
+      "preview_ms": 3.662
+    },
+    {
+      "id": "eurostat_5b8a812af78796f7a1b5",
+      "state": "validated",
+      "observations": 885,
+      "seconds": 0.223,
+      "preview_ms": 4.65
+    },
+    {
+      "id": "eurostat_5d6a3102fc10d2452b38",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.089,
+      "preview_ms": 3.51
+    },
+    {
+      "id": "eurostat_5e9250b7ab05497fb1ee",
+      "state": "validated",
+      "observations": 561,
+      "seconds": 0.165,
+      "preview_ms": 3.492
+    },
+    {
+      "id": "eurostat_61686fe8fdc9577e6d47",
+      "state": "validated",
+      "observations": 525,
+      "seconds": 0.115,
+      "preview_ms": 3.563
+    },
+    {
+      "id": "eurostat_633ca07db5ab397b9535",
+      "state": "validated",
+      "observations": 369,
+      "seconds": 0.115,
+      "preview_ms": 3.616
+    },
+    {
+      "id": "eurostat_647a302990659c3097cd",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.087,
+      "preview_ms": 3.89
+    },
+    {
+      "id": "eurostat_6545d7d4eb72cd90a2b8",
+      "state": "validated",
+      "observations": 369,
+      "seconds": 0.089,
+      "preview_ms": 3.802
+    },
+    {
+      "id": "eurostat_66a3df38afcb956c67d8",
+      "state": "validated",
+      "observations": 31,
+      "seconds": 0.073,
+      "preview_ms": 3.452
+    },
+    {
+      "id": "eurostat_69ef021d5c6a9339fcd3",
+      "state": "validated",
+      "observations": 187,
+      "seconds": 0.086,
+      "preview_ms": 4.12
+    },
+    {
+      "id": "eurostat_6abbb1e68f00349646b7",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.09,
+      "preview_ms": 4.305
+    },
+    {
+      "id": "eurostat_6e1c74c102959c0ded7b",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.092,
+      "preview_ms": 3.666
+    },
+    {
+      "id": "eurostat_726780d271bd41010152",
+      "state": "validated",
+      "observations": 130,
+      "seconds": 0.085,
+      "preview_ms": 3.887
+    },
+    {
+      "id": "eurostat_734829d92c2058c77216",
+      "state": "validated",
+      "observations": 885,
+      "seconds": 0.196,
+      "preview_ms": 5.879
+    },
+    {
+      "id": "eurostat_77ba4f3a758d6ae4448a",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.101,
+      "preview_ms": 4.81
+    },
+    {
+      "id": "eurostat_7944786d6798bbf8db3f",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.088,
+      "preview_ms": 3.669
+    },
+    {
+      "id": "eurostat_7a19ae12c96fa92cb026",
+      "state": "validated",
+      "observations": 609,
+      "seconds": 0.145,
+      "preview_ms": 3.854
+    },
+    {
+      "id": "eurostat_7cf165f869db02fd3a1b",
+      "state": "validated",
+      "observations": 369,
+      "seconds": 0.104,
+      "preview_ms": 3.686
+    },
+    {
+      "id": "eurostat_7dd27d3c6b1d1c1de8d6",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.095,
+      "preview_ms": 8.133
+    },
+    {
+      "id": "eurostat_803e37302de4a467d0ff",
+      "state": "validated",
+      "observations": 130,
+      "seconds": 0.078,
+      "preview_ms": 5.852
+    },
+    {
+      "id": "eurostat_8172fb797467ba0c413f",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.102,
+      "preview_ms": 4.059
+    },
+    {
+      "id": "eurostat_8582d8dad7b6ccaedd7e",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.099,
+      "preview_ms": 4.052
+    },
+    {
+      "id": "eurostat_85c75060bd6f221cafd2",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.091,
+      "preview_ms": 3.899
+    },
+    {
+      "id": "eurostat_8882eceef98ae06a4fd9",
+      "state": "validated",
+      "observations": 369,
+      "seconds": 0.094,
+      "preview_ms": 7.57
+    },
+    {
+      "id": "eurostat_89bc385366c06541f184",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.109,
+      "preview_ms": 3.888
+    },
+    {
+      "id": "eurostat_8f5e1320615623acdebb",
+      "state": "validated",
+      "observations": 369,
+      "seconds": 0.094,
+      "preview_ms": 4.368
+    },
+    {
+      "id": "eurostat_9168b7ee162cb46fd5db",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.098,
+      "preview_ms": 4.88
+    },
+    {
+      "id": "eurostat_979299c668ea9e457e82",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.103,
+      "preview_ms": 3.876
+    },
+    {
+      "id": "eurostat_a12908192f33939823b7",
+      "state": "validated",
+      "observations": 429,
+      "seconds": 0.114,
+      "preview_ms": 5.222
+    },
+    {
+      "id": "eurostat_a2bfc29ea11f0d4fa5b2",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.091,
+      "preview_ms": 3.839
+    },
+    {
+      "id": "eurostat_a61def93a170d5c5762c",
+      "state": "validated",
+      "observations": 525,
+      "seconds": 0.142,
+      "preview_ms": 3.848
+    },
+    {
+      "id": "eurostat_a64737840a01e8e1f11d",
+      "state": "validated",
+      "observations": 561,
+      "seconds": 0.149,
+      "preview_ms": 6.619
+    },
+    {
+      "id": "eurostat_af7fc0bf9985c1cbeb07",
+      "state": "validated",
+      "observations": 609,
+      "seconds": 0.153,
+      "preview_ms": 4.029
+    },
+    {
+      "id": "eurostat_b0f75d3ba61d8bffa82c",
+      "state": "validated",
+      "observations": 561,
+      "seconds": 0.138,
+      "preview_ms": 6.903
+    },
+    {
+      "id": "eurostat_b2f6c00b9a12ca16d871",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.092,
+      "preview_ms": 4.813
+    },
+    {
+      "id": "eurostat_b31ed98bd58c686511c9",
+      "state": "validated",
+      "observations": 561,
+      "seconds": 0.116,
+      "preview_ms": 4.355
+    },
+    {
+      "id": "eurostat_b3b1fe3938ce4e4612eb",
+      "state": "validated",
+      "observations": 429,
+      "seconds": 0.11,
+      "preview_ms": 3.661
+    },
+    {
+      "id": "eurostat_b5a226808c9fc1bd3343",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.089,
+      "preview_ms": 4.329
+    },
+    {
+      "id": "eurostat_bacb4a8870074617884f",
+      "state": "validated",
+      "observations": 885,
+      "seconds": 0.202,
+      "preview_ms": 4.811
+    },
+    {
+      "id": "eurostat_bd06ac44aa02f75aed92",
+      "state": "validated",
+      "observations": 609,
+      "seconds": 0.172,
+      "preview_ms": 3.846
+    },
+    {
+      "id": "eurostat_c0fc01ed5efaf8a07abd",
+      "state": "validated",
+      "observations": 525,
+      "seconds": 0.126,
+      "preview_ms": 6.31
+    },
+    {
+      "id": "eurostat_c32a83e065ec840898c2",
+      "state": "validated",
+      "observations": 130,
+      "seconds": 0.08,
+      "preview_ms": 4.02
+    },
+    {
+      "id": "eurostat_c3685804680d4fbc348f",
+      "state": "validated",
+      "observations": 187,
+      "seconds": 0.086,
+      "preview_ms": 4.613
+    },
+    {
+      "id": "eurostat_c3e94638ddc73c642af2",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.095,
+      "preview_ms": 8.043
+    },
+    {
+      "id": "eurostat_c4ee71c7fea163d535cf",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.102,
+      "preview_ms": 4.021
+    },
+    {
+      "id": "eurostat_c94d6677ff350bbc29aa",
+      "state": "validated",
+      "observations": 561,
+      "seconds": 0.117,
+      "preview_ms": 4.51
+    },
+    {
+      "id": "eurostat_ca07b2efe38f8c038a13",
+      "state": "validated",
+      "observations": 561,
+      "seconds": 0.132,
+      "preview_ms": 3.816
+    },
+    {
+      "id": "eurostat_d303c438757ae9bc2f26",
+      "state": "validated",
+      "observations": 369,
+      "seconds": 0.094,
+      "preview_ms": 3.805
+    },
+    {
+      "id": "eurostat_d38252717f7c5fbeb7f0",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.101,
+      "preview_ms": 3.806
+    },
+    {
+      "id": "eurostat_dd0ae0f0f913e9323d8f",
+      "state": "validated",
+      "observations": 885,
+      "seconds": 0.208,
+      "preview_ms": 4.515
+    },
+    {
+      "id": "eurostat_e4b0591cf148660f3349",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.089,
+      "preview_ms": 4.006
+    },
+    {
+      "id": "eurostat_eca8a799de8d6687fe33",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.109,
+      "preview_ms": 5.166
+    },
+    {
+      "id": "eurostat_f15d1b83974acfbf7f24",
+      "state": "validated",
+      "observations": 885,
+      "seconds": 0.185,
+      "preview_ms": 4.755
+    },
+    {
+      "id": "eurostat_f23fa7fb3d15addabf30",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.109,
+      "preview_ms": 3.738
+    },
+    {
+      "id": "eurostat_f47fdc1895487cdcd7ef",
+      "state": "validated",
+      "observations": 885,
+      "seconds": 0.21,
+      "preview_ms": 4.078
+    },
+    {
+      "id": "eurostat_f71ae378f4c820fc0ae0",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.102,
+      "preview_ms": 3.973
+    },
+    {
+      "id": "eurostat_f9d434ea9b52ed59f29f",
+      "state": "validated",
+      "observations": 885,
+      "seconds": 0.205,
+      "preview_ms": 3.865
+    },
+    {
+      "id": "eurostat_fcab9c3216a8c2d01fc9",
+      "state": "validated",
+      "observations": 195,
+      "seconds": 0.087,
+      "preview_ms": 4.512
+    },
+    {
+      "id": "frb_broad_usd_daily",
+      "state": "validated",
+      "observations": 5430,
+      "seconds": 1.173,
+      "preview_ms": 4.586
+    },
+    {
+      "id": "frb_real_yield_10y_daily",
+      "state": "validated",
+      "observations": 6216,
+      "seconds": 1.395,
+      "preview_ms": 5.712
+    },
+    {
+      "id": "frb_real_yield_5y_daily",
+      "state": "validated",
+      "observations": 6216,
+      "seconds": 1.407,
+      "preview_ms": 8.415
+    },
+    {
+      "id": "fred_0743977c6b2ceee64240",
+      "state": "validated",
+      "observations": 945,
+      "seconds": 0.196,
+      "preview_ms": 4.743
+    },
+    {
+      "id": "fred_0996d769ba6d991fb4b2",
+      "state": "validated",
+      "observations": 404,
+      "seconds": 0.118,
+      "preview_ms": 4.04
+    },
+    {
+      "id": "fred_1620a0b26fbe7eb42376",
+      "state": "validated",
+      "observations": 404,
+      "seconds": 0.097,
+      "preview_ms": 5.338
+    },
+    {
+      "id": "fred_259d141714182247e607",
+      "state": "validated",
+      "observations": 404,
+      "seconds": 0.105,
+      "preview_ms": 3.957
+    },
+    {
+      "id": "fred_323f37502180ce7bd485",
+      "state": "validated",
+      "observations": 415,
+      "seconds": 0.111,
+      "preview_ms": 3.945
+    },
+    {
+      "id": "fred_344b1ec45d2e2a9be4ee",
+      "state": "validated",
+      "observations": 404,
+      "seconds": 0.113,
+      "preview_ms": 4.923
+    },
+    {
+      "id": "fred_4debaf340f08cd006d1c",
+      "state": "validated",
+      "observations": 813,
+      "seconds": 0.194,
+      "preview_ms": 4.256
+    },
+    {
+      "id": "fred_50ca9db8f07142c7c5ef",
+      "state": "validated",
+      "observations": 319,
+      "seconds": 0.139,
+      "preview_ms": 4.615
+    },
+    {
+      "id": "fred_56c8c0f79eb999f4cbbb",
+      "state": "validated",
+      "observations": 404,
+      "seconds": 0.096,
+      "preview_ms": 3.794
+    },
+    {
+      "id": "fred_587ae491484f07293dc5",
+      "state": "validated",
+      "observations": 813,
+      "seconds": 0.19,
+      "preview_ms": 4.022
+    },
+    {
+      "id": "fred_5917067a7da7dd7561f2",
+      "state": "validated",
+      "observations": 813,
+      "seconds": 0.187,
+      "preview_ms": 4.042
+    },
+    {
+      "id": "fred_5e43a009a68bedb42dbf",
+      "state": "validated",
+      "observations": 3118,
+      "seconds": 0.742,
+      "preview_ms": 4.019
+    },
+    {
+      "id": "fred_6b8b68d870a427695f32",
+      "state": "validated",
+      "observations": 404,
+      "seconds": 0.097,
+      "preview_ms": 3.915
+    },
+    {
+      "id": "fred_73f5b5c1a9e4f7bff5b6",
+      "state": "validated",
+      "observations": 319,
+      "seconds": 0.142,
+      "preview_ms": 3.974
+    },
+    {
+      "id": "fred_792eaccdffccf3325380",
+      "state": "validated",
+      "observations": 404,
+      "seconds": 0.117,
+      "preview_ms": 8.006
+    },
+    {
+      "id": "fred_848fe5e65c6c554669f1",
+      "state": "validated",
+      "observations": 717,
+      "seconds": 0.158,
+      "preview_ms": 3.856
+    },
+    {
+      "id": "fred_890f288b712279e3a9cf",
+      "state": "validated",
+      "observations": 415,
+      "seconds": 0.119,
+      "preview_ms": 4.115
+    },
+    {
+      "id": "fred_8d3240bb6b5eae523737",
+      "state": "validated",
+      "observations": 319,
+      "seconds": 0.139,
+      "preview_ms": 4.237
+    },
+    {
+      "id": "fred_925891ea36ab7371b4f0",
+      "state": "validated",
+      "observations": 765,
+      "seconds": 0.19,
+      "preview_ms": 3.965
+    },
+    {
+      "id": "fred_af0743e3dca22c827f61",
+      "state": "validated",
+      "observations": 669,
+      "seconds": 0.161,
+      "preview_ms": 4.385
+    },
+    {
+      "id": "fred_affeb2eb840ba19b589f",
+      "state": "validated",
+      "observations": 404,
+      "seconds": 0.096,
+      "preview_ms": 5.107
+    },
+    {
+      "id": "fred_b0bbd188e79316b7fe9c",
+      "state": "validated",
+      "observations": 319,
+      "seconds": 0.155,
+      "preview_ms": 3.917
+    },
+    {
+      "id": "fred_b608c6c5b9dad340617d",
+      "state": "validated",
+      "observations": 813,
+      "seconds": 0.189,
+      "preview_ms": 8.267
+    },
+    {
+      "id": "fred_b727b84e0caba8c28377",
+      "state": "validated",
+      "observations": 741,
+      "seconds": 0.172,
+      "preview_ms": 5.044
+    },
+    {
+      "id": "fred_b7b05b9474e87c2c4391",
+      "state": "validated",
+      "observations": 1246,
+      "seconds": 0.232,
+      "preview_ms": 4.314
+    },
+    {
+      "id": "fred_be9962a875a7440f41cc",
+      "state": "validated",
+      "observations": 319,
+      "seconds": 0.161,
+      "preview_ms": 4.467
+    },
+    {
+      "id": "fred_beaa8f365a880d8b11a3",
+      "state": "validated",
+      "observations": 717,
+      "seconds": 0.148,
+      "preview_ms": 4.024
+    },
+    {
+      "id": "fred_cc3466cd68878ef9a36f",
+      "state": "validated",
+      "observations": 813,
+      "seconds": 0.228,
+      "preview_ms": 4.141
+    },
+    {
+      "id": "fred_cfc0d3a8fc7e9df5bf55",
+      "state": "validated",
+      "observations": 404,
+      "seconds": 0.104,
+      "preview_ms": 3.888
+    },
+    {
+      "id": "fred_d6d19d1e7731f8d561c7",
+      "state": "validated",
+      "observations": 404,
+      "seconds": 0.096,
+      "preview_ms": 4.102
+    },
+    {
+      "id": "fred_da313eba90d5e9a31407",
+      "state": "validated",
+      "observations": 1053,
+      "seconds": 0.238,
+      "preview_ms": 4.596
+    },
+    {
+      "id": "fred_e817fca10f959aea0bfc",
+      "state": "validated",
+      "observations": 825,
+      "seconds": 0.231,
+      "preview_ms": 4.216
+    },
+    {
+      "id": "fred_eb08a1d6ec48181335d9",
+      "state": "validated",
+      "observations": 12968,
+      "seconds": 4.11,
+      "preview_ms": 4.506
+    },
+    {
+      "id": "fred_ee6f78fdeffb513d53d4",
+      "state": "validated",
+      "observations": 404,
+      "seconds": 0.118,
+      "preview_ms": 5.528
+    },
+    {
+      "id": "fred_eebc9f99bdbab57ba333",
+      "state": "validated",
+      "observations": 813,
+      "seconds": 0.213,
+      "preview_ms": 4.11
+    },
+    {
+      "id": "fred_f32c3279ee1106c518f9",
+      "state": "validated",
+      "observations": 657,
+      "seconds": 0.141,
+      "preview_ms": 4.199
+    },
+    {
+      "id": "fred_f4d6da21fa8031a3a242",
+      "state": "validated",
+      "observations": 319,
+      "seconds": 0.152,
+      "preview_ms": 4.143
+    },
+    {
+      "id": "fred_f9217275481db858faee",
+      "state": "validated",
+      "observations": 1053,
+      "seconds": 0.246,
+      "preview_ms": 4.782
+    },
+    {
+      "id": "fred_fa08d6372621c36b7753",
+      "state": "validated",
+      "observations": 203,
+      "seconds": 0.072,
+      "preview_ms": 4.497
+    },
+    {
+      "id": "fred_fb83bc372b6c55d48647",
+      "state": "validated",
+      "observations": 13153,
+      "seconds": 4.328,
+      "preview_ms": 4.274
+    },
+    {
+      "id": "ons_1d4b23dfc0948db64249",
+      "state": "validated",
+      "observations": 464,
+      "seconds": 0.108,
+      "preview_ms": 4.158
+    },
+    {
+      "id": "ons_1e225f710e5dd5ee593e",
+      "state": "validated",
+      "observations": 666,
+      "seconds": 0.152,
+      "preview_ms": 8.025
+    },
+    {
+      "id": "ons_215c26ad59b81f3db7ba",
+      "state": "validated",
+      "observations": 200,
+      "seconds": 0.071,
+      "preview_ms": 4.248
+    },
+    {
+      "id": "ons_24c4972dca3a5b1bbe32",
+      "state": "validated",
+      "observations": 465,
+      "seconds": 0.105,
+      "preview_ms": 5.685
+    },
+    {
+      "id": "ons_24df6f5df34ca52bac40",
+      "state": "validated",
+      "observations": 666,
+      "seconds": 0.171,
+      "preview_ms": 4.21
+    },
+    {
+      "id": "ons_25d3467f107b4839918d",
+      "state": "validated",
+      "observations": 285,
+      "seconds": 0.142,
+      "preview_ms": 8.345
+    },
+    {
+      "id": "ons_27271ab0b950200f5401",
+      "state": "validated",
+      "observations": 453,
+      "seconds": 0.103,
+      "preview_ms": 4.193
+    },
+    {
+      "id": "ons_29758966f717f2aa44da",
+      "state": "validated",
+      "observations": 282,
+      "seconds": 0.163,
+      "preview_ms": 4.208
+    },
+    {
+      "id": "ons_2cc6678249f2ade3e2b2",
+      "state": "validated",
+      "observations": 369,
+      "seconds": 0.093,
+      "preview_ms": 4.779
+    },
+    {
+      "id": "ons_38752d10c1efdc717be3",
+      "state": "validated",
+      "observations": 200,
+      "seconds": 0.062,
+      "preview_ms": 4.1
+    },
+    {
+      "id": "ons_39be433de4f7adbd251a",
+      "state": "validated",
+      "observations": 320,
+      "seconds": 0.092,
+      "preview_ms": 8.293
+    },
+    {
+      "id": "ons_53705523c8fb7b06619e",
+      "state": "validated",
+      "observations": 200,
+      "seconds": 0.073,
+      "preview_ms": 4.129
+    },
+    {
+      "id": "ons_5a00d3ab026be6d9800b",
+      "state": "validated",
+      "observations": 200,
+      "seconds": 0.06,
+      "preview_ms": 4.825
+    },
+    {
+      "id": "ons_6421faae8e3d13384c87",
+      "state": "validated",
+      "observations": 286,
+      "seconds": 0.141,
+      "preview_ms": 4.138
+    },
+    {
+      "id": "ons_6594cff336dfb6dc2a3e",
+      "state": "validated",
+      "observations": 200,
+      "seconds": 0.076,
+      "preview_ms": 4.158
+    },
+    {
+      "id": "ons_7009dd3952dd505a3864",
+      "state": "validated",
+      "observations": 940,
+      "seconds": 0.206,
+      "preview_ms": 4.612
+    },
+    {
+      "id": "ons_78e848998a32855f9a88",
+      "state": "validated",
+      "observations": 320,
+      "seconds": 0.098,
+      "preview_ms": 4.241
+    },
+    {
+      "id": "ons_819ec3316056961f5859",
+      "state": "validated",
+      "observations": 465,
+      "seconds": 0.133,
+      "preview_ms": 4.041
+    },
+    {
+      "id": "ons_8fee3c0605a186d69802",
+      "state": "validated",
+      "observations": 239,
+      "seconds": 0.06,
+      "preview_ms": 4.351
+    },
+    {
+      "id": "ons_a007e11b21ed0f67ccf1",
+      "state": "validated",
+      "observations": 286,
+      "seconds": 0.144,
+      "preview_ms": 8.31
+    },
+    {
+      "id": "ons_a2f555205f0a79658136",
+      "state": "validated",
+      "observations": 200,
+      "seconds": 0.069,
+      "preview_ms": 4.154
+    },
+    {
+      "id": "ons_a870666d741fbe34a30c",
+      "state": "validated",
+      "observations": 453,
+      "seconds": 0.095,
+      "preview_ms": 4.189
+    },
+    {
+      "id": "ons_e6035bf2acb76d69e995",
+      "state": "validated",
+      "observations": 477,
+      "seconds": 0.124,
+      "preview_ms": 4.616
+    },
+    {
+      "id": "ons_f055c30053e4d883ab2b",
+      "state": "validated",
+      "observations": 200,
+      "seconds": 0.056,
+      "preview_ms": 4.27
+    },
+    {
+      "id": "ons_f069edbcf1bc4e7ff9c5",
+      "state": "validated",
+      "observations": 200,
+      "seconds": 0.057,
+      "preview_ms": 4.021
+    },
+    {
+      "id": "ons_f6dae99116eb8476bd7b",
+      "state": "validated",
+      "observations": 200,
+      "seconds": 0.063,
+      "preview_ms": 7.914
+    },
+    {
+      "id": "uk_building_materials_0d6b93caa9e8331a8c1d",
+      "state": "validated",
+      "observations": 53,
+      "seconds": 0.058,
+      "preview_ms": 4.471
+    },
+    {
+      "id": "uk_building_materials_6d7654e12d33dda303fc",
+      "state": "validated",
+      "observations": 101,
+      "seconds": 0.04,
+      "preview_ms": 4.249
+    },
+    {
+      "id": "uk_building_materials_c852dbd06e8bb2ce83b2",
+      "state": "validated",
+      "observations": 53,
+      "seconds": 0.051,
+      "preview_ms": 5.894
+    },
+    {
+      "id": "uk_building_materials_fd9e6513a75988533463",
+      "state": "validated",
+      "observations": 101,
+      "seconds": 0.058,
+      "preview_ms": 4.756
+    },
+    {
+      "id": "usgs_0cc2a53a6246115c12a3",
+      "state": "validated",
+      "observations": 5,
+      "seconds": 0.038,
+      "preview_ms": 5.371
+    },
+    {
+      "id": "usgs_25eecfd75a8c34b0eea6",
+      "state": "validated",
+      "observations": 18,
+      "seconds": 0.041,
+      "preview_ms": 3.948
+    },
+    {
+      "id": "usgs_61b660c8c6fc24feb391",
+      "state": "validated",
+      "observations": 18,
+      "seconds": 0.035,
+      "preview_ms": 3.607
+    },
+    {
+      "id": "usgs_d014f12fbfa7864da9ec",
+      "state": "validated",
+      "observations": 5,
+      "seconds": 0.032,
+      "preview_ms": 3.168
+    },
+    {
+      "id": "usgs_fb6ee789a2dd21fd023b",
+      "state": "validated",
+      "observations": 5,
+      "seconds": 0.032,
+      "preview_ms": 3.479
+    }
+  ],
+  "validated": 185,
+  "observations": 203387,
+  "seconds": 61.032,
+  "cpu_seconds": 56.891,
+  "peak_rss_bytes": 154361856,
+  "cgroup": {
+    "available": false
+  },
+  "preview_ms_median": 4.13799996022135,
+  "preview_ms_max": 8.415099931880832,
+  "storage": {
+    "database": 280989696,
+    "-wal": 30689912,
+    "-shm": 65536
+  },
+  "restore_integrity": "ok",
+  "backend_loaded": true,
+  "storage_budget_mib": 384,
+  "concurrent_api_requests": 247,
+  "concurrent_api_errors": 0,
+  "concurrent_api_ms_max": 150.39670001715422,
+  "public_production_activated": false
+}
