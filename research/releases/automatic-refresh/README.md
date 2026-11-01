@@ -66,6 +66,8 @@ OECD, Japan and private World Bank rights are not inferred from API availability
   avoiding full-history rewrites/duplicate receipts for a small revision. The new
   generation still verifies the complete source response; old readers already
   support observations backed by multiple completed generations.
+  A per-window parsed snapshot cache avoids decoding/sorting the same source for
+  every page; every page still reads and verifies the complete snapshot SHA-256.
 * Publication is still a separate, explicit `release_cli activate --approve-display`
   operation after per-ID approval and complete receipts. No worker writes grants,
   scope reviews, legacy datasets, saved research or World Bank tables. AI and
@@ -99,6 +101,14 @@ and exercises 2,403 synthetic private WB rows, saved research, the real schedule
 API/compare/Discovery traffic, source checks, unchanged checks, full-history revisions
 and controlled overload. Observation counts/definitions match actual captured
 profiles; values and transport are **synthetic**, not new economic evidence.
+The final workload seeds the original 30 caches at their declared daily/weekly/
+monthly/quarterly frequencies from 1990 (98,437 observations), rather than using
+short monthly histories for every legacy series. Discovery is warmed before the
+disabled-worker baseline; three revision cycles exercise retention and restart
+checkpoints. Ingestion dispatch is accelerated, with Discovery scans once/second
+(production remains once/minute). Per-path status counts distinguish bounded
+analysis contention from catalog/read failures. Linux SQLite runs on a disposable
+1 GiB ext4 mount as well as the CPU/RAM/swap limits.
 
 GitHub workflow `catalog-refresh.yml` runs these under Python 3.14, 512 MiB RAM,
 zero swap and 0.5 CPU, with network disabled during workload tests. Separate actual

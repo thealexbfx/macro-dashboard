@@ -260,7 +260,11 @@ class CatalogRefresh:
         engine = PartitionedIngestion(
             self.store,
             [pub.definition],
-            {pub.definition.provider: SnapshotAdapter(path, pending["snapshot"])},
+            {
+                pub.definition.provider: SnapshotAdapter(
+                    path, pending["snapshot"], cache_parsed=True
+                )
+            },
             bounds=Bounds(records=250),
             max_generation_rows=50000,
             compact_completed_staging=True,

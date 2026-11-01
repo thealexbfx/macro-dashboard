@@ -455,3 +455,33 @@ def test_official_retry_after_is_preserved():
     with pytest.raises(ProviderError) as error:
         download("https://www.ons.gov.uk/example", opener=Limited())
     assert error.value.code == "http_429" and error.value.retry_after == 7200
+
+
+def test_cached_snapshot_still_hashes_every_page(tmp_path):
+    from backend.app.ingestion.official_snapshots import SnapshotAdapter
+    from backend.app.ingestion.partition_contracts import Bounds, Window
+
+    pub = candidates()[ID]
+    path, hashed = freeze(
+        tmp_path,
+        pub.definition,
+        tuple(
+            Observation(f"2020-{i:02d}", f"2020-{i:02d}", float(i)) for i in range(1, 4)
+        ),
+        b"fixture",
+        pub.source_url,
+    )
+    adapter = SnapshotAdapter(path, hashed, cache_parsed=True)
+    window = Window(date(2020, 1, 1), date(2020, 12, 31))
+    first = adapter.fetch(pub.definition, window, None, Bounds(records=1))
+    cached = adapter._parsed
+    assert (
+        adapter.fetch(pub.definition, window, first.next_cursor, Bounds(records=1))
+        .points[0]
+        .value
+        == 2
+    )
+    assert adapter._parsed is cached
+    path.write_bytes(path.read_bytes() + b" ")
+    with pytest.raises(ProviderError, match="snapshot_changed"):
+        adapter.fetch(pub.definition, window, "2", Bounds(records=1))
