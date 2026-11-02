@@ -301,7 +301,7 @@ def check(database, *, allow_refresh=False):
                 "SELECT public_display,ai_allowed,rights_state FROM ingest_datasets WHERE id=?",
                 (key,),
             ).fetchone()
-            if row and row != (0, 0, "unreviewed"):
+            if row != (0, 0, "unreviewed"):
                 raise ValueError("Private World Bank permissions differ")
         for table in ("norm_datasets", "catalog_release_grants"):
             if db.execute(

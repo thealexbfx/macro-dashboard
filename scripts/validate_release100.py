@@ -153,6 +153,7 @@ def exercise(root, bundle, output):
     keeper = sqlite3.connect(database)
     keeper.execute("PRAGMA journal_mode=WAL")
     started, cpu = time.perf_counter(), time.process_time()
+    cli_peak = [0]
 
     def cli(operation, *flags):
         command = [
@@ -167,15 +168,42 @@ def exercise(root, bundle, output):
             str(bundle),
             *flags,
         ]
-        result = subprocess.run(
+        process = subprocess.Popen(
             command,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            timeout=180,
             env=dict(os.environ, PYTHONPATH=os.pathsep.join(sys.path)),
         )
-        assert result.returncode == 0, result.stderr[-3000:]
-        return json.loads(result.stdout.splitlines()[-1])
+        sample_stop = Event()
+
+        def sample_child():
+            while not sample_stop.wait(0.005):
+                try:
+                    proc = Path(f"/proc/{process.pid}")
+                    if (
+                        b"backend.app.catalog.release100"
+                        not in (proc / "cmdline").read_bytes()
+                    ):
+                        continue  # Exclude the fork's inherited pre-exec backend footprint.
+                    for line in (proc / "status").read_text().splitlines():
+                        if line.startswith("VmHWM:"):
+                            cli_peak[0] = max(cli_peak[0], int(line.split()[1]) * 1024)
+                except (OSError, ValueError):
+                    pass
+
+        sampling = Thread(target=sample_child, daemon=True)
+        sampling.start()
+        try:
+            stdout, stderr = process.communicate(timeout=180)
+        finally:
+            sample_stop.set()
+            sampling.join(timeout=2)
+            if process.poll() is None:
+                process.kill()
+                process.wait()
+        assert process.returncode == 0, stderr[-3000:]
+        return json.loads(stdout.splitlines()[-1])
 
     def traffic(client):
         paths = [
@@ -284,7 +312,8 @@ def exercise(root, bundle, output):
         "seconds": time.perf_counter() - started,
         "backend_cpu_seconds": time.process_time() - cpu,
         "backend_memory": memory,
-        "cli_peak_rss_bytes": child_peak,
+        "cli_peak_rss_bytes": cli_peak[0] or None,
+        "child_rusage_peak_rss_bytes_including_pre_exec": child_peak,
         "cgroup": snapshot(),
         "sqlite_peaks": peaks,
         "api_status": {f"{p}:{c}": n for (p, c), n in status.items()},

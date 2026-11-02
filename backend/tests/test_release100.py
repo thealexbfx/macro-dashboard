@@ -201,3 +201,14 @@ def test_stage_bound_and_corruption_fail_closed(tmp_path):
     path.write_bytes(path.read_bytes() + b" ")
     with pytest.raises(ValueError, match="checksum"):
         r.stage(store.path, bundle)
+
+
+def test_missing_private_baseline_stops_before_staging(tmp_path):
+    store, bundle, reader = fixture(tmp_path)
+    with store.connection(True) as db:
+        db.execute("DELETE FROM ingest_datasets WHERE id=?", (r.PRIVATE[0],))
+    with pytest.raises(ValueError, match="World Bank"):
+        r.stage(store.path, bundle)
+    assert len(r.public_ids(reader)) == 43
+    with store.connection() as db:
+        assert db.execute("SELECT count(*) FROM norm_observations").fetchone()[0] == 26
