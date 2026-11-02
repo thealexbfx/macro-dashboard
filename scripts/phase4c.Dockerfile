@@ -11,5 +11,6 @@ COPY catalog catalog
 COPY macro_engine macro_engine
 COPY scripts scripts
 COPY research/releases/first-live/selection.json research/releases/first-live/selection.json
+COPY research/releases/release-100 research/releases/release-100
 CMD ["python", "scripts/validate_phase4c.py"]
 

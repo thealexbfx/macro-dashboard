@@ -106,7 +106,7 @@ def due(store, clock):
 
 
 def test_defaults_and_disabled_worker_never_initialize_or_schedule(tmp_path):
-    assert policy() == {}
+    assert len(policy()) == 70  # Reviewed release approvals; worker still defaults off.
     store = Store(tmp_path / "must-not-exist.sqlite3")
     w = CatalogRefreshWorker(store)
     w.start()

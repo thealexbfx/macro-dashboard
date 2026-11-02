@@ -18,8 +18,18 @@ from backend.app.v2.native_reader import NativeReader
 from backend.app.v2.state import Store
 
 
-def ingest(store, publication, snapshot_path, snapshot_hash, *, storage_budget_mib=384):
-    adapter = SnapshotAdapter(snapshot_path, snapshot_hash)
+def ingest(
+    store,
+    publication,
+    snapshot_path,
+    snapshot_hash,
+    *,
+    storage_budget_mib=384,
+    page_budget=2048,
+):
+    if type(page_budget) is not int or not 1 <= page_budget <= 2048:
+        raise ValueError("Invalid explicit page budget")
+    adapter = SnapshotAdapter(snapshot_path, snapshot_hash, cache_parsed=True)
     # Verify complete snapshot and identity before registering or queuing a job.
     if Path(snapshot_path).stat().st_size > 16 * 1024 * 1024:
         raise ValueError("Snapshot size check failed")
@@ -57,7 +67,7 @@ def ingest(store, publication, snapshot_path, snapshot_hash, *, storage_budget_m
     engine.create_generation(
         d.id, windows(min(starts), max(starts), span_days=3660), generation_id=key
     )
-    for _ in range(2048):
+    for _ in range(page_budget):
         result = engine.run_once()
         if result["state"] in {"failed", "busy"}:
             return {"id": d.id, "generation": key, **result}
@@ -67,7 +77,7 @@ def ingest(store, publication, snapshot_path, snapshot_hash, *, storage_budget_m
                     "SELECT state FROM norm_generations WHERE id=?", (key,)
                 ).fetchone()[0]
             return {"id": d.id, "generation": key, "state": state}
-    raise RuntimeError("Page budget exceeded; checkpoint retained")
+    return {"id": d.id, "generation": key, "state": "checkpointed"}
 
 
 def main():
