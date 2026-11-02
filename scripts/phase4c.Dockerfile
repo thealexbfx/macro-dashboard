@@ -1,5 +1,6 @@
 # Test image only; never referenced by Render.
-FROM python:3.12-slim-bookworm
+ARG PYTHON_VERSION=3.12
+FROM python:${PYTHON_VERSION}-slim-bookworm
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /workspace/macro-dashboard
 COPY requirements.txt requirements.txt

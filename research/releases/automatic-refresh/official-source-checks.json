@@ -1,0 +1,1509 @@
+{
+  "checked_at": "2026-11-01T22:41:23.108441+00:00",
+  "validated": 150,
+  "checked": 150,
+  "production_access": false,
+  "observations_ingested": 0,
+  "datasets": [
+    {
+      "id": "boe_1d553b5bdd1f7e891b14",
+      "provider": "boe",
+      "state": "source_validated",
+      "rows": 13102,
+      "source_hash": "b8dc00444260ee286d09076581dfe5124a2cd8d6aa0ddc54e9a72cc389038995",
+      "definition_hash": "1ffe337005d146a2ea9ee75806918f212cd00e0a92c0fc2676537b3d141bcdc7",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=IUDBEDR&UsingCodes=Y&CSVF=CT",
+      "seconds": 3.106
+    },
+    {
+      "id": "boe_78c1b0ddd5b081685915",
+      "provider": "boe",
+      "state": "source_validated",
+      "rows": 532,
+      "source_hash": "e64088562b0354c89eb1cdfd5600a9bd254734c665a1b8414c76d39afa9e12b5",
+      "definition_hash": "042d93bf4b21bab65a1e93b6b27ef2cf1adeb5c54cd64d7fe314d9b2e0823ce1",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=LPMAUYN&UsingCodes=Y&CSVF=CT",
+      "seconds": 0.996
+    },
+    {
+      "id": "boe_7b7637a3b65708d59ec6",
+      "provider": "boe",
+      "state": "source_validated",
+      "rows": 402,
+      "source_hash": "0f7ad7e4344d36aa463ba7aef97794bec45dd1e642a7db8206031b45f7c01b63",
+      "definition_hash": "454aed029bc577d06f76c8159f375a9ee1bb7cc981edfe722be302fe2235f4f4",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=LPMVTVX&UsingCodes=Y&CSVF=CT",
+      "seconds": 0.888
+    },
+    {
+      "id": "boe_7eaa2557cec31cfd442c",
+      "provider": "boe",
+      "state": "source_validated",
+      "rows": 531,
+      "source_hash": "11c111d39d640f6ddbef78bb6638d13fe636d34465395b451261f5458048afb8",
+      "definition_hash": "b547a9c33ab76b3eac7aaf93546187994ef2cd0ebf4b640e65e4747a6a4851ee",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=LPMBC69&UsingCodes=Y&CSVF=CT",
+      "seconds": 1.064
+    },
+    {
+      "id": "boe_9a0264149af073a61bb2",
+      "provider": "boe",
+      "state": "source_validated",
+      "rows": 7536,
+      "source_hash": "afeef691808214e4685b8fcebb69caca623ae8bf0431137d1c56b0153a57663d",
+      "definition_hash": "86e5376552590cd4cf277d5e3d59e97888d1866377a952829702dc019530bece",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=IUDSOIA&UsingCodes=Y&CSVF=CT",
+      "seconds": 1.819
+    },
+    {
+      "id": "boe_9b273c7c43b5805395f8",
+      "provider": "boe",
+      "state": "source_validated",
+      "rows": 207,
+      "source_hash": "48b0715194e9c6fbc68d74234e7432f3048432cf906aea674ad62293b7dbdc7f",
+      "definition_hash": "6ba2f0c1fa1af1c39646d2cf9bfa738e8b5782862d4eea9b58e5efaefc41015b",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=RPMB57Q&UsingCodes=Y&CSVF=CT",
+      "seconds": 0.889
+    },
+    {
+      "id": "boe_add9ddfbda80cc7d61b4",
+      "provider": "boe",
+      "state": "source_validated",
+      "rows": 207,
+      "source_hash": "96aa0d1e3fc54f5bdc6e19ce8347e16b06d39ed97f4d4249d7876002bbb6e460",
+      "definition_hash": "7578debfb2627c532d34f00a1fc209808c483eaa5f4904dc4f1eb4fb9baa9dbf",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=RPMB53Q&UsingCodes=Y&CSVF=CT",
+      "seconds": 0.646
+    },
+    {
+      "id": "ecb_116ee9feb5b1ea43cab6",
+      "provider": "ecb",
+      "state": "source_validated",
+      "rows": 7135,
+      "source_hash": "c8525cf2c9b34e26edf4dacb13d55874d5cd5a0cb3bf11cf2fc969d9f6ea95c9",
+      "definition_hash": "d9d07bc56d209cfc08e6f6578ff0ea94616af18dd33986570df531201a0d1c35",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MRR_FR.LEV?format=csvdata",
+      "seconds": 2.136
+    },
+    {
+      "id": "ecb_18cb4fac8e5507865410",
+      "provider": "ecb",
+      "state": "source_validated",
+      "rows": 10166,
+      "source_hash": "6a17315002d5cdb205d40ed9222549e4dd372639945498a5544909047c4ef951",
+      "definition_hash": "7f5c3d58a078a8e1f36a7c65550468610adeaa315d6edf75fb11510f2b4ca75b",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.DFR.LEV?format=csvdata",
+      "seconds": 2.32
+    },
+    {
+      "id": "ecb_6cfa1fb1a715de4c67d2",
+      "provider": "ecb",
+      "state": "source_validated",
+      "rows": 10166,
+      "source_hash": "fb7cad58bcb7b62ebe400251cdf67fbc2afca2800221c79a807268ab496b9f1f",
+      "definition_hash": "0f6664624078fbd1d5c5a917869b3f0e2b69096a564b5ccd6e7a3af0725f3bea",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MLFR.LEV?format=csvdata",
+      "seconds": 2.252
+    },
+    {
+      "id": "ecb_878b696f67ae88b6e877",
+      "provider": "ecb",
+      "state": "source_validated",
+      "rows": 1814,
+      "source_hash": "b453d11b7d191c5513d80332f104a0e9e2ac26743083ef9352de1cab75e9903c",
+      "definition_hash": "6786891bccfc6178dff3c3fd2aac69ecc4de09d02e8e5fa3d31564cfe8842c6a",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/EST/B.EU000A2X2A25.WT?format=csvdata",
+      "seconds": 1.653
+    },
+    {
+      "id": "ecb_93d62599805666a2d00b",
+      "provider": "ecb",
+      "state": "source_validated",
+      "rows": 561,
+      "source_hash": "5aa1527b8f5abf3aaa3cb08a19da65f1b9ca28ad7fe5e2ff871eff9d7830c62a",
+      "definition_hash": "4b55e93b39bdf0619865c9cdc7082390e3a5eadf27ffda75fda8a91ac890e7b5",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/BSI/M.U2.Y.V.M30.X.1.U2.2300.Z01.E?format=csvdata",
+      "seconds": 1.621
+    },
+    {
+      "id": "ecb_b3843342de698c904f6f",
+      "provider": "ecb",
+      "state": "source_validated",
+      "rows": 7188,
+      "source_hash": "82b4dc293e83b13fbb26c94e532124bf6dc509dfd7ecf73ee4eb422b11d77f63",
+      "definition_hash": "583b022d7f33cd3b5f86740d62f85ef1b9452fa5c00670c15af8c0bf2e42d9c4",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/EXR/D.GBP.EUR.SP00.A?format=csvdata",
+      "seconds": 2.035
+    },
+    {
+      "id": "ecb_e79d218383e19ee52b84",
+      "provider": "ecb",
+      "state": "source_validated",
+      "rows": 7188,
+      "source_hash": "be7cd764cb25aed92ee8973bb508730676ff9ded5e7237d940ab2aa98dc7ec12",
+      "definition_hash": "b7369f207c28759c82344daae25cae53e6b8dcd4fc41b72f34a469b4937e3c59",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A?format=csvdata",
+      "seconds": 2.478
+    },
+    {
+      "id": "ecb_f2dc80be2008d28123fe",
+      "provider": "ecb",
+      "state": "source_validated",
+      "rows": 7188,
+      "source_hash": "cd06bc4f2c5fdeef98e3834b1aedfcf5df71efec09ead9d21e258c246f849ae1",
+      "definition_hash": "8058407237a2ff3c0c2646e6854567b5e7c6334a1f696df560ab568be776a4aa",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/EXR/D.JPY.EUR.SP00.A?format=csvdata",
+      "seconds": 2.088
+    },
+    {
+      "id": "eia_1f2e8f732156c8e94fdd",
+      "provider": "eia",
+      "state": "source_validated",
+      "rows": 548,
+      "source_hash": "24fcee1e4d7eb8f1c01f95ad9e935411b5ac02f128d9b9d10d7f81ae5b473767",
+      "definition_hash": "5bf027f92043f5ebdd1dd7836e81760d4bdaf03c3fd75421a51d8a8c57bca290",
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/MAPUPUS2m.xls",
+      "seconds": 0.388
+    },
+    {
+      "id": "eia_4922b423fe8b2b32866f",
+      "provider": "eia",
+      "state": "source_validated",
+      "rows": 2300,
+      "source_hash": "824b7722ec09bd4b85837747d141f689838efedda92f545c0751f3d271b0464b",
+      "definition_hash": "6bcbd8994fa203b585c1bf05e5895dbd69bde7653958762f1c4441c5f5112985",
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/WCESTUS1w.xls",
+      "seconds": 0.389
+    },
+    {
+      "id": "eia_4f9f06aabda8ff167d48",
+      "provider": "eia",
+      "state": "source_validated",
+      "rows": 2283,
+      "source_hash": "849d4db7f569dd0a6ab34ff206b73120ae7249ed65a2e62c72aed5361bc5c004",
+      "definition_hash": "94d1ae03b087c2afdb6cbca0b14dab80a9172e9d982c49c7f3fac28ca123f6ab",
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/WCRFPUS2w.xls",
+      "seconds": 0.636
+    },
+    {
+      "id": "eia_75bb94383fe0738b61e8",
+      "provider": "eia",
+      "state": "source_validated",
+      "rows": 1921,
+      "source_hash": "3a22508ee3b6a1a12a9e4e04b08c6ebea1b934571fc545c956856a68e7f428f7",
+      "definition_hash": "cc53f67fec9a79757d4b93f4118f665ae1b58365cdc47f6d83990c1140f9609a",
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/WGTSTUS1w.xls",
+      "seconds": 0.383
+    },
+    {
+      "id": "eia_ee0bdf88256d8aae541c",
+      "provider": "eia",
+      "state": "source_validated",
+      "rows": 2300,
+      "source_hash": "0614523ad8ecd2e230ef3267bc1f99a4e71a5591b50f9ce82c4a7fccec0891aa",
+      "definition_hash": "d3ef59b48d70ac0800876468793423fb91e1eb9c687414034158356db60ffc83",
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/WDISTUS1w.xls",
+      "seconds": 0.398
+    },
+    {
+      "id": "eia_feda97c6fccc3ab58f53",
+      "provider": "eia",
+      "state": "source_validated",
+      "rows": 878,
+      "source_hash": "249423f09af032d9c3b94b362042314e8a68c99bbdef74130995f04fc23e4127",
+      "definition_hash": "013da731e8e1ae23582d43ae254e75b5d7c617fd41db4ab2b4aa19454d966480",
+      "source_url": "https://www.eia.gov/dnav/ng/hist_xls/NW2_EPG0_SWO_R48_BCFw.xls",
+      "seconds": 0.379
+    },
+    {
+      "id": "eia_wti_spot_daily",
+      "provider": "eia",
+      "state": "source_validated",
+      "rows": 9532,
+      "source_hash": "1f4c7c6c80c4ef6eb9e7b6c95e87c8df6439e3fb6ecccea72e9135bb37acf048",
+      "definition_hash": "4ecdbd48b579184226d3bcf18c3a3b28a9cbb7e9de73196c042a056abafe7ea5",
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/RWTCd.xls",
+      "seconds": 0.617
+    },
+    {
+      "id": "eurostat_03b4d5b0fa407ee1b32e",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "615c09408738ea45e8c7d0b0c84164cda93b73565e3b4c1691c8b4bac8a5a394",
+      "definition_hash": "18e0e09120b15cbc878cecc5f65b2b909e16e8696c486135b05b826dba7bc591",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=B1GQ&unit=CP_MEUR&s_adj=SCA",
+      "seconds": 0.643
+    },
+    {
+      "id": "eurostat_05596dcf57e38d7402be",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 31,
+      "source_hash": "ae14fbde3e7481421a0285f326f618f9e2417e0c8d83e6b4574cefe9f2513504",
+      "definition_hash": "db9fa7d0a5d38676f0d70486e72e83c0dbbee7a3c08053849b4337880b13e9c2",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10dd_edpt1?lang=en&geo=DE&na_item=B9&sector=S13&unit=PC_GDP",
+      "seconds": 3.725
+    },
+    {
+      "id": "eurostat_0705d44f64b77a2659b2",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 561,
+      "source_hash": "a42cf6dea6e6e2b3727f34f57393928490278366dcc3798a620f429657636464",
+      "definition_hash": "d22e756b59f7411013efa565fd77c8a344d4b308364e063c0fd7e5af3cb27fbf",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=FR&nace_r2=F&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 0.698
+    },
+    {
+      "id": "eurostat_0babd905442f489b51a2",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "bae899021f2434af0425ac5aa98ba16dcc6602efa2cdd827042d71f1f841479a",
+      "definition_hash": "5f75337a8a7338c458a5fc7f7505b39d57bbd2c2d2b465000b43fb87440ab3fd",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=B1GQ&unit=CP_MEUR&s_adj=SCA",
+      "seconds": 0.493
+    },
+    {
+      "id": "eurostat_0bd5561920a8d7523e9f",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 187,
+      "source_hash": "3cd7c213198f7fded1085558ddbd1f0ece95eaa3e7b652f8c76a6a5fce05ef58",
+      "definition_hash": "cc7734b2f400b59c437f310a3b18de735fa59fea7b2165cfaa66bb3744b3c92b",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_pe?lang=en&geo=DE&na_item=EMP_DC&unit=THS_PER&s_adj=SCA",
+      "seconds": 0.469
+    },
+    {
+      "id": "eurostat_1139dca5ddc9dedec61c",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 609,
+      "source_hash": "7a3edce15c3c735d966d1ce0eb0bd3e1ef6563888171fa5ca4af9c5771074d2a",
+      "definition_hash": "93540eb2160995fb0f6f1ebce8783ccb86e5d721482cf89fd30300bdb69ba099",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpp_m?lang=en&geo=FR&nace_r2=B-E36&unit=I21&s_adj=NSA&indic_bt=PRC_PRR",
+      "seconds": 3.972
+    },
+    {
+      "id": "eurostat_16f6f277a7cd1ef9c48e",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "f2c4f0e1e1c5c378069d5ddd27454c9f4feb4ca91ad9f1764785acb7dd5252d6",
+      "definition_hash": "477d86475dfa5c96d854713bd439a2cca57f1f9f45eeb5fe164c684df0a586e4",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=B1GQ&unit=CP_MEUR&s_adj=SCA",
+      "seconds": 0.443
+    },
+    {
+      "id": "eurostat_1dbf7d4cd20c533f1a81",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 429,
+      "source_hash": "8e88779cbd97a69c20ecc24c288644951d664eeb08d16006a0498caf5cb5990b",
+      "definition_hash": "1f1b3fc053c1f1c6b59325ece4968dfa23a6be9f2bdff5f82687f7136974634d",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_trtu_m?lang=en&geo=IT&nace_r2=G47&unit=I21&s_adj=SCA&indic_bt=VOL_SLS",
+      "seconds": 3.946
+    },
+    {
+      "id": "eurostat_2591546ccb87a306e904",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 369,
+      "source_hash": "d3531c6fab451c9413351f3701955dbdafdbfd85f4d6766aa9f4a5643f545846",
+      "definition_hash": "6cf724592a3ec3ed40e65771f86a579fe95f4b9fc028e8bbf9efcffdd8211e82",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=FR&unit=I25&coicop18=TOTAL",
+      "seconds": 0.577
+    },
+    {
+      "id": "eurostat_2c7ea5992f61c8117e25",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 561,
+      "source_hash": "86bf6620cc6387faf91b9daa49213fb04fb07681bb6c64dc8a0ff3d809f63110",
+      "definition_hash": "9f626655b559900acb34e808f6be318afcf9cd5378d146bd181bcbd9eb853cb1",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=DE&nace_r2=F41&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 1.546
+    },
+    {
+      "id": "eurostat_3043cda8ac2440d7e8dc",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 561,
+      "source_hash": "3edb31315c406efa255d110fa560bebe55c5834b173107781208e1854f5919f6",
+      "definition_hash": "10447f213a4fddf7cfa805af454cf599796d6a3d566973c1c255f94713030473",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=FR&nace_r2=F41&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 1.328
+    },
+    {
+      "id": "eurostat_333699a32b1eaa67ad9f",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 561,
+      "source_hash": "b822af7c29d51d36e9da19c3c20cbd6cd6452b8604b4f31e1737348249528306",
+      "definition_hash": "b818ef47e339596f54aeebbfe4e5adb9a6a428a1d00d726dd1bfbadc1d5643cc",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=EA21&nace_r2=F41&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 0.58
+    },
+    {
+      "id": "eurostat_37c229cd537e5fa533bb",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 525,
+      "source_hash": "a8d3fd653b1b31699ff48599f06cec5b5575210785ee24aac8a3bc8158b69f31",
+      "definition_hash": "1f7ab3554741795880c83b7da1815ba3c6eaf443a2822a6242163ad6c92cbe87",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?lang=en&geo=DE&sex=T&age=TOTAL&unit=PC_ACT&s_adj=SA",
+      "seconds": 0.559
+    },
+    {
+      "id": "eurostat_37e107647944bba02b02",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 31,
+      "source_hash": "02d5f90fb910b0b9a88fb3bcc0e1a5e48d18d21171f4d6707fc2b1efc8517eba",
+      "definition_hash": "22b38f42af64cc078a94fb10001673a48949813846a1b8714d1390bbeb7a993e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10dd_edpt1?lang=en&geo=EA21&na_item=B9&sector=S13&unit=PC_GDP",
+      "seconds": 0.472
+    },
+    {
+      "id": "eurostat_3e9b736c08d1e26f46f5",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 885,
+      "source_hash": "386c259ec4deaeea2c827f0bbe681321cde7c69d0a19597e83088e8bee08f1df",
+      "definition_hash": "1909d47ab34592fef86b5be4aa0ff0e7d30a4f61a9e0bf9fe65b639bc9268168",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=EA21&nace_r2=B-D&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 0.787
+    },
+    {
+      "id": "eurostat_3f8dcd72ad11f4f3b9ef",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 369,
+      "source_hash": "7211dd8dcd07366dad256dedaa904920b94d7a72345bb6befa01563d63005671",
+      "definition_hash": "175348827dcb59905e37c536e08bc3f8a3a783b83464844d9ef57360791dc4ef",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=DE&unit=RCH_A&coicop18=TOTAL",
+      "seconds": 1.993
+    },
+    {
+      "id": "eurostat_4d4786ddbdc8229afff7",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 429,
+      "source_hash": "27ff1c4884c26e68ab6c87a8366cc0552625b7749fcb3c231d424d397ba882f9",
+      "definition_hash": "696aea89e8c968a9acfdc52bc9a54ce6b6eee7bf23790b956d8fd68fe0b30167",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_trtu_m?lang=en&geo=DE&nace_r2=G47&unit=I21&s_adj=SCA&indic_bt=VOL_SLS",
+      "seconds": 1.926
+    },
+    {
+      "id": "eurostat_4da3ab1198a88462eb4a",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 130,
+      "source_hash": "0cb20da2c326eaee028a6cdeceb87531acde20c3f25b39ed490a07e9fc4e1a7b",
+      "definition_hash": "1ea88e25ef6bd72a1fda297ff23a0c3a8195a3d3830a18bbe3e4250bb29d074c",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10q_ggdebt?lang=en&geo=EA21&na_item=GD&sector=S13&unit=PC_GDP",
+      "seconds": 0.513
+    },
+    {
+      "id": "eurostat_55b6299390da85f4bc55",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 31,
+      "source_hash": "175399e79e75a746c82f2ad97401241a23658a386bfbc4c8c3ec0a8bae5d427e",
+      "definition_hash": "801950311c2409a8dac8b712bd55d5f388700ae7bd8c493be5e065c2eedd3b5f",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10dd_edpt1?lang=en&geo=FR&na_item=B9&sector=S13&unit=PC_GDP",
+      "seconds": 0.447
+    },
+    {
+      "id": "eurostat_57057d66f4dc2b3e9379",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 187,
+      "source_hash": "ca426a9a384fa37466bd8c4b231bce274080a0c81add75cdd0f770a70a4de53f",
+      "definition_hash": "da25bb0cf259b0709aa5868e40c648e079e65c096b1e69863ed8af4e5164daa5",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_pe?lang=en&geo=IT&na_item=EMP_DC&unit=THS_PER&s_adj=SCA",
+      "seconds": 0.514
+    },
+    {
+      "id": "eurostat_5aeedc36988eaa3f3449",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "4adb92ced532d603041c7f3add029d6f872fe9145046e77bd24846c77d1ffac8",
+      "definition_hash": "7762077796d5decd30add3289826e5c39b671156a183939882b50f6302bc4e42",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=P51G&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.514
+    },
+    {
+      "id": "eurostat_5b8a812af78796f7a1b5",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 885,
+      "source_hash": "f05ac273ca60b01ac25fa291cb723daeb9409ae6ee7b545b28c1cc7bbf335e44",
+      "definition_hash": "41de0fe8db89b5895c95c2fef5c6bf2a3d4dbea3825ecab37938c6b1037ece8c",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=DE&nace_r2=B-D&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 0.695
+    },
+    {
+      "id": "eurostat_5d6a3102fc10d2452b38",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "ecb68c11c01511bfa102db9bcd76080c824fc6ab7c0c706b725efd2ee79541f7",
+      "definition_hash": "4ff371beb11693aa2cf46720eda07684e0e7fd78e2be60544a092bf731a07f3a",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=P3_S13&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.458
+    },
+    {
+      "id": "eurostat_5e9250b7ab05497fb1ee",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 561,
+      "source_hash": "69dcc24cf3cf4a906a16e7b1c289956b714b3234cdfbd82922cfef9e3e6466c8",
+      "definition_hash": "ca14b20db891ecce04e9774dbbc8a4a9424e1919140f7087fb2645435e0a0ee3",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=DE&nace_r2=F42&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 1.325
+    },
+    {
+      "id": "eurostat_61686fe8fdc9577e6d47",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 525,
+      "source_hash": "5a93989d0be6e87f4c97323c5a05faef7bcbd833fb877c07c0a1f0426e36f949",
+      "definition_hash": "915ecf90c7acb74908c0fb5805bce1ab5503cdc5065ecea2d5a69d3ac2f77af0",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?lang=en&geo=FR&sex=T&age=TOTAL&unit=PC_ACT&s_adj=SA",
+      "seconds": 0.621
+    },
+    {
+      "id": "eurostat_633ca07db5ab397b9535",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 369,
+      "source_hash": "dac0d4c1738b54cbca3fea89765f010903b3872ca699d3faa523954705cc3027",
+      "definition_hash": "b3127504649be724f490763fcfee924de86b928c39988dfcc8be24d68339bc56",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=EA21&unit=RCH_A&coicop18=TOTAL",
+      "seconds": 0.623
+    },
+    {
+      "id": "eurostat_647a302990659c3097cd",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "91d6418fffd0d46b9169199c886fa04d695910e105e4d345f4899b3d1ed91294",
+      "definition_hash": "8aa0fe4b983a9cdaaf9e704e40b8572307cd38ff25ef7318d416b8061c02e08d",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=P6&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.755
+    },
+    {
+      "id": "eurostat_6545d7d4eb72cd90a2b8",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 369,
+      "source_hash": "e853fc4c8626eb9e45d67182b58aaf3003539087ad27a32c21e5152d0a5b4bc8",
+      "definition_hash": "7faf7d4ab6528d11913c68f297306024820569cccd64a069a873b053fa5e7ba8",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=DE&unit=I25&coicop18=TOTAL",
+      "seconds": 0.706
+    },
+    {
+      "id": "eurostat_66a3df38afcb956c67d8",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 31,
+      "source_hash": "a13089818992f7013bd1d53f5b1d70501827e370d120e40b0ed5e092f1152316",
+      "definition_hash": "6565a20a38a2f1ed47c12af2b73fa488595c9cf6cd29d32cbfa1655ddc19aee4",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10dd_edpt1?lang=en&geo=IT&na_item=B9&sector=S13&unit=PC_GDP",
+      "seconds": 0.618
+    },
+    {
+      "id": "eurostat_69ef021d5c6a9339fcd3",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 187,
+      "source_hash": "daa05155e321cdb6d47e82eeb907d781d9fb6aca79d821b37e777b2c5b2a30b3",
+      "definition_hash": "9d2a47a30a2a070bba920499ba9aa63ca2f91470351c09d2711c4d4dafc93663",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_pe?lang=en&geo=FR&na_item=EMP_DC&unit=THS_PER&s_adj=SA",
+      "seconds": 0.529
+    },
+    {
+      "id": "eurostat_6abbb1e68f00349646b7",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "51a7ab89b31a5cebaf8dc62b3d9f3971aa4a1e557397a4621c64e36d129f16ef",
+      "definition_hash": "5e7b2157e1ba4465b0b20d0e1ec43ff52bdd72d2c4184e9d3bfb439d3d49370c",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=P7&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 1.767
+    },
+    {
+      "id": "eurostat_6e1c74c102959c0ded7b",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "ff7452dff1020a79e97f9689d652319f9bd1d240a7b694fbfe4f56abff7e6131",
+      "definition_hash": "16c9af1e935a6c4c92bd4391987d1649c1b3aac864cf493a240c06365c99f42d",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=B1GQ&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.656
+    },
+    {
+      "id": "eurostat_726780d271bd41010152",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 130,
+      "source_hash": "8fb43983a3b9800906c50e2d7ac511e4bb2e5bd06855f6c5121289e124e1dd4e",
+      "definition_hash": "5276cf4c4bf8d1513393296a797ef7d7ca79c6d5fcbbf0d3949fbd8cad6d279b",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10q_ggdebt?lang=en&geo=DE&na_item=GD&sector=S13&unit=PC_GDP",
+      "seconds": 1.773
+    },
+    {
+      "id": "eurostat_734829d92c2058c77216",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 885,
+      "source_hash": "17df20c2460f7b7e73eca90a7f7cdb29d663d972616c7788567f441a16ac6ef2",
+      "definition_hash": "8c796697526402f73fe2cfadb7a764d919a7c85d4b3abe6aceae7d32cd27e8c3",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=DE&nace_r2=C&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 2.284
+    },
+    {
+      "id": "eurostat_77ba4f3a758d6ae4448a",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "a0dc182cf1359c7e358d77ad1a64dcea00098abb92facf58d241265c59e6a40d",
+      "definition_hash": "528c043e73c008aed3a58b6f770dab79b6dd81901b962c650cd34320acfd7a7e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=P6&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.592
+    },
+    {
+      "id": "eurostat_7944786d6798bbf8db3f",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "64a207157af27899025bf35666753a519068ce1f066eef8a1d5ed0c4c2330651",
+      "definition_hash": "f48b51ca4e107d9c709668f1a55861f14a1cbd358695949f2b01f5cc7df941f7",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=P51G&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.499
+    },
+    {
+      "id": "eurostat_7a19ae12c96fa92cb026",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 609,
+      "source_hash": "29b80ebf5fa142dadf6c8934bbd3d4b32ae96e1efb8f29d7f70ad428f2547b08",
+      "definition_hash": "9d3dcb9a2f5e426e30473f832d81d9520f796d3f125f5873a12af862ec3dbf1e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpp_m?lang=en&geo=EA21&nace_r2=B-E36&unit=I21&s_adj=NSA&indic_bt=PRC_PRR",
+      "seconds": 2.178
+    },
+    {
+      "id": "eurostat_7cf165f869db02fd3a1b",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 369,
+      "source_hash": "c2a5bdebb11c7e9cc55855da4fb4d63a2252d7d883c397bb5d5d203654b828af",
+      "definition_hash": "5a107fcbd7c01a43137025dc002853e82e3a9c2ed7241c9dcd7b167bb52e1eb4",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=FR&unit=RCH_A&coicop18=TOTAL",
+      "seconds": 0.635
+    },
+    {
+      "id": "eurostat_7dd27d3c6b1d1c1de8d6",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "32dc6148644afed5678c1a32a7703a56ca9ce61c055f3e162c36f5e284d11699",
+      "definition_hash": "5e7de72fafc0cb2f51e4b73c2ce300f15169c4e3b7a3b6d3f5adf3aea91578f2",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=P31_S14_S15&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.593
+    },
+    {
+      "id": "eurostat_803e37302de4a467d0ff",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 130,
+      "source_hash": "34e049e7487282e486e48acd0bdcab05d33e02a9a02f5dc02e9dcd35b467f700",
+      "definition_hash": "3b1b5d97ce5b1dddf4985d0ff67e0f58b59cf8d873e774a705c2869bf494242f",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10q_ggdebt?lang=en&geo=IT&na_item=GD&sector=S13&unit=PC_GDP",
+      "seconds": 1.199
+    },
+    {
+      "id": "eurostat_8172fb797467ba0c413f",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "376e1e5c52cbf1db3dfeb7dc8e5e041561c950609b55ea8d8440c8324e587836",
+      "definition_hash": "c533aab019114366f5338763057b609709cee341bd9938d48456979dda4ba3d4",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=P6&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.548
+    },
+    {
+      "id": "eurostat_8582d8dad7b6ccaedd7e",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "945ebeb9b929fd7cc6b8d1e3dc47b775c262ccd2a4fbdb372d6ab5f987bf3bf4",
+      "definition_hash": "85000de8433d2341461d341e5ef454d594746b955ef1610b78795b7c4cdb1e57",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=P6&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.558
+    },
+    {
+      "id": "eurostat_85c75060bd6f221cafd2",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "29073ed31fc3efb0dce91133d2bb06a327593716af07a58784ab3c9e5aa41df2",
+      "definition_hash": "523f6d2284963551cc2a6988284b8aedcb7346192b5fd41b69fa3802db29b51c",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=P7&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.563
+    },
+    {
+      "id": "eurostat_8882eceef98ae06a4fd9",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 369,
+      "source_hash": "a5ddae73a837d7c695830825a3991cca173959ce701cb5e6f4530bdabd622372",
+      "definition_hash": "82ad610d465e28a4057fe2a9923e564de37208f536c6c0901bf2259795d09537",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=EA21&unit=I25&coicop18=TOTAL",
+      "seconds": 0.692
+    },
+    {
+      "id": "eurostat_89bc385366c06541f184",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "de017d094695318e59a59226ad6caffcca702da274e025cbeda6bd236968690e",
+      "definition_hash": "543992274b685173761ac7cf09040eaa10a3afe61c5f7f0a03bc12204406b00e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=P31_S14_S15&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 2.113
+    },
+    {
+      "id": "eurostat_8f5e1320615623acdebb",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 369,
+      "source_hash": "dca4c5a2fde4dcf2a0234fdee20e107a764437f53b0cb02a6a5c6889123ba58c",
+      "definition_hash": "cc45876a3b564926c899d520dead0faccdae4fa373188cfdf2fdcb2714131d38",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=IT&unit=I25&coicop18=TOTAL",
+      "seconds": 0.605
+    },
+    {
+      "id": "eurostat_9168b7ee162cb46fd5db",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "d7a8373caf63f2f0788c31458c79d8de80f37cbdceb2d70a482b2ae7ec30c45e",
+      "definition_hash": "d86867b3878c2591e4a8410ee2adca128b2068d0a47c5e41dda1ebaf460385e1",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=P31_S14_S15&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.493
+    },
+    {
+      "id": "eurostat_979299c668ea9e457e82",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "6f26cc405ecfe6c6774a2853da10634c1124bf714981d2313a2b640b78afbfaf",
+      "definition_hash": "cd48fd408e608c579c02d76196bddf9d0446e96d3649d33bf2d18e0ce487f24c",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=P3_S13&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.856
+    },
+    {
+      "id": "eurostat_a12908192f33939823b7",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 429,
+      "source_hash": "f55507c1055538991a88fe49d8e5deeeffd6cad72fdf12b8dc0cd33069e6a571",
+      "definition_hash": "e0c6e7991ba11de9d1e7ad01bffdae8af810ae91e9e8968e626187a692f1ac50",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_trtu_m?lang=en&geo=FR&nace_r2=G47&unit=I21&s_adj=SCA&indic_bt=VOL_SLS",
+      "seconds": 0.627
+    },
+    {
+      "id": "eurostat_a2bfc29ea11f0d4fa5b2",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "46522b42f016168368743e4a40a274c1d920489a043d86bba6678620fd514ea8",
+      "definition_hash": "f44a17e72289d55b998f187f8a170ca51c72f928188f76ec396c620ff32241ed",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=P7&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.538
+    },
+    {
+      "id": "eurostat_a61def93a170d5c5762c",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 525,
+      "source_hash": "0452faffb257f8ac034ac2deb29c58a6cb04d8f70a94ec168ed3fd7b8148ec0f",
+      "definition_hash": "6ffd664d5659a10e469266a68829a77c50002767fad8dbe7938a2398b7ed83d8",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?lang=en&geo=EA21&sex=T&age=TOTAL&unit=PC_ACT&s_adj=SA",
+      "seconds": 0.957
+    },
+    {
+      "id": "eurostat_a64737840a01e8e1f11d",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 561,
+      "source_hash": "5c746fbbe3c345c16e2606f9c517bdf1996f46fe59e9835f0793290bcf3eaf9a",
+      "definition_hash": "0a58afb1bb401b9fcf27ff642232f6d080bcb1f59d6219791e1b4ab238acf0d1",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=EA21&nace_r2=F42&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 1.662
+    },
+    {
+      "id": "eurostat_af7fc0bf9985c1cbeb07",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 609,
+      "source_hash": "23bbedee2673f614f92f1f008b60b053edb6815a5fe27ff4dbcb1756bd49326e",
+      "definition_hash": "a818fd9bd0782040d0a300d3dd6ba6a6ac92760cb55e761282218a82ec0dd08e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpp_m?lang=en&geo=DE&nace_r2=B-E36&unit=I21&s_adj=NSA&indic_bt=PRC_PRR",
+      "seconds": 0.816
+    },
+    {
+      "id": "eurostat_b0f75d3ba61d8bffa82c",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 561,
+      "source_hash": "284f0ba46646633ed73f52475ca09e13baa2f25f0448d9a42802817ca1f51bb9",
+      "definition_hash": "b461e6f2f9213185cd111e9cb79382bd8b03cc9fecc7837137c25737cf6d442e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=EA21&nace_r2=F&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 0.628
+    },
+    {
+      "id": "eurostat_b2f6c00b9a12ca16d871",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "97193f726a27f3cb0a9fd7db64ef7b46d7aa08cdc24fcc67821e6403d3f7b9bc",
+      "definition_hash": "b17c3b7e850d3307dfd16ac195ca866790ddb8c6163a392d14333f8d2c785897",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=P3_S13&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 1.767
+    },
+    {
+      "id": "eurostat_b31ed98bd58c686511c9",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 561,
+      "source_hash": "31049e08634bf9ec35b2f610d3b7b16425d7a85b594b15a483a72256ab0496e3",
+      "definition_hash": "b8893c56811a825e7569ed1d9e198f4a92ed3134c9bdaff2a6b37c71154ca5e9",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=FR&nace_r2=F42&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 2.768
+    },
+    {
+      "id": "eurostat_b3b1fe3938ce4e4612eb",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 429,
+      "source_hash": "f13b16c9eb35106e65091416323c686a6155bf11f46a291898ba7d3f28a1131e",
+      "definition_hash": "942c7efbb3321bbd61aa7bb9c8c4ca047e650cf3a4c5efe9f902ad7bc28f5e74",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_trtu_m?lang=en&geo=EA21&nace_r2=G47&unit=I21&s_adj=SCA&indic_bt=VOL_SLS",
+      "seconds": 0.593
+    },
+    {
+      "id": "eurostat_b5a226808c9fc1bd3343",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "d03ef76bda359517e7fbc40e868d77eaaf4a5dff9dad1c610d9e27f718eae816",
+      "definition_hash": "d6364855ba1ec38a6d3df7e9ebdddc89313dab4b1c2b0f71f3a0a1f2d60d79d8",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=P51G&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 1.996
+    },
+    {
+      "id": "eurostat_bacb4a8870074617884f",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 885,
+      "source_hash": "df560a12edc08b5539cb4d1cd4e30700f6d969b915080906096d373c64427bcb",
+      "definition_hash": "d8f195cc7e74aebeca5a2ad5bf1d8b545cd3b79b84ebebc5ba1fec6aae6ed3c0",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=FR&nace_r2=C&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 0.798
+    },
+    {
+      "id": "eurostat_bd06ac44aa02f75aed92",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 609,
+      "source_hash": "c88b9b4370e466aeba8a7339e32e5cbf458e500305b1b05a4612f1246d5acce8",
+      "definition_hash": "9c81a622275c26c05a4959537824bd949c4944e1793fc0291e6cdc166444db00",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpp_m?lang=en&geo=IT&nace_r2=B-E36&unit=I21&s_adj=NSA&indic_bt=PRC_PRR",
+      "seconds": 0.618
+    },
+    {
+      "id": "eurostat_c0fc01ed5efaf8a07abd",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 525,
+      "source_hash": "e6fde941e49060fe9d4dbc0673175845a8698781825f4d7db379a2adface976c",
+      "definition_hash": "d74aedbac0c12158744382d2f51f9fc62bb403e54efe55e30985d753c3788e22",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?lang=en&geo=IT&sex=T&age=TOTAL&unit=PC_ACT&s_adj=SA",
+      "seconds": 0.594
+    },
+    {
+      "id": "eurostat_c32a83e065ec840898c2",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 130,
+      "source_hash": "6ebf89de273b3d2b08fb66f8d1d0c1cebfec92e4d3e9aedfe7ea18205c743fe7",
+      "definition_hash": "f985c481e5d794e4b75e980716be65003a1f36f8dd502be4e66a52bcc391c8bb",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10q_ggdebt?lang=en&geo=FR&na_item=GD&sector=S13&unit=PC_GDP",
+      "seconds": 0.505
+    },
+    {
+      "id": "eurostat_c3685804680d4fbc348f",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 187,
+      "source_hash": "c8fbf8a9d05bde933826826940d6453324c2d4c96d4973b2abe67803de6639de",
+      "definition_hash": "a96e618fdd0ff1648590b92fde1a69ddff546281e17a06adc51e8dce04ed3d7e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_pe?lang=en&geo=EA21&na_item=EMP_DC&unit=THS_PER&s_adj=SCA",
+      "seconds": 0.434
+    },
+    {
+      "id": "eurostat_c3e94638ddc73c642af2",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "211ba5def1301c9cb30ed0ff5beab62590b552b141505f6c96b89cfebd4a2016",
+      "definition_hash": "39d15a6ddef02525f84ebd51a1b421c9c5fec3f395d260fce1cbcfd82f031898",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=P7&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.556
+    },
+    {
+      "id": "eurostat_c4ee71c7fea163d535cf",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "88176dcf9a09977f21b7b0e36a1bacf363ec18a69e5033a1952df7a0477909f3",
+      "definition_hash": "8e45c3895a0fc571e0906bb6eac06d83371b35e04207778fb6dd41a6295688f7",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=P3_S13&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.506
+    },
+    {
+      "id": "eurostat_c94d6677ff350bbc29aa",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 561,
+      "source_hash": "60248d5652e5e930511d738d6dfe5b78caf1e8ea255f69acd0abb2f67a543548",
+      "definition_hash": "3508822a5ad9337319c37b763693223ae2e7fa3353e136cfb19f5e12a4d6ab83",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=DE&nace_r2=F&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 1.995
+    },
+    {
+      "id": "eurostat_ca07b2efe38f8c038a13",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 561,
+      "source_hash": "bb4b1242464e8e1884e8d618d06e4a016172ee3ba8192eea6728bbd6f853a79e",
+      "definition_hash": "0b958ebe9c14ccfbc495b43018415526c39bf9f3fc3b40be018ac701d57a053a",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=IT&nace_r2=F&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 0.63
+    },
+    {
+      "id": "eurostat_d303c438757ae9bc2f26",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 369,
+      "source_hash": "c537fa58cd5d51befd36d1d9befcb27c1f50217c1cb7af53837179b0cd701ec9",
+      "definition_hash": "28627551f1dd208e0fda98f871d859933a50264047309274b4de61afb26dafac",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=IT&unit=RCH_A&coicop18=TOTAL",
+      "seconds": 1.821
+    },
+    {
+      "id": "eurostat_d38252717f7c5fbeb7f0",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "8e68659c643675bc54dac0f362f8f2fe4c0f9cd90e71c299a22162c73c34dbd8",
+      "definition_hash": "551802b147a3ae8f2a6da9f293a0d5fd502f21b6a3f96782143c295829e25ebe",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=P31_S14_S15&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.445
+    },
+    {
+      "id": "eurostat_dd0ae0f0f913e9323d8f",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 885,
+      "source_hash": "1464d1e3c91741500cc6b378272b50d641585f9665140aa18b457a2ad0c0f524",
+      "definition_hash": "5c769514cf7ee2b2c47a36296415549dbf54e1636fd99aff6af5a9c4859042f7",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=IT&nace_r2=C&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 1.13
+    },
+    {
+      "id": "eurostat_e4b0591cf148660f3349",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "649859508e71734874d96b63be5cbf571686bc91199e8a75351b55a0f82432da",
+      "definition_hash": "35ba8ddc1d91ba6d4c2d4e1e1794c1fabdff83f56061b0d174fe053d178aa32f",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=B1GQ&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.506
+    },
+    {
+      "id": "eurostat_eca8a799de8d6687fe33",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "1b71b6ac97ef96bc5db1e64dbc2ac1b2f58c7f32717754c3c89db82b98c3ff4e",
+      "definition_hash": "aa5c00df0f5b0c0be3e0bb316279dbdf6ecd32da71dcf4d75813a47c9ba3e2b0",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=B1GQ&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.578
+    },
+    {
+      "id": "eurostat_f15d1b83974acfbf7f24",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 885,
+      "source_hash": "864ec38ce4c99e54a198f240d615a3189563940de58cf1cfdead38fcb49b34ee",
+      "definition_hash": "c5b0bb199ec4740cbe4f4f88d24e35cb1bab20b1e01420f7e3ff353eacf9964d",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=FR&nace_r2=B-D&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 2.229
+    },
+    {
+      "id": "eurostat_f23fa7fb3d15addabf30",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "0509bb6b8bd42d55c2e4d185c7e64106001bf163302f01438a701cfd8ec30c47",
+      "definition_hash": "e8e75c8d91e14ceb7b378e6ad45d124e0a26b91d43843322e6a808fc18903e53",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=B1GQ&unit=CP_MEUR&s_adj=SCA",
+      "seconds": 0.531
+    },
+    {
+      "id": "eurostat_f47fdc1895487cdcd7ef",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 885,
+      "source_hash": "c155169ec1210f64222741ea75176c8e94aec43211566611722217783f26ac9a",
+      "definition_hash": "addadc424fa85c7504067a3f735ee35f9b61119d7e69f4fe56bf062ac2262381",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=IT&nace_r2=B-D&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 0.741
+    },
+    {
+      "id": "eurostat_f71ae378f4c820fc0ae0",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "ba5730ea925d75dac5ed534b16548f403f29da131677f2f262c148b7fdae710d",
+      "definition_hash": "e4a4cfac7683b114fd29322482e63fc40cccd6e612273af487f43832fd5b862d",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=P51G&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.507
+    },
+    {
+      "id": "eurostat_f9d434ea9b52ed59f29f",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 885,
+      "source_hash": "4cde66683b8a16e6adc5be9c98e001643cd5d7129ed0d3ef46be786fc0e7545b",
+      "definition_hash": "d2e41c5f8c2c60ccae0250e095c3e662710c5e7db1d40e3f2ccf4644a45beb28",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=EA21&nace_r2=C&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "seconds": 0.8
+    },
+    {
+      "id": "eurostat_fcab9c3216a8c2d01fc9",
+      "provider": "eurostat",
+      "state": "source_validated",
+      "rows": 195,
+      "source_hash": "7e0fcdf0125d09341033274a527bffc119ac8b29b9fc3597f400aec35fe29468",
+      "definition_hash": "981a42ae4b7e8c2a4d285d4b6a9e33a8a08db54fe6156d0b2a045fdf1fd4729e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=B1GQ&unit=CLV20_MEUR&s_adj=SCA",
+      "seconds": 0.832
+    },
+    {
+      "id": "fred_0996d769ba6d991fb4b2",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 404,
+      "source_hash": "dc9fb363307e24ff02f8f567896c55a6d1b5d7b951325dca5234ce7693f14dd7",
+      "definition_hash": "be77775ed80f61580e3719df1e726a5b92da48afe84602bacf57eb0e97d75140",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx",
+      "seconds": 0.683
+    },
+    {
+      "id": "fred_1620a0b26fbe7eb42376",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 404,
+      "source_hash": "e9faea98ea4fc9c57ffbb4e7e576a5907e17e2324dce7d4e58a17aaa8bb2c560",
+      "definition_hash": "41606bdd793009a787df17fb90d6edca289064992fa3c5d1db50e51868a53dc5",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/privsatime.xlsx",
+      "seconds": 0.316
+    },
+    {
+      "id": "fred_259d141714182247e607",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 404,
+      "source_hash": "dc9fb363307e24ff02f8f567896c55a6d1b5d7b951325dca5234ce7693f14dd7",
+      "definition_hash": "9e98f5b9604751d4ce781ce1e59cde3b125a486b86d7053425d6e9c69685cd63",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx",
+      "seconds": 0.242
+    },
+    {
+      "id": "fred_323f37502180ce7bd485",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 415,
+      "source_hash": "24e77f0edb4bb5980da90c99ee7a860d7ea0e5ba2b6d9a1cec9d904ce46483f8",
+      "definition_hash": "7879a6b6b40087e3e6cfaa810a589bd3767336b4b3f469dc6aae64b350493611",
+      "source_url": "https://www.census.gov/manufacturing/m3/prel/historical_data/histshts/naics/naicsnop.xlsx",
+      "seconds": 0.689
+    },
+    {
+      "id": "fred_344b1ec45d2e2a9be4ee",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 404,
+      "source_hash": "dc9fb363307e24ff02f8f567896c55a6d1b5d7b951325dca5234ce7693f14dd7",
+      "definition_hash": "dbfca0eb20a9dee1e6028a9939bab30251e759fd3e6cd8cb39780c1bcd541a45",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx",
+      "seconds": 0.391
+    },
+    {
+      "id": "fred_4debaf340f08cd006d1c",
+      "provider": "bea",
+      "state": "source_validated",
+      "rows": 813,
+      "source_hash": "f5037feeafb3bee0718acd3214a30e8e777b3110ee2d7b7698beb14084485391",
+      "definition_hash": "0f3fe4b496056f6b223b784ef60518b7d24e9dcf6842e54f83ac61bbf5785ff6",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section2All_xls.xlsx",
+      "seconds": 0.903
+    },
+    {
+      "id": "fred_50ca9db8f07142c7c5ef",
+      "provider": "bea",
+      "state": "source_validated",
+      "rows": 319,
+      "source_hash": "a920921a004910f973021dc89236f11fca5120fadefcaba4a8e1ff55f7625e2d",
+      "definition_hash": "0c3933dfd5dff331f7dacfec4390a6a58dbe1c184990ed1fb5e1ce65844e194a",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx",
+      "seconds": 0.736
+    },
+    {
+      "id": "fred_56c8c0f79eb999f4cbbb",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 404,
+      "source_hash": "dc9fb363307e24ff02f8f567896c55a6d1b5d7b951325dca5234ce7693f14dd7",
+      "definition_hash": "3d0756a29ea757a1a0de0be511c525917b38c04f46c37992a4c83ec783390bf6",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx",
+      "seconds": 0.261
+    },
+    {
+      "id": "fred_587ae491484f07293dc5",
+      "provider": "bea",
+      "state": "source_validated",
+      "rows": 813,
+      "source_hash": "f5037feeafb3bee0718acd3214a30e8e777b3110ee2d7b7698beb14084485391",
+      "definition_hash": "ef1f4d9e7165388c921bff7d5c7d3e507f4a95eacf13ae0522523ab92a267222",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section2All_xls.xlsx",
+      "seconds": 0.818
+    },
+    {
+      "id": "fred_5917067a7da7dd7561f2",
+      "provider": "bea",
+      "state": "source_validated",
+      "rows": 813,
+      "source_hash": "f5037feeafb3bee0718acd3214a30e8e777b3110ee2d7b7698beb14084485391",
+      "definition_hash": "e8121c462ae356d1a5e411cd6f3084b6615205ea487d137cdcc2526931cb1b56",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section2All_xls.xlsx",
+      "seconds": 0.424
+    },
+    {
+      "id": "fred_6b8b68d870a427695f32",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 404,
+      "source_hash": "57f0c9517c3c191759d3c9e4f66ad68965d4daf013d0b41ff27d78e1d7dc2965",
+      "definition_hash": "b49e8eddd7c9c8ec78dd0067e4f163cbc399e88c38d21d46f37e9065dc899fee",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/totsatime.xlsx",
+      "seconds": 0.341
+    },
+    {
+      "id": "fred_73f5b5c1a9e4f7bff5b6",
+      "provider": "bea",
+      "state": "source_validated",
+      "rows": 319,
+      "source_hash": "a920921a004910f973021dc89236f11fca5120fadefcaba4a8e1ff55f7625e2d",
+      "definition_hash": "15f1c22f028d6aa4f15e858cf49f0b096b9d9f2033b4c395124a31551f731760",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx",
+      "seconds": 0.922
+    },
+    {
+      "id": "fred_792eaccdffccf3325380",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 404,
+      "source_hash": "57f0c9517c3c191759d3c9e4f66ad68965d4daf013d0b41ff27d78e1d7dc2965",
+      "definition_hash": "7b798c52fb2e89a5917578f2b16b74c0fe9feec51c0c8a2751a1872184076a77",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/totsatime.xlsx",
+      "seconds": 0.352
+    },
+    {
+      "id": "fred_890f288b712279e3a9cf",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 415,
+      "source_hash": "24e77f0edb4bb5980da90c99ee7a860d7ea0e5ba2b6d9a1cec9d904ce46483f8",
+      "definition_hash": "a78367ebd81645f7cb5a5629a49482264e37aedddf9a67dabad8f06ad7e7d224",
+      "source_url": "https://www.census.gov/manufacturing/m3/prel/historical_data/histshts/naics/naicsnop.xlsx",
+      "seconds": 0.538
+    },
+    {
+      "id": "fred_8d3240bb6b5eae523737",
+      "provider": "bea",
+      "state": "source_validated",
+      "rows": 319,
+      "source_hash": "a920921a004910f973021dc89236f11fca5120fadefcaba4a8e1ff55f7625e2d",
+      "definition_hash": "4ea6e533198cc51e58a091dd05ca711bcaca4e40dbac381a2e8e20d79fde822a",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx",
+      "seconds": 1.008
+    },
+    {
+      "id": "fred_925891ea36ab7371b4f0",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 765,
+      "source_hash": "56cb2e9e47699cdbc9df28e88685f04635a8749bb3330f52cb551ee1a571b0e6",
+      "definition_hash": "8cb8714bb39fe986d00cc41b967a63d6504eccd94b3ffd9f2f2146bade44de13",
+      "source_url": "https://www.census.gov/construction/nrs/xls/sold_cust.xlsx",
+      "seconds": 0.597
+    },
+    {
+      "id": "fred_affeb2eb840ba19b589f",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 404,
+      "source_hash": "e9faea98ea4fc9c57ffbb4e7e576a5907e17e2324dce7d4e58a17aaa8bb2c560",
+      "definition_hash": "6b6f50727fd0567a69307173551e83b6222e69da571205e550bcfed4c162b21e",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/privsatime.xlsx",
+      "seconds": 0.357
+    },
+    {
+      "id": "fred_b0bbd188e79316b7fe9c",
+      "provider": "bea",
+      "state": "source_validated",
+      "rows": 319,
+      "source_hash": "a920921a004910f973021dc89236f11fca5120fadefcaba4a8e1ff55f7625e2d",
+      "definition_hash": "7173acd98f03a7a36315e7ca04379c358ec7fe605dd4e3875630e20d51bbe1a2",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx",
+      "seconds": 0.835
+    },
+    {
+      "id": "fred_b608c6c5b9dad340617d",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 813,
+      "source_hash": "a93609dae2df76749528177e6cce207a07074caa91d9a7a1c96426b0b8dfd55f",
+      "definition_hash": "b29b5d7bb7fd77365b74b5c798864f0518da89d5acf2f5441d7fb35845c41fc8",
+      "source_url": "https://www.census.gov/construction/nrc/xls/starts_cust.xlsx",
+      "seconds": 0.581
+    },
+    {
+      "id": "fred_be9962a875a7440f41cc",
+      "provider": "bea",
+      "state": "source_validated",
+      "rows": 319,
+      "source_hash": "a920921a004910f973021dc89236f11fca5120fadefcaba4a8e1ff55f7625e2d",
+      "definition_hash": "93c15c47189ee0ce8d9c93540bf15c30f85fa4a41502ad61e0ad4319ecd3951d",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx",
+      "seconds": 1.065
+    },
+    {
+      "id": "fred_cfc0d3a8fc7e9df5bf55",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 404,
+      "source_hash": "dc9fb363307e24ff02f8f567896c55a6d1b5d7b951325dca5234ce7693f14dd7",
+      "definition_hash": "f21fc0810d7c6b02e99615e8a70032f5fb61af3c1a16faf4a7115e8b6cc7b07a",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx",
+      "seconds": 0.337
+    },
+    {
+      "id": "fred_d6d19d1e7731f8d561c7",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 404,
+      "source_hash": "57f0c9517c3c191759d3c9e4f66ad68965d4daf013d0b41ff27d78e1d7dc2965",
+      "definition_hash": "410302df8344acc4782097049ca67dbe358fac085491eb1967ea5b2abc13f390",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/totsatime.xlsx",
+      "seconds": 0.405
+    },
+    {
+      "id": "fred_ee6f78fdeffb513d53d4",
+      "provider": "census",
+      "state": "source_validated",
+      "rows": 404,
+      "source_hash": "e9faea98ea4fc9c57ffbb4e7e576a5907e17e2324dce7d4e58a17aaa8bb2c560",
+      "definition_hash": "d762c77aedefe00f5b69806320e954ea381947721bddcdb7de4042c40ead8b13",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/privsatime.xlsx",
+      "seconds": 0.337
+    },
+    {
+      "id": "fred_f4d6da21fa8031a3a242",
+      "provider": "bea",
+      "state": "source_validated",
+      "rows": 319,
+      "source_hash": "a920921a004910f973021dc89236f11fca5120fadefcaba4a8e1ff55f7625e2d",
+      "definition_hash": "0ae00eaa9301df67e16f81d1ed8f483ac10b4b90d0ab8a99530f22d9d77a97a7",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx",
+      "seconds": 0.99
+    },
+    {
+      "id": "ons_1d4b23dfc0948db64249",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 464,
+      "source_hash": "f45b0b2a16ef73bfa0eea096ac7dcae2df02b2d5a7b3bbb51b045acd0e958869",
+      "definition_hash": "f9a5117c03839936c6fce6efaa5c4b859869085db5168e2c9a65d1b0a68e0df3",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7oe/mm23/data",
+      "seconds": 0.416
+    },
+    {
+      "id": "ons_1e225f710e5dd5ee593e",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 666,
+      "source_hash": "b68f87c2ed598965d0169b5b3de8bf88b07af0cbbad867260b23a4fc31ae04ed",
+      "definition_hash": "2d98ee84c2c31a619871dd17a239f89d72a9a1f9f8c307dc4d375439f51c241c",
+      "source_url": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/timeseries/lf24/lms/data",
+      "seconds": 0.492
+    },
+    {
+      "id": "ons_215c26ad59b81f3db7ba",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 200,
+      "source_hash": "4e20ee614b277a1a762ce01712d25c8f09c8a5092cc66e5e9142d09510e8d582",
+      "definition_hash": "0a5f542d20cff916c6eb849154f51c367c75d02b22711574210d8edb22f35b0b",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "seconds": 0.667
+    },
+    {
+      "id": "ons_24c4972dca3a5b1bbe32",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 465,
+      "source_hash": "a0e630b09306a449f79de41ced22bb5640f34c6cab6923900a4fb8b101c69c93",
+      "definition_hash": "21c4516f15660567b87318272248fa3aff18332781f25c35ec040e3310eae5fc",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7bt/mm23/data",
+      "seconds": 0.278
+    },
+    {
+      "id": "ons_24df6f5df34ca52bac40",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 666,
+      "source_hash": "40fc03537a940c9cef14463bc167c6e4d841ad6d9396ea32ca15b0ec229aaa42",
+      "definition_hash": "4ac99af524930bfaafda3dbaebb115454d50bd04d3f8d8c5ee0d66d1512e83f5",
+      "source_url": "https://www.ons.gov.uk/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms/data",
+      "seconds": 0.303
+    },
+    {
+      "id": "ons_25d3467f107b4839918d",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 285,
+      "source_hash": "a52ef78d6f05eb2590fcd4264198989a7a6c20bc3005bd282720c6a28008bc12",
+      "definition_hash": "e0b7fd1038472dfa5a5a3ebdabadd480e636bda68eedfd9574c4a0513692bfce",
+      "source_url": "https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ihyq/qna/data",
+      "seconds": 0.221
+    },
+    {
+      "id": "ons_27271ab0b950200f5401",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 453,
+      "source_hash": "f05709a7d468e40599e8f9fe385ce8c42667b8bd49264e65b4ec0c6c5e787604",
+      "definition_hash": "ccaa37d799d6252d17c147dcb269eb24ad78fbed648d9efdd7faf39575b514b5",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7g7/mm23/data",
+      "seconds": 0.201
+    },
+    {
+      "id": "ons_29758966f717f2aa44da",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 282,
+      "source_hash": "f27836f79c56c5e8f3291a7df344971086784b770dee09c17b38496e8b0eee72",
+      "definition_hash": "09b8bdbf10deecd466c4fe4b5cd7d6432306e554802d0206b667c80c3f3653f1",
+      "source_url": "https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ihyr/qna/data",
+      "seconds": 0.249
+    },
+    {
+      "id": "ons_2cc6678249f2ade3e2b2",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 369,
+      "source_hash": "a5a01fd3ae9f27944c144a0af6ac4d25a3977c7f23a4ba9475d60a9c6e81fb85",
+      "definition_hash": "f47f4a567406384a686f13b30cdc8cb850416056046815213ccbe2815cf598fb",
+      "source_url": "https://www.ons.gov.uk/businessindustryandtrade/retailindustry/timeseries/j5ek/drsi/data",
+      "seconds": 0.428
+    },
+    {
+      "id": "ons_38752d10c1efdc717be3",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 200,
+      "source_hash": "4e20ee614b277a1a762ce01712d25c8f09c8a5092cc66e5e9142d09510e8d582",
+      "definition_hash": "7a6e403448c3520cbed79a8156e4758d800c7770d7ae402813ba976e25ba89d4",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "seconds": 0.384
+    },
+    {
+      "id": "ons_39be433de4f7adbd251a",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 320,
+      "source_hash": "427b2dc0641a9ccc57af153cc97e3052a5f2bf24eada9e36bace1a1b989a3b09",
+      "definition_hash": "2e86f80a0c8e17e07d55cfbce502a50430aeaaf77542558186a2a287b9d27de3",
+      "source_url": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kai7/lms/data",
+      "seconds": 0.335
+    },
+    {
+      "id": "ons_53705523c8fb7b06619e",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 200,
+      "source_hash": "4e20ee614b277a1a762ce01712d25c8f09c8a5092cc66e5e9142d09510e8d582",
+      "definition_hash": "e487d98ec8b7f8bc89ed7e1e1a69e240300260f4d9f5fe5b3f9649acbcc27136",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "seconds": 0.312
+    },
+    {
+      "id": "ons_5a00d3ab026be6d9800b",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 200,
+      "source_hash": "4e20ee614b277a1a762ce01712d25c8f09c8a5092cc66e5e9142d09510e8d582",
+      "definition_hash": "6d31bb3733b4eefde575a981a698d280cf5f2b00247ba950a367e1eb743ed2c4",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "seconds": 0.17
+    },
+    {
+      "id": "ons_6421faae8e3d13384c87",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 286,
+      "source_hash": "fee2c51cde8bc70c0f6365ad53291d9c32635c389627b7fc09bfb0573ebda714",
+      "definition_hash": "097380852a7a213aed175bb37d34465d6dd4779e2ffeb335f6a8df5508ab4eba",
+      "source_url": "https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ybha/qna/data",
+      "seconds": 0.381
+    },
+    {
+      "id": "ons_6594cff336dfb6dc2a3e",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 200,
+      "source_hash": "4e20ee614b277a1a762ce01712d25c8f09c8a5092cc66e5e9142d09510e8d582",
+      "definition_hash": "2862ec29cff888b6950b6fddfab641599d1c3bd6371fcb570067ff6fcc648a7e",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "seconds": 0.37
+    },
+    {
+      "id": "ons_7009dd3952dd505a3864",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 940,
+      "source_hash": "14c5a75ca7295a36b378777393083699a69d451085c850c34fdef1a828d94156",
+      "definition_hash": "7699a842ece12e32cb7a9e63b8dddbbd136a05a7f8453d823817562c1245c90e",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/czbh/mm23/data",
+      "seconds": 0.361
+    },
+    {
+      "id": "ons_78e848998a32855f9a88",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 320,
+      "source_hash": "98514c79c0eb1c27e650eec46ea960cda674740e2c9d2e32b2f6d80f7ab194c7",
+      "definition_hash": "b2fc851876177c938cb855e2725b5bce0057acf512c60621a8a747b5660812d9",
+      "source_url": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kab9/lms/data",
+      "seconds": 0.399
+    },
+    {
+      "id": "ons_819ec3316056961f5859",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 465,
+      "source_hash": "883b0b911e2977ddb0c1aecbe99e42f3b5c45367f868e245579f84801982ce80",
+      "definition_hash": "50521d18020e8fddb5ed67d7bc975f0a16585b28853e490360e485fb499eb223",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l522/mm23/data",
+      "seconds": 0.381
+    },
+    {
+      "id": "ons_8fee3c0605a186d69802",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 239,
+      "source_hash": "efd0beb5f839cd92bea48e37c86ec728c7ca8e36129f526b2f4a0f78e594a5a1",
+      "definition_hash": "40bbafa18449670f3d7389edf00a1c9dd9a8d40802b718a7435147bfbe94af9f",
+      "source_url": "https://www.ons.gov.uk/businessindustryandtrade/retailindustry/timeseries/j4mc/drsi/data",
+      "seconds": 0.392
+    },
+    {
+      "id": "ons_a007e11b21ed0f67ccf1",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 286,
+      "source_hash": "6ce4b868fc86af44653ae0ae864e587d15a849c54f347b22830cddaa92ad7693",
+      "definition_hash": "a09aab7818f7bc28cf450aa7b0c4622a3785765eb90df1d173f6fdfbed16d45e",
+      "source_url": "https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/abmi/qna/data",
+      "seconds": 0.383
+    },
+    {
+      "id": "ons_a2f555205f0a79658136",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 200,
+      "source_hash": "4e20ee614b277a1a762ce01712d25c8f09c8a5092cc66e5e9142d09510e8d582",
+      "definition_hash": "7b0a0df2fb44c7f1ff04d57424fa303cdae4c317069bce945d5d9e56aa5fce96",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "seconds": 0.401
+    },
+    {
+      "id": "ons_a870666d741fbe34a30c",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 453,
+      "source_hash": "7783d086411a1b3aa8c776eb219e328799a522e2ef8e0c171b80d9fabcb53120",
+      "definition_hash": "8ff0829604c2cb1feef61a669cd26fe195cf2425b78ea173b2797280615c49e2",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l55o/mm23/data",
+      "seconds": 0.263
+    },
+    {
+      "id": "ons_e6035bf2acb76d69e995",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 477,
+      "source_hash": "dd9f43a44603be85fcf741016bffcce26505c27f61d2a17aa531caf90dd748fc",
+      "definition_hash": "54491d2854aa80639a8337d2f2f08bf2d071c49b7a228d7b2b7366abaececeed",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/chaw/mm23/data",
+      "seconds": 0.387
+    },
+    {
+      "id": "ons_f055c30053e4d883ab2b",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 200,
+      "source_hash": "4e20ee614b277a1a762ce01712d25c8f09c8a5092cc66e5e9142d09510e8d582",
+      "definition_hash": "3f2fddd7268f0585df81d621507388a9987f5b16173b771ea4f9a6a0984d4312",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "seconds": 0.398
+    },
+    {
+      "id": "ons_f069edbcf1bc4e7ff9c5",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 200,
+      "source_hash": "4e20ee614b277a1a762ce01712d25c8f09c8a5092cc66e5e9142d09510e8d582",
+      "definition_hash": "ee580f389e17734c4c4a568b6fdbd063492206028a568aaf76f5b0e0fd3a5d39",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "seconds": 0.154
+    },
+    {
+      "id": "ons_f6dae99116eb8476bd7b",
+      "provider": "ons",
+      "state": "source_validated",
+      "rows": 200,
+      "source_hash": "4e20ee614b277a1a762ce01712d25c8f09c8a5092cc66e5e9142d09510e8d582",
+      "definition_hash": "bf161b6345f0b9606fd1d4f1c725b799f101b3bbaeac3cff0921dbb38098bd26",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "seconds": 0.122
+    }
+  ]
+}

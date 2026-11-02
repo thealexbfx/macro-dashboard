@@ -77,7 +77,9 @@ class OfficialRedirects(HTTPRedirectHandler):
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
-def download(url, *, timeout=25, maximum=MAX_BYTES, opener=None, payload=None):
+def download(
+    url, *, timeout=25, maximum=MAX_BYTES, opener=None, payload=None, validators=None
+):
     """TLS verification stays enabled; 401/403 are never bypassed or retried."""
     safe_url(url)
     parsed = urlsplit(url)
@@ -129,10 +131,25 @@ def download(url, *, timeout=25, maximum=MAX_BYTES, opener=None, payload=None):
                 raise ValueError(
                     "Only bounded official statistical query POST is supported"
                 )
+        conditional = {}
+        for name, header in (
+            ("etag", "If-None-Match"),
+            ("last_modified", "If-Modified-Since"),
+        ):
+            value = (validators or {}).get(name)
+            if value:
+                if (
+                    not isinstance(value, str)
+                    or len(value) > 512
+                    or any(c in value for c in "\r\n")
+                ):
+                    raise ValueError("Invalid HTTP validator")
+                conditional[header] = value
         request = Request(
             url,
             data=payload,
             headers={
+                **conditional,
                 "User-Agent": "MacroLensResearch/2.0 official-data-validation",
                 "Accept": "application/json,text/csv,application/octet-stream,*/*",
                 "Content-Type": "application/x-www-form-urlencoded"
@@ -157,7 +174,26 @@ def download(url, *, timeout=25, maximum=MAX_BYTES, opener=None, payload=None):
                 "last_modified": response.headers.get("Last-Modified"),
             }
     except HTTPError as exc:
-        raise ProviderError(f"http_{exc.code}") from None
+        if exc.code == 304 and conditional and payload is None:
+            return None, {
+                "not_modified": True,
+                "url": url,
+                "etag": exc.headers.get("ETag") or (validators or {}).get("etag"),
+                "last_modified": exc.headers.get("Last-Modified")
+                or (validators or {}).get("last_modified"),
+            }
+        retry = (exc.headers or {}).get("Retry-After", "")
+        delay = int(retry) if retry.isdigit() else 0
+        if retry and not delay:
+            from email.utils import parsedate_to_datetime
+
+            try:
+                stamp = parsedate_to_datetime(retry)
+                if stamp.tzinfo is not None:
+                    delay = max(0, int((stamp - datetime.now(UTC)).total_seconds()))
+            except (ValueError, TypeError, OverflowError):
+                pass
+        raise ProviderError(f"http_{exc.code}", retry_after=delay) from None
     except (URLError, TimeoutError, OSError):
         raise ProviderError("network_or_tls_failure") from None
 
@@ -199,8 +235,9 @@ def freeze(path, definition, points, raw, source_url, metadata=None):
 class SnapshotAdapter:
     """Each page re-verifies the immutable artifact and returns source records only."""
 
-    def __init__(self, path, expected_hash):
+    def __init__(self, path, expected_hash, *, cache_parsed=False):
         self.path, self.expected_hash = Path(path), expected_hash
+        self.cache_parsed, self._parsed = cache_parsed, None
 
     def fetch(self, definition, window, cursor, bounds):
         if self.path.stat().st_size > 16 * 1024 * 1024:
@@ -208,28 +245,13 @@ class SnapshotAdapter:
         raw = self.path.read_bytes()
         if sha256(raw).hexdigest() != self.expected_hash:
             raise ProviderError("snapshot_changed")
-        data = json.loads(raw)
-        if data["definition_hash"] != definition.fingerprint:
-            raise ProviderError("definition_changed")
-        records = []
-        for row in data["points"]:
-            row["flags"] = tuple(row["flags"])
-            if row.get("release_at"):
-                row["release_at"] = datetime.fromisoformat(row["release_at"])
-            point = Observation(**row)
-            if (
-                window.start
-                <= native_period(point.period, definition, point.event_id).start
-                <= window.end
-            ):
-                records.append(point)
-        records.sort(
-            key=lambda p: (
-                native_period(p.period, definition, p.event_id).start,
-                p.period,
-                p.event_id or "",
-            )
-        )
+        cache_key = (self.expected_hash, definition.fingerprint, window.start, window.end)
+        if self._parsed and self._parsed[0] == cache_key:
+            data, records = self._parsed[1:]
+        else:
+            data, records = self._records(raw, definition, window)
+            if self.cache_parsed:
+                self._parsed = (cache_key, data, records)
         offset = int(cursor or 0)
         if offset < 0 or offset > len(records):
             raise ProviderError("invalid_snapshot_cursor")
@@ -252,3 +274,31 @@ class SnapshotAdapter:
             datetime.fromisoformat(data["checked_at"]),
             following,
         )
+
+    @staticmethod
+    def _records(raw, definition, window):
+        data = json.loads(raw)
+        if data["definition_hash"] != definition.fingerprint:
+            raise ProviderError("definition_changed")
+        if len(data["points"]) > MAX_POINTS:
+            raise ProviderError("snapshot_point_limit")
+        records = []
+        for row in data["points"]:
+            row["flags"] = tuple(row["flags"])
+            if row.get("release_at"):
+                row["release_at"] = datetime.fromisoformat(row["release_at"])
+            point = Observation(**row)
+            if (
+                window.start
+                <= native_period(point.period, definition, point.event_id).start
+                <= window.end
+            ):
+                records.append(point)
+        records.sort(
+            key=lambda p: (
+                native_period(p.period, definition, p.event_id).start,
+                p.period,
+                p.event_id or "",
+            )
+        )
+        return {k: data[k] for k in ("source_url", "checked_at")}, records
