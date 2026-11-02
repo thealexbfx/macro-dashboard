@@ -215,6 +215,10 @@ class NativeReader:
                 + refresh["last_success"]
                 + ". Reference periods are not publication dates; workbook publication timestamp unavailable."
             ]
+            attribution += [
+                "Initial captured release acknowledgment: " + a
+                for a in publication.attribution
+            ]
         first = db.execute(
             "SELECT reference_start FROM norm_observations WHERE dataset_id=? ORDER BY reference_start,period_key LIMIT 1",
             (d.id,),
@@ -267,6 +271,7 @@ class NativeReader:
                 "source_checked_at": refresh["last_success"] if refresh else None,
                 "last_changed_at": refresh["last_change"] if refresh else None,
                 "source_release": refresh_provenance.get("source_release"),
+                "source_file_modified": refresh_provenance.get("source_file_modified"),
                 "license_url": publication.license_url,
                 "benchmark": d.selector,
                 "source_unit": d.units,

@@ -31,7 +31,7 @@ from backend.app.v2.native_reader import NativeReader
 
 ROOT = Path(__file__).resolve().parents[3]
 CONFIG = ROOT / "catalog/refresh_policy.json"
-LOG = logging.getLogger(__name__)
+LOG = logging.getLogger("uvicorn.error.catalog_refresh")
 DAY = 86400
 MAX_FILES = 96 * 1024 * 1024
 
@@ -326,6 +326,7 @@ class CatalogRefresh:
                     for r in db.execute("SELECT * FROM catalog_refresh_jobs")
                 }
             missing = [k for k in self.rules if k not in jobs]
+            missing.sort(key=lambda k: endpoint(self.entries[k]))
             if missing:
                 with self.store.connection(True, timeout=2) as db:
                     for i, key in enumerate(missing):
@@ -376,6 +377,7 @@ class CatalogRefresh:
             provenance.update(
                 source_checked_at=finished.isoformat(),
                 source_url=self.publications[key].source_url,
+                source_file_modified=response.get("last_modified"),
             )
             if pending:
                 provenance.update(
@@ -413,6 +415,7 @@ class CatalogRefresh:
                 "id": key,
                 "state": "changed" if pending else "unchanged",
                 "next_due": finished.timestamp() + self.rules[key]["check_seconds"],
+                "last_success": finished.isoformat(),
             }
             LOG.info("Catalog refresh %s", json.dumps(result))
             return result

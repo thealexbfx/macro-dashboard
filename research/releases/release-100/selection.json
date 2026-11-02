@@ -1,0 +1,1871 @@
+{
+  "release": "release-100",
+  "reviewed_base": "922af3849b53e470ddaab19a6839c545939e15fd",
+  "existing_native_ids": [
+    "eurostat_e4b0591cf148660f3349",
+    "eurostat_eca8a799de8d6687fe33",
+    "eurostat_6e1c74c102959c0ded7b",
+    "eurostat_fcab9c3216a8c2d01fc9",
+    "eurostat_3e9b736c08d1e26f46f5",
+    "eurostat_c94d6677ff350bbc29aa",
+    "ons_27271ab0b950200f5401",
+    "ons_a007e11b21ed0f67ccf1",
+    "ons_24df6f5df34ca52bac40",
+    "ons_f069edbcf1bc4e7ff9c5",
+    "eia_4922b423fe8b2b32866f",
+    "eia_4f9f06aabda8ff167d48",
+    "eia_feda97c6fccc3ab58f53"
+  ],
+  "additional_ids": [
+    "eurostat_3f8dcd72ad11f4f3b9ef",
+    "eurostat_633ca07db5ab397b9535",
+    "eurostat_7cf165f869db02fd3a1b",
+    "eurostat_d303c438757ae9bc2f26",
+    "eurostat_37c229cd537e5fa533bb",
+    "eurostat_61686fe8fdc9577e6d47",
+    "eurostat_a61def93a170d5c5762c",
+    "eurostat_c0fc01ed5efaf8a07abd",
+    "eurostat_734829d92c2058c77216",
+    "eurostat_bacb4a8870074617884f",
+    "eurostat_dd0ae0f0f913e9323d8f",
+    "eurostat_f9d434ea9b52ed59f29f",
+    "eurostat_1dbf7d4cd20c533f1a81",
+    "eurostat_4d4786ddbdc8229afff7",
+    "eurostat_a12908192f33939823b7",
+    "eurostat_b3b1fe3938ce4e4612eb",
+    "eurostat_5aeedc36988eaa3f3449",
+    "eurostat_7944786d6798bbf8db3f",
+    "eurostat_b5a226808c9fc1bd3343",
+    "eurostat_f71ae378f4c820fc0ae0",
+    "eurostat_7dd27d3c6b1d1c1de8d6",
+    "eurostat_89bc385366c06541f184",
+    "eurostat_9168b7ee162cb46fd5db",
+    "eurostat_d38252717f7c5fbeb7f0",
+    "eurostat_647a302990659c3097cd",
+    "eurostat_77ba4f3a758d6ae4448a",
+    "eurostat_8172fb797467ba0c413f",
+    "eurostat_8582d8dad7b6ccaedd7e",
+    "eurostat_6abbb1e68f00349646b7",
+    "eurostat_85c75060bd6f221cafd2",
+    "eurostat_a2bfc29ea11f0d4fa5b2",
+    "eurostat_c3e94638ddc73c642af2",
+    "eurostat_4da3ab1198a88462eb4a",
+    "eurostat_726780d271bd41010152",
+    "eurostat_803e37302de4a467d0ff",
+    "eurostat_c32a83e065ec840898c2",
+    "ons_a870666d741fbe34a30c",
+    "ons_1e225f710e5dd5ee593e",
+    "ons_39be433de4f7adbd251a",
+    "ons_2cc6678249f2ade3e2b2",
+    "ons_25d3467f107b4839918d",
+    "ons_29758966f717f2aa44da",
+    "ons_215c26ad59b81f3db7ba",
+    "ons_38752d10c1efdc717be3",
+    "ons_f055c30053e4d883ab2b",
+    "fred_8d3240bb6b5eae523737",
+    "fred_587ae491484f07293dc5",
+    "fred_5917067a7da7dd7561f2",
+    "fred_f4d6da21fa8031a3a242",
+    "fred_6b8b68d870a427695f32",
+    "fred_344b1ec45d2e2a9be4ee",
+    "fred_259d141714182247e607",
+    "fred_890f288b712279e3a9cf",
+    "boe_1d553b5bdd1f7e891b14",
+    "boe_7b7637a3b65708d59ec6",
+    "ecb_18cb4fac8e5507865410",
+    "ecb_93d62599805666a2d00b"
+  ],
+  "expected_public_before": 43,
+  "expected_public_after": 100,
+  "approval_scope": "Prepared per-ID release approvals; executing publication still requires separate explicit operator approval. No availability-based publishing.",
+  "datasets": [
+    {
+      "id": "eurostat_e4b0591cf148660f3349",
+      "name": "Real GDP — Germany",
+      "provider": "eurostat",
+      "region": "Germany",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "35ba8ddc1d91ba6d4c2d4e1e1794c1fabdff83f56061b0d174fe053d178aa32f",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=B1GQ&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_eca8a799de8d6687fe33",
+      "name": "Real GDP — France",
+      "provider": "eurostat",
+      "region": "France",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "aa5c00df0f5b0c0be3e0bb316279dbdf6ecd32da71dcf4d75813a47c9ba3e2b0",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=B1GQ&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_6e1c74c102959c0ded7b",
+      "name": "Real GDP — Italy",
+      "provider": "eurostat",
+      "region": "Italy",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "16c9af1e935a6c4c92bd4391987d1649c1b3aac864cf493a240c06365c99f42d",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=B1GQ&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_fcab9c3216a8c2d01fc9",
+      "name": "Real GDP — Euro area – 21 countries (from 2026)",
+      "provider": "eurostat",
+      "region": "Euro area – 21 countries (from 2026)",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "981a42ae4b7e8c2a4d285d4b6a9e33a8a08db54fe6156d0b2a045fdf1fd4729e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=B1GQ&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_3e9b736c08d1e26f46f5",
+      "name": "Industrial production — Euro area – 21 countries (from 2026)",
+      "provider": "eurostat",
+      "region": "Euro area – 21 countries (from 2026)",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Index, 2021=100",
+      "definition_hash": "1909d47ab34592fef86b5be4aa0ff0e7d30a4f61a9e0bf9fe65b639bc9268168",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=EA21&nace_r2=B-D&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 885
+    },
+    {
+      "id": "eurostat_c94d6677ff350bbc29aa",
+      "name": "Construction production — Germany",
+      "provider": "eurostat",
+      "region": "Germany",
+      "category": "Construction / infrastructure / materials",
+      "frequency": "monthly",
+      "units": "Index, 2021=100",
+      "definition_hash": "3508822a5ad9337319c37b763693223ae2e7fa3353e136cfb19f5e12a4d6ab83",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=DE&nace_r2=F&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 561
+    },
+    {
+      "id": "ons_27271ab0b950200f5401",
+      "name": "CPI ANNUAL RATE 00: ALL ITEMS 2015=100",
+      "provider": "ons",
+      "region": "UK",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "%",
+      "definition_hash": "ccaa37d799d6252d17c147dcb269eb24ad78fbed648d9efdd7faf39575b514b5",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7g7/mm23/data",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage."
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 453
+    },
+    {
+      "id": "ons_a007e11b21ed0f67ccf1",
+      "name": "Gross Domestic Product: chained volume measures: Seasonally adjusted £m",
+      "provider": "ons",
+      "region": "UK",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "£ m",
+      "definition_hash": "a09aab7818f7bc28cf450aa7b0c4622a3785765eb90df1d173f6fdfbed16d45e",
+      "source_url": "https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/abmi/qna/data",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "ONS September 2026 QNA identifies 2024 as the chained-volume reference year. These are real-volume GBP millions, not current-price pounds. Benchmark changes require renewed review: https://www.ons.gov.uk/economy/grossdomesticproductgdp/bulletins/quarterlynationalaccounts/apriltojune2026"
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 286
+    },
+    {
+      "id": "ons_24df6f5df34ca52bac40",
+      "name": "Unemployment rate (aged 16 and over, seasonally adjusted): %",
+      "provider": "ons",
+      "region": "UK",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "%",
+      "definition_hash": "4ac99af524930bfaafda3dbaebb115454d50bd04d3f8d8c5ee0d66d1512e83f5",
+      "source_url": "https://www.ons.gov.uk/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms/data",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "LFS rates refer to overlapping three-month periods; monthly labels are not independent monthly surveys. Survey weighting/method changes require care."
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 666
+    },
+    {
+      "id": "ons_f069edbcf1bc4e7ff9c5",
+      "name": "All construction work construction output",
+      "provider": "ons",
+      "region": "UK (Great Britain)",
+      "category": "Construction / infrastructure / materials",
+      "frequency": "monthly",
+      "units": "Volume index 2024=100",
+      "definition_hash": "ee580f389e17734c4c4a568b6fdbd063492206028a568aaf76f5b0e0fd3a5d39",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage."
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 200
+    },
+    {
+      "id": "eia_4922b423fe8b2b32866f",
+      "name": "US commercial crude stocks excluding SPR",
+      "provider": "eia",
+      "region": "US",
+      "category": "Energy / infrastructure",
+      "frequency": "weekly",
+      "units": "Thousand Barrels",
+      "definition_hash": "6bcbd8994fa203b585c1bf05e5895dbd69bde7653958762f1c4441c5f5112985",
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/WCESTUS1w.xls",
+      "license_url": "https://www.eia.gov/about/copyrights_reuse.php",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eia",
+      "attribution": [
+        "Source: US Energy Information Administration (release 2026-10-28); reference week ended 2026-10-23. Current revised historical series; source and licence links retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Keep price, end-period inventory stocks and production/product-supplied flows separate. Product supplied is an apparent-consumption proxy, not measured final road-material use; spot prices are not futures total returns."
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 2300
+    },
+    {
+      "id": "eia_4f9f06aabda8ff167d48",
+      "name": "US crude oil field production",
+      "provider": "eia",
+      "region": "US",
+      "category": "Energy / infrastructure",
+      "frequency": "weekly",
+      "units": "Thousand Barrels per Day",
+      "definition_hash": "94d1ae03b087c2afdb6cbca0b14dab80a9172e9d982c49c7f3fac28ca123f6ab",
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/WCRFPUS2w.xls",
+      "license_url": "https://www.eia.gov/about/copyrights_reuse.php",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eia",
+      "attribution": [
+        "Source: US Energy Information Administration (release 2026-10-28); reference week ended 2026-10-23. Current revised historical series; source and licence links retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Keep price, end-period inventory stocks and production/product-supplied flows separate. Product supplied is an apparent-consumption proxy, not measured final road-material use; spot prices are not futures total returns."
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 2283
+    },
+    {
+      "id": "eia_feda97c6fccc3ab58f53",
+      "name": "Lower-48 working natural gas storage",
+      "provider": "eia",
+      "region": "US",
+      "category": "Energy / infrastructure",
+      "frequency": "weekly",
+      "units": "Billion Cubic Feet",
+      "definition_hash": "013da731e8e1ae23582d43ae254e75b5d7c617fd41db4ab2b4aa19454d966480",
+      "source_url": "https://www.eia.gov/dnav/ng/hist_xls/NW2_EPG0_SWO_R48_BCFw.xls",
+      "license_url": "https://www.eia.gov/about/copyrights_reuse.php",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eia",
+      "attribution": [
+        "Source: US Energy Information Administration (release 2026-10-29); reference week ended 2026-10-23. Current revised historical series; source and licence links retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Keep price, end-period inventory stocks and production/product-supplied flows separate. Product supplied is an apparent-consumption proxy, not measured final road-material use; spot prices are not futures total returns."
+      ],
+      "publication_approved": false,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 878
+    },
+    {
+      "id": "eurostat_3f8dcd72ad11f4f3b9ef",
+      "name": "HICP annual inflation — Germany",
+      "provider": "eurostat",
+      "region": "Germany",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Annual rate of change",
+      "definition_hash": "175348827dcb59905e37c536e08bc3f8a3a783b83464844d9ef57360791dc4ef",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=DE&unit=RCH_A&coicop18=TOTAL",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 369
+    },
+    {
+      "id": "eurostat_633ca07db5ab397b9535",
+      "name": "HICP annual inflation — Euro area – 21 countries (from 2026)",
+      "provider": "eurostat",
+      "region": "Euro area – 21 countries (from 2026)",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Annual rate of change",
+      "definition_hash": "b3127504649be724f490763fcfee924de86b928c39988dfcc8be24d68339bc56",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=EA21&unit=RCH_A&coicop18=TOTAL",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 369
+    },
+    {
+      "id": "eurostat_7cf165f869db02fd3a1b",
+      "name": "HICP annual inflation — France",
+      "provider": "eurostat",
+      "region": "France",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Annual rate of change",
+      "definition_hash": "5a107fcbd7c01a43137025dc002853e82e3a9c2ed7241c9dcd7b167bb52e1eb4",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=FR&unit=RCH_A&coicop18=TOTAL",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 369
+    },
+    {
+      "id": "eurostat_d303c438757ae9bc2f26",
+      "name": "HICP annual inflation — Italy",
+      "provider": "eurostat",
+      "region": "Italy",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Annual rate of change",
+      "definition_hash": "28627551f1dd208e0fda98f871d859933a50264047309274b4de61afb26dafac",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=IT&unit=RCH_A&coicop18=TOTAL",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 369
+    },
+    {
+      "id": "eurostat_37c229cd537e5fa533bb",
+      "name": "Unemployment rate — Germany",
+      "provider": "eurostat",
+      "region": "Germany",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Percentage of population in the labour force",
+      "definition_hash": "1f7ab3554741795880c83b7da1815ba3c6eaf443a2822a6242163ad6c92cbe87",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?lang=en&geo=DE&sex=T&age=TOTAL&unit=PC_ACT&s_adj=SA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 525
+    },
+    {
+      "id": "eurostat_61686fe8fdc9577e6d47",
+      "name": "Unemployment rate — France",
+      "provider": "eurostat",
+      "region": "France",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Percentage of population in the labour force",
+      "definition_hash": "915ecf90c7acb74908c0fb5805bce1ab5503cdc5065ecea2d5a69d3ac2f77af0",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?lang=en&geo=FR&sex=T&age=TOTAL&unit=PC_ACT&s_adj=SA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 525
+    },
+    {
+      "id": "eurostat_a61def93a170d5c5762c",
+      "name": "Unemployment rate — Euro area – 21 countries (from 2026)",
+      "provider": "eurostat",
+      "region": "Euro area – 21 countries (from 2026)",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Percentage of population in the labour force",
+      "definition_hash": "6ffd664d5659a10e469266a68829a77c50002767fad8dbe7938a2398b7ed83d8",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?lang=en&geo=EA21&sex=T&age=TOTAL&unit=PC_ACT&s_adj=SA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 525
+    },
+    {
+      "id": "eurostat_c0fc01ed5efaf8a07abd",
+      "name": "Unemployment rate — Italy",
+      "provider": "eurostat",
+      "region": "Italy",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Percentage of population in the labour force",
+      "definition_hash": "d74aedbac0c12158744382d2f51f9fc62bb403e54efe55e30985d753c3788e22",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?lang=en&geo=IT&sex=T&age=TOTAL&unit=PC_ACT&s_adj=SA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 525
+    },
+    {
+      "id": "eurostat_734829d92c2058c77216",
+      "name": "Manufacturing production — Germany",
+      "provider": "eurostat",
+      "region": "Germany",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Index, 2021=100",
+      "definition_hash": "8c796697526402f73fe2cfadb7a764d919a7c85d4b3abe6aceae7d32cd27e8c3",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=DE&nace_r2=C&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 885
+    },
+    {
+      "id": "eurostat_bacb4a8870074617884f",
+      "name": "Manufacturing production — France",
+      "provider": "eurostat",
+      "region": "France",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Index, 2021=100",
+      "definition_hash": "d8f195cc7e74aebeca5a2ad5bf1d8b545cd3b79b84ebebc5ba1fec6aae6ed3c0",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=FR&nace_r2=C&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 885
+    },
+    {
+      "id": "eurostat_dd0ae0f0f913e9323d8f",
+      "name": "Manufacturing production — Italy",
+      "provider": "eurostat",
+      "region": "Italy",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Index, 2021=100",
+      "definition_hash": "5c769514cf7ee2b2c47a36296415549dbf54e1636fd99aff6af5a9c4859042f7",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=IT&nace_r2=C&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 885
+    },
+    {
+      "id": "eurostat_f9d434ea9b52ed59f29f",
+      "name": "Manufacturing production — Euro area – 21 countries (from 2026)",
+      "provider": "eurostat",
+      "region": "Euro area – 21 countries (from 2026)",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Index, 2021=100",
+      "definition_hash": "d2e41c5f8c2c60ccae0250e095c3e662710c5e7db1d40e3f2ccf4644a45beb28",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=EA21&nace_r2=C&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 885
+    },
+    {
+      "id": "eurostat_1dbf7d4cd20c533f1a81",
+      "name": "Retail sales volume — Italy",
+      "provider": "eurostat",
+      "region": "Italy",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Index, 2021=100",
+      "definition_hash": "1f1b3fc053c1f1c6b59325ece4968dfa23a6be9f2bdff5f82687f7136974634d",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_trtu_m?lang=en&geo=IT&nace_r2=G47&unit=I21&s_adj=SCA&indic_bt=VOL_SLS",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 429
+    },
+    {
+      "id": "eurostat_4d4786ddbdc8229afff7",
+      "name": "Retail sales volume — Germany",
+      "provider": "eurostat",
+      "region": "Germany",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Index, 2021=100",
+      "definition_hash": "696aea89e8c968a9acfdc52bc9a54ce6b6eee7bf23790b956d8fd68fe0b30167",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_trtu_m?lang=en&geo=DE&nace_r2=G47&unit=I21&s_adj=SCA&indic_bt=VOL_SLS",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 429
+    },
+    {
+      "id": "eurostat_a12908192f33939823b7",
+      "name": "Retail sales volume — France",
+      "provider": "eurostat",
+      "region": "France",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Index, 2021=100",
+      "definition_hash": "e0c6e7991ba11de9d1e7ad01bffdae8af810ae91e9e8968e626187a692f1ac50",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_trtu_m?lang=en&geo=FR&nace_r2=G47&unit=I21&s_adj=SCA&indic_bt=VOL_SLS",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 429
+    },
+    {
+      "id": "eurostat_b3b1fe3938ce4e4612eb",
+      "name": "Retail sales volume — Euro area – 21 countries (from 2026)",
+      "provider": "eurostat",
+      "region": "Euro area – 21 countries (from 2026)",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Index, 2021=100",
+      "definition_hash": "942c7efbb3321bbd61aa7bb9c8c4ca047e650cf3a4c5efe9f902ad7bc28f5e74",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_trtu_m?lang=en&geo=EA21&nace_r2=G47&unit=I21&s_adj=SCA&indic_bt=VOL_SLS",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 429
+    },
+    {
+      "id": "eurostat_5aeedc36988eaa3f3449",
+      "name": "Gross fixed capital formation — France",
+      "provider": "eurostat",
+      "region": "France",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "7762077796d5decd30add3289826e5c39b671156a183939882b50f6302bc4e42",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=P51G&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_7944786d6798bbf8db3f",
+      "name": "Gross fixed capital formation — Italy",
+      "provider": "eurostat",
+      "region": "Italy",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "f48b51ca4e107d9c709668f1a55861f14a1cbd358695949f2b01f5cc7df941f7",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=P51G&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_b5a226808c9fc1bd3343",
+      "name": "Gross fixed capital formation — Germany",
+      "provider": "eurostat",
+      "region": "Germany",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "d6364855ba1ec38a6d3df7e9ebdddc89313dab4b1c2b0f71f3a0a1f2d60d79d8",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=P51G&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_f71ae378f4c820fc0ae0",
+      "name": "Gross fixed capital formation — Euro area – 21 countries (from 2026)",
+      "provider": "eurostat",
+      "region": "Euro area – 21 countries (from 2026)",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "e4a4cfac7683b114fd29322482e63fc40cccd6e612273af487f43832fd5b862d",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=P51G&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_7dd27d3c6b1d1c1de8d6",
+      "name": "Household consumption — Italy",
+      "provider": "eurostat",
+      "region": "Italy",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "5e7de72fafc0cb2f51e4b73c2ce300f15169c4e3b7a3b6d3f5adf3aea91578f2",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=P31_S14_S15&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_89bc385366c06541f184",
+      "name": "Household consumption — Euro area – 21 countries (from 2026)",
+      "provider": "eurostat",
+      "region": "Euro area – 21 countries (from 2026)",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "543992274b685173761ac7cf09040eaa10a3afe61c5f7f0a03bc12204406b00e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=P31_S14_S15&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_9168b7ee162cb46fd5db",
+      "name": "Household consumption — Germany",
+      "provider": "eurostat",
+      "region": "Germany",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "d86867b3878c2591e4a8410ee2adca128b2068d0a47c5e41dda1ebaf460385e1",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=P31_S14_S15&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_d38252717f7c5fbeb7f0",
+      "name": "Household consumption — France",
+      "provider": "eurostat",
+      "region": "France",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "551802b147a3ae8f2a6da9f293a0d5fd502f21b6a3f96782143c295829e25ebe",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=P31_S14_S15&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_647a302990659c3097cd",
+      "name": "Exports — Euro area – 21 countries (from 2026)",
+      "provider": "eurostat",
+      "region": "Euro area – 21 countries (from 2026)",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "8aa0fe4b983a9cdaaf9e704e40b8572307cd38ff25ef7318d416b8061c02e08d",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=P6&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_77ba4f3a758d6ae4448a",
+      "name": "Exports — France",
+      "provider": "eurostat",
+      "region": "France",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "528c043e73c008aed3a58b6f770dab79b6dd81901b962c650cd34320acfd7a7e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=P6&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_8172fb797467ba0c413f",
+      "name": "Exports — Italy",
+      "provider": "eurostat",
+      "region": "Italy",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "c533aab019114366f5338763057b609709cee341bd9938d48456979dda4ba3d4",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=P6&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_8582d8dad7b6ccaedd7e",
+      "name": "Exports — Germany",
+      "provider": "eurostat",
+      "region": "Germany",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "85000de8433d2341461d341e5ef454d594746b955ef1610b78795b7c4cdb1e57",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=P6&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_6abbb1e68f00349646b7",
+      "name": "Imports — Germany",
+      "provider": "eurostat",
+      "region": "Germany",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "5e7b2157e1ba4465b0b20d0e1ec43ff52bdd72d2c4184e9d3bfb439d3d49370c",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=P7&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_85c75060bd6f221cafd2",
+      "name": "Imports — France",
+      "provider": "eurostat",
+      "region": "France",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "523f6d2284963551cc2a6988284b8aedcb7346192b5fd41b69fa3802db29b51c",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=P7&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_a2bfc29ea11f0d4fa5b2",
+      "name": "Imports — Euro area – 21 countries (from 2026)",
+      "provider": "eurostat",
+      "region": "Euro area – 21 countries (from 2026)",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "f44a17e72289d55b998f187f8a170ca51c72f928188f76ec396c620ff32241ed",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=P7&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_c3e94638ddc73c642af2",
+      "name": "Imports — Italy",
+      "provider": "eurostat",
+      "region": "Italy",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Chain linked volumes (2020), million euro",
+      "definition_hash": "39d15a6ddef02525f84ebd51a1b421c9c5fec3f395d260fce1cbcfd82f031898",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=P7&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 195
+    },
+    {
+      "id": "eurostat_4da3ab1198a88462eb4a",
+      "name": "Government debt GDP ratio — Euro area – 21 countries (from 2026)",
+      "provider": "eurostat",
+      "region": "Euro area – 21 countries (from 2026)",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Percentage of gross domestic product (GDP)",
+      "definition_hash": "1ea88e25ef6bd72a1fda297ff23a0c3a8195a3d3830a18bbe3e4250bb29d074c",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10q_ggdebt?lang=en&geo=EA21&na_item=GD&sector=S13&unit=PC_GDP",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 130
+    },
+    {
+      "id": "eurostat_726780d271bd41010152",
+      "name": "Government debt GDP ratio — Germany",
+      "provider": "eurostat",
+      "region": "Germany",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Percentage of gross domestic product (GDP)",
+      "definition_hash": "5276cf4c4bf8d1513393296a797ef7d7ca79c6d5fcbbf0d3949fbd8cad6d279b",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10q_ggdebt?lang=en&geo=DE&na_item=GD&sector=S13&unit=PC_GDP",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 130
+    },
+    {
+      "id": "eurostat_803e37302de4a467d0ff",
+      "name": "Government debt GDP ratio — Italy",
+      "provider": "eurostat",
+      "region": "Italy",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Percentage of gross domestic product (GDP)",
+      "definition_hash": "3b1b5d97ce5b1dddf4985d0ff67e0f58b59cf8d873e774a705c2869bf494242f",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10q_ggdebt?lang=en&geo=IT&na_item=GD&sector=S13&unit=PC_GDP",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 130
+    },
+    {
+      "id": "eurostat_c32a83e065ec840898c2",
+      "name": "Government debt GDP ratio — France",
+      "provider": "eurostat",
+      "region": "France",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Percentage of gross domestic product (GDP)",
+      "definition_hash": "f985c481e5d794e4b75e980716be65003a1f36f8dd502be4e66a52bcc391c8bb",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10q_ggdebt?lang=en&geo=FR&na_item=GD&sector=S13&unit=PC_GDP",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 130
+    },
+    {
+      "id": "ons_a870666d741fbe34a30c",
+      "name": "CPIH ANNUAL RATE 00: ALL ITEMS 2015=100",
+      "provider": "ons",
+      "region": "UK",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "%",
+      "definition_hash": "8ff0829604c2cb1feef61a669cd26fe195cf2425b78ea173b2797280615c49e2",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l55o/mm23/data",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 453
+    },
+    {
+      "id": "ons_1e225f710e5dd5ee593e",
+      "name": "Employment rate (aged 16 to 64, seasonally adjusted): %",
+      "provider": "ons",
+      "region": "UK",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "%",
+      "definition_hash": "2d98ee84c2c31a619871dd17a239f89d72a9a1f9f8c307dc4d375439f51c241c",
+      "source_url": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/timeseries/lf24/lms/data",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "LFS rates refer to overlapping three-month periods; monthly labels are not independent monthly surveys. Survey weighting/method changes require care."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 666
+    },
+    {
+      "id": "ons_39be433de4f7adbd251a",
+      "name": "AWE: Whole Economy Level (£): Seasonally Adjusted Regular Pay Excluding Arrears",
+      "provider": "ons",
+      "region": "UK",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "£",
+      "definition_hash": "2e86f80a0c8e17e07d55cfbce502a50430aeaaf77542558186a2a287b9d27de3",
+      "source_url": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kai7/lms/data",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 320
+    },
+    {
+      "id": "ons_2cc6678249f2ade3e2b2",
+      "name": "RSI:Volume Seasonally Adjusted:All Retailers inc fuel:All Business Index",
+      "provider": "ons",
+      "region": "UK",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Index, base year = 100",
+      "definition_hash": "f47f4a567406384a686f13b30cdc8cb850416056046815213ccbe2815cf598fb",
+      "source_url": "https://www.ons.gov.uk/businessindustryandtrade/retailindustry/timeseries/j5ek/drsi/data",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "The September 2026 retail release moved the reference period to 2024=100. Retail statistical months use a source-specific four/five-week calendar; date labels are reference periods, not calendar-day sales: https://www.ons.gov.uk/businessindustryandtrade/retailindustry/bulletins/retailsales/august2026"
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 369
+    },
+    {
+      "id": "ons_25d3467f107b4839918d",
+      "name": "Gross Domestic Product: Quarter on Quarter growth: CVM SA %",
+      "provider": "ons",
+      "region": "UK",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "%",
+      "definition_hash": "e0b7fd1038472dfa5a5a3ebdabadd480e636bda68eedfd9574c4a0513692bfce",
+      "source_url": "https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ihyq/qna/data",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 285
+    },
+    {
+      "id": "ons_29758966f717f2aa44da",
+      "name": "Gross Domestic Product: q-on-q4 growth rate CVM SA %",
+      "provider": "ons",
+      "region": "UK",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "%",
+      "definition_hash": "09b8bdbf10deecd466c4fe4b5cd7d6432306e554802d0206b667c80c3f3653f1",
+      "source_url": "https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ihyr/qna/data",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 282
+    },
+    {
+      "id": "ons_215c26ad59b81f3db7ba",
+      "name": "Infrastructure new work construction output",
+      "provider": "ons",
+      "region": "UK (Great Britain)",
+      "category": "Construction / infrastructure / materials",
+      "frequency": "monthly",
+      "units": "Volume index 2024=100",
+      "definition_hash": "0a5f542d20cff916c6eb849154f51c367c75d02b22711574210d8edb22f35b0b",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 200
+    },
+    {
+      "id": "ons_38752d10c1efdc717be3",
+      "name": "Total new housing construction output",
+      "provider": "ons",
+      "region": "UK (Great Britain)",
+      "category": "Construction / infrastructure / materials",
+      "frequency": "monthly",
+      "units": "Volume index 2024=100",
+      "definition_hash": "7a6e403448c3520cbed79a8156e4758d800c7770d7ae402813ba976e25ba89d4",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 200
+    },
+    {
+      "id": "ons_f055c30053e4d883ab2b",
+      "name": "Private commercial new work construction output",
+      "provider": "ons",
+      "region": "UK (Great Britain)",
+      "category": "Construction / infrastructure / materials",
+      "frequency": "monthly",
+      "units": "Volume index 2024=100",
+      "definition_hash": "3f2fddd7268f0585df81d621507388a9987f5b16173b771ea4f9a6a0984d4312",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 200
+    },
+    {
+      "id": "fred_8d3240bb6b5eae523737",
+      "name": "Real Gross Domestic Product",
+      "provider": "bea",
+      "region": "US",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Millions of chained 2017 US dollars, annual rate",
+      "definition_hash": "4ea6e533198cc51e58a091dd05ca711bcaca4e40dbac381a2e8e20d79fde822a",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx",
+      "license_url": "https://www.bea.gov/help/faq/147",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:bea",
+      "attribution": [
+        "US Bureau of Economic Analysis; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Current revised history; annual/comprehensive updates may revise history. Chained components need not add."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 319
+    },
+    {
+      "id": "fred_587ae491484f07293dc5",
+      "name": "Real Disposable Personal Income",
+      "provider": "bea",
+      "region": "US",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Millions of chained 2017 US dollars, annual rate",
+      "definition_hash": "ef1f4d9e7165388c921bff7d5c7d3e507f4a95eacf13ae0522523ab92a267222",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section2All_xls.xlsx",
+      "license_url": "https://www.bea.gov/help/faq/147",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:bea",
+      "attribution": [
+        "US Bureau of Economic Analysis; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Current revised history; annual/comprehensive updates may revise history. Chained components need not add."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 813
+    },
+    {
+      "id": "fred_5917067a7da7dd7561f2",
+      "name": "Personal Saving Rate",
+      "provider": "bea",
+      "region": "US",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Percent",
+      "definition_hash": "e8121c462ae356d1a5e411cd6f3084b6615205ea487d137cdcc2526931cb1b56",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section2All_xls.xlsx",
+      "license_url": "https://www.bea.gov/help/faq/147",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:bea",
+      "attribution": [
+        "US Bureau of Economic Analysis; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Current revised history; annual/comprehensive updates may revise history. Chained components need not add."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 813
+    },
+    {
+      "id": "fred_f4d6da21fa8031a3a242",
+      "name": "Real Gross Private Domestic Investment",
+      "provider": "bea",
+      "region": "US",
+      "category": "Macroeconomy",
+      "frequency": "quarterly",
+      "units": "Millions of chained 2017 US dollars, annual rate",
+      "definition_hash": "0ae00eaa9301df67e16f81d1ed8f483ac10b4b90d0ab8a99530f22d9d77a97a7",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx",
+      "license_url": "https://www.bea.gov/help/faq/147",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:bea",
+      "attribution": [
+        "US Bureau of Economic Analysis; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Current revised history; annual/comprehensive updates may revise history. Chained components need not add."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 319
+    },
+    {
+      "id": "fred_6b8b68d870a427695f32",
+      "name": "Total Construction Spending: Total Construction in the United States",
+      "provider": "census",
+      "region": "US",
+      "category": "Construction / infrastructure / materials",
+      "frequency": "monthly",
+      "units": "Millions of US dollars, annual rate",
+      "definition_hash": "b49e8eddd7c9c8ec78dd0067e4f163cbc399e88c38d21d46f37e9065dc899fee",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/totsatime.xlsx",
+      "license_url": "https://www.copyright.gov/title17/92chap1.html#105",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "attribution": [
+        "US Census Bureau; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Construction spending flow, not physical materials consumed"
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 404
+    },
+    {
+      "id": "fred_344b1ec45d2e2a9be4ee",
+      "name": "Total Public Construction Spending: Highway and Street in the United States",
+      "provider": "census",
+      "region": "US",
+      "category": "Construction / infrastructure / materials",
+      "frequency": "monthly",
+      "units": "Millions of US dollars, annual rate",
+      "definition_hash": "dbfca0eb20a9dee1e6028a9939bab30251e759fd3e6cd8cb39780c1bcd541a45",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx",
+      "license_url": "https://www.copyright.gov/title17/92chap1.html#105",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "attribution": [
+        "US Census Bureau; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Construction spending flow, not physical materials consumed"
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 404
+    },
+    {
+      "id": "fred_259d141714182247e607",
+      "name": "Total Public Construction Spending: Water Supply in the United States",
+      "provider": "census",
+      "region": "US",
+      "category": "Construction / infrastructure / materials",
+      "frequency": "monthly",
+      "units": "Millions of US dollars, annual rate",
+      "definition_hash": "9e98f5b9604751d4ce781ce1e59cde3b125a486b86d7053425d6e9c69685cd63",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx",
+      "license_url": "https://www.copyright.gov/title17/92chap1.html#105",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "attribution": [
+        "US Census Bureau; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Construction spending flow, not physical materials consumed"
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 404
+    },
+    {
+      "id": "fred_890f288b712279e3a9cf",
+      "name": "Manufacturers' New Orders: Durable Goods",
+      "provider": "census",
+      "region": "US",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Millions of US dollars",
+      "definition_hash": "a78367ebd81645f7cb5a5629a49482264e37aedddf9a67dabad8f06ad7e7d224",
+      "source_url": "https://www.census.gov/manufacturing/m3/prel/historical_data/histshts/naics/naicsnop.xlsx",
+      "license_url": "https://www.copyright.gov/title17/92chap1.html#105",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "attribution": [
+        "US Census Bureau; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "New orders net of cancellations, current-dollar monthly flow; not SAAR or physical output",
+        "NAICS history only; no SIC splice. Annual benchmarks, seasonal revisions and semiconductor exclusion affect continuity; current revised vintage only."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 415
+    },
+    {
+      "id": "boe_1d553b5bdd1f7e891b14",
+      "name": "Official Bank Rate",
+      "provider": "boe",
+      "region": "UK",
+      "category": "Macroeconomy",
+      "frequency": "daily",
+      "units": "Percent per annum",
+      "definition_hash": "1ffe337005d146a2ea9ee75806918f212cd00e0a92c0fc2676537b3d141bcdc7",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=IUDBEDR&UsingCodes=Y&CSVF=CT",
+      "license_url": "https://www.bankofengland.co.uk/legal",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:boe",
+      "attribution": [
+        "Bank of England IADB, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Amounts outstanding are stocks, not monthly net-lending flows; approvals are counts, not loan amounts.",
+        "IADB rejects From dates before 1963. The reviewed request starts in 1963; actual available data can begin later. Policy/reference dates are not announcement timestamps.",
+        "BoE monetary stocks and lending outstanding are not monthly credit flows. Bank Rate observations are effective reference-date states, not a timestamped monetary-decision calendar. SONIA methodology changed on 23 April 2018; retain that break in research."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 13102
+    },
+    {
+      "id": "boe_7b7637a3b65708d59ec6",
+      "name": "House purchase mortgage approvals",
+      "provider": "boe",
+      "region": "UK",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "Number of approvals",
+      "definition_hash": "454aed029bc577d06f76c8159f375a9ee1bb7cc981edfe722be302fe2235f4f4",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=LPMVTVX&UsingCodes=Y&CSVF=CT",
+      "license_url": "https://www.bankofengland.co.uk/legal",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:boe",
+      "attribution": [
+        "Bank of England IADB, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Amounts outstanding are stocks, not monthly net-lending flows; approvals are counts, not loan amounts.",
+        "IADB rejects From dates before 1963. The reviewed request starts in 1963; actual available data can begin later. Policy/reference dates are not announcement timestamps.",
+        "BoE monetary stocks and lending outstanding are not monthly credit flows. Bank Rate observations are effective reference-date states, not a timestamped monetary-decision calendar. SONIA methodology changed on 23 April 2018; retain that break in research."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 402
+    },
+    {
+      "id": "ecb_18cb4fac8e5507865410",
+      "name": "Deposit facility rate",
+      "provider": "ecb",
+      "region": "Euro area (ECB changing composition)",
+      "category": "Macroeconomy",
+      "frequency": "daily",
+      "units": "Percent per annum",
+      "definition_hash": "7f5c3d58a078a8e1f36a7c65550468610adeaa315d6edf75fb11510f2b4ca75b",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.DFR.LEV?format=csvdata",
+      "license_url": "https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ecb",
+      "attribution": [
+        "ECB statistics; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Original ECB data/metadata retained. Any transformed chart is a MacroLens calculation, not an ECB-produced statistic. Policy rates are effective states, not FOMC/ECB announcement timestamps; fixed-tender MRR coverage has genuine gaps."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 10166
+    },
+    {
+      "id": "ecb_93d62599805666a2d00b",
+      "name": "M3 broad money outstanding",
+      "provider": "ecb",
+      "region": "Euro area (ECB changing composition)",
+      "category": "Macroeconomy",
+      "frequency": "monthly",
+      "units": "EUR millions (UNIT_MULT=6)",
+      "definition_hash": "4b55e93b39bdf0619865c9cdc7082390e3a5eadf27ffda75fda8a91ac890e7b5",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/BSI/M.U2.Y.V.M30.X.1.U2.2300.Z01.E?format=csvdata",
+      "license_url": "https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ecb",
+      "attribution": [
+        "ECB statistics; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Original ECB data/metadata retained. Any transformed chart is a MacroLens calculation, not an ECB-produced statistic. Policy rates are effective states, not FOMC/ECB announcement timestamps; fixed-tender MRR coverage has genuine gaps."
+      ],
+      "publication_approved": true,
+      "refresh_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false,
+      "prior_rows": 561
+    }
+  ]
+}

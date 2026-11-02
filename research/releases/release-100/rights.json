@@ -1,0 +1,55 @@
+{
+  "scope": "Explicit reviewed 70-ID release; no other dataset approval",
+  "providers": {
+    "eurostat": {
+      "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data",
+      "attribution": "Eurostat",
+      "reviewed_date": "2026-11-01",
+      "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+    },
+    "ons": {
+      "url": "https://www.ons.gov.uk/help/terms-conditions",
+      "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material",
+      "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+      "reviewed_date": "2026-11-01",
+      "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+    },
+    "bea": {
+      "url": "https://www.bea.gov/help/faq/147",
+      "basis": "Original BEA NIPA tables, public domain; no third-party content selected",
+      "attribution": "US Bureau of Economic Analysis",
+      "reviewed_date": "2026-11-01",
+      "scope": "Original NIPA GDP level, real disposable income, savings and investment. Chained dollars and annual-rate definitions retained."
+    },
+    "census": {
+      "url": "https://www.copyright.gov/title17/92chap1.html#105",
+      "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability",
+      "attribution": "US Census Bureau",
+      "reviewed_date": "2026-11-01",
+      "scope": "Original C30 and M3 numerical statistics authored by the federal agency; no third-party materials. 17 USC 105 and Census DS027 provide evidence.",
+      "supplement": "https://www2.census.gov/foia/ds_policies/ds027.pdf"
+    },
+    "boe": {
+      "url": "https://www.bankofengland.co.uk/legal",
+      "basis": "IADB data reuse under OGL v3; selected own monetary statistics and rates, not excluded LSEG exchange rates or Crown-dependency material. SONIA-specific attribution retained.",
+      "attribution": "Bank of England IADB, OGL v3",
+      "reviewed_date": "2026-11-01",
+      "scope": "Own Bank Rate and house-purchase approval counts only; exclude licensed FX and Crown-dependency sources. No new SONIA selection."
+    },
+    "ecb": {
+      "url": "https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html",
+      "basis": "Selected ESCB-produced rates, reference FX and monetary statistics; source metadata unchanged, third-party data excluded",
+      "attribution": "ECB statistics",
+      "reviewed_date": "2026-11-01",
+      "scope": "Own ECB deposit-facility rate and M3; no third-party FX. Original values/metadata retained; derived views labelled MacroLens."
+    },
+    "eia": {
+      "url": "https://www.eia.gov/about/copyrights_reuse.php",
+      "basis": "EIA-authored statistics in these identified historical files; no separately protected third-party material selected",
+      "attribution": "US Energy Information Administration",
+      "reviewed_date": "2026-11-01",
+      "scope": "Existing three public physical series only; no new EIA display grant. Initial dated acknowledgment retained; source-check/file-modified dates are not publication dates."
+    }
+  }
+}
