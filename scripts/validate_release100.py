@@ -26,12 +26,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--expansion-bundle", type=Path)
     args = parser.parse_args()
     with tempfile.TemporaryDirectory(prefix="release100-disposable-") as directory:
-        exercise(Path(directory), args.bundle.resolve(), args.output)
+        exercise(
+            Path(directory), args.bundle.resolve(), args.output, args.expansion_bundle
+        )
 
 
-def exercise(root, bundle, output):
+def exercise(root, bundle, output, expansion_bundle=None):
     from backend.app.catalog import release100 as release
     from backend.app.catalog.release_cli import ingest
     from backend.app.catalog.releases import activate, candidates, migrate as releases
@@ -45,6 +48,7 @@ def exercise(root, bundle, output):
         MACROLENS_CATALOG_REFRESH_ENABLED="0",
         MACROLENS_INGESTION_ENABLED="0",
         MACROLENS_AI_ENABLED="false",
+        MACROLENS_ADMIN_TOKEN="synthetic-disposable-health-token",
     )
     import numpy as np
     import pandas as pd
@@ -56,11 +60,31 @@ def exercise(root, bundle, output):
         release.bundle_index(bundle),
         candidates(),
     )
+    from backend.app.catalog import rollout
+
+    expansion_plan = rollout.load_plan() if expansion_bundle else None
+    before_count = len(expansion_plan["baseline_ids"]) if expansion_plan else 43
+    target_count = (
+        before_count + len(expansion_plan["datasets"]) if expansion_plan else 100
+    )
+    new_count = len(expansion_plan["datasets"]) if expansion_plan else 57
+    cli_module = (
+        "backend.app.catalog.rollout"
+        if expansion_plan
+        else "backend.app.catalog.release100"
+    )
+    cli_bundle = expansion_bundle or bundle
     store, reader = v.state_store, NativeReader(database)
     with store.connection(True) as db:
         native(db)
         releases(db)
         refresh_migrate(db)
+        if expansion_plan:
+            from backend.app.ingestion.provider_requests import (
+                migrate as provider_migrate,
+            )
+
+            provider_migrate(db)
         db.execute(
             "INSERT INTO library VALUES('sentinel','Saved research','2020-01-01',?, 'preserve')",
             (
@@ -80,7 +104,7 @@ def exercise(root, bundle, output):
                     "INSERT INTO ingest_observations VALUES(?,?,?,'fixture',1,'2020-01-01','2020-01-01','fixture')",
                     (key, f"{year:04d}-{month + 1:02d}", float(i)),
                 )
-    for key in plan["existing_native_ids"]:
+    for key in list(records) if expansion_plan else plan["existing_native_ids"]:
         record = records[key]
         assert (
             ingest(store, pubs[key], record["snapshot_path"], record["snapshot_hash"])[
@@ -160,12 +184,17 @@ def exercise(root, bundle, output):
             sys.executable,
             "-B",
             "-m",
-            "backend.app.catalog.release100",
+            cli_module,
             operation,
             "--database",
             str(database),
             "--bundle",
-            str(bundle),
+            str(cli_bundle),
+            *(
+                ["--max-invocations", "1"]
+                if expansion_plan and operation == "stage"
+                else []
+            ),
             *flags,
         ]
         process = subprocess.Popen(
@@ -181,10 +210,7 @@ def exercise(root, bundle, output):
             while not sample_stop.wait(0.005):
                 try:
                     proc = Path(f"/proc/{process.pid}")
-                    if (
-                        b"backend.app.catalog.release100"
-                        not in (proc / "cmdline").read_bytes()
-                    ):
+                    if cli_module.encode() not in (proc / "cmdline").read_bytes():
                         continue  # Exclude the fork's inherited pre-exec backend footprint.
                     for line in (proc / "status").read_text().splitlines():
                         if line.startswith("VmHWM:"):
@@ -211,12 +237,24 @@ def exercise(root, bundle, output):
             "/api/v2/discovery",
             "/ready",
             f"/api/v2/observations/{plan['existing_native_ids'][0]}?start=2020-01-01&end=2025-01-01&limit=40",
+            "/api/v2/discovery/admin/data-health?limit=20",
         ]
+        cycle = 0
         while not stop.is_set():
+            cycle += 1
             for path in paths:
+                if "/admin/" in path and cycle % 20:
+                    continue
                 before = time.perf_counter()
                 try:
-                    response = client.get(path)
+                    response = client.get(
+                        path,
+                        headers={
+                            "Authorization": "Bearer synthetic-disposable-health-token"
+                        }
+                        if "/admin/" in path
+                        else {},
+                    )
                     status[(path.split("?")[0], response.status_code)] += 1
                     if response.status_code == 200:
                         timings.append((time.perf_counter() - before) * 1000)
@@ -229,104 +267,132 @@ def exercise(root, bundle, output):
                 )
             stop.wait(0.15)
 
-    with TestClient(v.app) as client:
-        for _ in range(120):
-            if client.get("/api/v2/discovery").status_code == 200:
-                break
-            time.sleep(0.1)
-        baseline = release.check(database)
-        assert baseline["public"] == 43
-        bg = Thread(target=traffic, args=(client,), daemon=True)
-        bg.start()
-        invocations = 0
-        for _ in range(100):
-            result = cli("stage")
-            invocations += 1
-            assert result["public"] == 43
-            if not result["results"]:
-                break
-        else:
-            raise AssertionError("Bounded stage failed to converge")
-        assert cli("validate")["validated"] == 57
-        assert cli("publish", "--approve-publication")["public"] == 100
-        assert cli("publish", "--approve-publication")["state"] == "already_published"
-        assert cli("verify")["public"] == 100
-        from scripts.smoke_release100 import checks
-
-        def request(method, path, body=None):
-            response = (
-                client.request(method, path, json=body)
-                if body is not None
-                else client.request(method, path)
-            )
-            return response.status_code, response.json()
-
-        smoke = checks(request)
-        assert cli("rollback", "--approve-rollback")["public"] == 43
-        assert cli("rollback", "--approve-rollback")["public"] == 43
-        assert cli("publish", "--approve-publication")["public"] == 100
-        stop.set()
-        bg.join(timeout=30)
-        assert not bg.is_alive()
-    with store.connection() as db:
-        assert (
-            db.execute("SELECT count(*) FROM ingest_observations").fetchone()[0] == 2403
-        )
-        assert (
-            db.execute("SELECT notes FROM library WHERE id='sentinel'").fetchone()[0]
-            == "preserve"
-        )
-        assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
-        with closing(sqlite3.connect(root / "backup.sqlite3")) as backup:
-            db.backup(backup)
-            with closing(sqlite3.connect(root / "restored.sqlite3")) as restored:
-                backup.backup(restored)
-                assert restored.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
-                assert (
-                    restored.execute(
-                        "SELECT count(*) FROM ingest_observations"
-                    ).fetchone()[0]
-                    == 2403
-                )
-    assert all(code in {200, 429, 503} for _, code in status), status
+    bg = None
     try:
-        import resource
+        with TestClient(v.app) as client:
+            for _ in range(120):
+                if client.get("/api/v2/discovery").status_code == 200:
+                    break
+                time.sleep(0.1)
+            baseline = (
+                rollout.check(database, expansion_plan)
+                if expansion_plan
+                else release.check(database)
+            )
+            assert baseline["public"] == before_count
+            bg = Thread(target=traffic, args=(client,), daemon=True)
+            bg.start()
+            invocations = 0
+            for _ in range(100):
+                result = cli("stage")
+                invocations += 1
+                assert len(release.public_ids(reader)) == before_count
+                if not result.get("results"):
+                    break
+            else:
+                raise AssertionError("Bounded stage failed to converge")
+            assert cli("validate")["validated"] == new_count
+            assert cli("publish", "--approve-publication")["public"] == target_count
+            assert (
+                cli("publish", "--approve-publication")["state"] == "already_published"
+            )
+            assert cli("verify")["public"] == target_count
+            if expansion_plan:
+                from scripts.smoke_catalog import checks
+            else:
+                from scripts.smoke_release100 import checks
 
-        child_peak = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss * 1024
-    except ImportError:
-        child_peak = None  # Windows is not Linux resource evidence.
-    memory = (
-        {
-            line.split(":")[0]: line.split(":")[1].strip()
-            for line in Path("/proc/self/status").read_text().splitlines()
-            if line.startswith(("VmRSS:", "VmHWM:"))
+            def request(method, path, body=None):
+                response = (
+                    client.request(method, path, json=body)
+                    if body is not None
+                    else client.request(method, path)
+                )
+                return response.status_code, response.json()
+
+            smoke = checks(request)
+            assert cli("rollback", "--approve-rollback")["public"] == before_count
+            assert cli("rollback", "--approve-rollback")["public"] == before_count
+            assert cli("publish", "--approve-publication")["public"] == target_count
+            stop.set()
+            bg.join(timeout=30)
+            assert not bg.is_alive()
+        with store.connection() as db:
+            assert (
+                db.execute("SELECT count(*) FROM ingest_observations").fetchone()[0]
+                == 2403
+            )
+            assert (
+                db.execute("SELECT notes FROM library WHERE id='sentinel'").fetchone()[
+                    0
+                ]
+                == "preserve"
+            )
+            assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+            with closing(sqlite3.connect(root / "backup.sqlite3")) as backup:
+                db.backup(backup)
+                with closing(sqlite3.connect(root / "restored.sqlite3")) as restored:
+                    backup.backup(restored)
+                    assert (
+                        restored.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+                    )
+                    assert (
+                        restored.execute(
+                            "SELECT count(*) FROM ingest_observations"
+                        ).fetchone()[0]
+                        == 2403
+                    )
+        assert all(code in {200, 429, 503} for _, code in status), status
+        try:
+            import resource
+
+            child_peak = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss * 1024
+        except ImportError:
+            child_peak = None  # Windows is not Linux resource evidence.
+        memory = (
+            {
+                line.split(":")[0]: line.split(":")[1].strip()
+                for line in Path("/proc/self/status").read_text().splitlines()
+                if line.startswith(("VmRSS:", "VmHWM:"))
+            }
+            if Path("/proc/self/status").exists()
+            else {}
+        )
+        result = {
+            "actual_native_observations": sum(r["rows"] for r in records.values())
+            + (
+                sum(
+                    r["rows"]
+                    for r in rollout.bundle(expansion_bundle, expansion_plan).values()
+                )
+                if expansion_plan
+                else 0
+            ),
+            "synthetic_legacy_observations": legacy_rows,
+            "public": target_count,
+            "stage_invocations": invocations,
+            "seconds": time.perf_counter() - started,
+            "backend_cpu_seconds": time.process_time() - cpu,
+            "backend_memory": memory,
+            "cli_peak_rss_bytes": cli_peak[0] or None,
+            "child_rusage_peak_rss_bytes_including_pre_exec": child_peak,
+            "cgroup": snapshot(),
+            "sqlite_peaks": peaks,
+            "api_status": {f"{p}:{c}": n for (p, c), n in status.items()},
+            "p95_ms": sorted(timings)[int(len(timings) * 0.95)],
+            "median_ms": statistics.median(timings),
+            "smoke": smoke,
+            "rollback_and_restore_passed": True,
+            "production_access": False,
         }
-        if Path("/proc/self/status").exists()
-        else {}
-    )
-    result = {
-        "actual_native_observations": sum(r["rows"] for r in records.values()),
-        "synthetic_legacy_observations": legacy_rows,
-        "public": 100,
-        "stage_invocations": invocations,
-        "seconds": time.perf_counter() - started,
-        "backend_cpu_seconds": time.process_time() - cpu,
-        "backend_memory": memory,
-        "cli_peak_rss_bytes": cli_peak[0] or None,
-        "child_rusage_peak_rss_bytes_including_pre_exec": child_peak,
-        "cgroup": snapshot(),
-        "sqlite_peaks": peaks,
-        "api_status": {f"{p}:{c}": n for (p, c), n in status.items()},
-        "p95_ms": sorted(timings)[int(len(timings) * 0.95)],
-        "median_ms": statistics.median(timings),
-        "smoke": smoke,
-        "rollback_and_restore_passed": True,
-        "production_access": False,
-    }
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(result, indent=2) + "\n")
-    print(json.dumps(result), flush=True)
-    keeper.close()
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(result, indent=2) + "\n")
+        print(json.dumps(result), flush=True)
+    finally:
+        stop.set()
+        if bg:
+            bg.join(timeout=30)
+        keeper.close()
 
 
 if __name__ == "__main__":

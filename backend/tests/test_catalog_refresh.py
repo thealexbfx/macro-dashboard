@@ -106,7 +106,7 @@ def due(store, clock):
 
 
 def test_defaults_and_disabled_worker_never_initialize_or_schedule(tmp_path):
-    assert len(policy()) == 70  # Reviewed release approvals; worker still defaults off.
+    assert len(policy()) == 164  # Reviewed release approvals; worker still defaults off.
     store = Store(tmp_path / "must-not-exist.sqlite3")
     w = CatalogRefreshWorker(store)
     w.start()
@@ -246,7 +246,7 @@ def test_refresh_permission_revocation_prevents_fetch(tmp_path):
     store, w, _, _, _, calls = setup(tmp_path)
     with store.connection(True) as db:
         db.execute("UPDATE catalog_release_grants SET public_display=0")
-    assert w.run_once()["state"] == "failed"
+    assert w.run_once()["state"] == "idle"  # Unpublished jobs are not registered.
     assert not calls
 
 

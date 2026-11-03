@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        datasets: [20, 50, 70, 100, 150]
+        datasets: [20, 50, 70, 100, 150, 164]
     steps:
       - uses: actions/checkout@v4
       - name: Build production-Python validation image

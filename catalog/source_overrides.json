@@ -2242,6 +2242,294 @@
         "final_yr": "2027",
         "submit": "Submit"
       }
+    },
+    {
+      "id": "desnz_545740a2d48ae00c5437",
+      "name": "White diesel inland deliveries",
+      "kind": "series",
+      "planning_refs": [
+        "ML-239"
+      ],
+      "category": "Energy / infrastructure",
+      "region": "UK",
+      "units": "Thousand tonnes",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Not seasonally adjusted",
+      "source": {
+        "provider": "desnz",
+        "selector": "ET 3.13 / Month / column I",
+        "endpoint": "https://www.gov.uk/government/statistics/oil-and-oil-products-section-3-energy-trends",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "1998-01",
+        "end": "2026-07"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.gov.uk/government/collections/energy-trends"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-239",
+          "validation": "Official workbook header and observed coverage checked"
+        },
+        {
+          "path": "research/releases/universal/README.md",
+          "reference": "DESNZ_CONTENT_API_2026_11_02",
+          "validation": "current_official_workbook_and_units_verified"
+        }
+      ],
+      "original_planning_endpoint": "https://assets.publishing.service.gov.uk/media/6aba696b997a4b2950ccefe3/ET_3.13_SEP_26.xlsx"
+    },
+    {
+      "id": "desnz_5c8a6875ed4f65582ec8",
+      "name": "Gas fuel used in electricity generation by major producers",
+      "kind": "series",
+      "planning_refs": [
+        "ML-235"
+      ],
+      "category": "Energy / infrastructure",
+      "region": "UK",
+      "units": "Million tonnes oil equivalent",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Not seasonally adjusted",
+      "source": {
+        "provider": "desnz",
+        "selector": "ET 5.3 / Month / column E",
+        "endpoint": "https://www.gov.uk/government/statistics/electricity-section-5-energy-trends",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "1995-01",
+        "end": "2026-07"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.gov.uk/government/collections/energy-trends"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-235",
+          "validation": "Official workbook header and observed coverage checked"
+        },
+        {
+          "path": "research/releases/universal/README.md",
+          "reference": "DESNZ_CONTENT_API_2026_11_02",
+          "validation": "current_official_workbook_and_units_verified"
+        }
+      ],
+      "original_planning_endpoint": "https://assets.publishing.service.gov.uk/media/6aba6def734e2435f202f18b/ET_5.3_SEP_26.xlsx"
+    },
+    {
+      "id": "desnz_8790f184e015b31f6bdb",
+      "name": "Bitumen deliveries for inland consumption",
+      "kind": "series",
+      "planning_refs": [
+        "ML-238"
+      ],
+      "category": "Energy / infrastructure",
+      "region": "UK",
+      "units": "Thousand tonnes",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Not seasonally adjusted",
+      "source": {
+        "provider": "desnz",
+        "selector": "ET 3.13 / Month / column M",
+        "endpoint": "https://www.gov.uk/government/statistics/oil-and-oil-products-section-3-energy-trends",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "1998-01",
+        "end": "2026-07"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.gov.uk/government/collections/energy-trends"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-238",
+          "validation": "Official workbook header and observed coverage checked"
+        },
+        {
+          "path": "research/releases/universal/README.md",
+          "reference": "DESNZ_CONTENT_API_2026_11_02",
+          "validation": "current_official_workbook_and_units_verified"
+        }
+      ],
+      "original_planning_endpoint": "https://assets.publishing.service.gov.uk/media/6aba696b997a4b2950ccefe3/ET_3.13_SEP_26.xlsx"
+    },
+    {
+      "id": "desnz_a9eddb44d17898ec397e",
+      "name": "Indigenous crude oil production",
+      "kind": "series",
+      "planning_refs": [
+        "ML-237"
+      ],
+      "category": "Energy / infrastructure",
+      "region": "UK",
+      "units": "Thousand tonnes",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Not seasonally adjusted",
+      "source": {
+        "provider": "desnz",
+        "selector": "ET 3.10 / Month / column C",
+        "endpoint": "https://www.gov.uk/government/statistics/oil-and-oil-products-section-3-energy-trends",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "1995-01",
+        "end": "2026-07"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.gov.uk/government/collections/energy-trends"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-237",
+          "validation": "Official workbook header and observed coverage checked"
+        },
+        {
+          "path": "research/releases/universal/README.md",
+          "reference": "DESNZ_CONTENT_API_2026_11_02",
+          "validation": "current_official_workbook_and_units_verified"
+        }
+      ],
+      "original_planning_endpoint": "https://assets.publishing.service.gov.uk/media/6aba691a8cb3c0580e50127b/ET_3.10_SEP_26.xlsx"
+    },
+    {
+      "id": "desnz_b0352af967ee12f9bb5d",
+      "name": "Electricity available from public supply system",
+      "kind": "series",
+      "planning_refs": [
+        "ML-234"
+      ],
+      "category": "Energy / infrastructure",
+      "region": "UK",
+      "units": "TWh",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Not seasonally adjusted",
+      "source": {
+        "provider": "desnz",
+        "selector": "ET 5.4 / Month / column V",
+        "endpoint": "https://www.gov.uk/government/statistics/electricity-section-5-energy-trends",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "1997-01",
+        "end": "2026-07"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.gov.uk/government/collections/energy-trends"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-234",
+          "validation": "Official workbook header and observed coverage checked"
+        },
+        {
+          "path": "research/releases/universal/README.md",
+          "reference": "DESNZ_CONTENT_API_2026_11_02",
+          "validation": "current_official_workbook_and_units_verified"
+        }
+      ],
+      "original_planning_endpoint": "https://assets.publishing.service.gov.uk/media/6aba6dfc8cb3c0580e501288/ET_5.4_SEP_26.xlsx"
+    },
+    {
+      "id": "desnz_b36f0a974575a25cd1b7",
+      "name": "Natural gas gross production",
+      "kind": "series",
+      "planning_refs": [
+        "ML-236"
+      ],
+      "category": "Energy / infrastructure",
+      "region": "UK",
+      "units": "GWh",
+      "frequency": "monthly",
+      "seasonal_adjustment": "Not seasonally adjusted",
+      "source": {
+        "provider": "desnz",
+        "selector": "ET 4.2 / Month (GWh) / column B",
+        "endpoint": "https://www.gov.uk/government/statistics/gas-section-4-energy-trends",
+        "status": "researched_not_implemented"
+      },
+      "history": {
+        "start": "1996-01",
+        "end": "2026-07"
+      },
+      "rights": {
+        "status": "unreviewed",
+        "evidence": [
+          "https://www.gov.uk/government/collections/energy-trends"
+        ]
+      },
+      "publication": {
+        "status": "planned",
+        "public_display": false,
+        "ai": false,
+        "discovery": false
+      },
+      "source_evidence": [
+        {
+          "path": "research/planning/batch0/originals/MACROLENS_PROPOSED_SERIES_CATALOG.json",
+          "reference": "ML-236",
+          "validation": "Official workbook header and observed coverage checked"
+        },
+        {
+          "path": "research/releases/universal/README.md",
+          "reference": "DESNZ_CONTENT_API_2026_11_02",
+          "validation": "current_official_workbook_and_units_verified"
+        }
+      ],
+      "original_planning_endpoint": "https://assets.publishing.service.gov.uk/media/6aba6b21fe72ed1e2b02f149/ET_4.2_SEP_26.xlsx"
     }
   ]
 }

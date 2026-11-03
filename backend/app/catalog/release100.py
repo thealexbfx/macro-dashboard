@@ -57,9 +57,9 @@ def load_plan():
         raise ValueError("Exact 13 + 57 release required")
     rows = {r["id"]: r for r in plan["datasets"]}
     rules = {r["id"]: r for r in json.loads(CONFIG.read_text())["datasets"]}
-    if set(rows) != set(old + new) or {
+    if set(rows) != set(old + new) or not set(rows) <= {
         k for k, r in rules.items() if r["ingest_approved"]
-    } != set(rows):
+    }:
         raise ValueError("Release/config approvals differ")
     for key, row in rows.items():
         p = pubs[key]
@@ -160,6 +160,8 @@ def prepare(directory):
             native_migrate(db)
             release_migrate(db)
             refresh_migrate(db)
+            from backend.app.ingestion.provider_requests import migrate as provider_migrate
+            provider_migrate(db)
         config = scratch / "policy.json"
         config.write_text(
             json.dumps(

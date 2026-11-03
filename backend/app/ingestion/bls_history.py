@@ -19,6 +19,7 @@ def capture(selectors, *, start=1910, end=None, fetch=download, pause=time.sleep
     ):
         raise ValueError("BLS free-access request budget exceeded")
     series = {key: [] for key in selectors}
+    catalogs = {}
     proofs = []
     for first in range(start, end + 1, 10):
         last = min(end, first + 9)
@@ -35,6 +36,13 @@ def capture(selectors, *, start=1910, end=None, fetch=download, pause=time.sleep
         if {r["seriesID"] for r in returned} != set(selectors):
             raise ProviderError("bls_incomplete_series_batch")
         for row in returned:
+            if row.get("catalog"):
+                if (
+                    row["seriesID"] in catalogs
+                    and catalogs[row["seriesID"]] != row["catalog"]
+                ):
+                    raise ProviderError("bls_catalog_drift")
+                catalogs[row["seriesID"]] = row["catalog"]
             if any(not first <= int(p["year"]) <= last for p in row["data"]):
                 raise ProviderError("bls_year_window_changed")
             series[row["seriesID"]].extend(row["data"])
@@ -54,7 +62,12 @@ def capture(selectors, *, start=1910, end=None, fetch=download, pause=time.sleep
             "status": "REQUEST_SUCCEEDED",
             "Results": {
                 "series": [
-                    {"seriesID": key, "data": rows} for key, rows in series.items()
+                    {
+                        "seriesID": key,
+                        "data": rows,
+                        **({"catalog": catalogs[key]} if key in catalogs else {}),
+                    }
+                    for key, rows in series.items()
                 ]
             },
             "source_windows": proofs,

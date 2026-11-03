@@ -1,0 +1,228 @@
+{
+  "checked_at": "2026-11-03T01:18:26.395061+00:00",
+  "production_access": false,
+  "datasets": [
+    {
+      "id": "desnz_545740a2d48ae00c5437",
+      "provider": "desnz",
+      "publication_approved": false,
+      "refresh_enabled": false,
+      "discovery_url": "https://www.gov.uk/api/content/government/statistics/oil-and-oil-products-section-3-energy-trends",
+      "updated_at": "2026-10-29T09:30:13+00:00",
+      "state": "candidate_contract_passed",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6ae0cabc779378370fd80a67/ET_3.13_OCT_26.xlsx",
+      "rows": 343,
+      "first": "1998-01",
+      "last": "2026-07",
+      "source_metadata": {
+        "title": "Table 3.13 Deliveries of petroleum products for inland consumption, monthly data (thousand tonnes) ",
+        "sheet": "Month",
+        "column": "I",
+        "unit_label": "thousand tonnes",
+        "source": "DESNZ Energy Trends"
+      },
+      "remaining": "Moving artifact lineage, complete archive/revision reconciliation and persistent scheduler integration are not release-approved"
+    },
+    {
+      "id": "desnz_5c8a6875ed4f65582ec8",
+      "provider": "desnz",
+      "publication_approved": false,
+      "refresh_enabled": false,
+      "discovery_url": "https://www.gov.uk/api/content/government/statistics/electricity-section-5-energy-trends",
+      "updated_at": "2026-10-29T09:30:14+00:00",
+      "state": "candidate_contract_passed",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6ae0cb9c7cf9b224890467e3/ET_5.3_OCT_26.xlsx",
+      "rows": 379,
+      "first": "1995-01",
+      "last": "2026-07",
+      "source_metadata": {
+        "title": "Table 5.3 Fuel used in electricity generation by major producers, monthly data (million tonnes of oil equivalent) [note 4]",
+        "sheet": "Month",
+        "column": "E",
+        "unit_label": "million tonnes of oil equivalent",
+        "source": "DESNZ Energy Trends"
+      },
+      "remaining": "Moving artifact lineage, complete archive/revision reconciliation and persistent scheduler integration are not release-approved"
+    },
+    {
+      "id": "desnz_8790f184e015b31f6bdb",
+      "provider": "desnz",
+      "publication_approved": false,
+      "refresh_enabled": false,
+      "discovery_url": "https://www.gov.uk/api/content/government/statistics/oil-and-oil-products-section-3-energy-trends",
+      "updated_at": "2026-10-29T09:30:13+00:00",
+      "state": "candidate_contract_passed",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6ae0cabc779378370fd80a67/ET_3.13_OCT_26.xlsx",
+      "rows": 343,
+      "first": "1998-01",
+      "last": "2026-07",
+      "source_metadata": {
+        "title": "Table 3.13 Deliveries of petroleum products for inland consumption, monthly data (thousand tonnes) ",
+        "sheet": "Month",
+        "column": "M",
+        "unit_label": "thousand tonnes",
+        "source": "DESNZ Energy Trends"
+      },
+      "remaining": "Moving artifact lineage, complete archive/revision reconciliation and persistent scheduler integration are not release-approved"
+    },
+    {
+      "id": "desnz_a9eddb44d17898ec397e",
+      "provider": "desnz",
+      "publication_approved": false,
+      "refresh_enabled": false,
+      "discovery_url": "https://www.gov.uk/api/content/government/statistics/oil-and-oil-products-section-3-energy-trends",
+      "updated_at": "2026-10-29T09:30:13+00:00",
+      "state": "candidate_contract_passed",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6ae0ca987cf9b224890467df/ET_3.10_OCT_26.xlsx",
+      "rows": 376,
+      "first": "1995-01",
+      "last": "2026-07",
+      "source_metadata": {
+        "title": "Table 3.10 indigenous production, refinery receipts, imports and exports, monthly data (thousand tonnes)",
+        "sheet": "Month",
+        "column": "C",
+        "unit_label": "thousand tonnes",
+        "source": "DESNZ Energy Trends"
+      },
+      "remaining": "Moving artifact lineage, complete archive/revision reconciliation and persistent scheduler integration are not release-approved"
+    },
+    {
+      "id": "desnz_b0352af967ee12f9bb5d",
+      "provider": "desnz",
+      "publication_approved": false,
+      "refresh_enabled": false,
+      "discovery_url": "https://www.gov.uk/api/content/government/statistics/electricity-section-5-energy-trends",
+      "updated_at": "2026-10-29T09:30:14+00:00",
+      "state": "candidate_contract_passed",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6ae0cba87cf9b224890467e4/ET_5.4_OCT_26.xlsx",
+      "rows": 355,
+      "first": "1997-01",
+      "last": "2026-07",
+      "source_metadata": {
+        "title": "Table 5.4 Electricity production and availability from the public supply system, monthly data (TWh) [note 1][note 6]",
+        "sheet": "Month",
+        "column": "V",
+        "unit_label": "TWh",
+        "source": "DESNZ Energy Trends"
+      },
+      "remaining": "Moving artifact lineage, complete archive/revision reconciliation and persistent scheduler integration are not release-approved"
+    },
+    {
+      "id": "desnz_b36f0a974575a25cd1b7",
+      "provider": "desnz",
+      "publication_approved": false,
+      "refresh_enabled": false,
+      "discovery_url": "https://www.gov.uk/api/content/government/statistics/gas-section-4-energy-trends",
+      "updated_at": "2026-10-29T09:30:14+00:00",
+      "state": "candidate_contract_passed",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6ae0cb29779378370fd80a69/ET_4.2_OCT_26.xlsx",
+      "rows": 366,
+      "first": "1996-01",
+      "last": "2026-07",
+      "source_metadata": {
+        "title": "Table 4.2 Natural gas supply and demand, monthly data (GWh)",
+        "sheet": "Month (GWh)",
+        "column": "B",
+        "unit_label": "GWh",
+        "source": "DESNZ Energy Trends"
+      },
+      "remaining": "Moving artifact lineage, complete archive/revision reconciliation and persistent scheduler integration are not release-approved"
+    },
+    {
+      "id": "fred_5e43a009a68bedb42dbf",
+      "provider": "dol",
+      "publication_approved": false,
+      "refresh_enabled": false,
+      "state": "held",
+      "error": 2
+    },
+    {
+      "id": "uk_building_materials_0d6b93caa9e8331a8c1d",
+      "provider": "uk_building_materials",
+      "publication_approved": false,
+      "refresh_enabled": false,
+      "discovery_url": "https://www.gov.uk/api/content/government/statistics/building-materials-and-components-statistics-september-2026",
+      "updated_at": "2026-10-07T08:30:02Z",
+      "state": "candidate_contract_passed",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6abf7d92f04a15f533722903/construction_building_materials_-_tables_September_2026.xlsx",
+      "rows": 53,
+      "first": "2013-Q1",
+      "last": "2026-Q1",
+      "source_metadata": {
+        "title": "Table 4a: Quarterly sales of sand and gravel (thousand tonnes), Great Britain [note 1]",
+        "source": "Source: DBT",
+        "column_header": "Sand for building",
+        "sheet": "4a",
+        "column": "D",
+        "definition_note": "Planning adjustment corrected to the actual selected column; no existing public ID changed"
+      },
+      "remaining": "Moving artifact lineage, complete archive/revision reconciliation and persistent scheduler integration are not release-approved"
+    },
+    {
+      "id": "uk_building_materials_6d7654e12d33dda303fc",
+      "provider": "uk_building_materials",
+      "publication_approved": false,
+      "refresh_enabled": false,
+      "discovery_url": "https://www.gov.uk/api/content/government/statistics/building-materials-and-components-statistics-september-2026",
+      "updated_at": "2026-10-07T08:30:02Z",
+      "state": "candidate_contract_passed",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6abf7d92f04a15f533722903/construction_building_materials_-_tables_September_2026.xlsx",
+      "rows": 101,
+      "first": "2018-01",
+      "last": "2026-05",
+      "source_metadata": {
+        "title": "Table 11a: Monthly concrete blocks production, deliveries and stocks (thousand square metres), Great Britain [notes 1, 2]",
+        "source": "Source: DBT",
+        "column_header": "Seasonally adjusted deliveries [notes 3, 4, 5]",
+        "sheet": "11a",
+        "column": "C",
+        "definition_note": "Planning adjustment corrected to the actual selected column; no existing public ID changed"
+      },
+      "remaining": "Moving artifact lineage, complete archive/revision reconciliation and persistent scheduler integration are not release-approved"
+    },
+    {
+      "id": "uk_building_materials_c852dbd06e8bb2ce83b2",
+      "provider": "uk_building_materials",
+      "publication_approved": false,
+      "refresh_enabled": false,
+      "discovery_url": "https://www.gov.uk/api/content/government/statistics/building-materials-and-components-statistics-september-2026",
+      "updated_at": "2026-10-07T08:30:02Z",
+      "state": "candidate_contract_passed",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6abf7d92f04a15f533722903/construction_building_materials_-_tables_September_2026.xlsx",
+      "rows": 53,
+      "first": "2013-Q1",
+      "last": "2026-Q1",
+      "source_metadata": {
+        "title": "Table 4a: Quarterly sales of sand and gravel (thousand tonnes), Great Britain [note 1]",
+        "source": "Source: DBT",
+        "column_header": "Seasonally adjusted sand and gravel [note 2, 3]",
+        "sheet": "4a",
+        "column": "C",
+        "definition_note": "Planning adjustment corrected to the actual selected column; no existing public ID changed"
+      },
+      "remaining": "Moving artifact lineage, complete archive/revision reconciliation and persistent scheduler integration are not release-approved"
+    },
+    {
+      "id": "uk_building_materials_fd9e6513a75988533463",
+      "provider": "uk_building_materials",
+      "publication_approved": false,
+      "refresh_enabled": false,
+      "discovery_url": "https://www.gov.uk/api/content/government/statistics/building-materials-and-components-statistics-september-2026",
+      "updated_at": "2026-10-07T08:30:02Z",
+      "state": "candidate_contract_passed",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6abf7d92f04a15f533722903/construction_building_materials_-_tables_September_2026.xlsx",
+      "rows": 101,
+      "first": "2018-01",
+      "last": "2026-05",
+      "source_metadata": {
+        "title": "Table 9a: Monthly bricks production, deliveries and stocks (millions of bricks), Great Britain [note 1]",
+        "source": "Source: DBT",
+        "column_header": "Seasonally adjusted deliveries [notes 2, 3, 4]",
+        "sheet": "9a",
+        "column": "C",
+        "definition_note": "Planning adjustment corrected to the actual selected column; no existing public ID changed"
+      },
+      "remaining": "Moving artifact lineage, complete archive/revision reconciliation and persistent scheduler integration are not release-approved"
+    }
+  ]
+}

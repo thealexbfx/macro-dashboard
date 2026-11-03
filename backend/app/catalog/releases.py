@@ -36,6 +36,14 @@ def candidates(path=RELEASE_FILE):
     from backend.app.v2.native_reader import NativePublication
 
     data = json.loads(path.read_text(encoding="utf-8"))
+    # Keep the original captured-candidate catalog immutable. Moving DESNZ
+    # producer pages are reviewed in the existing explicit source-override layer.
+    override_file = RELEASE_FILE.with_name("source_overrides.json")
+    source_overrides = {
+        row["id"]: row
+        for row in json.loads(override_file.read_text(encoding="utf-8"))["datasets"]
+        if row["source"]["provider"] == "desnz"
+    }
     result = {}
     for row in data["datasets"]:
         d = decode_definition(row["definition"])
@@ -43,12 +51,25 @@ def candidates(path=RELEASE_FILE):
             raise ValueError("Duplicate or protected release identity")
         if row["ai_allowed"] is not False or row["discovery_allowed"] is not False:
             raise ValueError("Display review does not authorize AI or Discovery")
+        source_url = row["source_url"]
+        if d.provider == "desnz" and d.id in source_overrides:
+            override = source_overrides[d.id]
+            if (
+                override["source"]["selector"] != d.selector
+                or override["frequency"] != d.frequency
+                or override["units"] != d.units
+                or not override["source"]["endpoint"].startswith(
+                    "https://www.gov.uk/government/statistics/"
+                )
+            ):
+                raise ValueError("Unreviewed DESNZ source-route override")
+            source_url = override["source"]["endpoint"]
         result[d.id] = NativePublication(
             d,
             row["name"],
             row["category"],
             row["region"],
-            row["source_url"],
+            source_url,
             row["license_url"],
             tuple(row["attribution"]),
             row["rights_evidence"],

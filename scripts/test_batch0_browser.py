@@ -139,13 +139,82 @@ def main():
         expect(page.get_by_role("row").nth(1)).to_be_visible(timeout=30000)
         page.set_viewport_size({"width": 390, "height": 844})
         page.screenshot(path=str(output / "explorer-mobile.png"), full_page=True)
+        # Admin UI uses a synthetic response; backend authentication/header
+        # regressions run independently. Never provide a real token to this test.
+        page.goto("http://127.0.0.1:3039/data-health", wait_until="networkidle")
+        expect(
+            page.get_by_role("heading", name="Data health", exact=True)
+        ).to_be_visible()
+        assert (
+            page.request.get(
+                "http://127.0.0.1:3039/api/v2/discovery/admin/data-health"
+            ).status
+            == 403
+        )
+        token = "synthetic-browser-health-token"
+
+        def health_fixture(route):
+            assert route.request.headers.get("authorization") == "Bearer " + token
+            assert token not in route.request.url
+            route.fulfill(
+                status=200,
+                content_type="application/json",
+                body=json.dumps(
+                    {
+                        "as_of": "2026-11-02T12:00:00Z",
+                        "summary": {
+                            "public": 194,
+                            "automatic_refresh": 194,
+                            "verified_automatic_refresh": 193,
+                            "healthy": 193,
+                            "needs_attention": 1,
+                        },
+                        "items": [
+                            {
+                                "id": "fixture",
+                                "name": "Synthetic source",
+                                "provider": "fixture",
+                                "frequency": "monthly",
+                                "last_success": "2026-11-01T12:00:00Z",
+                                "last_check": "2026-11-02T12:00:00Z",
+                                "next_check": "2026-11-03T12:00:00Z",
+                                "latest_observation_date": "2026-09-01",
+                                "health": "source_failure",
+                                "failures": 1,
+                                "error_code": "http_503",
+                            }
+                        ],
+                        "total": 1,
+                        "next_offset": None,
+                        "resources": {
+                            "sqlite_bytes": {"database": 1024},
+                            "free_disk_bytes": 500 * 1024**2,
+                            "disk_attention": False,
+                            "memory.current": "300000000",
+                            "memory.max": "536870912",
+                        },
+                    }
+                ),
+            )
+
+        page.route("**/api/v2/discovery/admin/data-health?*", health_fixture)
+        page.get_by_label("Administrator token", exact=True).fill(token)
+        page.get_by_role("button", name="Refresh report", exact=True).click()
+        expect(page.get_by_text("Source check failed", exact=False)).to_be_visible()
+        assert token not in page.evaluate("JSON.stringify(localStorage)")
+        page.screenshot(path=str(output / "data-health-mobile.png"), full_page=True)
+        page.set_viewport_size({"width": 1440, "height": 1000})
+        page.screenshot(path=str(output / "data-health-desktop.png"), full_page=True)
+        page.get_by_role("button", name="Lock report", exact=True).click()
+        expect(page.get_by_label("Administrator token", exact=True)).to_have_value("")
+        expect(page.get_by_text("Synthetic source", exact=True)).to_have_count(0)
         assert not errors, errors
         print(
             json.dumps(
                 {
-                    "browser_checks": 20,
+                    "browser_checks": 26,
                     "passed": True,
-                    "screenshots": 4,
+                    "screenshots": 6,
                     "page_errors": errors,
                 }
             )

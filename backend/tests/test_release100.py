@@ -87,11 +87,12 @@ def stage_all(store, bundle):
     pytest.fail("Stage failed to converge within bound")
 
 
-def test_explicit_70_approvals_and_115_denials():
+def test_historical_70_approvals_preserved_by_larger_reviewed_plan():
     p = r.load_plan()
     rules = json.loads(CONFIG.read_text())
     assert len(rules["datasets"]) == 185
-    assert sum(x["ingest_approved"] for x in rules["datasets"]) == 70
+    assert sum(x["ingest_approved"] for x in rules["datasets"]) == 164
+    assert {x["id"] for x in p["datasets"]} <= {x["id"] for x in rules["datasets"] if x["ingest_approved"]}
     assert len(p["additional_ids"]) == 57
     assert len({x["region"] for x in p["datasets"]}) >= 7
     assert {x["provider"] for x in p["datasets"]} == {
