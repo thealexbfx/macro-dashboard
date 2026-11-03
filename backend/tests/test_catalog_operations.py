@@ -135,6 +135,25 @@ def test_one_release_194_private_stage_idempotency_rollback_and_migration_restor
     assert all(
         "observations" not in r or r["observations"] is None for r in report["items"]
     )
+    # Audit the existing full 194-dataset release fixture, not a second ingestion
+    # fixture or a 30-only shortcut. This is synthetic evidence, not production.
+    from backend.app.catalog.readiness import audit
+
+    with store.connection() as db:
+        before_audit = list(db.iterdump())
+    readiness = audit(store.path, evidence_origin="fixture", expected_public=194)
+    assert readiness["scope"]["matches_expected"]
+    assert len(readiness["datasets"]) == 194
+    assert {r["id"] for r in readiness["datasets"]} == set(
+        release100.public_ids(reader)
+    )
+    assert readiness["summary"]["verified_successful_source_checks"] == 0
+    assert all(
+        "historical_quality" in r and "research_suitability" in r
+        for r in readiness["datasets"]
+    )
+    with store.connection() as db:
+        assert list(db.iterdump()) == before_audit
     assert rollout.rollback(store.path, plan, approved=True)["public"] == 100
     assert rollout.rollback(store.path, plan, approved=True)["public"] == 100
     with store.connection() as db:
