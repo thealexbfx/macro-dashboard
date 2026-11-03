@@ -234,4 +234,3 @@ Implementation validation on Windows/Python 3.14:
 No frontend/API contract, catalog manifest, source adapter, refresh policy, grants,
 database schema, production settings or application runtime entrypoint was changed.
 Review the actual production reports before approving Research Journey work.
-
