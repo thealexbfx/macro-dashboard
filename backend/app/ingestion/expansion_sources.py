@@ -234,11 +234,28 @@ def parse_desnz(entry, body):
     points = []
     for row in rows:
         label = str(row[0])
-        match = re.fullmatch(r"([A-Za-z]+) ([0-9]{4})(?:\s*\[([pr])\])?", label)
+        plain = re.sub(r"\[[^\]]*\]", "", label).strip()
+        match = re.fullmatch(r"([A-Za-z]+) ([0-9]{4})", plain)
         if not match:
+            if re.match(r"(?:\[[^\]]*\]\s*)*[A-Za-z]+ [0-9]{4}", label):
+                raise ValueError(
+                    "Unreviewed DESNZ monthly annotation; do not silently omit source rows"
+                )
             continue
+        annotations = re.findall(r"\[([^\]]*)\]", label)
+        if any(
+            flag.casefold() not in {"p", "r", "provisional", "revised"}
+            for flag in annotations
+        ):
+            raise ValueError(
+                "Unreviewed DESNZ monthly annotation; do not silently omit source rows"
+            )
         period = datetime.strptime(f"{match[1]} {match[2]}", "%B %Y").strftime("%Y-%m")
-        flags = (f"source_status={match[3]}",) if match[3] else ()
+        flags = tuple(
+            "source_status="
+            + {"provisional": "p", "revised": "r"}.get(flag.casefold(), flag.casefold())
+            for flag in annotations
+        )
         points.append(Observation(period, label, workbook_number(row[index]), flags))
     return (
         d,

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import uuid
 from datetime import UTC, datetime, timedelta
 from threading import Lock
@@ -14,7 +15,9 @@ from backend.app.v2.state import dumps
 
 
 def interval(dataset, now, failures=0):
-    if dataset.status != "ok":
+    if not dataset.release_metadata.get(
+        "source_check_succeeded", dataset.status == "ok"
+    ):
         return min(3600, 300 * 2 ** min(failures, 4))
     if dataset.frequency == "daily":
         return 21600
@@ -91,9 +94,12 @@ def scheduled_service_class(base, dataset_class):
                         with self.lock:
                             self.cache[key] = (monotonic() - self.ttl - 1, previous)
                     d = super().get(key)
+                    succeeded = d.release_metadata.get(
+                        "source_check_succeeded", d.status == "ok"
+                    )
                     failures = (
                         (cached["failures"] if cached else 0) + 1
-                        if d.status != "ok"
+                        if not succeeded
                         else 0
                     )
                     next_due = now + timedelta(seconds=interval(d, now, failures))
@@ -102,6 +108,14 @@ def scheduled_service_class(base, dataset_class):
                         "last_checked_at": now.isoformat(),
                         "next_check_at": next_due.isoformat(),
                         "retrieval_time_note": "Provider retrieval and source observation/publication dates are distinct.",
+                        "last_source_success_at": now.isoformat()
+                        if succeeded
+                        else d.release_metadata.get("last_source_success_at"),
+                        "source_error_code": None
+                        if succeeded
+                        else d.release_metadata.get(
+                            "source_error_code", "provider_unavailable_or_invalid"
+                        ),
                     }
                     d = d.model_copy(update={"release_metadata": metadata})
                     with self.store.connection(True) as db:
@@ -115,6 +129,15 @@ def scheduled_service_class(base, dataset_class):
                                 failures,
                             ),
                         )
+                    logging.getLogger("uvicorn.error.legacy_refresh").log(
+                        logging.INFO if succeeded else logging.WARNING,
+                        "Legacy source id=%s checked=%s success=%s next=%s failures=%s",
+                        key,
+                        now.isoformat(),
+                        metadata["last_source_success_at"],
+                        next_due.isoformat(),
+                        failures,
+                    )
                     return d
                 finally:
                     self.store.release("source:" + key, owner)

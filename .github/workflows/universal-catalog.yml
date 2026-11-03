@@ -1,0 +1,51 @@
+name: Universal catalog release
+on:
+  pull_request:
+    paths:
+      - 'backend/app/catalog/**'
+      - 'backend/app/ingestion/**'
+      - 'backend/app/v2/**'
+      - 'catalog/**'
+      - 'scripts/*catalog*'
+      - 'scripts/validate_release100.py'
+      - '.github/workflows/universal-catalog.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual_release_512m:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build production Python test runtime
+        run: docker build --build-arg PYTHON_VERSION=3.14 -f scripts/phase4c.Dockerfile -t universal-catalog .
+      - name: Capture baseline and exact reviewed additions from official sources
+        run: |
+          mkdir -p "$RUNNER_TEMP/catalog-input" "$RUNNER_TEMP/catalog-results"
+          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 \
+            -v "$RUNNER_TEMP/catalog-input:/input" --entrypoint python universal-catalog \
+            -m backend.app.catalog.release100 prepare --bundle /input/baseline
+          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 \
+            -v "$RUNNER_TEMP/catalog-input:/input" --entrypoint python universal-catalog \
+            -m backend.app.catalog.rollout prepare --bundle /input/additions
+          cp "$RUNNER_TEMP/catalog-input/baseline/audit.json" "$RUNNER_TEMP/catalog-results/source-audit.json"
+      - name: Actual complete release, API, Discovery, separate staging, rollback and restore
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/catalog-disk"
+          truncate -s 1G "$RUNNER_TEMP/catalog-disk.img"
+          mkfs.ext4 -F "$RUNNER_TEMP/catalog-disk.img"
+          sudo mount -o loop "$RUNNER_TEMP/catalog-disk.img" "$RUNNER_TEMP/catalog-disk"
+          trap 'sudo umount "$RUNNER_TEMP/catalog-disk"' EXIT
+          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
+            -e TMPDIR=/disposable -v "$RUNNER_TEMP/catalog-disk:/disposable" \
+            -v "$RUNNER_TEMP/catalog-input:/input:ro" -v "$RUNNER_TEMP/catalog-results:/results" \
+            --entrypoint python universal-catalog -m scripts.validate_release100 \
+            --bundle /input/baseline --expansion-bundle /input/additions --output /results/capacity.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: universal-catalog-release
+          path: ${{ runner.temp }}/catalog-results/
+          retention-days: 7

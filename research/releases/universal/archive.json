@@ -1,0 +1,9 @@
+{
+  "sha256": "d31dda06b4ba4be8facb9efcce0f1c02d724114a801f65f2df9a0259b641df4a",
+  "bytes": 1088122,
+  "file": "macrolens-universal.tar.gz",
+  "datasets": 94,
+  "observations": 123370,
+  "created_at": "2026-11-03T01:01:00.743696+00:00",
+  "production_data": false
+}

@@ -302,6 +302,16 @@ class DataService:
             previous_frame = (
                 {o.date: o.value for o in cached[1].observations} if cached else {}
             )
+            returned = {str(r.date.date()): r.value for r in frame.itertuples()}
+            if any(
+                value is not None
+                and str(start) <= day <= str(end)
+                and (day not in returned or pd.isna(returned[day]))
+                for day, value in previous_frame.items()
+            ):
+                raise ValueError(
+                    "Provider history omitted previously observed values; last-good history retained."
+                )
             revisions = sum(
                 1
                 for r in valid.itertuples()
@@ -325,7 +335,11 @@ class DataService:
                 headline=headline,
                 market_movement=movement,
                 verification=verification,
-                release_metadata={**release, "freshness_assessment": freshness_reason},
+                release_metadata={
+                    **release,
+                    "freshness_assessment": freshness_reason,
+                    "source_check_succeeded": True,
+                },
                 provider_metadata=self.provider.metadata(spec.id)
                 if hasattr(self.provider, "metadata")
                 else {},
@@ -370,6 +384,11 @@ class DataService:
                         "status": "stale",
                         "quality_warnings": [reason],
                         "message": "Provider unavailable; showing previously retrieved observations. Check retrieval timestamp.",
+                        "release_metadata": {
+                            **cached[1].release_metadata,
+                            "source_check_succeeded": False,
+                            "source_error_code": "provider_unavailable_or_invalid",
+                        },
                     }
                 )
                 with self.lock:
@@ -379,6 +398,10 @@ class DataService:
                 **asdict(spec),
                 status="unavailable",
                 quality_warnings=[reason],
+                release_metadata={
+                    "source_check_succeeded": False,
+                    "source_error_code": "provider_unavailable_or_invalid",
+                },
                 verification={
                     "status": "Unavailable",
                     "audit_checked_at": "2026-10-24",
@@ -938,7 +961,42 @@ def background_refresh():
         logging.getLogger(__name__).warning(
             "Ingestion dispatch failed (%s); Discovery continues.", type(exc).__name__
         )
-    return discovery_service.get(force_check=True)
+    try:
+        return discovery_service.get(force_check=True)
+    finally:
+        log_data_health()
+
+
+_next_health_log = 0
+
+
+def log_data_health():
+    global _next_health_log
+    if monotonic() < _next_health_log:
+        return
+    _next_health_log = monotonic() + 3600
+    try:
+        from backend.app.catalog.operations import health
+
+        report = health(
+            state_store.path,
+            scheduler=refresh_scheduler.status(),
+            refresh=catalog_refresh_worker.status(),
+            limit=1,
+        )
+        logging.getLogger("uvicorn.error.data_health").info(
+            "Data health %s",
+            json.dumps(
+                {
+                    **report["summary"],
+                    "disk_attention": report["resources"]["disk_attention"],
+                }
+            ),
+        )
+    except (sqlite3.Error, ValueError, OSError):
+        logging.getLogger("uvicorn.error.data_health").warning(
+            "Data health report unavailable; inspect protected diagnostics; state retained"
+        )
 
 
 refresh_scheduler = RefreshScheduler(background_refresh)
@@ -1052,3 +1110,26 @@ def discovery_diagnostics(authorization: str | None = Header(default=None)):
         },
         "discovery_cache_seconds": discovery_service.cache_seconds,
     }
+
+
+@app.get("/api/v2/discovery/admin/data-health")
+def data_health(
+    authorization: str | None = Header(default=None),
+    offset: int = Query(default=0, ge=0, le=100000),
+    limit: int = Query(default=100, ge=1, le=400),
+    include_private: bool = False,
+):
+    require_admin(authorization)
+    from backend.app.catalog.operations import health
+
+    try:
+        return health(
+            state_store.path,
+            scheduler=refresh_scheduler.status(),
+            refresh=catalog_refresh_worker.status(),
+            offset=offset,
+            limit=limit,
+            public_only=not include_private,
+        )
+    except (sqlite3.Error, OSError, ValueError) as exc:
+        raise HTTPException(503, "Data health unavailable; state preserved") from exc

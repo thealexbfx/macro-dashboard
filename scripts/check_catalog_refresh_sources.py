@@ -33,6 +33,8 @@ def main():
             native(db)
             releases(db)
             migrate(db)
+            from backend.app.ingestion.provider_requests import migrate as provider_migrate
+            provider_migrate(db)
         rules = [
             r
             for r in json.loads(CONFIG.read_text())["datasets"]

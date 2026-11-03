@@ -197,12 +197,21 @@ class CatalogRefresh:
         entry, pub = self.entries[key], self.publications[key]
         provider = pub.definition.provider
         rule = self.rules[key]
-        if not rule["automation_ready"] or provider not in PARSERS:
+        if (
+            not rule["automation_ready"]
+            or provider not in PARSERS
+            and provider != "federal_reserve"
+        ):
             raise ProviderError("source_requires_adapter_review")
         url = endpoint(entry)
         if url != pub.source_url:
             raise ProviderError("source_url_drift")
-        cache_key = (url, self.now().date().isoformat())
+        resolved, discovery = url, {}
+        if provider == "desnz":
+            from backend.app.ingestion.release_discovery import discover
+
+            resolved, discovery = discover(entry, fetch=self.fetch)
+        cache_key = (resolved, self.now().date().isoformat())
         if self.cache and self.cache[0] == cache_key:
             body, response = self.cache[1:]
         else:
@@ -212,14 +221,59 @@ class CatalogRefresh:
                 if job["content_hash"]
                 else {}
             )
-            body, response = self.fetch(url, validators=validators)
+            if (
+                provider == "desnz"
+                and json.loads(job.get("provenance") or "{}").get("resolved_source_url")
+                != resolved
+            ):
+                validators = {}  # HTTP validators belong to one artifact, not its replacement.
+            if provider == "bls":
+                from backend.app.ingestion.provider_requests import Requests, bls_group
+
+                requests = Requests(
+                    self.store,
+                    self.fetch,
+                    self.directory / "provider-responses",
+                    now=self.now,
+                )
+                requests.prune()
+                body, response = bls_group(
+                    [e for k, e in self.entries.items() if k in self.rules], requests
+                )
+            elif provider == "dol":
+                # Official national form POST; the last calendar year must advance.
+                # Keep this provider denied until independent full-window reliability passes.
+                from urllib.parse import urlencode
+
+                params = dict(
+                    entry["query_parameters"],
+                    enddate=str(self.now().year),
+                    final_yr=str(self.now().year + 1),
+                )
+                body, response = self.fetch(
+                    url, payload=urlencode(params).encode("ascii")
+                )
+            else:
+                maximum = (
+                    16 * 1024**2
+                    if provider == "federal_reserve"
+                    and entry["source"]["selector"].split("/")[0] in {"G17", "H41"}
+                    else 8 * 1024**2
+                )
+                body, response = self.fetch(
+                    resolved,
+                    validators=validators,
+                    **({"maximum": maximum} if maximum != 8 * 1024**2 else {}),
+                )
+            if discovery:
+                response = response | discovery | {"resolved_source_url": resolved}
             if body is not None:
                 self.cache = (cache_key, body, response)
         if body is None:
             if not job["content_hash"] or not response.get("not_modified"):
                 raise ProviderError("unexpected_not_modified")
             return None, response
-        if len(body) > 8 * 1024 * 1024:
+        if len(body) > (16 if provider == "federal_reserve" else 8) * 1024 * 1024:
             raise ProviderError("response_size_limit")
         raw = sha256(body).hexdigest()
         if raw == job["raw_hash"]:
@@ -227,8 +281,12 @@ class CatalogRefresh:
         parse = (
             parse_ons_construction
             if provider == "ons" and ".xlsx" in url
-            else PARSERS[provider]
+            else PARSERS.get(provider)
         )
+        if provider == "federal_reserve" and parse is None:
+            from backend.app.ingestion.federal_reserve_bulk import parse_selected
+
+            parse = parse_selected
         definition, points, metadata = parse(entry, body)
         content, stored = self._validate(key, definition, points, metadata)
         response = response | {"raw_hash": raw, "content_hash": content}
@@ -326,6 +384,14 @@ class CatalogRefresh:
                     for r in db.execute("SELECT * FROM catalog_refresh_jobs")
                 }
             missing = [k for k in self.rules if k not in jobs]
+            eligible = []
+            for candidate in missing:
+                try:
+                    self._permission(candidate)
+                except ValueError:
+                    continue  # A prepared approval is not an active display grant.
+                eligible.append(candidate)
+            missing = eligible
             missing.sort(key=lambda k: endpoint(self.entries[k]))
             if missing:
                 with self.store.connection(True, timeout=2) as db:
@@ -339,7 +405,11 @@ class CatalogRefresh:
                         r["dataset_id"]: dict(r)
                         for r in db.execute("SELECT * FROM catalog_refresh_jobs")
                     }
-            due = [k for k in self.rules if jobs[k]["next_due"] <= stamp.timestamp()]
+            due = [
+                k
+                for k in self.rules
+                if k in jobs and jobs[k]["next_due"] <= stamp.timestamp()
+            ]
             if not due:
                 return {"state": "idle"}
             key = min(
@@ -378,6 +448,8 @@ class CatalogRefresh:
                 source_checked_at=finished.isoformat(),
                 source_url=self.publications[key].source_url,
                 source_file_modified=response.get("last_modified"),
+                resolved_source_url=response.get("resolved_source_url"),
+                discovery_url=response.get("discovery_url"),
             )
             if pending:
                 provenance.update(
@@ -568,7 +640,8 @@ class CatalogRefreshWorker:
                     self.store, config=self.config, cancel=self.cancel
                 )
             result = self.engine.run_once()
-            self.error_code = result.get("error_code")
+            # Per-source failures are in durable jobs, not a dead-worker condition.
+            self.error_code = None
         except Exception:  # noqa: BLE001 -- migration/config errors must not kill Discovery
             self.error_code = "refresh_unavailable"
             LOG.warning(

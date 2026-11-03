@@ -1,0 +1,1699 @@
+{
+  "version": 1,
+  "reviewed_at": "2026-11-02",
+  "base_revision": "7260bdcebcddbaba2298fe13a2bf567ef1434764",
+  "baseline_ids": [
+    "boe_1d553b5bdd1f7e891b14",
+    "boe_7b7637a3b65708d59ec6",
+    "breakeven_5y",
+    "building_permits",
+    "consumer_sentiment",
+    "core_cpi",
+    "core_cpi_nsa",
+    "core_pce",
+    "cpi",
+    "cpi_nsa",
+    "dxy",
+    "ecb_18cb4fac8e5507865410",
+    "ecb_93d62599805666a2d00b",
+    "eia_4922b423fe8b2b32866f",
+    "eia_4f9f06aabda8ff167d48",
+    "eia_feda97c6fccc3ab58f53",
+    "eurostat_1dbf7d4cd20c533f1a81",
+    "eurostat_37c229cd537e5fa533bb",
+    "eurostat_3e9b736c08d1e26f46f5",
+    "eurostat_3f8dcd72ad11f4f3b9ef",
+    "eurostat_4d4786ddbdc8229afff7",
+    "eurostat_4da3ab1198a88462eb4a",
+    "eurostat_5aeedc36988eaa3f3449",
+    "eurostat_61686fe8fdc9577e6d47",
+    "eurostat_633ca07db5ab397b9535",
+    "eurostat_647a302990659c3097cd",
+    "eurostat_6abbb1e68f00349646b7",
+    "eurostat_6e1c74c102959c0ded7b",
+    "eurostat_726780d271bd41010152",
+    "eurostat_734829d92c2058c77216",
+    "eurostat_77ba4f3a758d6ae4448a",
+    "eurostat_7944786d6798bbf8db3f",
+    "eurostat_7cf165f869db02fd3a1b",
+    "eurostat_7dd27d3c6b1d1c1de8d6",
+    "eurostat_803e37302de4a467d0ff",
+    "eurostat_8172fb797467ba0c413f",
+    "eurostat_8582d8dad7b6ccaedd7e",
+    "eurostat_85c75060bd6f221cafd2",
+    "eurostat_89bc385366c06541f184",
+    "eurostat_9168b7ee162cb46fd5db",
+    "eurostat_a12908192f33939823b7",
+    "eurostat_a2bfc29ea11f0d4fa5b2",
+    "eurostat_a61def93a170d5c5762c",
+    "eurostat_b3b1fe3938ce4e4612eb",
+    "eurostat_b5a226808c9fc1bd3343",
+    "eurostat_bacb4a8870074617884f",
+    "eurostat_c0fc01ed5efaf8a07abd",
+    "eurostat_c32a83e065ec840898c2",
+    "eurostat_c3e94638ddc73c642af2",
+    "eurostat_c94d6677ff350bbc29aa",
+    "eurostat_d303c438757ae9bc2f26",
+    "eurostat_d38252717f7c5fbeb7f0",
+    "eurostat_dd0ae0f0f913e9323d8f",
+    "eurostat_e4b0591cf148660f3349",
+    "eurostat_eca8a799de8d6687fe33",
+    "eurostat_f71ae378f4c820fc0ae0",
+    "eurostat_f9d434ea9b52ed59f29f",
+    "eurostat_fcab9c3216a8c2d01fc9",
+    "fed_funds",
+    "fred_259d141714182247e607",
+    "fred_344b1ec45d2e2a9be4ee",
+    "fred_587ae491484f07293dc5",
+    "fred_5917067a7da7dd7561f2",
+    "fred_6b8b68d870a427695f32",
+    "fred_890f288b712279e3a9cf",
+    "fred_8d3240bb6b5eae523737",
+    "fred_f4d6da21fa8031a3a242",
+    "gold",
+    "high_yield_spread",
+    "hourly_earnings",
+    "housing_starts",
+    "industrial_production",
+    "initial_claims",
+    "investment_grade_spread",
+    "job_openings",
+    "mortgage_30y",
+    "ons_1e225f710e5dd5ee593e",
+    "ons_215c26ad59b81f3db7ba",
+    "ons_24df6f5df34ca52bac40",
+    "ons_25d3467f107b4839918d",
+    "ons_27271ab0b950200f5401",
+    "ons_29758966f717f2aa44da",
+    "ons_2cc6678249f2ade3e2b2",
+    "ons_38752d10c1efdc717be3",
+    "ons_39be433de4f7adbd251a",
+    "ons_a007e11b21ed0f67ccf1",
+    "ons_a870666d741fbe34a30c",
+    "ons_f055c30053e4d883ab2b",
+    "ons_f069edbcf1bc4e7ff9c5",
+    "participation",
+    "payrolls",
+    "pce",
+    "real_consumption",
+    "real_gdp_growth",
+    "retail_sales",
+    "sp500",
+    "unemployment",
+    "us10y",
+    "wti",
+    "yield_curve"
+  ],
+  "datasets": [
+    {
+      "id": "boe_78c1b0ddd5b081685915",
+      "name": "M4 sterling liabilities to private sector \u2014 amounts outstanding",
+      "definition_hash": "042d93bf4b21bab65a1e93b6b27ef2cf1adeb5c54cd64d7fe314d9b2e0823ce1",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=LPMAUYN&UsingCodes=Y&CSVF=CT",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:boe",
+      "rights_review": {
+        "url": "https://www.bankofengland.co.uk/legal",
+        "basis": "IADB data reuse under OGL v3; selected own monetary statistics and rates, not excluded LSEG exchange rates or Crown-dependency material. SONIA-specific attribution retained.; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Bank of England IADB, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own M4 monetary aggregates only in additions; SONIA withheld; licensed FX excluded"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "boe_7eaa2557cec31cfd442c",
+      "name": "M4 sterling net lending to private sector \u2014 amounts outstanding",
+      "definition_hash": "b547a9c33ab76b3eac7aaf93546187994ef2cd0ebf4b640e65e4747a6a4851ee",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=LPMBC69&UsingCodes=Y&CSVF=CT",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:boe",
+      "rights_review": {
+        "url": "https://www.bankofengland.co.uk/legal",
+        "basis": "IADB data reuse under OGL v3; selected own monetary statistics and rates, not excluded LSEG exchange rates or Crown-dependency material. SONIA-specific attribution retained.; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Bank of England IADB, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own M4 monetary aggregates only in additions; SONIA withheld; licensed FX excluded"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "boe_9b273c7c43b5805395f8",
+      "name": "Net lending excluding intermediate OFCs outstanding",
+      "definition_hash": "6ba2f0c1fa1af1c39646d2cf9bfa738e8b5782862d4eea9b58e5efaefc41015b",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=RPMB57Q&UsingCodes=Y&CSVF=CT",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:boe",
+      "rights_review": {
+        "url": "https://www.bankofengland.co.uk/legal",
+        "basis": "IADB data reuse under OGL v3; selected own monetary statistics and rates, not excluded LSEG exchange rates or Crown-dependency material. SONIA-specific attribution retained.; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Bank of England IADB, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own M4 monetary aggregates only in additions; SONIA withheld; licensed FX excluded"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "boe_add9ddfbda80cc7d61b4",
+      "name": "M4 excluding intermediate OFCs outstanding",
+      "definition_hash": "7578debfb2627c532d34f00a1fc209808c483eaa5f4904dc4f1eb4fb9baa9dbf",
+      "source_url": "https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp?csv.x=yes&Datefrom=01%2FJan%2F1963&Dateto=now&SeriesCodes=RPMB53Q&UsingCodes=Y&CSVF=CT",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:boe",
+      "rights_review": {
+        "url": "https://www.bankofengland.co.uk/legal",
+        "basis": "IADB data reuse under OGL v3; selected own monetary statistics and rates, not excluded LSEG exchange rates or Crown-dependency material. SONIA-specific attribution retained.; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Bank of England IADB, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own M4 monetary aggregates only in additions; SONIA withheld; licensed FX excluded"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "desnz_545740a2d48ae00c5437",
+      "name": "White diesel inland deliveries",
+      "definition_hash": "a1147b9a7ff91e809ee01d584fe10b075886d132515c500a1f40dc99d6a0888e",
+      "source_url": "https://www.gov.uk/government/statistics/oil-and-oil-products-section-3-energy-trends",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:desnz",
+      "rights_review": {
+        "url": "https://www.gov.uk/help/reuse-govuk-content",
+        "basis": "Own DESNZ Energy Trends Crown-copyright aggregate statistics under OGL v3; exact volume columns with verified units, not underlying licensed supplier microdata",
+        "attribution": "Department for Energy Security and Net Zero, Crown copyright, Open Government Licence v3.0",
+        "reviewed_date": "2026-11-02",
+        "scope": "Exact six own aggregate Energy Trends monthly selections only; original source/table metadata and provisional/revised flags retained"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "desnz_5c8a6875ed4f65582ec8",
+      "name": "Gas fuel used in electricity generation by major producers",
+      "definition_hash": "c0ddb727c9f60d61decb260660bf79fa9d2f0c141c23c99576633fb82db01f85",
+      "source_url": "https://www.gov.uk/government/statistics/electricity-section-5-energy-trends",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:desnz",
+      "rights_review": {
+        "url": "https://www.gov.uk/help/reuse-govuk-content",
+        "basis": "Own DESNZ Energy Trends Crown-copyright aggregate statistics under OGL v3; exact volume columns with verified units, not underlying licensed supplier microdata",
+        "attribution": "Department for Energy Security and Net Zero, Crown copyright, Open Government Licence v3.0",
+        "reviewed_date": "2026-11-02",
+        "scope": "Exact six own aggregate Energy Trends monthly selections only; original source/table metadata and provisional/revised flags retained"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "desnz_8790f184e015b31f6bdb",
+      "name": "Bitumen deliveries for inland consumption",
+      "definition_hash": "64783138ab0049d2cac1c1f4d3c6d976d1e011078f0b2db9b6845857219f82af",
+      "source_url": "https://www.gov.uk/government/statistics/oil-and-oil-products-section-3-energy-trends",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:desnz",
+      "rights_review": {
+        "url": "https://www.gov.uk/help/reuse-govuk-content",
+        "basis": "Own DESNZ Energy Trends Crown-copyright aggregate statistics under OGL v3; exact volume columns with verified units, not underlying licensed supplier microdata",
+        "attribution": "Department for Energy Security and Net Zero, Crown copyright, Open Government Licence v3.0",
+        "reviewed_date": "2026-11-02",
+        "scope": "Exact six own aggregate Energy Trends monthly selections only; original source/table metadata and provisional/revised flags retained"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "desnz_a9eddb44d17898ec397e",
+      "name": "Indigenous crude oil production",
+      "definition_hash": "97d0a2ad7ecdd1e7bb28c7f2e7040e34d15f193b707d1724b45337e8d46d66c2",
+      "source_url": "https://www.gov.uk/government/statistics/oil-and-oil-products-section-3-energy-trends",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:desnz",
+      "rights_review": {
+        "url": "https://www.gov.uk/help/reuse-govuk-content",
+        "basis": "Own DESNZ Energy Trends Crown-copyright aggregate statistics under OGL v3; exact volume columns with verified units, not underlying licensed supplier microdata",
+        "attribution": "Department for Energy Security and Net Zero, Crown copyright, Open Government Licence v3.0",
+        "reviewed_date": "2026-11-02",
+        "scope": "Exact six own aggregate Energy Trends monthly selections only; original source/table metadata and provisional/revised flags retained"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "desnz_b0352af967ee12f9bb5d",
+      "name": "Electricity available from public supply system",
+      "definition_hash": "37380c01724be3346063d310f4016fb111fad321deb19cda153b3bf3356cdbcf",
+      "source_url": "https://www.gov.uk/government/statistics/electricity-section-5-energy-trends",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:desnz",
+      "rights_review": {
+        "url": "https://www.gov.uk/help/reuse-govuk-content",
+        "basis": "Own DESNZ Energy Trends Crown-copyright aggregate statistics under OGL v3; exact volume columns with verified units, not underlying licensed supplier microdata",
+        "attribution": "Department for Energy Security and Net Zero, Crown copyright, Open Government Licence v3.0",
+        "reviewed_date": "2026-11-02",
+        "scope": "Exact six own aggregate Energy Trends monthly selections only; original source/table metadata and provisional/revised flags retained"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "desnz_b36f0a974575a25cd1b7",
+      "name": "Natural gas gross production",
+      "definition_hash": "5fbd0475e171a63e7e73a42446d3e82629a59b30888a16cc1941b51a9ba90b7b",
+      "source_url": "https://www.gov.uk/government/statistics/gas-section-4-energy-trends",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:desnz",
+      "rights_review": {
+        "url": "https://www.gov.uk/help/reuse-govuk-content",
+        "basis": "Own DESNZ Energy Trends Crown-copyright aggregate statistics under OGL v3; exact volume columns with verified units, not underlying licensed supplier microdata",
+        "attribution": "Department for Energy Security and Net Zero, Crown copyright, Open Government Licence v3.0",
+        "reviewed_date": "2026-11-02",
+        "scope": "Exact six own aggregate Energy Trends monthly selections only; original source/table metadata and provisional/revised flags retained"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ecb_116ee9feb5b1ea43cab6",
+      "name": "Main refinancing fixed rate",
+      "definition_hash": "d9d07bc56d209cfc08e6f6578ff0ea94616af18dd33986570df531201a0d1c35",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MRR_FR.LEV?format=csvdata",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ecb",
+      "rights_review": {
+        "url": "https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html",
+        "basis": "Selected ESCB-produced rates, reference FX and monetary statistics; source metadata unchanged, third-party data excluded; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "ECB statistics",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own ESCB policy/overnight rates and official ECB euro reference rates; reference rates are not transaction or executable quotes"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ecb_6cfa1fb1a715de4c67d2",
+      "name": "Marginal lending facility",
+      "definition_hash": "0f6664624078fbd1d5c5a917869b3f0e2b69096a564b5ccd6e7a3af0725f3bea",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MLFR.LEV?format=csvdata",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ecb",
+      "rights_review": {
+        "url": "https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html",
+        "basis": "Selected ESCB-produced rates, reference FX and monetary statistics; source metadata unchanged, third-party data excluded; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "ECB statistics",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own ESCB policy/overnight rates and official ECB euro reference rates; reference rates are not transaction or executable quotes"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ecb_878b696f67ae88b6e877",
+      "name": "Euro short-term rate",
+      "definition_hash": "6786891bccfc6178dff3c3fd2aac69ecc4de09d02e8e5fa3d31564cfe8842c6a",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/EST/B.EU000A2X2A25.WT?format=csvdata",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ecb",
+      "rights_review": {
+        "url": "https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html",
+        "basis": "Selected ESCB-produced rates, reference FX and monetary statistics; source metadata unchanged, third-party data excluded; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "ECB statistics",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own ESCB policy/overnight rates and official ECB euro reference rates; reference rates are not transaction or executable quotes"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ecb_b3843342de698c904f6f",
+      "name": "Pounds sterling per euro",
+      "definition_hash": "583b022d7f33cd3b5f86740d62f85ef1b9452fa5c00670c15af8c0bf2e42d9c4",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/EXR/D.GBP.EUR.SP00.A?format=csvdata",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ecb",
+      "rights_review": {
+        "url": "https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html",
+        "basis": "Selected ESCB-produced rates, reference FX and monetary statistics; source metadata unchanged, third-party data excluded; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "ECB statistics",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own ESCB policy/overnight rates and official ECB euro reference rates; reference rates are not transaction or executable quotes"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ecb_e79d218383e19ee52b84",
+      "name": "US dollars per euro",
+      "definition_hash": "b7369f207c28759c82344daae25cae53e6b8dcd4fc41b72f34a469b4937e3c59",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A?format=csvdata",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ecb",
+      "rights_review": {
+        "url": "https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html",
+        "basis": "Selected ESCB-produced rates, reference FX and monetary statistics; source metadata unchanged, third-party data excluded; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "ECB statistics",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own ESCB policy/overnight rates and official ECB euro reference rates; reference rates are not transaction or executable quotes"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ecb_f2dc80be2008d28123fe",
+      "name": "Japanese yen per euro",
+      "definition_hash": "8058407237a2ff3c0c2646e6854567b5e7c6334a1f696df560ab568be776a4aa",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/EXR/D.JPY.EUR.SP00.A?format=csvdata",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ecb",
+      "rights_review": {
+        "url": "https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html",
+        "basis": "Selected ESCB-produced rates, reference FX and monetary statistics; source metadata unchanged, third-party data excluded; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "ECB statistics",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own ESCB policy/overnight rates and official ECB euro reference rates; reference rates are not transaction or executable quotes"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eia_1f2e8f732156c8e94fdd",
+      "name": "US product supplied of asphalt and road oil",
+      "definition_hash": "5bf027f92043f5ebdd1dd7836e81760d4bdaf03c3fd75421a51d8a8c57bca290",
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/MAPUPUS2m.xls",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eia",
+      "rights_review": {
+        "url": "https://www.eia.gov/about/copyrights_reuse.php",
+        "basis": "EIA-authored statistics in these identified historical files; no separately protected third-party material selected; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Energy Information Administration",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own physical petroleum inventories and product-supplied statistics only; WTI spot remains held"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eia_75bb94383fe0738b61e8",
+      "name": "US gasoline inventories",
+      "definition_hash": "cc53f67fec9a79757d4b93f4118f665ae1b58365cdc47f6d83990c1140f9609a",
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/WGTSTUS1w.xls",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eia",
+      "rights_review": {
+        "url": "https://www.eia.gov/about/copyrights_reuse.php",
+        "basis": "EIA-authored statistics in these identified historical files; no separately protected third-party material selected; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Energy Information Administration",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own physical petroleum inventories and product-supplied statistics only; WTI spot remains held"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eia_ee0bdf88256d8aae541c",
+      "name": "US distillate inventories",
+      "definition_hash": "d3ef59b48d70ac0800876468793423fb91e1eb9c687414034158356db60ffc83",
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/WDISTUS1w.xls",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eia",
+      "rights_review": {
+        "url": "https://www.eia.gov/about/copyrights_reuse.php",
+        "basis": "EIA-authored statistics in these identified historical files; no separately protected third-party material selected; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Energy Information Administration",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own physical petroleum inventories and product-supplied statistics only; WTI spot remains held"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_03b4d5b0fa407ee1b32e",
+      "name": "Nominal GDP \u2014 Germany",
+      "definition_hash": "18e0e09120b15cbc878cecc5f65b2b909e16e8696c486135b05b826dba7bc591",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=B1GQ&unit=CP_MEUR&s_adj=SCA",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_05596dcf57e38d7402be",
+      "name": "Government net lending GDP ratio \u2014 Germany",
+      "definition_hash": "db9fa7d0a5d38676f0d70486e72e83c0dbbee7a3c08053849b4337880b13e9c2",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10dd_edpt1?lang=en&geo=DE&na_item=B9&sector=S13&unit=PC_GDP",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_0705d44f64b77a2659b2",
+      "name": "Construction production \u2014 France",
+      "definition_hash": "d22e756b59f7411013efa565fd77c8a344d4b308364e063c0fd7e5af3cb27fbf",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=FR&nace_r2=F&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_0babd905442f489b51a2",
+      "name": "Nominal GDP \u2014 France",
+      "definition_hash": "5f75337a8a7338c458a5fc7f7505b39d57bbd2c2d2b465000b43fb87440ab3fd",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=B1GQ&unit=CP_MEUR&s_adj=SCA",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_0bd5561920a8d7523e9f",
+      "name": "Employment domestic concept \u2014 Germany",
+      "definition_hash": "cc7734b2f400b59c437f310a3b18de735fa59fea7b2165cfaa66bb3744b3c92b",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_pe?lang=en&geo=DE&na_item=EMP_DC&unit=THS_PER&s_adj=SCA",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_1139dca5ddc9dedec61c",
+      "name": "Domestic industrial producer prices \u2014 France",
+      "definition_hash": "93540eb2160995fb0f6f1ebce8783ccb86e5d721482cf89fd30300bdb69ba099",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpp_m?lang=en&geo=FR&nace_r2=B-E36&unit=I21&s_adj=NSA&indic_bt=PRC_PRR",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_16f6f277a7cd1ef9c48e",
+      "name": "Nominal GDP \u2014 Italy",
+      "definition_hash": "477d86475dfa5c96d854713bd439a2cca57f1f9f45eeb5fe164c684df0a586e4",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=B1GQ&unit=CP_MEUR&s_adj=SCA",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_2591546ccb87a306e904",
+      "name": "HICP price index \u2014 France",
+      "definition_hash": "6cf724592a3ec3ed40e65771f86a579fe95f4b9fc028e8bbf9efcffdd8211e82",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=FR&unit=I25&coicop18=TOTAL",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_2c7ea5992f61c8117e25",
+      "name": "Building construction production \u2014 Germany",
+      "definition_hash": "9f626655b559900acb34e808f6be318afcf9cd5378d146bd181bcbd9eb853cb1",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=DE&nace_r2=F41&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_3043cda8ac2440d7e8dc",
+      "name": "Building construction production \u2014 France",
+      "definition_hash": "10447f213a4fddf7cfa805af454cf599796d6a3d566973c1c255f94713030473",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=FR&nace_r2=F41&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_333699a32b1eaa67ad9f",
+      "name": "Building construction production \u2014 Euro area \u2013 21 countries (from 2026)",
+      "definition_hash": "b818ef47e339596f54aeebbfe4e5adb9a6a428a1d00d726dd1bfbadc1d5643cc",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=EA21&nace_r2=F41&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_37e107647944bba02b02",
+      "name": "Government net lending GDP ratio \u2014 Euro area \u2013 21 countries (from 2026)",
+      "definition_hash": "22b38f42af64cc078a94fb10001673a48949813846a1b8714d1390bbeb7a993e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10dd_edpt1?lang=en&geo=EA21&na_item=B9&sector=S13&unit=PC_GDP",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_55b6299390da85f4bc55",
+      "name": "Government net lending GDP ratio \u2014 France",
+      "definition_hash": "801950311c2409a8dac8b712bd55d5f388700ae7bd8c493be5e065c2eedd3b5f",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10dd_edpt1?lang=en&geo=FR&na_item=B9&sector=S13&unit=PC_GDP",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_57057d66f4dc2b3e9379",
+      "name": "Employment domestic concept \u2014 Italy",
+      "definition_hash": "da25bb0cf259b0709aa5868e40c648e079e65c096b1e69863ed8af4e5164daa5",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_pe?lang=en&geo=IT&na_item=EMP_DC&unit=THS_PER&s_adj=SCA",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_5b8a812af78796f7a1b5",
+      "name": "Industrial production \u2014 Germany",
+      "definition_hash": "41de0fe8db89b5895c95c2fef5c6bf2a3d4dbea3825ecab37938c6b1037ece8c",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=DE&nace_r2=B-D&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_5d6a3102fc10d2452b38",
+      "name": "Government consumption \u2014 France",
+      "definition_hash": "4ff371beb11693aa2cf46720eda07684e0e7fd78e2be60544a092bf731a07f3a",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=P3_S13&unit=CLV20_MEUR&s_adj=SCA",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_5e9250b7ab05497fb1ee",
+      "name": "Civil engineering production \u2014 Germany",
+      "definition_hash": "ca14b20db891ecce04e9774dbbc8a4a9424e1919140f7087fb2645435e0a0ee3",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=DE&nace_r2=F42&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_6545d7d4eb72cd90a2b8",
+      "name": "HICP price index \u2014 Germany",
+      "definition_hash": "7faf7d4ab6528d11913c68f297306024820569cccd64a069a873b053fa5e7ba8",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=DE&unit=I25&coicop18=TOTAL",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_66a3df38afcb956c67d8",
+      "name": "Government net lending GDP ratio \u2014 Italy",
+      "definition_hash": "6565a20a38a2f1ed47c12af2b73fa488595c9cf6cd29d32cbfa1655ddc19aee4",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10dd_edpt1?lang=en&geo=IT&na_item=B9&sector=S13&unit=PC_GDP",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_69ef021d5c6a9339fcd3",
+      "name": "Employment domestic concept \u2014 France",
+      "definition_hash": "9d2a47a30a2a070bba920499ba9aa63ca2f91470351c09d2711c4d4dafc93663",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_pe?lang=en&geo=FR&na_item=EMP_DC&unit=THS_PER&s_adj=SA",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_7a19ae12c96fa92cb026",
+      "name": "Domestic industrial producer prices \u2014 Euro area \u2013 21 countries (from 2026)",
+      "definition_hash": "9d3dcb9a2f5e426e30473f832d81d9520f796d3f125f5873a12af862ec3dbf1e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpp_m?lang=en&geo=EA21&nace_r2=B-E36&unit=I21&s_adj=NSA&indic_bt=PRC_PRR",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_8882eceef98ae06a4fd9",
+      "name": "HICP price index \u2014 Euro area \u2013 21 countries (from 2026)",
+      "definition_hash": "82ad610d465e28a4057fe2a9923e564de37208f536c6c0901bf2259795d09537",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=EA21&unit=I25&coicop18=TOTAL",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_8f5e1320615623acdebb",
+      "name": "HICP price index \u2014 Italy",
+      "definition_hash": "cc45876a3b564926c899d520dead0faccdae4fa373188cfdf2fdcb2714131d38",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/prc_hicp_minr?lang=en&geo=IT&unit=I25&coicop18=TOTAL",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_979299c668ea9e457e82",
+      "name": "Government consumption \u2014 Italy",
+      "definition_hash": "cd48fd408e608c579c02d76196bddf9d0446e96d3649d33bf2d18e0ce487f24c",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=P3_S13&unit=CLV20_MEUR&s_adj=SCA",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_a64737840a01e8e1f11d",
+      "name": "Civil engineering production \u2014 Euro area \u2013 21 countries (from 2026)",
+      "definition_hash": "0a58afb1bb401b9fcf27ff642232f6d080bcb1f59d6219791e1b4ab238acf0d1",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=EA21&nace_r2=F42&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_af7fc0bf9985c1cbeb07",
+      "name": "Domestic industrial producer prices \u2014 Germany",
+      "definition_hash": "a818fd9bd0782040d0a300d3dd6ba6a6ac92760cb55e761282218a82ec0dd08e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpp_m?lang=en&geo=DE&nace_r2=B-E36&unit=I21&s_adj=NSA&indic_bt=PRC_PRR",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_b0f75d3ba61d8bffa82c",
+      "name": "Construction production \u2014 Euro area \u2013 21 countries (from 2026)",
+      "definition_hash": "b461e6f2f9213185cd111e9cb79382bd8b03cc9fecc7837137c25737cf6d442e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=EA21&nace_r2=F&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_b2f6c00b9a12ca16d871",
+      "name": "Government consumption \u2014 Euro area \u2013 21 countries (from 2026)",
+      "definition_hash": "b17c3b7e850d3307dfd16ac195ca866790ddb8c6163a392d14333f8d2c785897",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=P3_S13&unit=CLV20_MEUR&s_adj=SCA",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_b31ed98bd58c686511c9",
+      "name": "Civil engineering production \u2014 France",
+      "definition_hash": "b8893c56811a825e7569ed1d9e198f4a92ed3134c9bdaff2a6b37c71154ca5e9",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=FR&nace_r2=F42&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_bd06ac44aa02f75aed92",
+      "name": "Domestic industrial producer prices \u2014 Italy",
+      "definition_hash": "9c81a622275c26c05a4959537824bd949c4944e1793fc0291e6cdc166444db00",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpp_m?lang=en&geo=IT&nace_r2=B-E36&unit=I21&s_adj=NSA&indic_bt=PRC_PRR",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_c3685804680d4fbc348f",
+      "name": "Employment domestic concept \u2014 Euro area \u2013 21 countries (from 2026)",
+      "definition_hash": "a96e618fdd0ff1648590b92fde1a69ddff546281e17a06adc51e8dce04ed3d7e",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_pe?lang=en&geo=EA21&na_item=EMP_DC&unit=THS_PER&s_adj=SCA",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_c4ee71c7fea163d535cf",
+      "name": "Government consumption \u2014 Germany",
+      "definition_hash": "8e45c3895a0fc571e0906bb6eac06d83371b35e04207778fb6dd41a6295688f7",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=P3_S13&unit=CLV20_MEUR&s_adj=SCA",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_ca07b2efe38f8c038a13",
+      "name": "Construction production \u2014 Italy",
+      "definition_hash": "0b958ebe9c14ccfbc495b43018415526c39bf9f3fc3b40be018ac701d57a053a",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=IT&nace_r2=F&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_f15d1b83974acfbf7f24",
+      "name": "Industrial production \u2014 France",
+      "definition_hash": "c5b0bb199ec4740cbe4f4f88d24e35cb1bab20b1e01420f7e3ff353eacf9964d",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=FR&nace_r2=B-D&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_f23fa7fb3d15addabf30",
+      "name": "Nominal GDP \u2014 Euro area \u2013 21 countries (from 2026)",
+      "definition_hash": "e8e75c8d91e14ceb7b378e6ad45d124e0a26b91d43843322e6a808fc18903e53",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=B1GQ&unit=CP_MEUR&s_adj=SCA",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "eurostat_f47fdc1895487cdcd7ef",
+      "name": "Industrial production \u2014 Italy",
+      "definition_hash": "addadc424fa85c7504067a3f735ee35f9b61119d7e69f4fe56bf062ac2262381",
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=IT&nace_r2=B-D&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:eurostat",
+      "rights_review": {
+        "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+        "basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Eurostat",
+        "reviewed_date": "2026-11-02",
+        "scope": "Only DE/FR/IT and exact EA21 macro data; exclude third-country and restricted detailed trade. Source/access date and Eurostat non-responsibility notice retained."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "frb_broad_usd_daily",
+      "name": "US nominal broad trade-weighted dollar index",
+      "definition_hash": "055730e805f3ef65af039b24c47d706c0ba18359d6dc91a0de05f08c84c4db7b",
+      "source_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H10&filetype=zip",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:federal_reserve",
+      "rights_review": {
+        "url": "https://www.federalreserve.gov/disclaimer.htm",
+        "basis": "Selected own Federal Reserve H15/H6/H41/G17 statistical series, federal works; not third-party licensed instruments; preserve stated units, adjustment and release definitions",
+        "reviewed_date": "2026-11-02"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "frb_real_yield_10y_daily",
+      "name": "US 10-year Treasury real constant-maturity yield",
+      "definition_hash": "c52a52cdd8e892f4f03612919dc65d53d23709bc0151fb766e050e27cfdf1855",
+      "source_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:federal_reserve",
+      "rights_review": {
+        "url": "https://www.federalreserve.gov/disclaimer.htm",
+        "basis": "Selected own Federal Reserve H15/H6/H41/G17 statistical series, federal works; not third-party licensed instruments; preserve stated units, adjustment and release definitions",
+        "reviewed_date": "2026-11-02"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "frb_real_yield_5y_daily",
+      "name": "US 5-year Treasury real constant-maturity yield",
+      "definition_hash": "a6ac9f98ce59ec46fa7bf3dcffa0d984f1ff8c1b8b78a618e6e682938c33b263",
+      "source_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:federal_reserve",
+      "rights_review": {
+        "url": "https://www.federalreserve.gov/disclaimer.htm",
+        "basis": "Selected own Federal Reserve H15/H6/H41/G17 statistical series, federal works; not third-party licensed instruments; preserve stated units, adjustment and release definitions",
+        "reviewed_date": "2026-11-02"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_0996d769ba6d991fb4b2",
+      "name": "Total Public Construction Spending: Power in the United States",
+      "definition_hash": "be77775ed80f61580e3719df1e726a5b92da48afe84602bacf57eb0e97d75140",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "rights_review": {
+        "url": "https://www.copyright.gov/title17/92chap1.html#105",
+        "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Census Bureau",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original C30 and M3 numerical statistics authored by the federal agency; no third-party materials. 17 USC 105 and Census DS027 provide evidence.",
+        "supplement": "https://www2.census.gov/foia/ds_policies/ds027.pdf"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_1620a0b26fbe7eb42376",
+      "name": "Total Private Construction Spending: Total Construction in the United States",
+      "definition_hash": "41606bdd793009a787df17fb90d6edca289064992fa3c5d1db50e51868a53dc5",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/privsatime.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "rights_review": {
+        "url": "https://www.copyright.gov/title17/92chap1.html#105",
+        "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Census Bureau",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original C30 and M3 numerical statistics authored by the federal agency; no third-party materials. 17 USC 105 and Census DS027 provide evidence.",
+        "supplement": "https://www2.census.gov/foia/ds_policies/ds027.pdf"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_323f37502180ce7bd485",
+      "name": "Manufacturers' New Orders: Nondefense Capital Goods Excluding Aircraft",
+      "definition_hash": "7879a6b6b40087e3e6cfaa810a589bd3767336b4b3f469dc6aae64b350493611",
+      "source_url": "https://www.census.gov/manufacturing/m3/prel/historical_data/histshts/naics/naicsnop.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "rights_review": {
+        "url": "https://www.copyright.gov/title17/92chap1.html#105",
+        "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Census Bureau",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original C30 and M3 numerical statistics authored by the federal agency; no third-party materials. 17 USC 105 and Census DS027 provide evidence.",
+        "supplement": "https://www2.census.gov/foia/ds_policies/ds027.pdf"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_4debaf340f08cd006d1c",
+      "name": "Personal Consumption Expenditures",
+      "definition_hash": "0f3fe4b496056f6b223b784ef60518b7d24e9dcf6842e54f83ac61bbf5785ff6",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section2All_xls.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:bea",
+      "rights_review": {
+        "url": "https://www.bea.gov/help/faq/147",
+        "basis": "Original BEA NIPA tables, public domain; no third-party content selected; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Bureau of Economic Analysis",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own NIPA current/chain-linked national accounts, not third-party materials"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_50ca9db8f07142c7c5ef",
+      "name": "Government Consumption Expenditures and Gross Investment",
+      "definition_hash": "0c3933dfd5dff331f7dacfec4390a6a58dbe1c184990ed1fb5e1ce65844e194a",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:bea",
+      "rights_review": {
+        "url": "https://www.bea.gov/help/faq/147",
+        "basis": "Original BEA NIPA tables, public domain; no third-party content selected; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Bureau of Economic Analysis",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own NIPA current/chain-linked national accounts, not third-party materials"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_56c8c0f79eb999f4cbbb",
+      "name": "Total Public Construction Spending: Total Construction in the United States",
+      "definition_hash": "3d0756a29ea757a1a0de0be511c525917b38c04f46c37992a4c83ec783390bf6",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "rights_review": {
+        "url": "https://www.copyright.gov/title17/92chap1.html#105",
+        "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Census Bureau",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original C30 and M3 numerical statistics authored by the federal agency; no third-party materials. 17 USC 105 and Census DS027 provide evidence.",
+        "supplement": "https://www2.census.gov/foia/ds_policies/ds027.pdf"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_73f5b5c1a9e4f7bff5b6",
+      "name": "Real Exports of Goods and Services",
+      "definition_hash": "15f1c22f028d6aa4f15e858cf49f0b096b9d9f2033b4c395124a31551f731760",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:bea",
+      "rights_review": {
+        "url": "https://www.bea.gov/help/faq/147",
+        "basis": "Original BEA NIPA tables, public domain; no third-party content selected; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Bureau of Economic Analysis",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own NIPA current/chain-linked national accounts, not third-party materials"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_792eaccdffccf3325380",
+      "name": "Total Construction Spending: Residential in the United States",
+      "definition_hash": "7b798c52fb2e89a5917578f2b16b74c0fe9feec51c0c8a2751a1872184076a77",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/totsatime.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "rights_review": {
+        "url": "https://www.copyright.gov/title17/92chap1.html#105",
+        "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Census Bureau",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original C30 and M3 numerical statistics authored by the federal agency; no third-party materials. 17 USC 105 and Census DS027 provide evidence.",
+        "supplement": "https://www2.census.gov/foia/ds_policies/ds027.pdf"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_848fe5e65c6c554669f1",
+      "name": "Capacity Utilization: Total Index",
+      "definition_hash": "94d36eda8e4e38d3e2e61e3a885274e55d69425e647dcd8b3e7d1c94a30d649d",
+      "source_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=G17&filetype=zip",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:federal_reserve",
+      "rights_review": {
+        "url": "https://www.federalreserve.gov/disclaimer.htm",
+        "basis": "Selected own Federal Reserve H15/H6/H41/G17 statistical series, federal works; not third-party licensed instruments; preserve stated units, adjustment and release definitions",
+        "reviewed_date": "2026-11-02"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_925891ea36ab7371b4f0",
+      "name": "New One Family Houses Sold: United States",
+      "definition_hash": "8cb8714bb39fe986d00cc41b967a63d6504eccd94b3ffd9f2f2146bade44de13",
+      "source_url": "https://www.census.gov/construction/nrs/xls/sold_cust.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "rights_review": {
+        "url": "https://www.copyright.gov/title17/92chap1.html#105",
+        "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Census Bureau",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original C30 and M3 numerical statistics authored by the federal agency; no third-party materials. 17 USC 105 and Census DS027 provide evidence.",
+        "supplement": "https://www2.census.gov/foia/ds_policies/ds027.pdf"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_affeb2eb840ba19b589f",
+      "name": "Total Private Construction Spending: Residential in the United States",
+      "definition_hash": "6b6f50727fd0567a69307173551e83b6222e69da571205e550bcfed4c162b21e",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/privsatime.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "rights_review": {
+        "url": "https://www.copyright.gov/title17/92chap1.html#105",
+        "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Census Bureau",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original C30 and M3 numerical statistics authored by the federal agency; no third-party materials. 17 USC 105 and Census DS027 provide evidence.",
+        "supplement": "https://www2.census.gov/foia/ds_policies/ds027.pdf"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_b0bbd188e79316b7fe9c",
+      "name": "Gross Domestic Product",
+      "definition_hash": "7173acd98f03a7a36315e7ca04379c358ec7fe605dd4e3875630e20d51bbe1a2",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:bea",
+      "rights_review": {
+        "url": "https://www.bea.gov/help/faq/147",
+        "basis": "Original BEA NIPA tables, public domain; no third-party content selected; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Bureau of Economic Analysis",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own NIPA current/chain-linked national accounts, not third-party materials"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_b608c6c5b9dad340617d",
+      "name": "New Privately-Owned Housing Units Started: Single-Family Units",
+      "definition_hash": "b29b5d7bb7fd77365b74b5c798864f0518da89d5acf2f5441d7fb35845c41fc8",
+      "source_url": "https://www.census.gov/construction/nrc/xls/starts_cust.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "rights_review": {
+        "url": "https://www.copyright.gov/title17/92chap1.html#105",
+        "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Census Bureau",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original C30 and M3 numerical statistics authored by the federal agency; no third-party materials. 17 USC 105 and Census DS027 provide evidence.",
+        "supplement": "https://www2.census.gov/foia/ds_policies/ds027.pdf"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_b7b05b9474e87c2c4391",
+      "name": "Assets: Total Assets: Total Assets (Less Eliminations from Consolidation): Wednesday Level",
+      "definition_hash": "c86287a28cdd9fab26f498bc2786a8d6f6933f2907ded32139ea23bfa5296a8d",
+      "source_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H41&filetype=zip",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:federal_reserve",
+      "rights_review": {
+        "url": "https://www.federalreserve.gov/disclaimer.htm",
+        "basis": "Selected own Federal Reserve H15/H6/H41/G17 statistical series, federal works; not third-party licensed instruments; preserve stated units, adjustment and release definitions",
+        "reviewed_date": "2026-11-02"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_be9962a875a7440f41cc",
+      "name": "Real imports of goods and services",
+      "definition_hash": "93c15c47189ee0ce8d9c93540bf15c30f85fa4a41502ad61e0ad4319ecd3951d",
+      "source_url": "https://apps.bea.gov/national/Release/XLS/Survey/Section1All_xls.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:bea",
+      "rights_review": {
+        "url": "https://www.bea.gov/help/faq/147",
+        "basis": "Original BEA NIPA tables, public domain; no third-party content selected; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Bureau of Economic Analysis",
+        "reviewed_date": "2026-11-02",
+        "scope": "Own NIPA current/chain-linked national accounts, not third-party materials"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_cc3466cd68878ef9a36f",
+      "name": "M2",
+      "definition_hash": "7ff1b04a079066423466aef43b3a2d340ac5e8fd8e33b4c4fcac5e9fc05fc12c",
+      "source_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H6&filetype=zip",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:federal_reserve",
+      "rights_review": {
+        "url": "https://www.federalreserve.gov/disclaimer.htm",
+        "basis": "Selected own Federal Reserve H15/H6/H41/G17 statistical series, federal works; not third-party licensed instruments; preserve stated units, adjustment and release definitions",
+        "reviewed_date": "2026-11-02"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_cfc0d3a8fc7e9df5bf55",
+      "name": "Total Public Construction Spending: Transportation in the United States",
+      "definition_hash": "f21fc0810d7c6b02e99615e8a70032f5fb61af3c1a16faf4a7115e8b6cc7b07a",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/pubsatime.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "rights_review": {
+        "url": "https://www.copyright.gov/title17/92chap1.html#105",
+        "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Census Bureau",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original C30 and M3 numerical statistics authored by the federal agency; no third-party materials. 17 USC 105 and Census DS027 provide evidence.",
+        "supplement": "https://www2.census.gov/foia/ds_policies/ds027.pdf"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_d6d19d1e7731f8d561c7",
+      "name": "Total Construction Spending: Nonresidential in the United States",
+      "definition_hash": "410302df8344acc4782097049ca67dbe358fac085491eb1967ea5b2abc13f390",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/totsatime.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "rights_review": {
+        "url": "https://www.copyright.gov/title17/92chap1.html#105",
+        "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Census Bureau",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original C30 and M3 numerical statistics authored by the federal agency; no third-party materials. 17 USC 105 and Census DS027 provide evidence.",
+        "supplement": "https://www2.census.gov/foia/ds_policies/ds027.pdf"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_eb08a1d6ec48181335d9",
+      "name": "Market Yield on U.S. Treasury Securities at 30-Year Constant Maturity, Quoted on an Investment Basis",
+      "definition_hash": "599b644387a074450b46b977fd6d59d6f63d12d17c9264652d6220892b985676",
+      "source_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:federal_reserve",
+      "rights_review": {
+        "url": "https://www.federalreserve.gov/disclaimer.htm",
+        "basis": "Selected own Federal Reserve H15/H6/H41/G17 statistical series, federal works; not third-party licensed instruments; preserve stated units, adjustment and release definitions",
+        "reviewed_date": "2026-11-02"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_ee6f78fdeffb513d53d4",
+      "name": "Total Private Construction Spending: Nonresidential in the United States",
+      "definition_hash": "d762c77aedefe00f5b69806320e954ea381947721bddcdb7de4042c40ead8b13",
+      "source_url": "https://www.census.gov/construction/c30/xlsx/privsatime.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:census",
+      "rights_review": {
+        "url": "https://www.copyright.gov/title17/92chap1.html#105",
+        "basis": "Original Census C30, Survey of Construction and M3 statistical tables are federal works; not a licence inference from mere API availability; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "US Census Bureau",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original C30 and M3 numerical statistics authored by the federal agency; no third-party materials. 17 USC 105 and Census DS027 provide evidence.",
+        "supplement": "https://www2.census.gov/foia/ds_policies/ds027.pdf"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_eebc9f99bdbab57ba333",
+      "name": "Reserves of Depository Institutions: Total",
+      "definition_hash": "46014a15d9b0a8c5242e7250a381d6430757fed46b431571c53d04f29d9cdd1d",
+      "source_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H6&filetype=zip",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:federal_reserve",
+      "rights_review": {
+        "url": "https://www.federalreserve.gov/disclaimer.htm",
+        "basis": "Selected own Federal Reserve H15/H6/H41/G17 statistical series, federal works; not third-party licensed instruments; preserve stated units, adjustment and release definitions",
+        "reviewed_date": "2026-11-02"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_f32c3279ee1106c518f9",
+      "name": "Industrial Production: Manufacturing (NAICS)",
+      "definition_hash": "4eeb4761bf48bd88198f9d6e5f701d00710cba9882d301062b24d0aac52c2846",
+      "source_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=G17&filetype=zip",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:federal_reserve",
+      "rights_review": {
+        "url": "https://www.federalreserve.gov/disclaimer.htm",
+        "basis": "Selected own Federal Reserve H15/H6/H41/G17 statistical series, federal works; not third-party licensed instruments; preserve stated units, adjustment and release definitions",
+        "reviewed_date": "2026-11-02"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "fred_fb83bc372b6c55d48647",
+      "name": "Market Yield on U.S. Treasury Securities at 2-Year Constant Maturity, Quoted on an Investment Basis",
+      "definition_hash": "e6f2677f85b6ec8fcb6820d5e265a12ca4cab0164eab2cde0c4c8f88f4dd8f58",
+      "source_url": "https://www.federalreserve.gov/datadownload/Output.aspx?rel=H15&filetype=zip",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:federal_reserve",
+      "rights_review": {
+        "url": "https://www.federalreserve.gov/disclaimer.htm",
+        "basis": "Selected own Federal Reserve H15/H6/H41/G17 statistical series, federal works; not third-party licensed instruments; preserve stated units, adjustment and release definitions",
+        "reviewed_date": "2026-11-02"
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_1d4b23dfc0948db64249",
+      "name": "CPI MONTHLY RATE 00: ALL ITEMS 2015=100",
+      "definition_hash": "f9a5117c03839936c6fce6efaa5c4b859869085db5168e2c9a65d1b0a68e0df3",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7oe/mm23/data",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_24c4972dca3a5b1bbe32",
+      "name": "CPI INDEX 00: ALL ITEMS 2015=100",
+      "definition_hash": "21c4516f15660567b87318272248fa3aff18332781f25c35ec040e3310eae5fc",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7bt/mm23/data",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_53705523c8fb7b06619e",
+      "name": "Public other new work construction output",
+      "definition_hash": "e487d98ec8b7f8bc89ed7e1e1a69e240300260f4d9f5fe5b3f9649acbcc27136",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_5a00d3ab026be6d9800b",
+      "name": "Private new housing construction output",
+      "definition_hash": "6d31bb3733b4eefde575a981a698d280cf5f2b00247ba950a367e1eb743ed2c4",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_6421faae8e3d13384c87",
+      "name": "Gross Domestic Product at market prices: Current price: Seasonally adjusted \u00a3m",
+      "definition_hash": "097380852a7a213aed175bb37d34465d6dd4779e2ffeb335f6a8df5508ab4eba",
+      "source_url": "https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ybha/qna/data",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_6594cff336dfb6dc2a3e",
+      "name": "All new construction work construction output",
+      "definition_hash": "2862ec29cff888b6950b6fddfab641599d1c3bd6371fcb570067ff6fcc648a7e",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_7009dd3952dd505a3864",
+      "name": "RPI All Items: Percentage change over 12 months: Jan 1987=100",
+      "definition_hash": "7699a842ece12e32cb7a9e63b8dddbbd136a05a7f8453d823817562c1245c90e",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/czbh/mm23/data",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_78e848998a32855f9a88",
+      "name": "AWE: Whole Economy Level (\u00a3): Seasonally Adjusted Total Pay Excluding Arrears",
+      "definition_hash": "b2fc851876177c938cb855e2725b5bce0057acf512c60621a8a747b5660812d9",
+      "source_url": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kab9/lms/data",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_819ec3316056961f5859",
+      "name": "CPIH INDEX 00: ALL ITEMS 2015=100",
+      "definition_hash": "50521d18020e8fddb5ed67d7bc975f0a16585b28853e490360e485fb499eb223",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/l522/mm23/data",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_8fee3c0605a186d69802",
+      "name": "Internet sales as a percentage of total retail sales (ratio) (%)",
+      "definition_hash": "40bbafa18449670f3d7389edf00a1c9dd9a8d40802b718a7435147bfbe94af9f",
+      "source_url": "https://www.ons.gov.uk/businessindustryandtrade/retailindustry/timeseries/j4mc/drsi/data",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_a2f555205f0a79658136",
+      "name": "Public new housing construction output",
+      "definition_hash": "7b0a0df2fb44c7f1ff04d57424fa303cdae4c317069bce945d5d9e56aa5fce96",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_e6035bf2acb76d69e995",
+      "name": "RPI All Items Index: Jan 1987=100",
+      "definition_hash": "54491d2854aa80639a8337d2f2f08bf2d071c49b7a228d7b2b7366abaececeed",
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/chaw/mm23/data",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    },
+    {
+      "id": "ons_f6dae99116eb8476bd7b",
+      "name": "Private industrial new work construction output",
+      "definition_hash": "bf161b6345f0b9606fd1d4f1c725b799f101b3bbaeac3cff0921dbb38098bd26",
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "rights_evidence": "EXPANSION_REVIEW_2026_10_30:ons",
+      "rights_review": {
+        "url": "https://www.ons.gov.uk/help/terms-conditions",
+        "basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material; only the exact own-source selections in this plan; no blanket third-party approval",
+        "attribution": "Office for National Statistics, Crown copyright, OGL v3",
+        "reviewed_date": "2026-11-02",
+        "scope": "Original ONS CDID statistics and own construction workbook columns under OGL v3; no licensed images or third-party content."
+      },
+      "publication_approved": true,
+      "ai_allowed": false,
+      "discovery_allowed": false
+    }
+  ],
+  "activation": "Explicit operator approval only; no automatic publication from availability"
+}

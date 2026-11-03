@@ -24,7 +24,7 @@ from scripts.linux_cgroup import snapshot
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--datasets", type=int, choices=(20, 50, 70, 100, 150), required=True
+        "--datasets", type=int, choices=(20, 50, 70, 100, 150, 164), required=True
     )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -65,7 +65,7 @@ def run(root, count, output):
         ).read_text()
     )["ids"]
     selected = live + [
-        r["id"] for r in rows if r["automation_ready"] and r["id"] not in live
+        r["id"] for r in rows if r["ingest_approved"] and r["id"] not in live
     ]
     selected = selected[:count]
     profiles = {
@@ -234,6 +234,19 @@ def run(root, count, output):
     import backend.app.ingestion.catalog_refresh as refresh_module
 
     refresh_module.parse_ons_construction = parse
+    import backend.app.ingestion.release_discovery as discovery_module
+
+    discovery_module.discover = lambda entry, **kw: (
+        entry["source"]["endpoint"],
+        {"synthetic_discovery_fixture": True},
+    )
+    # Only the offline transport fixture is injected; real-provider quota/source
+    # validation runs independently in the official-source job.
+    import backend.app.ingestion.provider_requests as provider_requests
+
+    provider_requests.bls_group = lambda *a, **kw: fetch(
+        "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+    )
     engine = CatalogRefresh(store, config=config, fetch=fetch)
     v.catalog_refresh_worker.engine = engine
     v.refresh_scheduler.interval = (
