@@ -1,0 +1,750 @@
+{
+  "release": "first-live-13",
+  "production_approved": false,
+  "public_display_default": false,
+  "ai_allowed": false,
+  "discovery_allowed": false,
+  "reviewed_parent": "002bce0e3d60ed7926eebb925df8aaf20c149a3c",
+  "ids": [
+    "eurostat_e4b0591cf148660f3349",
+    "eurostat_eca8a799de8d6687fe33",
+    "eurostat_6e1c74c102959c0ded7b",
+    "eurostat_fcab9c3216a8c2d01fc9",
+    "eurostat_3e9b736c08d1e26f46f5",
+    "eurostat_c94d6677ff350bbc29aa",
+    "ons_27271ab0b950200f5401",
+    "ons_a007e11b21ed0f67ccf1",
+    "ons_24df6f5df34ca52bac40",
+    "ons_f069edbcf1bc4e7ff9c5",
+    "eia_4922b423fe8b2b32866f",
+    "eia_4f9f06aabda8ff167d48",
+    "eia_feda97c6fccc3ab58f53"
+  ],
+  "datasets": [
+    {
+      "id": "eurostat_e4b0591cf148660f3349",
+      "name": "Real GDP — Germany",
+      "region": "Germany",
+      "definition": {
+        "id": "eurostat_e4b0591cf148660f3349",
+        "provider": "eurostat",
+        "selector": "namq_10_gdp | Q.CLV20_MEUR.SCA.B1GQ.DE",
+        "units": "Chain linked volumes (2020), million euro",
+        "frequency": "quarterly",
+        "adjustment": "Seasonally and calendar adjusted data",
+        "calendar": {
+          "id": "eurostat_quarterly",
+          "timezone": "UTC",
+          "week_ending": null,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [
+          [
+            "freq",
+            "Q"
+          ],
+          [
+            "geo",
+            "DE"
+          ],
+          [
+            "na_item",
+            "B1GQ"
+          ],
+          [
+            "s_adj",
+            "SCA"
+          ],
+          [
+            "unit",
+            "CLV20_MEUR"
+          ]
+        ],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=DE&na_item=B1GQ&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "verified_history": {
+        "rows": 195,
+        "nonnull": 143,
+        "first_nonnull": "1991-Q1",
+        "last_nonnull": "2026-Q3",
+        "snapshot_sha256": "91fcbb4624da3127a055afd3ea1cad484dd1c5dec30e489cc981ef0d270f05b3"
+      }
+    },
+    {
+      "id": "eurostat_eca8a799de8d6687fe33",
+      "name": "Real GDP — France",
+      "region": "France",
+      "definition": {
+        "id": "eurostat_eca8a799de8d6687fe33",
+        "provider": "eurostat",
+        "selector": "namq_10_gdp | Q.CLV20_MEUR.SCA.B1GQ.FR",
+        "units": "Chain linked volumes (2020), million euro",
+        "frequency": "quarterly",
+        "adjustment": "Seasonally and calendar adjusted data",
+        "calendar": {
+          "id": "eurostat_quarterly",
+          "timezone": "UTC",
+          "week_ending": null,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [
+          [
+            "freq",
+            "Q"
+          ],
+          [
+            "geo",
+            "FR"
+          ],
+          [
+            "na_item",
+            "B1GQ"
+          ],
+          [
+            "s_adj",
+            "SCA"
+          ],
+          [
+            "unit",
+            "CLV20_MEUR"
+          ]
+        ],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=FR&na_item=B1GQ&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "verified_history": {
+        "rows": 195,
+        "nonnull": 187,
+        "first_nonnull": "1980-Q1",
+        "last_nonnull": "2026-Q3",
+        "snapshot_sha256": "d07b10e4a3835daabcd5a5f5b7afa1f7bdba9db76d0667d24cbba373e8c98efd"
+      }
+    },
+    {
+      "id": "eurostat_6e1c74c102959c0ded7b",
+      "name": "Real GDP — Italy",
+      "region": "Italy",
+      "definition": {
+        "id": "eurostat_6e1c74c102959c0ded7b",
+        "provider": "eurostat",
+        "selector": "namq_10_gdp | Q.CLV20_MEUR.SCA.B1GQ.IT",
+        "units": "Chain linked volumes (2020), million euro",
+        "frequency": "quarterly",
+        "adjustment": "Seasonally and calendar adjusted data",
+        "calendar": {
+          "id": "eurostat_quarterly",
+          "timezone": "UTC",
+          "week_ending": null,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [
+          [
+            "freq",
+            "Q"
+          ],
+          [
+            "geo",
+            "IT"
+          ],
+          [
+            "na_item",
+            "B1GQ"
+          ],
+          [
+            "s_adj",
+            "SCA"
+          ],
+          [
+            "unit",
+            "CLV20_MEUR"
+          ]
+        ],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=IT&na_item=B1GQ&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "verified_history": {
+        "rows": 195,
+        "nonnull": 123,
+        "first_nonnull": "1996-Q1",
+        "last_nonnull": "2026-Q3",
+        "snapshot_sha256": "a4297ef7a67b03d9d426b0d5a74ac5429f597eda6298a51f414b6b2db971069b"
+      }
+    },
+    {
+      "id": "eurostat_fcab9c3216a8c2d01fc9",
+      "name": "Real GDP — Euro area – 21 countries (from 2026)",
+      "region": "Euro area – 21 countries (from 2026)",
+      "definition": {
+        "id": "eurostat_fcab9c3216a8c2d01fc9",
+        "provider": "eurostat",
+        "selector": "namq_10_gdp | Q.CLV20_MEUR.SCA.B1GQ.EA21",
+        "units": "Chain linked volumes (2020), million euro",
+        "frequency": "quarterly",
+        "adjustment": "Seasonally and calendar adjusted data",
+        "calendar": {
+          "id": "eurostat_quarterly",
+          "timezone": "UTC",
+          "week_ending": null,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [
+          [
+            "freq",
+            "Q"
+          ],
+          [
+            "geo",
+            "EA21"
+          ],
+          [
+            "na_item",
+            "B1GQ"
+          ],
+          [
+            "s_adj",
+            "SCA"
+          ],
+          [
+            "unit",
+            "CLV20_MEUR"
+          ]
+        ],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/namq_10_gdp?lang=en&geo=EA21&na_item=B1GQ&unit=CLV20_MEUR&s_adj=SCA",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "verified_history": {
+        "rows": 195,
+        "nonnull": 127,
+        "first_nonnull": "1995-Q1",
+        "last_nonnull": "2026-Q3",
+        "snapshot_sha256": "be4f0ba90cea4d370cb9a1225d7b0ef8a6ebf3eeb614f639b3e7327ee9af7c95"
+      }
+    },
+    {
+      "id": "eurostat_3e9b736c08d1e26f46f5",
+      "name": "Industrial production — Euro area – 21 countries (from 2026)",
+      "region": "Euro area – 21 countries (from 2026)",
+      "definition": {
+        "id": "eurostat_3e9b736c08d1e26f46f5",
+        "provider": "eurostat",
+        "selector": "sts_inpr_m | M.PRD.B-D.SCA.I21.EA21",
+        "units": "Index, 2021=100",
+        "frequency": "monthly",
+        "adjustment": "Seasonally and calendar adjusted data",
+        "calendar": {
+          "id": "eurostat_monthly",
+          "timezone": "UTC",
+          "week_ending": null,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [
+          [
+            "freq",
+            "M"
+          ],
+          [
+            "geo",
+            "EA21"
+          ],
+          [
+            "indic_bt",
+            "PRD"
+          ],
+          [
+            "nace_r2",
+            "B-D"
+          ],
+          [
+            "s_adj",
+            "SCA"
+          ],
+          [
+            "unit",
+            "I21"
+          ]
+        ],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_m?lang=en&geo=EA21&nace_r2=B-D&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "verified_history": {
+        "rows": 885,
+        "nonnull": 428,
+        "first_nonnull": "1991-01",
+        "last_nonnull": "2026-08",
+        "snapshot_sha256": "740b159e7605f14ed3c455f9002d1b47d234f40509b8114759dd804d35b3fde5"
+      }
+    },
+    {
+      "id": "eurostat_c94d6677ff350bbc29aa",
+      "name": "Construction production — Germany",
+      "region": "Germany",
+      "definition": {
+        "id": "eurostat_c94d6677ff350bbc29aa",
+        "provider": "eurostat",
+        "selector": "sts_copr_m | M.PRD.F.SCA.I21.DE",
+        "units": "Index, 2021=100",
+        "frequency": "monthly",
+        "adjustment": "Seasonally and calendar adjusted data",
+        "calendar": {
+          "id": "eurostat_monthly",
+          "timezone": "UTC",
+          "week_ending": null,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [
+          [
+            "freq",
+            "M"
+          ],
+          [
+            "geo",
+            "DE"
+          ],
+          [
+            "indic_bt",
+            "PRD"
+          ],
+          [
+            "nace_r2",
+            "F"
+          ],
+          [
+            "s_adj",
+            "SCA"
+          ],
+          [
+            "unit",
+            "I21"
+          ]
+        ],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?lang=en&geo=DE&nace_r2=F&unit=I21&s_adj=SCA&indic_bt=PRD",
+      "license_url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+      "rights_basis": "EU statistical data reuse; selected EU/euro-area macro tables, not excluded third-country or restricted detailed trade data",
+      "attribution": [
+        "Eurostat; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Geography is the exact selected source composition, not a silently changing aggregate; native adjustment and volume/price definitions are retained.",
+        "Source: Eurostat. Any indexing, growth rates or other transformations shown by MacroLens are MacroLens calculations. Eurostat bears no responsibility for these modifications."
+      ],
+      "verified_history": {
+        "rows": 561,
+        "nonnull": 428,
+        "first_nonnull": "1991-01",
+        "last_nonnull": "2026-08",
+        "snapshot_sha256": "e326f908d11054e0a460c4f4280a6ff146c0e09b6500ca6e453741d55f886e35"
+      }
+    },
+    {
+      "id": "ons_27271ab0b950200f5401",
+      "name": "CPI ANNUAL RATE 00: ALL ITEMS 2015=100",
+      "region": "UK",
+      "definition": {
+        "id": "ons_27271ab0b950200f5401",
+        "provider": "ons",
+        "selector": "D7G7/MM23",
+        "units": "%",
+        "frequency": "monthly",
+        "adjustment": "NSA (consumer price statistics)",
+        "calendar": {
+          "id": "ons_monthly",
+          "timezone": "UTC",
+          "week_ending": null,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/d7g7/mm23/data",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage."
+      ],
+      "verified_history": {
+        "rows": 453,
+        "nonnull": 453,
+        "first_nonnull": "1989-01",
+        "last_nonnull": "2026-09",
+        "snapshot_sha256": "f77dafd9d4b6a196ff67abf14c64cdded5c2930fec1f7fbf1e6e0d353c422da2"
+      }
+    },
+    {
+      "id": "ons_a007e11b21ed0f67ccf1",
+      "name": "Gross Domestic Product: chained volume measures: Seasonally adjusted £m",
+      "region": "UK",
+      "definition": {
+        "id": "ons_a007e11b21ed0f67ccf1",
+        "provider": "ons",
+        "selector": "ABMI/QNA",
+        "units": "£ m",
+        "frequency": "quarterly",
+        "adjustment": "Seasonally adjusted",
+        "calendar": {
+          "id": "ons_quarterly",
+          "timezone": "UTC",
+          "week_ending": null,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/abmi/qna/data",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "ONS September 2026 QNA identifies 2024 as the chained-volume reference year. These are real-volume GBP millions, not current-price pounds. Benchmark changes require renewed review: https://www.ons.gov.uk/economy/grossdomesticproductgdp/bulletins/quarterlynationalaccounts/apriltojune2026"
+      ],
+      "verified_history": {
+        "rows": 286,
+        "nonnull": 286,
+        "first_nonnull": "1955-Q1",
+        "last_nonnull": "2026-Q2",
+        "snapshot_sha256": "4568fdf293454ce9075a57f254311bbbd8c0da5bb1aebc3e6eea6d52116ceef4"
+      }
+    },
+    {
+      "id": "ons_24df6f5df34ca52bac40",
+      "name": "Unemployment rate (aged 16 and over, seasonally adjusted): %",
+      "region": "UK",
+      "definition": {
+        "id": "ons_24df6f5df34ca52bac40",
+        "provider": "ons",
+        "selector": "MGSX/LMS",
+        "units": "%",
+        "frequency": "monthly",
+        "adjustment": "Seasonally adjusted",
+        "calendar": {
+          "id": "ons_monthly",
+          "timezone": "UTC",
+          "week_ending": null,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://www.ons.gov.uk/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms/data",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "LFS rates refer to overlapping three-month periods; monthly labels are not independent monthly surveys. Survey weighting/method changes require care."
+      ],
+      "verified_history": {
+        "rows": 666,
+        "nonnull": 666,
+        "first_nonnull": "1971-02",
+        "last_nonnull": "2026-07",
+        "snapshot_sha256": "b99d13c5e5a2178718a467c55c8ac0c261d25c0c040bf308904e5d8ef22da107"
+      }
+    },
+    {
+      "id": "ons_f069edbcf1bc4e7ff9c5",
+      "name": "All construction work construction output",
+      "region": "UK (Great Britain)",
+      "definition": {
+        "id": "ons_f069edbcf1bc4e7ff9c5",
+        "provider": "ons",
+        "selector": "MV3I | bulletin dataset 2 / Table 1a / column O",
+        "units": "Volume index 2024=100",
+        "frequency": "monthly",
+        "adjustment": "Seasonally adjusted",
+        "calendar": {
+          "id": "ons_monthly",
+          "timezone": "UTC",
+          "week_ending": null,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://www.ons.gov.uk/file?uri=/businessindustryandtrade/constructionindustry/datasets/outputintheconstructionindustry/current/bulletindataset2.xlsx",
+      "license_url": "https://www.ons.gov.uk/help/terms-conditions",
+      "rights_basis": "OGL v3; original ONS statistical tables, no licensed images or other excluded material",
+      "attribution": [
+        "Office for National Statistics, Crown copyright, OGL v3; source snapshot validated 2026-10-31. Source link and licence retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage."
+      ],
+      "verified_history": {
+        "rows": 200,
+        "nonnull": 200,
+        "first_nonnull": "2010-01",
+        "last_nonnull": "2026-08",
+        "snapshot_sha256": "aacf12e9cd329c2bc4d542b57ee386d26122e8c968edf285811525b44b98add0"
+      }
+    },
+    {
+      "id": "eia_4922b423fe8b2b32866f",
+      "name": "US commercial crude stocks excluding SPR",
+      "region": "US",
+      "definition": {
+        "id": "eia_4922b423fe8b2b32866f",
+        "provider": "eia",
+        "selector": "PET.WCESTUS1.W",
+        "units": "Thousand Barrels",
+        "frequency": "weekly",
+        "adjustment": "Not seasonally adjusted",
+        "calendar": {
+          "id": "eia_weekly",
+          "timezone": "UTC",
+          "week_ending": 4,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/WCESTUS1w.xls",
+      "license_url": "https://www.eia.gov/about/copyrights_reuse.php",
+      "rights_basis": "EIA-authored statistics in these identified historical files; no separately protected third-party material selected",
+      "attribution": [
+        "Source: US Energy Information Administration (release 2026-10-28); reference week ended 2026-10-23. Current revised historical series; source and licence links retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Keep price, end-period inventory stocks and production/product-supplied flows separate. Product supplied is an apparent-consumption proxy, not measured final road-material use; spot prices are not futures total returns."
+      ],
+      "publication_evidence": {
+        "date": "2026-10-28",
+        "url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=WCESTUS1&f=W",
+        "reference_week": "2026-10-23"
+      },
+      "verified_history": {
+        "rows": 2300,
+        "nonnull": 2300,
+        "first_nonnull": "1982-08-20",
+        "last_nonnull": "2026-10-23",
+        "snapshot_sha256": "56b01ca419bb2bd5c626ecdefa4ea501581749d3ba367ed5a9844788357c024c"
+      }
+    },
+    {
+      "id": "eia_4f9f06aabda8ff167d48",
+      "name": "US crude oil field production",
+      "region": "US",
+      "definition": {
+        "id": "eia_4f9f06aabda8ff167d48",
+        "provider": "eia",
+        "selector": "PET.WCRFPUS2.W",
+        "units": "Thousand Barrels per Day",
+        "frequency": "weekly",
+        "adjustment": "Not seasonally adjusted",
+        "calendar": {
+          "id": "eia_weekly",
+          "timezone": "UTC",
+          "week_ending": 4,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://www.eia.gov/dnav/pet/hist_xls/WCRFPUS2w.xls",
+      "license_url": "https://www.eia.gov/about/copyrights_reuse.php",
+      "rights_basis": "EIA-authored statistics in these identified historical files; no separately protected third-party material selected",
+      "attribution": [
+        "Source: US Energy Information Administration (release 2026-10-28); reference week ended 2026-10-23. Current revised historical series; source and licence links retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Keep price, end-period inventory stocks and production/product-supplied flows separate. Product supplied is an apparent-consumption proxy, not measured final road-material use; spot prices are not futures total returns."
+      ],
+      "publication_evidence": {
+        "date": "2026-10-28",
+        "url": "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=WCRFPUS2&f=W",
+        "reference_week": "2026-10-23"
+      },
+      "verified_history": {
+        "rows": 2283,
+        "nonnull": 2283,
+        "first_nonnull": "1983-01-07",
+        "last_nonnull": "2026-10-23",
+        "snapshot_sha256": "7e4b842e48198393d7a4dc6822fdc64fbd46e4904b056074b5eb80494c8b9ce2"
+      }
+    },
+    {
+      "id": "eia_feda97c6fccc3ab58f53",
+      "name": "Lower-48 working natural gas storage",
+      "region": "US",
+      "definition": {
+        "id": "eia_feda97c6fccc3ab58f53",
+        "provider": "eia",
+        "selector": "NG.NW2_EPG0_SWO_R48_BCF.W",
+        "units": "Billion Cubic Feet",
+        "frequency": "weekly",
+        "adjustment": "Not seasonally adjusted",
+        "calendar": {
+          "id": "eia_weekly",
+          "timezone": "UTC",
+          "week_ending": 4,
+          "weekly_labels": "end_date",
+          "year_start_month": 1,
+          "year_label": "start",
+          "version": "1",
+          "holidays": [],
+          "releases": [],
+          "evidence": ""
+        },
+        "dimensions": [],
+        "unit_multiplier": 0
+      },
+      "source_url": "https://www.eia.gov/dnav/ng/hist_xls/NW2_EPG0_SWO_R48_BCFw.xls",
+      "license_url": "https://www.eia.gov/about/copyrights_reuse.php",
+      "rights_basis": "EIA-authored statistics in these identified historical files; no separately protected third-party material selected",
+      "attribution": [
+        "Source: US Energy Information Administration (release 2026-10-29); reference week ended 2026-10-23. Current revised historical series; source and licence links retained."
+      ],
+      "limitations": [
+        "Native source observations; no resampling/filling. Current revised history is not a real-time vintage.",
+        "Keep price, end-period inventory stocks and production/product-supplied flows separate. Product supplied is an apparent-consumption proxy, not measured final road-material use; spot prices are not futures total returns."
+      ],
+      "publication_evidence": {
+        "date": "2026-10-29",
+        "url": "https://ir.eia.gov/ngs/ngs.html",
+        "reference_week": "2026-10-23"
+      },
+      "verified_history": {
+        "rows": 878,
+        "nonnull": 878,
+        "first_nonnull": "2010-01-01",
+        "last_nonnull": "2026-10-23",
+        "snapshot_sha256": "89c6fa129bf10e98b9f68a5dfd4e735284995ffe9dcadc774c1c86de8ac0e201"
+      }
+    }
+  ]
+}

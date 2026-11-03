@@ -1,0 +1,166 @@
+{
+  "cpi": {
+    "reference": "2026-09-01",
+    "expected_raw": 336.298,
+    "raw_status": "Verified against distributor",
+    "raw_source_url": "https://fred.stlouisfed.org/series/CPIAUCSL",
+    "expected_headline": 0.6,
+    "headline_decimals": 1,
+    "release_url": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+    "release_date": "2026-10-14",
+    "next_release_date": "2026-11-10",
+    "audit_checked_at": "2026-10-24",
+    "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage."
+  },
+  "core_cpi": {
+    "reference": "2026-09-01",
+    "expected_raw": 338.896,
+    "raw_status": "Verified against distributor",
+    "raw_source_url": "https://fred.stlouisfed.org/series/CPILFESL",
+    "expected_headline": 0.3,
+    "headline_decimals": 1,
+    "release_url": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+    "release_date": "2026-10-14",
+    "next_release_date": "2026-11-10",
+    "audit_checked_at": "2026-10-24",
+    "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage."
+  },
+  "cpi_nsa": {
+    "reference": "2026-09-01",
+    "expected_raw": 336.94,
+    "raw_status": "Verified against primary source",
+    "raw_source_url": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+    "expected_headline": 3.7,
+    "headline_decimals": 1,
+    "release_url": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+    "release_date": "2026-10-14",
+    "next_release_date": "2026-11-10",
+    "audit_checked_at": "2026-10-24",
+    "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage."
+  },
+  "core_cpi_nsa": {
+    "reference": "2026-09-01",
+    "expected_raw": 339.287,
+    "raw_status": "Verified against primary source",
+    "raw_source_url": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+    "expected_headline": 2.6,
+    "headline_decimals": 1,
+    "release_url": "https://www.bls.gov/news.release/archives/cpi_10142026.htm",
+    "release_date": "2026-10-14",
+    "next_release_date": "2026-11-10",
+    "audit_checked_at": "2026-10-24",
+    "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage."
+  },
+  "pce": {
+    "reference": "2026-08-01",
+    "expected_raw": 131.579,
+    "raw_status": "Verified against distributor",
+    "raw_source_url": "https://fred.stlouisfed.org/series/PCEPI",
+    "expected_headline": 3.4,
+    "headline_decimals": 1,
+    "release_url": "https://www.bea.gov/news/2026/personal-income-and-outlays-august-2026",
+    "release_date": "2026-09-30",
+    "next_release_date": "2026-10-29",
+    "audit_checked_at": "2026-10-24",
+    "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage."
+  },
+  "core_pce": {
+    "reference": "2026-08-01",
+    "expected_raw": 130.455,
+    "raw_status": "Verified against distributor",
+    "raw_source_url": "https://fred.stlouisfed.org/series/PCEPILFE",
+    "expected_headline": 3.0,
+    "headline_decimals": 1,
+    "release_url": "https://www.bea.gov/news/2026/personal-income-and-outlays-august-2026",
+    "release_date": "2026-09-30",
+    "next_release_date": "2026-10-29",
+    "audit_checked_at": "2026-10-24",
+    "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage."
+  },
+  "unemployment": {
+    "reference": "2026-09-01",
+    "expected_raw": 4.2,
+    "raw_status": "Verified against primary source",
+    "raw_source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+    "expected_headline": 4.2,
+    "headline_decimals": 1,
+    "release_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+    "release_date": "2026-10-02",
+    "next_release_date": "2026-11-06",
+    "audit_checked_at": "2026-10-24",
+    "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage."
+  },
+  "payrolls": {
+    "reference": "2026-09-01",
+    "expected_raw": 159044,
+    "raw_status": "Verified against primary source",
+    "raw_source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+    "expected_headline": 29000,
+    "headline_decimals": 0,
+    "release_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+    "release_date": "2026-10-02",
+    "next_release_date": "2026-11-06",
+    "audit_checked_at": "2026-10-24",
+    "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage."
+  },
+  "real_gdp_growth": {
+    "reference": "2026-04-01",
+    "expected_raw": 2.2,
+    "raw_status": "Verified against primary source",
+    "raw_source_url": "https://www.bea.gov/data/gdp/gross-domestic-product",
+    "expected_headline": 2.2,
+    "headline_decimals": 1,
+    "release_url": "https://www.bea.gov/data/gdp/gross-domestic-product",
+    "release_date": "2026-09-30",
+    "next_release_date": "2026-10-29",
+    "audit_checked_at": "2026-10-24",
+    "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage."
+  },
+  "fed_funds": {
+    "reference": "2026-09-01",
+    "expected_raw": 3.75,
+    "raw_status": "Verified against distributor",
+    "raw_source_url": "https://fred.stlouisfed.org/series/FEDFUNDS",
+    "expected_headline": null,
+    "headline_decimals": 2,
+    "release_url": null,
+    "release_date": null,
+    "next_release_date": null,
+    "audit_checked_at": "2026-10-24",
+    "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage.",
+    "distributor_updated_at": "2026-10-01T15:16:00-05:00"
+  },
+  "us10y": {
+    "reference": "2026-10-22",
+    "expected_raw": 4.96,
+    "raw_status": "Verified against primary source",
+    "raw_source_url": "https://www.federalreserve.gov/releases/h15/",
+    "expected_headline": 4.96,
+    "headline_decimals": 2,
+    "release_url": "https://www.federalreserve.gov/releases/h15/",
+    "release_date": "2026-10-23",
+    "next_release_date": "2026-10-26",
+    "audit_checked_at": "2026-10-24",
+    "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage."
+  },
+  "gold": {
+    "audit_checked_at": "2026-10-24",
+    "raw_status": "Unverified",
+    "limitation": "Yahoo historical close observed; no matching independently accessible exchange/index close or settlement verified. Instrument definition verification is not price verification."
+  },
+  "wti": {
+    "audit_checked_at": "2026-10-24",
+    "raw_status": "Unverified",
+    "limitation": "Yahoo historical close observed; no matching independently accessible exchange/index close or settlement verified. Instrument definition verification is not price verification."
+  },
+  "sp500": {
+    "audit_checked_at": "2026-10-24",
+    "raw_status": "Unverified",
+    "limitation": "Yahoo identity and returned close inspected; the latest close was not independently verified against a matching exchange/index publication. S&P distributor corroboration only extends through 2026-10-21; it does not verify the latest 2026-10-23 close."
+  },
+  "dxy": {
+    "audit_checked_at": "2026-10-24",
+    "raw_status": "Unverified",
+    "limitation": "Yahoo historical close observed; no matching independently accessible exchange/index close or settlement verified. Instrument definition verification is not price verification."
+  }
+}

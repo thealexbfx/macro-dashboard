@@ -16,3 +16,6 @@ frontend/.next/
 research_outputs/investigations/
 .pytest_cache/
 .ruff_cache/
+
+# Isolated V2 local discovery, source-cache and AI-accounting database.
+backend/.local/

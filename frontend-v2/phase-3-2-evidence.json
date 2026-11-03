@@ -1,0 +1,2102 @@
+{
+  "captured_at_utc": "2026-10-26T01:11:31.753078+00:00",
+  "kind": "Real observations except the explicitly labelled isolated lifecycle/budget fixtures below. No paid AI calls.",
+  "methodology_version": "3.2.2",
+  "calculated_at": "2026-10-26T00:58:34.778100+00:00",
+  "source_times": [
+    {
+      "id": "cpi",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:17.348005+00:00",
+      "published": "2026-10-14",
+      "status": "ok",
+      "checked": "2026-10-26T00:23:16.798492+00:00",
+      "next_check": "2026-10-27T00:23:16.798492+00:00"
+    },
+    {
+      "id": "core_cpi",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:17.328123+00:00",
+      "published": "2026-10-14",
+      "status": "ok",
+      "checked": "2026-10-26T00:23:16.798492+00:00",
+      "next_check": "2026-10-27T00:23:16.798492+00:00"
+    },
+    {
+      "id": "pce",
+      "observed": "2026-08-01",
+      "retrieved": "2026-10-26T00:23:17.281186+00:00",
+      "published": "2026-09-30",
+      "status": "ok",
+      "checked": "2026-10-26T00:23:16.798492+00:00",
+      "next_check": "2026-10-26T12:23:16.798492+00:00"
+    },
+    {
+      "id": "core_pce",
+      "observed": "2026-08-01",
+      "retrieved": "2026-10-26T00:23:17.378332+00:00",
+      "published": "2026-09-30",
+      "status": "ok",
+      "checked": "2026-10-26T00:23:16.798492+00:00",
+      "next_check": "2026-10-26T12:23:16.798492+00:00"
+    },
+    {
+      "id": "unemployment",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:34.670819+00:00",
+      "published": "2026-10-02",
+      "status": "ok",
+      "checked": "2026-10-26T00:23:34.342034+00:00",
+      "next_check": "2026-10-27T00:23:34.342034+00:00"
+    },
+    {
+      "id": "payrolls",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:17.304814+00:00",
+      "published": "2026-10-02",
+      "status": "ok",
+      "checked": "2026-10-26T00:23:16.834195+00:00",
+      "next_check": "2026-10-27T00:23:16.834195+00:00"
+    },
+    {
+      "id": "real_gdp_growth",
+      "observed": "2026-04-01",
+      "retrieved": "2026-10-26T00:23:17.698295+00:00",
+      "published": "2026-09-30",
+      "status": "ok",
+      "checked": "2026-10-26T00:23:17.356706+00:00",
+      "next_check": "2026-10-26T12:23:17.356706+00:00"
+    },
+    {
+      "id": "fed_funds",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:17.698295+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:17.372502+00:00",
+      "next_check": "2026-10-27T00:23:17.372502+00:00"
+    },
+    {
+      "id": "sp500",
+      "observed": "2026-10-23",
+      "retrieved": "2026-10-26T00:23:18.137784+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:17.390716+00:00",
+      "next_check": "2026-10-26T06:23:17.390716+00:00"
+    },
+    {
+      "id": "gold",
+      "observed": "2026-10-23",
+      "retrieved": "2026-10-26T00:23:18.024692+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:17.390716+00:00",
+      "next_check": "2026-10-26T06:23:17.390716+00:00"
+    },
+    {
+      "id": "us10y",
+      "observed": "2026-10-22",
+      "retrieved": "2026-10-26T00:23:18.085835+00:00",
+      "published": "2026-10-23",
+      "status": "ok",
+      "checked": "2026-10-26T00:23:17.441187+00:00",
+      "next_check": "2026-10-26T06:23:17.441187+00:00"
+    },
+    {
+      "id": "dxy",
+      "observed": "2026-10-23",
+      "retrieved": "2026-10-26T00:23:35.217269+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:34.376164+00:00",
+      "next_check": "2026-10-26T06:23:34.376164+00:00"
+    },
+    {
+      "id": "wti",
+      "observed": "2026-10-23",
+      "retrieved": "2026-10-26T00:23:34.957871+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:34.376164+00:00",
+      "next_check": "2026-10-26T06:23:34.376164+00:00"
+    },
+    {
+      "id": "cpi_nsa",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:34.925447+00:00",
+      "published": "2026-10-14",
+      "status": "ok",
+      "checked": "2026-10-26T00:23:34.387181+00:00",
+      "next_check": "2026-10-27T00:23:34.387181+00:00"
+    },
+    {
+      "id": "core_cpi_nsa",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:35.004575+00:00",
+      "published": "2026-10-14",
+      "status": "ok",
+      "checked": "2026-10-26T00:23:34.390293+00:00",
+      "next_check": "2026-10-27T00:23:34.390293+00:00"
+    },
+    {
+      "id": "initial_claims",
+      "observed": "2026-10-17",
+      "retrieved": "2026-10-26T00:23:35.200675+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:34.723758+00:00",
+      "next_check": "2026-10-26T12:23:34.723758+00:00"
+    },
+    {
+      "id": "job_openings",
+      "observed": "2026-08-01",
+      "retrieved": "2026-10-26T00:23:35.540331+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:35.189762+00:00",
+      "next_check": "2026-10-27T00:23:35.189762+00:00"
+    },
+    {
+      "id": "participation",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:35.456488+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:35.191269+00:00",
+      "next_check": "2026-10-27T00:23:35.191269+00:00"
+    },
+    {
+      "id": "hourly_earnings",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:35.512930+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:35.265684+00:00",
+      "next_check": "2026-10-27T00:23:35.265684+00:00"
+    },
+    {
+      "id": "breakeven_5y",
+      "observed": "2026-10-23",
+      "retrieved": "2026-10-26T00:23:35.925913+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:35.290128+00:00",
+      "next_check": "2026-10-26T06:23:35.290128+00:00"
+    },
+    {
+      "id": "retail_sales",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:35.567954+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:35.320693+00:00",
+      "next_check": "2026-10-27T00:23:35.320693+00:00"
+    },
+    {
+      "id": "real_consumption",
+      "observed": "2026-08-01",
+      "retrieved": "2026-10-26T00:23:35.999227+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:35.523163+00:00",
+      "next_check": "2026-10-26T12:23:35.523163+00:00"
+    },
+    {
+      "id": "consumer_sentiment",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:35.820797+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:35.557254+00:00",
+      "next_check": "2026-10-27T00:23:35.557254+00:00"
+    },
+    {
+      "id": "housing_starts",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:35.879543+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:35.576222+00:00",
+      "next_check": "2026-10-26T03:23:35.576222+00:00"
+    },
+    {
+      "id": "building_permits",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:35.900927+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:35.616306+00:00",
+      "next_check": "2026-10-26T03:23:35.616306+00:00"
+    },
+    {
+      "id": "mortgage_30y",
+      "observed": "2026-10-22",
+      "retrieved": "2026-10-26T00:23:36.465558+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:35.958984+00:00",
+      "next_check": "2026-10-26T12:23:35.958984+00:00"
+    },
+    {
+      "id": "industrial_production",
+      "observed": "2026-09-01",
+      "retrieved": "2026-10-26T00:23:36.256840+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:35.963470+00:00",
+      "next_check": "2026-10-27T00:23:35.963470+00:00"
+    },
+    {
+      "id": "yield_curve",
+      "observed": "2026-10-23",
+      "retrieved": "2026-10-26T00:23:36.527531+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:36.001235+00:00",
+      "next_check": "2026-10-26T06:23:36.001235+00:00"
+    },
+    {
+      "id": "high_yield_spread",
+      "observed": "2026-10-22",
+      "retrieved": "2026-10-26T00:23:36.224641+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:36.008690+00:00",
+      "next_check": "2026-10-26T06:23:36.008690+00:00"
+    },
+    {
+      "id": "investment_grade_spread",
+      "observed": "2026-10-22",
+      "retrieved": "2026-10-26T00:23:36.294938+00:00",
+      "published": null,
+      "status": "ok",
+      "checked": "2026-10-26T00:23:36.056571+00:00",
+      "next_check": "2026-10-26T06:23:36.056571+00:00"
+    }
+  ],
+  "current_findings": [
+    {
+      "id": "d00dc2c5d8cb7b167590acaa",
+      "headline": "US 10-year Treasury yield fell 17.00 basis points over one trading session.",
+      "key_number": "-17.00 basis points",
+      "horizon": "one trading session",
+      "observation_date": "2026-10-22",
+      "lifecycle": {
+        "status": "Updated",
+        "first_detected": "2026-10-26T00:23:40.899412+00:00",
+        "last_meaningful_update": "2026-10-26T00:58:34.778100+00:00",
+        "last_seen_qualifying": "2026-10-26T00:58:34.778100+00:00",
+        "qualifies_now": true,
+        "what_changed": "The documented discovery methodology changed",
+        "related_discoveries": []
+      },
+      "suggestions": [
+        {
+          "label": "How did S&P 500 move alongside US 10-year Treasury yield?",
+          "configuration": {
+            "alignment": "native",
+            "datasets": [
+              "us10y",
+              "sp500"
+            ],
+            "end": "2026-10-22",
+            "horizons": {
+              "us10y": 1,
+              "sp500": 1
+            },
+            "observation_basis": "trading_sessions",
+            "rolling_window": 60,
+            "start": "2026-07-30",
+            "timeframe": "Custom",
+            "transformations": {
+              "us10y": "pp",
+              "sp500": "percent"
+            },
+            "workspace": {
+              "axes": "shared",
+              "axis_assignment": {},
+              "chart_type": "line",
+              "hidden": [],
+              "layout": "stacked",
+              "lead_lag": {
+                "dataset_id": "",
+                "periods": 0,
+                "unit": "calendar_days"
+              },
+              "mode": "separate",
+              "recession": false
+            }
+          }
+        },
+        {
+          "label": "How did Gold futures move alongside US 10-year Treasury yield?",
+          "configuration": {
+            "alignment": "native",
+            "datasets": [
+              "us10y",
+              "gold"
+            ],
+            "end": "2026-10-22",
+            "horizons": {
+              "us10y": 1,
+              "gold": 1
+            },
+            "observation_basis": "trading_sessions",
+            "rolling_window": 60,
+            "start": "2026-07-30",
+            "timeframe": "Custom",
+            "transformations": {
+              "us10y": "pp",
+              "gold": "percent"
+            },
+            "workspace": {
+              "axes": "shared",
+              "axis_assignment": {},
+              "chart_type": "line",
+              "hidden": [],
+              "layout": "stacked",
+              "lead_lag": {
+                "dataset_id": "",
+                "periods": 0,
+                "unit": "calendar_days"
+              },
+              "mode": "separate",
+              "recession": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ceda4ccc662063020ee83e96",
+      "headline": "The link between Labour participation and US unemployment has shifted.",
+      "key_number": "A weaker link",
+      "horizon": "Recent comparison window",
+      "observation_date": "2026-09-01",
+      "lifecycle": {
+        "status": "Updated",
+        "first_detected": "2026-10-26T00:40:21.136184+00:00",
+        "last_meaningful_update": "2026-10-26T00:58:34.778100+00:00",
+        "last_seen_qualifying": "2026-10-26T00:58:34.778100+00:00",
+        "qualifies_now": true,
+        "what_changed": "The documented discovery methodology changed",
+        "related_discoveries": [
+          "f4518b142b8e5f6d327e1fb7"
+        ]
+      },
+      "suggestions": [
+        {
+          "label": "How did US unemployment move alongside Labour participation?",
+          "configuration": {
+            "alignment": "native",
+            "datasets": [
+              "participation",
+              "unemployment"
+            ],
+            "end": "2026-09-01",
+            "horizons": {
+              "participation": 1,
+              "unemployment": 1
+            },
+            "observation_basis": "native",
+            "rolling_window": 24,
+            "start": "2024-10-01",
+            "timeframe": "Custom",
+            "transformations": {
+              "participation": "pp",
+              "unemployment": "pp"
+            },
+            "workspace": {
+              "axes": "shared",
+              "axis_assignment": {},
+              "chart_type": "line",
+              "hidden": [],
+              "layout": "stacked",
+              "lead_lag": {
+                "dataset_id": "",
+                "periods": 0,
+                "unit": "months"
+              },
+              "mode": "separate",
+              "recession": false
+            }
+          }
+        },
+        {
+          "label": "How did US payroll employment move alongside Labour participation?",
+          "configuration": {
+            "alignment": "native",
+            "datasets": [
+              "participation",
+              "payrolls"
+            ],
+            "end": "2026-09-01",
+            "horizons": {
+              "participation": 1,
+              "payrolls": 1
+            },
+            "observation_basis": "native",
+            "rolling_window": 24,
+            "start": "2024-10-01",
+            "timeframe": "Custom",
+            "transformations": {
+              "participation": "pp",
+              "payrolls": "jobs"
+            },
+            "workspace": {
+              "axes": "shared",
+              "axis_assignment": {},
+              "chart_type": "line",
+              "hidden": [],
+              "layout": "stacked",
+              "lead_lag": {
+                "dataset_id": "",
+                "periods": 0,
+                "unit": "months"
+              },
+              "mode": "separate",
+              "recession": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "f4518b142b8e5f6d327e1fb7",
+      "headline": "The link between US unemployment and US payroll employment has shifted.",
+      "key_number": "A weaker link",
+      "horizon": "Recent comparison window",
+      "observation_date": "2026-09-01",
+      "lifecycle": {
+        "status": "Updated",
+        "first_detected": "2026-10-26T00:40:21.136184+00:00",
+        "last_meaningful_update": "2026-10-26T00:58:34.778100+00:00",
+        "last_seen_qualifying": "2026-10-26T00:58:34.778100+00:00",
+        "qualifies_now": true,
+        "what_changed": "The documented discovery methodology changed",
+        "related_discoveries": [
+          "7a4e2bc16015a6c8b685c237",
+          "ceda4ccc662063020ee83e96"
+        ]
+      },
+      "suggestions": [
+        {
+          "label": "How did US payroll employment move alongside US unemployment?",
+          "configuration": {
+            "alignment": "native",
+            "datasets": [
+              "unemployment",
+              "payrolls"
+            ],
+            "end": "2026-09-01",
+            "horizons": {
+              "unemployment": 1,
+              "payrolls": 1
+            },
+            "observation_basis": "native",
+            "rolling_window": 24,
+            "start": "2024-10-01",
+            "timeframe": "Custom",
+            "transformations": {
+              "unemployment": "pp",
+              "payrolls": "jobs"
+            },
+            "workspace": {
+              "axes": "shared",
+              "axis_assignment": {},
+              "chart_type": "line",
+              "hidden": [],
+              "layout": "stacked",
+              "lead_lag": {
+                "dataset_id": "",
+                "periods": 0,
+                "unit": "months"
+              },
+              "mode": "separate",
+              "recession": false
+            }
+          }
+        },
+        {
+          "label": "How did Labour participation move alongside US unemployment?",
+          "configuration": {
+            "alignment": "native",
+            "datasets": [
+              "unemployment",
+              "participation"
+            ],
+            "end": "2026-09-01",
+            "horizons": {
+              "unemployment": 1,
+              "participation": 1
+            },
+            "observation_basis": "native",
+            "rolling_window": 24,
+            "start": "2024-10-01",
+            "timeframe": "Custom",
+            "transformations": {
+              "unemployment": "pp",
+              "participation": "pp"
+            },
+            "workspace": {
+              "axes": "shared",
+              "axis_assignment": {},
+              "chart_type": "line",
+              "hidden": [],
+              "layout": "stacked",
+              "lead_lag": {
+                "dataset_id": "",
+                "periods": 0,
+                "unit": "months"
+              },
+              "mode": "separate",
+              "recession": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "7a4e2bc16015a6c8b685c237",
+      "headline": "The link between Industrial output and US payroll employment has shifted.",
+      "key_number": "A weaker link",
+      "horizon": "Recent comparison window",
+      "observation_date": "2026-09-01",
+      "lifecycle": {
+        "status": "Updated",
+        "first_detected": "2026-10-26T00:40:21.136184+00:00",
+        "last_meaningful_update": "2026-10-26T00:58:34.778100+00:00",
+        "last_seen_qualifying": "2026-10-26T00:58:34.778100+00:00",
+        "qualifies_now": true,
+        "what_changed": "The documented discovery methodology changed",
+        "related_discoveries": [
+          "f4518b142b8e5f6d327e1fb7"
+        ]
+      },
+      "suggestions": [
+        {
+          "label": "How did US payroll employment move alongside Industrial output?",
+          "configuration": {
+            "alignment": "native",
+            "datasets": [
+              "industrial_production",
+              "payrolls"
+            ],
+            "end": "2026-09-01",
+            "horizons": {
+              "industrial_production": 1,
+              "payrolls": 1
+            },
+            "observation_basis": "native",
+            "rolling_window": 24,
+            "start": "2024-10-01",
+            "timeframe": "Custom",
+            "transformations": {
+              "industrial_production": "mom",
+              "payrolls": "jobs"
+            },
+            "workspace": {
+              "axes": "shared",
+              "axis_assignment": {},
+              "chart_type": "line",
+              "hidden": [],
+              "layout": "stacked",
+              "lead_lag": {
+                "dataset_id": "",
+                "periods": 0,
+                "unit": "months"
+              },
+              "mode": "separate",
+              "recession": false
+            }
+          }
+        },
+        {
+          "label": "How did Housing starts move alongside Industrial output?",
+          "configuration": {
+            "alignment": "native",
+            "datasets": [
+              "industrial_production",
+              "housing_starts"
+            ],
+            "end": "2026-09-01",
+            "horizons": {
+              "industrial_production": 1,
+              "housing_starts": 1
+            },
+            "observation_basis": "native",
+            "rolling_window": 24,
+            "start": "2024-10-01",
+            "timeframe": "Custom",
+            "transformations": {
+              "industrial_production": "mom",
+              "housing_starts": "mom"
+            },
+            "workspace": {
+              "axes": "shared",
+              "axis_assignment": {},
+              "chart_type": "line",
+              "hidden": [],
+              "layout": "stacked",
+              "lead_lag": {
+                "dataset_id": "",
+                "periods": 0,
+                "unit": "months"
+              },
+              "mode": "separate",
+              "recession": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "bcae3f17648ba35e5694faa7",
+      "headline": "The link between Housing starts and Building permits has shifted.",
+      "key_number": "A weaker link",
+      "horizon": "Recent comparison window",
+      "observation_date": "2026-09-01",
+      "lifecycle": {
+        "status": "Updated",
+        "first_detected": "2026-10-26T00:40:21.136184+00:00",
+        "last_meaningful_update": "2026-10-26T00:58:34.778100+00:00",
+        "last_seen_qualifying": "2026-10-26T00:58:34.778100+00:00",
+        "qualifies_now": true,
+        "what_changed": "The documented discovery methodology changed",
+        "related_discoveries": []
+      },
+      "suggestions": [
+        {
+          "label": "How did Building permits move alongside Housing starts?",
+          "configuration": {
+            "alignment": "native",
+            "datasets": [
+              "housing_starts",
+              "building_permits"
+            ],
+            "end": "2026-09-01",
+            "horizons": {
+              "housing_starts": 1,
+              "building_permits": 1
+            },
+            "observation_basis": "native",
+            "rolling_window": 24,
+            "start": "2024-10-01",
+            "timeframe": "Custom",
+            "transformations": {
+              "housing_starts": "mom",
+              "building_permits": "mom"
+            },
+            "workspace": {
+              "axes": "shared",
+              "axis_assignment": {},
+              "chart_type": "line",
+              "hidden": [],
+              "layout": "stacked",
+              "lead_lag": {
+                "dataset_id": "",
+                "periods": 0,
+                "unit": "months"
+              },
+              "mode": "separate",
+              "recession": false
+            }
+          }
+        },
+        {
+          "label": "How did Industrial output move alongside Housing starts?",
+          "configuration": {
+            "alignment": "native",
+            "datasets": [
+              "housing_starts",
+              "industrial_production"
+            ],
+            "end": "2026-09-01",
+            "horizons": {
+              "housing_starts": 1,
+              "industrial_production": 1
+            },
+            "observation_basis": "native",
+            "rolling_window": 24,
+            "start": "2024-10-01",
+            "timeframe": "Custom",
+            "transformations": {
+              "housing_starts": "mom",
+              "industrial_production": "mom"
+            },
+            "workspace": {
+              "axes": "shared",
+              "axis_assignment": {},
+              "chart_type": "line",
+              "hidden": [],
+              "layout": "stacked",
+              "lead_lag": {
+                "dataset_id": "",
+                "periods": 0,
+                "unit": "months"
+              },
+              "mode": "separate",
+              "recession": false
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "horizon_results": [
+    {
+      "change": 0.6485480245771891,
+      "dataset": "cpi",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percent MoM"
+    },
+    {
+      "change": 1.1215751365134308,
+      "dataset": "cpi",
+      "date": "2026-09-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percent over 3 months"
+    },
+    {
+      "change": 3.7172508442689933,
+      "dataset": "cpi",
+      "date": "2026-09-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percent over 12 months"
+    },
+    {
+      "change": 0.3348481932704761,
+      "dataset": "core_cpi",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percent MoM"
+    },
+    {
+      "change": 0.8423965601892514,
+      "dataset": "core_cpi",
+      "date": "2026-09-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percent over 3 months"
+    },
+    {
+      "change": 2.565840844021827,
+      "dataset": "core_cpi",
+      "date": "2026-09-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percent over 12 months"
+    },
+    {
+      "change": 0.3102796328484869,
+      "dataset": "pce",
+      "date": "2026-08-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percent MoM"
+    },
+    {
+      "change": 0.2575414695102918,
+      "dataset": "pce",
+      "date": "2026-08-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percent over 3 months"
+    },
+    {
+      "change": 3.419031824505425,
+      "dataset": "pce",
+      "date": "2026-08-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percent over 12 months"
+    },
+    {
+      "change": 0.24743915839948727,
+      "dataset": "core_pce",
+      "date": "2026-08-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percent MoM"
+    },
+    {
+      "change": 0.5077198064655564,
+      "dataset": "core_pce",
+      "date": "2026-08-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percent over 3 months"
+    },
+    {
+      "change": 3.0075959761856064,
+      "dataset": "core_pce",
+      "date": "2026-08-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percent over 12 months"
+    },
+    {
+      "change": 0.10000000000000053,
+      "dataset": "unemployment",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percentage points per observation"
+    },
+    {
+      "change": 0.0,
+      "dataset": "unemployment",
+      "date": "2026-09-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percentage points over 3 months"
+    },
+    {
+      "change": -0.20000000000000018,
+      "dataset": "unemployment",
+      "date": "2026-09-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percentage points over 12 months"
+    },
+    {
+      "change": 29000.0,
+      "dataset": "payrolls",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Jobs per month"
+    },
+    {
+      "change": 152000.0,
+      "dataset": "payrolls",
+      "date": "2026-09-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Net jobs over 3 months"
+    },
+    {
+      "change": 496000.0,
+      "dataset": "payrolls",
+      "date": "2026-09-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Net jobs over 12 months"
+    },
+    {
+      "change": -0.2999999999999998,
+      "dataset": "real_gdp_growth",
+      "date": "2026-04-01",
+      "horizon": 1,
+      "label": "one quarter",
+      "qualifies": false,
+      "units": "Percentage points per observation"
+    },
+    {
+      "change": -1.7999999999999998,
+      "dataset": "real_gdp_growth",
+      "date": "2026-04-01",
+      "horizon": 4,
+      "label": "4 quarters",
+      "qualifies": false,
+      "units": "Percentage points over 4 quarters"
+    },
+    {
+      "change": 0.1200000000000001,
+      "dataset": "fed_funds",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percentage points per observation"
+    },
+    {
+      "change": 0.1200000000000001,
+      "dataset": "fed_funds",
+      "date": "2026-09-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percentage points over 3 months"
+    },
+    {
+      "change": -0.46999999999999975,
+      "dataset": "fed_funds",
+      "date": "2026-09-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percentage points over 12 months"
+    },
+    {
+      "change": -0.5186972294159098,
+      "dataset": "sp500",
+      "date": "2026-10-23",
+      "horizon": 1,
+      "label": "one trading session",
+      "qualifies": false,
+      "units": "Percent per observation"
+    },
+    {
+      "change": -0.4668718065362176,
+      "dataset": "sp500",
+      "date": "2026-10-23",
+      "horizon": 5,
+      "label": "5 trading sessions",
+      "qualifies": false,
+      "units": "Percent over 5 trading sessions"
+    },
+    {
+      "change": -1.04424131284091,
+      "dataset": "sp500",
+      "date": "2026-10-23",
+      "horizon": 21,
+      "label": "21 trading sessions",
+      "qualifies": false,
+      "units": "Percent over 21 trading sessions"
+    },
+    {
+      "change": 2.839537081368948,
+      "dataset": "sp500",
+      "date": "2026-10-23",
+      "horizon": 63,
+      "label": "63 trading sessions",
+      "qualifies": false,
+      "units": "Percent over 63 trading sessions"
+    },
+    {
+      "change": 13.796463667053892,
+      "dataset": "sp500",
+      "date": "2026-10-23",
+      "horizon": 252,
+      "label": "252 trading sessions",
+      "qualifies": false,
+      "units": "Percent over 252 trading sessions"
+    },
+    {
+      "change": -1.2929760925690092,
+      "dataset": "gold",
+      "date": "2026-10-23",
+      "horizon": 1,
+      "label": "one trading session",
+      "qualifies": false,
+      "units": "Percent per observation"
+    },
+    {
+      "change": -4.142455125855249,
+      "dataset": "gold",
+      "date": "2026-10-23",
+      "horizon": 5,
+      "label": "5 trading sessions",
+      "qualifies": false,
+      "units": "Percent over 5 trading sessions"
+    },
+    {
+      "change": -6.7496532725977225,
+      "dataset": "gold",
+      "date": "2026-10-23",
+      "horizon": 21,
+      "label": "21 trading sessions",
+      "qualifies": false,
+      "units": "Percent over 21 trading sessions"
+    },
+    {
+      "change": -1.6948760769254334,
+      "dataset": "gold",
+      "date": "2026-10-23",
+      "horizon": 63,
+      "label": "63 trading sessions",
+      "qualifies": false,
+      "units": "Percent over 63 trading sessions"
+    },
+    {
+      "change": -1.4143750032278635,
+      "dataset": "gold",
+      "date": "2026-10-23",
+      "horizon": 252,
+      "label": "252 trading sessions",
+      "qualifies": false,
+      "units": "Percent over 252 trading sessions"
+    },
+    {
+      "change": -0.16999999999999993,
+      "dataset": "us10y",
+      "date": "2026-10-22",
+      "horizon": 1,
+      "label": "one trading session",
+      "qualifies": true,
+      "units": "Percentage points per observation"
+    },
+    {
+      "change": -0.13999999999999968,
+      "dataset": "us10y",
+      "date": "2026-10-22",
+      "horizon": 5,
+      "label": "5 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 5 trading sessions"
+    },
+    {
+      "change": 0.0,
+      "dataset": "us10y",
+      "date": "2026-10-22",
+      "horizon": 21,
+      "label": "21 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 21 trading sessions"
+    },
+    {
+      "change": 0.25,
+      "dataset": "us10y",
+      "date": "2026-10-22",
+      "horizon": 63,
+      "label": "63 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 63 trading sessions"
+    },
+    {
+      "change": 0.96,
+      "dataset": "us10y",
+      "date": "2026-10-22",
+      "horizon": 252,
+      "label": "252 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 252 trading sessions"
+    },
+    {
+      "change": 0.19682801598350785,
+      "dataset": "dxy",
+      "date": "2026-10-23",
+      "horizon": 1,
+      "label": "one trading session",
+      "qualifies": false,
+      "units": "Percent per observation"
+    },
+    {
+      "change": -0.029456775702685345,
+      "dataset": "dxy",
+      "date": "2026-10-23",
+      "horizon": 5,
+      "label": "5 trading sessions",
+      "qualifies": false,
+      "units": "Percent over 5 trading sessions"
+    },
+    {
+      "change": 0.5133741123174218,
+      "dataset": "dxy",
+      "date": "2026-10-23",
+      "horizon": 21,
+      "label": "21 trading sessions",
+      "qualifies": false,
+      "units": "Percent over 21 trading sessions"
+    },
+    {
+      "change": 0.29553286971728543,
+      "dataset": "dxy",
+      "date": "2026-10-23",
+      "horizon": 63,
+      "label": "63 trading sessions",
+      "qualifies": false,
+      "units": "Percent over 63 trading sessions"
+    },
+    {
+      "change": 2.9423619694822767,
+      "dataset": "dxy",
+      "date": "2026-10-23",
+      "horizon": 252,
+      "label": "252 trading sessions",
+      "qualifies": false,
+      "units": "Percent over 252 trading sessions"
+    },
+    {
+      "change": 3.737684729064039,
+      "dataset": "cpi_nsa",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "12 months (NSA)",
+      "qualifies": false,
+      "units": "Percent YoY"
+    },
+    {
+      "change": 2.5643583511686607,
+      "dataset": "core_cpi_nsa",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "12 months (NSA)",
+      "qualifies": false,
+      "units": "Percent YoY"
+    },
+    {
+      "change": -3.0000000000000027,
+      "dataset": "initial_claims",
+      "date": "2026-10-17",
+      "horizon": 1,
+      "label": "one week",
+      "qualifies": false,
+      "units": "Percent per observation"
+    },
+    {
+      "change": -2.020202020202022,
+      "dataset": "initial_claims",
+      "date": "2026-10-17",
+      "horizon": 4,
+      "label": "4 weeks",
+      "qualifies": false,
+      "units": "Percent over 4 weeks"
+    },
+    {
+      "change": 2.645502645502651,
+      "dataset": "initial_claims",
+      "date": "2026-10-17",
+      "horizon": 13,
+      "label": "13 weeks",
+      "qualifies": false,
+      "units": "Percent over 13 weeks"
+    },
+    {
+      "change": -16.01731601731602,
+      "dataset": "initial_claims",
+      "date": "2026-10-17",
+      "horizon": 52,
+      "label": "52 weeks",
+      "qualifies": false,
+      "units": "Percent over 52 weeks"
+    },
+    {
+      "change": -3.490115882753919,
+      "dataset": "job_openings",
+      "date": "2026-08-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percent MoM"
+    },
+    {
+      "change": -6.07668833753483,
+      "dataset": "job_openings",
+      "date": "2026-08-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percent over 3 months"
+    },
+    {
+      "change": 2.3124729007081957,
+      "dataset": "job_openings",
+      "date": "2026-08-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percent over 12 months"
+    },
+    {
+      "change": 0.19999999999999574,
+      "dataset": "participation",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percentage points per observation"
+    },
+    {
+      "change": 0.29999999999999716,
+      "dataset": "participation",
+      "date": "2026-09-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percentage points over 3 months"
+    },
+    {
+      "change": -0.7000000000000028,
+      "dataset": "participation",
+      "date": "2026-09-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percentage points over 12 months"
+    },
+    {
+      "change": 0.13241525423730582,
+      "dataset": "hourly_earnings",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percent MoM"
+    },
+    {
+      "change": 0.585262037776002,
+      "dataset": "hourly_earnings",
+      "date": "2026-09-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percent over 3 months"
+    },
+    {
+      "change": 3.0245231607629375,
+      "dataset": "hourly_earnings",
+      "date": "2026-09-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percent over 12 months"
+    },
+    {
+      "change": 0.029999999999999805,
+      "dataset": "breakeven_5y",
+      "date": "2026-10-23",
+      "horizon": 1,
+      "label": "one trading session",
+      "qualifies": false,
+      "units": "Percentage points per observation"
+    },
+    {
+      "change": 0.10999999999999988,
+      "dataset": "breakeven_5y",
+      "date": "2026-10-23",
+      "horizon": 5,
+      "label": "5 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 5 trading sessions"
+    },
+    {
+      "change": 0.14000000000000012,
+      "dataset": "breakeven_5y",
+      "date": "2026-10-23",
+      "horizon": 21,
+      "label": "21 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 21 trading sessions"
+    },
+    {
+      "change": 0.23999999999999977,
+      "dataset": "breakeven_5y",
+      "date": "2026-10-23",
+      "horizon": 63,
+      "label": "63 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 63 trading sessions"
+    },
+    {
+      "change": 0.18000000000000016,
+      "dataset": "breakeven_5y",
+      "date": "2026-10-23",
+      "horizon": 252,
+      "label": "252 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 252 trading sessions"
+    },
+    {
+      "change": 0.7708413925190838,
+      "dataset": "retail_sales",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percent MoM"
+    },
+    {
+      "change": 1.6541183084139988,
+      "dataset": "retail_sales",
+      "date": "2026-09-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percent over 3 months"
+    },
+    {
+      "change": 6.287627612889968,
+      "dataset": "retail_sales",
+      "date": "2026-09-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percent over 12 months"
+    },
+    {
+      "change": 0.5503335804299514,
+      "dataset": "real_consumption",
+      "date": "2026-08-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percent MoM"
+    },
+    {
+      "change": 1.0170036819465489,
+      "dataset": "real_consumption",
+      "date": "2026-08-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percent over 3 months"
+    },
+    {
+      "change": 2.574759372523383,
+      "dataset": "real_consumption",
+      "date": "2026-08-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percent over 12 months"
+    },
+    {
+      "change": -6.963249516441006,
+      "dataset": "consumer_sentiment",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percent per observation"
+    },
+    {
+      "change": -2.8282828282828243,
+      "dataset": "consumer_sentiment",
+      "date": "2026-09-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percent over 3 months"
+    },
+    {
+      "change": -12.704174228675136,
+      "dataset": "consumer_sentiment",
+      "date": "2026-09-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percent over 12 months"
+    },
+    {
+      "change": -5.201863354037261,
+      "dataset": "housing_starts",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percent MoM"
+    },
+    {
+      "change": -15.149409312022232,
+      "dataset": "housing_starts",
+      "date": "2026-09-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percent over 3 months"
+    },
+    {
+      "change": -7.429871114480669,
+      "dataset": "housing_starts",
+      "date": "2026-09-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percent over 12 months"
+    },
+    {
+      "change": -0.2138275124732747,
+      "dataset": "building_permits",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percent MoM"
+    },
+    {
+      "change": 1.8922852983988436,
+      "dataset": "building_permits",
+      "date": "2026-09-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percent over 3 months"
+    },
+    {
+      "change": -3.0470914127423865,
+      "dataset": "building_permits",
+      "date": "2026-09-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percent over 12 months"
+    },
+    {
+      "change": -0.08000000000000007,
+      "dataset": "mortgage_30y",
+      "date": "2026-10-22",
+      "horizon": 1,
+      "label": "one week",
+      "qualifies": false,
+      "units": "Percentage points per observation"
+    },
+    {
+      "change": 0.29000000000000004,
+      "dataset": "mortgage_30y",
+      "date": "2026-10-22",
+      "horizon": 4,
+      "label": "4 weeks",
+      "qualifies": false,
+      "units": "Percentage points over 4 weeks"
+    },
+    {
+      "change": 0.7400000000000002,
+      "dataset": "mortgage_30y",
+      "date": "2026-10-22",
+      "horizon": 13,
+      "label": "13 weeks",
+      "qualifies": false,
+      "units": "Percentage points over 13 weeks"
+    },
+    {
+      "change": 1.13,
+      "dataset": "mortgage_30y",
+      "date": "2026-10-22",
+      "horizon": 52,
+      "label": "52 weeks",
+      "qualifies": false,
+      "units": "Percentage points over 52 weeks"
+    },
+    {
+      "change": 0.662558198988239,
+      "dataset": "industrial_production",
+      "date": "2026-09-01",
+      "horizon": 1,
+      "label": "one month",
+      "qualifies": false,
+      "units": "Percent MoM"
+    },
+    {
+      "change": 0.9611406260622957,
+      "dataset": "industrial_production",
+      "date": "2026-09-01",
+      "horizon": 3,
+      "label": "3 months",
+      "qualifies": false,
+      "units": "Percent over 3 months"
+    },
+    {
+      "change": 2.2451508832670886,
+      "dataset": "industrial_production",
+      "date": "2026-09-01",
+      "horizon": 12,
+      "label": "12 months",
+      "qualifies": false,
+      "units": "Percent over 12 months"
+    },
+    {
+      "change": 0.0,
+      "dataset": "yield_curve",
+      "date": "2026-10-23",
+      "horizon": 1,
+      "label": "one trading session",
+      "qualifies": false,
+      "units": "Percentage points per observation"
+    },
+    {
+      "change": -0.03999999999999998,
+      "dataset": "yield_curve",
+      "date": "2026-10-23",
+      "horizon": 5,
+      "label": "5 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 5 trading sessions"
+    },
+    {
+      "change": 0.04999999999999999,
+      "dataset": "yield_curve",
+      "date": "2026-10-23",
+      "horizon": 21,
+      "label": "21 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 21 trading sessions"
+    },
+    {
+      "change": -0.04999999999999999,
+      "dataset": "yield_curve",
+      "date": "2026-10-23",
+      "horizon": 63,
+      "label": "63 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 63 trading sessions"
+    },
+    {
+      "change": -0.22000000000000003,
+      "dataset": "yield_curve",
+      "date": "2026-10-23",
+      "horizon": 252,
+      "label": "252 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 252 trading sessions"
+    },
+    {
+      "change": 0.1299999999999999,
+      "dataset": "high_yield_spread",
+      "date": "2026-10-22",
+      "horizon": 1,
+      "label": "one trading session",
+      "qualifies": false,
+      "units": "Percentage points per observation"
+    },
+    {
+      "change": 0.16999999999999993,
+      "dataset": "high_yield_spread",
+      "date": "2026-10-22",
+      "horizon": 5,
+      "label": "5 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 5 trading sessions"
+    },
+    {
+      "change": 0.6699999999999999,
+      "dataset": "high_yield_spread",
+      "date": "2026-10-22",
+      "horizon": 21,
+      "label": "21 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 21 trading sessions"
+    },
+    {
+      "change": 0.5899999999999999,
+      "dataset": "high_yield_spread",
+      "date": "2026-10-22",
+      "horizon": 63,
+      "label": "63 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 63 trading sessions"
+    },
+    {
+      "change": 0.27,
+      "dataset": "high_yield_spread",
+      "date": "2026-10-22",
+      "horizon": 252,
+      "label": "252 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 252 trading sessions"
+    },
+    {
+      "change": 0.010000000000000009,
+      "dataset": "investment_grade_spread",
+      "date": "2026-10-22",
+      "horizon": 1,
+      "label": "one trading session",
+      "qualifies": false,
+      "units": "Percentage points per observation"
+    },
+    {
+      "change": 0.050000000000000044,
+      "dataset": "investment_grade_spread",
+      "date": "2026-10-22",
+      "horizon": 5,
+      "label": "5 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 5 trading sessions"
+    },
+    {
+      "change": 0.12,
+      "dataset": "investment_grade_spread",
+      "date": "2026-10-22",
+      "horizon": 21,
+      "label": "21 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 21 trading sessions"
+    },
+    {
+      "change": 0.07999999999999996,
+      "dataset": "investment_grade_spread",
+      "date": "2026-10-22",
+      "horizon": 63,
+      "label": "63 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 63 trading sessions"
+    },
+    {
+      "change": 0.07000000000000006,
+      "dataset": "investment_grade_spread",
+      "date": "2026-10-22",
+      "horizon": 252,
+      "label": "252 trading sessions",
+      "qualifies": false,
+      "units": "Percentage points over 252 trading sessions"
+    }
+  ],
+  "catalogue": [
+    {
+      "id": "cpi",
+      "provider_id": "CPIAUCSL",
+      "units": "Index 1982–1984=100",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 336.298,
+      "source_url": "https://fred.stlouisfed.org/series/CPIAUCSL"
+    },
+    {
+      "id": "core_cpi",
+      "provider_id": "CPILFESL",
+      "units": "Index 1982–1984=100",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 338.896,
+      "source_url": "https://fred.stlouisfed.org/series/CPILFESL"
+    },
+    {
+      "id": "pce",
+      "provider_id": "PCEPI",
+      "units": "Index 2017=100",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-08-01",
+      "latest_value": 131.579,
+      "source_url": "https://fred.stlouisfed.org/series/PCEPI"
+    },
+    {
+      "id": "core_pce",
+      "provider_id": "PCEPILFE",
+      "units": "Index 2017=100",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-08-01",
+      "latest_value": 130.455,
+      "source_url": "https://fred.stlouisfed.org/series/PCEPILFE"
+    },
+    {
+      "id": "unemployment",
+      "provider_id": "UNRATE",
+      "units": "Percent",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 4.2,
+      "source_url": "https://fred.stlouisfed.org/series/UNRATE"
+    },
+    {
+      "id": "payrolls",
+      "provider_id": "PAYEMS",
+      "units": "Thousands of persons",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 159044.0,
+      "source_url": "https://fred.stlouisfed.org/series/PAYEMS"
+    },
+    {
+      "id": "real_gdp_growth",
+      "provider_id": "A191RL1Q225SBEA",
+      "units": "Percent change, quarterly annualized",
+      "frequency": "quarterly",
+      "adjustment": "Seasonally adjusted annual rate",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-04-01",
+      "latest_value": 2.2,
+      "source_url": "https://fred.stlouisfed.org/series/A191RL1Q225SBEA"
+    },
+    {
+      "id": "fed_funds",
+      "provider_id": "FEDFUNDS",
+      "units": "Percent",
+      "frequency": "monthly",
+      "adjustment": "Not seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 3.75,
+      "source_url": "https://fred.stlouisfed.org/series/FEDFUNDS"
+    },
+    {
+      "id": "sp500",
+      "provider_id": "^GSPC",
+      "units": "index points",
+      "frequency": "daily",
+      "adjustment": null,
+      "status": "ok",
+      "coverage_start": "1990-01-02",
+      "latest_observation_date": "2026-10-23",
+      "latest_value": 7623.68017578125,
+      "source_url": "https://finance.yahoo.com/quote/^GSPC/history/"
+    },
+    {
+      "id": "gold",
+      "provider_id": "GC=F",
+      "units": "USD / troy oz",
+      "frequency": "daily",
+      "adjustment": null,
+      "status": "ok",
+      "coverage_start": "2000-08-30",
+      "latest_observation_date": "2026-10-23",
+      "latest_value": 4007.89990234375,
+      "source_url": "https://finance.yahoo.com/quote/GC=F/history/"
+    },
+    {
+      "id": "us10y",
+      "provider_id": "DGS10",
+      "units": "Percent",
+      "frequency": "daily",
+      "adjustment": "Not seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-02",
+      "latest_observation_date": "2026-10-22",
+      "latest_value": 4.96,
+      "source_url": "https://fred.stlouisfed.org/series/DGS10"
+    },
+    {
+      "id": "dxy",
+      "provider_id": "DX-Y.NYB",
+      "units": "index points",
+      "frequency": "daily",
+      "adjustment": null,
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-10-23",
+      "latest_value": 101.80999755859375,
+      "source_url": "https://finance.yahoo.com/quote/DX-Y.NYB/history/"
+    },
+    {
+      "id": "wti",
+      "provider_id": "CL=F",
+      "units": "USD / barrel",
+      "frequency": "daily",
+      "adjustment": null,
+      "status": "ok",
+      "coverage_start": "2000-08-23",
+      "latest_observation_date": "2026-10-23",
+      "latest_value": 103.2699966430664,
+      "source_url": "https://finance.yahoo.com/quote/CL=F/history/"
+    },
+    {
+      "id": "cpi_nsa",
+      "provider_id": "CPIAUCNS",
+      "units": "Index 1982–1984=100",
+      "frequency": "monthly",
+      "adjustment": "Not seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 336.94,
+      "source_url": "https://fred.stlouisfed.org/series/CPIAUCNS"
+    },
+    {
+      "id": "core_cpi_nsa",
+      "provider_id": "CPILFENS",
+      "units": "Index 1982–1984=100",
+      "frequency": "monthly",
+      "adjustment": "Not seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 339.287,
+      "source_url": "https://fred.stlouisfed.org/series/CPILFENS"
+    },
+    {
+      "id": "initial_claims",
+      "provider_id": "ICSA",
+      "units": "Number of claims",
+      "frequency": "weekly",
+      "adjustment": "Seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-06",
+      "latest_observation_date": "2026-10-17",
+      "latest_value": 194000.0,
+      "source_url": "https://fred.stlouisfed.org/series/ICSA"
+    },
+    {
+      "id": "job_openings",
+      "provider_id": "JTSJOL",
+      "units": "Thousands of job openings",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "2000-12-01",
+      "latest_observation_date": "2026-08-01",
+      "latest_value": 7079.0,
+      "source_url": "https://fred.stlouisfed.org/series/JTSJOL"
+    },
+    {
+      "id": "participation",
+      "provider_id": "CIVPART",
+      "units": "Percent",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 61.8,
+      "source_url": "https://fred.stlouisfed.org/series/CIVPART"
+    },
+    {
+      "id": "hourly_earnings",
+      "provider_id": "CES0500000003",
+      "units": "Dollars per hour",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "2006-03-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 37.81,
+      "source_url": "https://fred.stlouisfed.org/series/CES0500000003"
+    },
+    {
+      "id": "breakeven_5y",
+      "provider_id": "T5YIE",
+      "units": "Percent",
+      "frequency": "daily",
+      "adjustment": "Not seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "2003-01-02",
+      "latest_observation_date": "2026-10-23",
+      "latest_value": 2.48,
+      "source_url": "https://fred.stlouisfed.org/series/T5YIE"
+    },
+    {
+      "id": "retail_sales",
+      "provider_id": "RSAFS",
+      "units": "Millions of dollars",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1992-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 745021.0,
+      "source_url": "https://fred.stlouisfed.org/series/RSAFS"
+    },
+    {
+      "id": "real_consumption",
+      "provider_id": "PCEC96",
+      "units": "Billions of chained 2017 dollars",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted annual rate",
+      "status": "ok",
+      "coverage_start": "2007-01-01",
+      "latest_observation_date": "2026-08-01",
+      "latest_value": 16955.3,
+      "source_url": "https://fred.stlouisfed.org/series/PCEC96"
+    },
+    {
+      "id": "consumer_sentiment",
+      "provider_id": "UMCSENT",
+      "units": "Index 1966:Q1=100",
+      "frequency": "monthly",
+      "adjustment": "Not seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 48.1,
+      "source_url": "https://fred.stlouisfed.org/series/UMCSENT"
+    },
+    {
+      "id": "housing_starts",
+      "provider_id": "HOUST",
+      "units": "Thousands of units",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted annual rate",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 1221.0,
+      "source_url": "https://fred.stlouisfed.org/series/HOUST"
+    },
+    {
+      "id": "building_permits",
+      "provider_id": "PERMIT",
+      "units": "Thousands of units",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted annual rate",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 1400.0,
+      "source_url": "https://fred.stlouisfed.org/series/PERMIT"
+    },
+    {
+      "id": "mortgage_30y",
+      "provider_id": "MORTGAGE30US",
+      "units": "Percent",
+      "frequency": "weekly",
+      "adjustment": "Not seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-05",
+      "latest_observation_date": "2026-10-22",
+      "latest_value": 7.32,
+      "source_url": "https://fred.stlouisfed.org/series/MORTGAGE30US"
+    },
+    {
+      "id": "industrial_production",
+      "provider_id": "INDPRO",
+      "units": "Index 2017=100 (industrial output)",
+      "frequency": "monthly",
+      "adjustment": "Seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-01",
+      "latest_observation_date": "2026-09-01",
+      "latest_value": 103.9506,
+      "source_url": "https://fred.stlouisfed.org/series/INDPRO"
+    },
+    {
+      "id": "yield_curve",
+      "provider_id": "T10Y2Y",
+      "units": "Percent",
+      "frequency": "daily",
+      "adjustment": "Not seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "1990-01-02",
+      "latest_observation_date": "2026-10-23",
+      "latest_value": 0.31,
+      "source_url": "https://fred.stlouisfed.org/series/T10Y2Y"
+    },
+    {
+      "id": "high_yield_spread",
+      "provider_id": "BAMLH0A0HYM2",
+      "units": "Percent",
+      "frequency": "daily",
+      "adjustment": "Not seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "2023-10-24",
+      "latest_observation_date": "2026-10-22",
+      "latest_value": 3.4,
+      "source_url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2"
+    },
+    {
+      "id": "investment_grade_spread",
+      "provider_id": "BAMLC0A0CM",
+      "units": "Percent",
+      "frequency": "daily",
+      "adjustment": "Not seasonally adjusted",
+      "status": "ok",
+      "coverage_start": "2023-10-24",
+      "latest_observation_date": "2026-10-22",
+      "latest_value": 0.89,
+      "source_url": "https://fred.stlouisfed.org/series/BAMLC0A0CM"
+    }
+  ],
+  "historical": [
+    {
+      "id": "housing_starts:3:2009-01-01:v1",
+      "label": "Housing construction during the financial crisis",
+      "historical_start": "2007-02-01",
+      "historical_end": "2009-01-01",
+      "finding": "Housing starts, total units fell 36.94% over 3 months.",
+      "current_start": "2024-10-01",
+      "current_end": "2026-09-01",
+      "similarity": {
+        "matches": false,
+        "compatible": true,
+        "reason": "No sufficiently close, stable match under the declared screens.",
+        "shape_correlation": 0.4635267424621567,
+        "standardized_rmse": 1.0358313159369563,
+        "amplitude_ratio": 0.8444416218402315,
+        "half_correlations": [
+          0.7503966150288176,
+          0.36443534492951085
+        ],
+        "effective_observations": 24.0,
+        "then_last_change": -36.93693693693694,
+        "now_last_change": -15.149409312022232
+      },
+      "notes": "Curated retrospectively using latest revised observations at first capture, not historical publication vintages. Selection bias is substantial; this is a descriptive library, not a backtest or prediction."
+    },
+    {
+      "id": "retail_sales:1:2020-05-01:v1",
+      "label": "The 2020 consumer-spending disruption",
+      "historical_start": "2018-06-01",
+      "historical_end": "2020-05-01",
+      "finding": "Retail and food-services sales rose 19.42% over one month.",
+      "current_start": "2024-10-01",
+      "current_end": "2026-09-01",
+      "similarity": {
+        "matches": false,
+        "compatible": true,
+        "reason": "No sufficiently close, stable match under the declared screens.",
+        "shape_correlation": 0.0498912404975814,
+        "standardized_rmse": 1.3784837753868693,
+        "amplitude_ratio": 0.1401984193897587,
+        "half_correlations": [
+          0.15860021688068,
+          0.06651255713120321
+        ],
+        "effective_observations": 23.20643275471866,
+        "then_last_change": 19.420027501697092,
+        "now_last_change": 0.7708413925190838
+      },
+      "notes": "Curated retrospectively using latest revised observations at first capture, not historical publication vintages. Selection bias is substantial; this is a descriptive library, not a backtest or prediction."
+    }
+  ],
+  "unchanged_scan": {
+    "same_calculation_time": true,
+    "same_identity_and_versions": true
+  },
+  "lifecycle_fixture": {
+    "label": "Isolated synthetic evidence update based on a real snapshot; NOT inserted into application Radar.",
+    "stable_id_after_restart": true,
+    "statuses": [
+      "New",
+      "Ongoing",
+      "Updated"
+    ],
+    "versions": [
+      1,
+      1,
+      2
+    ],
+    "last_meaningful_unchanged_on_repeat": true,
+    "original_material_evidence_unchanged": true
+  },
+  "budget_fixture": {
+    "label": "Mock pricing and reservation-only concurrency proof; ZERO OpenAI requests.",
+    "concurrent_attempts": 500,
+    "admitted_reservations": 294,
+    "blocked": 206,
+    "usage": {
+      "month_utc": "2026-10",
+      "budget_usd": 2.0,
+      "accounted_spend_usd": 1.9992,
+      "remaining_usd": 0.0008,
+      "request_count": 294,
+      "cache_hits_lifetime": 0,
+      "model": "gpt-6-luna",
+      "last_successful_generation": null,
+      "enabled": false,
+      "paused_for_uncertain_usage": false,
+      "note": "Conservative application accounting includes pending reservations and a 2× pricing safety margin. This does not cover other applications using the account."
+    }
+  }
+}

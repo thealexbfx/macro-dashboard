@@ -80,13 +80,22 @@ def test_full_today_gold_queue_save_and_restore(monkeypatch,tmp_path):
     import components.chart_workspace as charts
     import components.discovery_radar as radar
     from macro_engine.research.notebook import save_investigation,load_investigations
+    from datetime import datetime, timezone
+    # The renderer uses UTC, whereas date.today() follows the host's local zone.
+    # Freeze both sides so this workflow test also works across UTC midnight.
+    as_of = date(2026, 10, 23)
+    class FixedClock:
+        @staticmethod
+        def now(tz=None):
+            return datetime(2026, 10, 23, 12, tzinfo=timezone.utc)
+    monkeypatch.setattr(radar, 'datetime', FixedClock)
     monkeypatch.setattr(charts,'load_series',history)
     monkeypatch.setattr(charts,'load_investigations',lambda:load_investigations(tmp_path))
     monkeypatch.setattr(charts,'save_investigation',lambda payload,investigation_id=None:save_investigation(payload,tmp_path,investigation_id))
     radar.current_discoveries.clear()
     app=AppTest.from_file(str(Path(__file__).resolve().parents[1]/'app.py')).run(timeout=30)
-    signals,_=radar.current_discoveries(date.today())
-    gold=next(s for s in ranked(signals,'Latest',date.today()-timedelta(days=90)) if s['dataset_id']=='gold')
+    signals,_=radar.current_discoveries(as_of)
+    gold=next(s for s in ranked(signals,'Latest',as_of-timedelta(days=90)) if s['dataset_id']=='gold')
     app.button(key='discovery_'+gold['signal_id']).click().run(timeout=30)
     assert app.query_params['page']=='Investigate'
     assert app.query_params['left']=='Commodities · Gold'

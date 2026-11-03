@@ -1,0 +1,761 @@
+{
+  "methodology_version": "3.1.0",
+  "as_of": "2026-10-25",
+  "generated_at": "2026-10-25T21:58:36.431343+00:00",
+  "snapshot_fingerprint": "c294a75f977514ee1c8439842f1ef5f7164e7ed322f82a204a9533289e652a06",
+  "current": [
+    {
+      "id": "9c7ce29bf73756de275f",
+      "type": "unusual",
+      "headline": "10Y Treasury yield changes: an unusually large negative movement.",
+      "evidence": {
+        "observation_date": "2026-10-22",
+        "movement": -0.16999999999999993,
+        "display_movement": -16.999999999999993,
+        "display_units": "basis points",
+        "units": "Percentage points per observation",
+        "standardized_magnitude": -2.7611924438523894,
+        "absolute_movement_percentile": 0.9908854166666666,
+        "baseline": {
+          "start": "2021-12-23",
+          "end": "2026-10-21",
+          "expected": 1260,
+          "observations": 1152,
+          "missing": 108,
+          "completeness": 0.9142857142857143
+        },
+        "reference_mean": 0.0023958333333333323,
+        "reference_std": 0.06243528360986249,
+        "alternate_absolute_percentile": 0.9982638888888888,
+        "raw_latest_observations": [
+          {
+            "date": "2026-10-21",
+            "value": 5.13
+          },
+          {
+            "date": "2026-10-22",
+            "value": 4.96
+          }
+        ],
+        "method": "Latest native change vs preceding historical changes; signed z uses sample mean/std; rarity is empirical absolute-movement midrank, not a p-value."
+      },
+      "ranking": {
+        "score": 89.5,
+        "components": {
+          "magnitude": 17.26,
+          "historical_rarity": 19.82,
+          "sample_size": 13.71,
+          "completeness": 13.71,
+          "window_stability": 15,
+          "freshness": 10.0
+        },
+        "meaning": "Research-priority score, not confidence, significance or economic importance."
+      },
+      "configuration": {
+        "datasets": [
+          "us10y"
+        ],
+        "transformations": {
+          "us10y": "pp"
+        },
+        "start": "2021-12-23",
+        "end": "2026-10-22",
+        "timeframe": "Custom",
+        "alignment": "native",
+        "rolling_window": 60,
+        "workspace": {
+          "mode": "separate",
+          "chart_type": "line",
+          "layout": "stacked",
+          "axes": "shared",
+          "axis_assignment": {},
+          "hidden": [],
+          "recession": false,
+          "lead_lag": {
+            "dataset_id": "",
+            "periods": 0,
+            "unit": "calendar_days"
+          }
+        }
+      },
+      "sources": [
+        {
+          "id": "us10y",
+          "name": "US 10Y Treasury constant-maturity yield",
+          "source": "FRED / Federal Reserve",
+          "provider_id": "DGS10",
+          "status": "ok",
+          "frequency": "daily",
+          "units": "Percent",
+          "seasonal_adjustment": "Not seasonally adjusted",
+          "definition": "H.15 nominal 10-year constant-maturity Treasury yield quoted in percent per annum, not a bond price or total return.",
+          "quality_warnings": [
+            "396 explicit missing source observations retained. Non-trading days are not inferred to be observations."
+          ],
+          "input_fingerprint": "4e2dbb3c2a891e5fc30be644d0d9392844896b9d6ab25365e61a1bee7c3e3f24",
+          "url": "https://fred.stlouisfed.org/series/DGS10",
+          "latest_observation_date": "2026-10-22",
+          "retrieved_at": "2026-10-25T21:58:35.631828+00:00",
+          "publication_date": "2026-10-23",
+          "revision_count": 0,
+          "verification": {
+            "status": "Verified against primary source",
+            "raw_status": "Verified against primary source",
+            "headline_status": "Verified against primary source",
+            "audit_checked_at": "2026-10-24",
+            "source_url": "https://www.federalreserve.gov/releases/h15/",
+            "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage.",
+            "headline_reconciliation": {
+              "reference": "2026-10-22",
+              "release_date": "2026-10-23",
+              "published_value": 4.96,
+              "calculated_value": 4.96,
+              "rounded_to_release_precision": 4.96,
+              "difference_at_release_precision": 0.0,
+              "source_url": "https://www.federalreserve.gov/releases/h15/",
+              "vintage_note": "Latest retrieved revised series compared with this dated release, not a claim that all historical vintages match."
+            }
+          },
+          "limitations": [
+            "Latest revised observations; publication dates and real-time vintages are not implied by reference dates."
+          ]
+        }
+      ],
+      "limitations": [
+        "Exploratory research candidates, not trading advice, causal evidence or an established regime change.",
+        "Latest revised observations; reference dates are not publication dates. No point-in-time backtest or predictive claim.",
+        "Several predefined tests are examined together. No p-values or family-wise significance claims; selection and repeated-scan bias remain.",
+        "Overlapping windows, autocorrelation and extreme observations limit interpretation. Stability screens reduce noise but do not remove these risks.",
+        "Latest revised observations; publication dates and real-time vintages are not implied by reference dates."
+      ]
+    },
+    {
+      "id": "371486be2f3adf8cf863",
+      "type": "correlation",
+      "headline": "Unemployment changes / Payroll job changes: recent correlation is higher than its baseline.",
+      "evidence": {
+        "observation_date": "2026-09-01",
+        "recent": {
+          "start": "2024-10-01",
+          "end": "2026-09-01",
+          "expected": 24,
+          "observations": 22,
+          "missing": 2,
+          "completeness": 0.9166666666666666
+        },
+        "baseline": {
+          "start": "2014-10-01",
+          "end": "2024-09-01",
+          "expected": 120,
+          "observations": 120,
+          "missing": 0,
+          "completeness": 1.0
+        },
+        "recent_correlation": -0.10439059656612777,
+        "baseline_correlation": -0.9835154974127072,
+        "correlation_difference": 0.8791249008465793,
+        "alternate_recent_correlation": -0.0037163193704346253,
+        "alternate_baseline_correlation": -0.9829851475113334,
+        "alternate_difference": 0.9792688281408988,
+        "influence_recent_correlation": 0.0017229468224620305,
+        "influence_baseline_correlation": -0.8508718729389578,
+        "influence_difference": 0.8525948197614198,
+        "effective_recent_n": 17.969427615884392,
+        "effective_baseline_n": 119.97244194290477,
+        "pair_rationale": "Changes in household-survey unemployment and establishment-survey employment offer distinct labour-market measures.",
+        "transformations": {
+          "unemployment": "pp",
+          "payrolls": "jobs"
+        },
+        "alignment": "Same native frequency, exact reference dates; no filling. Missing periods retained.",
+        "method": "Non-overlapping recent/baseline Pearson correlations on native changes. Alternate windows are predeclared. Influence check removes the single greatest combined absolute standardized change in each window for diagnosis only; reported correlations retain every observation. AR(1) effective sample is a diagnostic, not an inferential test."
+      },
+      "ranking": {
+        "score": 75.73,
+        "components": {
+          "magnitude": 21.98,
+          "historical_rarity": 0,
+          "sample_size": 15.0,
+          "completeness": 13.75,
+          "window_stability": 15,
+          "freshness": 10.0
+        },
+        "meaning": "Research-priority score, not confidence, significance or economic importance."
+      },
+      "configuration": {
+        "datasets": [
+          "unemployment",
+          "payrolls"
+        ],
+        "transformations": {
+          "unemployment": "pp",
+          "payrolls": "jobs"
+        },
+        "start": "2014-10-01",
+        "end": "2026-09-01",
+        "timeframe": "Custom",
+        "alignment": "native",
+        "rolling_window": 24,
+        "workspace": {
+          "mode": "separate",
+          "chart_type": "line",
+          "layout": "stacked",
+          "axes": "shared",
+          "axis_assignment": {},
+          "hidden": [],
+          "recession": false,
+          "lead_lag": {
+            "dataset_id": "",
+            "periods": 0,
+            "unit": "months"
+          }
+        }
+      },
+      "sources": [
+        {
+          "id": "unemployment",
+          "name": "US unemployment rate (U-3, SA)",
+          "source": "FRED / BLS",
+          "provider_id": "UNRATE",
+          "status": "ok",
+          "frequency": "monthly",
+          "units": "Percent",
+          "seasonal_adjustment": "Seasonally adjusted",
+          "definition": "Civilian unemployed as a percent of the civilian labour force, age 16+, seasonally adjusted.",
+          "quality_warnings": [
+            "1 absent or missing reference periods; calendar lags retain gaps and never use row-count substitution.",
+            "1 explicit missing source observations retained. Non-trading days are not inferred to be observations."
+          ],
+          "input_fingerprint": "8fe3349b76bdfe4ffb43936bf6ab95e23148eeab064e8c6a22280790837c67e1",
+          "url": "https://fred.stlouisfed.org/series/UNRATE",
+          "latest_observation_date": "2026-09-01",
+          "retrieved_at": "2026-10-25T21:58:34.762108+00:00",
+          "publication_date": "2026-10-02",
+          "revision_count": 0,
+          "verification": {
+            "status": "Verified against primary source",
+            "raw_status": "Verified against primary source",
+            "headline_status": "Verified against primary source",
+            "audit_checked_at": "2026-10-24",
+            "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+            "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage.",
+            "headline_reconciliation": {
+              "reference": "2026-09-01",
+              "release_date": "2026-10-02",
+              "published_value": 4.2,
+              "calculated_value": 4.2,
+              "rounded_to_release_precision": 4.2,
+              "difference_at_release_precision": 0.0,
+              "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+              "vintage_note": "Latest retrieved revised series compared with this dated release, not a claim that all historical vintages match."
+            }
+          },
+          "limitations": [
+            "Latest revised observations; publication dates and real-time vintages are not implied by reference dates."
+          ]
+        },
+        {
+          "id": "payrolls",
+          "name": "US total nonfarm payroll employment (level, SA)",
+          "source": "FRED / BLS",
+          "provider_id": "PAYEMS",
+          "status": "ok",
+          "frequency": "monthly",
+          "units": "Thousands of persons",
+          "seasonal_adjustment": "Seasonally adjusted",
+          "definition": "CES establishment-survey total nonfarm employment level in thousands of persons; monthly jobs change is adjacent-month difference times 1,000.",
+          "quality_warnings": [],
+          "input_fingerprint": "475e8a454f62c0e767d8ab60da8a86b0aafe6878576a2070f25380585e856b4e",
+          "url": "https://fred.stlouisfed.org/series/PAYEMS",
+          "latest_observation_date": "2026-09-01",
+          "retrieved_at": "2026-10-25T21:58:35.021837+00:00",
+          "publication_date": "2026-10-02",
+          "revision_count": 0,
+          "verification": {
+            "status": "Verified against primary source",
+            "raw_status": "Verified against primary source",
+            "headline_status": "Verified against primary source",
+            "audit_checked_at": "2026-10-24",
+            "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+            "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage.",
+            "headline_reconciliation": {
+              "reference": "2026-09-01",
+              "release_date": "2026-10-02",
+              "published_value": 29000,
+              "calculated_value": 29000.0,
+              "rounded_to_release_precision": 29000.0,
+              "difference_at_release_precision": 0.0,
+              "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+              "vintage_note": "Latest retrieved revised series compared with this dated release, not a claim that all historical vintages match."
+            }
+          },
+          "limitations": [
+            "Latest revised observations; publication dates and real-time vintages are not implied by reference dates."
+          ]
+        }
+      ],
+      "limitations": [
+        "Exploratory research candidates, not trading advice, causal evidence or an established regime change.",
+        "Latest revised observations; reference dates are not publication dates. No point-in-time backtest or predictive claim.",
+        "Several predefined tests are examined together. No p-values or family-wise significance claims; selection and repeated-scan bias remain.",
+        "Overlapping windows, autocorrelation and extreme observations limit interpretation. Stability screens reduce noise but do not remove these risks.",
+        "Latest revised observations; publication dates and real-time vintages are not implied by reference dates."
+      ]
+    }
+  ],
+  "retrospective_examples": {
+    "2020-07-01": {
+      "context": "Retrospective replay using today's revised observations, not evidence available at the historical date. Source metadata reflect current retrieval, not past release availability or freshness. These two windows were preselected as pandemic/inflation examples before execution; selection and multiple-look bias remain. Not displayed as current findings.",
+      "divergences": [
+        {
+          "id": "69ab04bef1ed5eaf28f4",
+          "type": "divergence",
+          "headline": "Unemployment changes / Payroll job changes: recent standardized changes have diverged from baseline co-movement.",
+          "evidence": {
+            "observation_date": "2020-06-01",
+            "recent": {
+              "start": "2018-07-01",
+              "end": "2020-06-01",
+              "expected": 24,
+              "observations": 24,
+              "missing": 0,
+              "completeness": 1.0
+            },
+            "baseline": {
+              "start": "2008-07-01",
+              "end": "2018-06-01",
+              "expected": 120,
+              "observations": 120,
+              "missing": 0,
+              "completeness": 1.0
+            },
+            "recent_correlation": -0.9982841235480437,
+            "baseline_correlation": -0.5886713219208376,
+            "correlation_difference": -0.40961280162720615,
+            "alternate_recent_correlation": -0.997490576763087,
+            "alternate_baseline_correlation": -0.5928221869015332,
+            "alternate_difference": -0.40466838986155373,
+            "influence_recent_correlation": -0.9754563269943171,
+            "influence_baseline_correlation": -0.5550656173497878,
+            "influence_difference": -0.4203907096445293,
+            "effective_recent_n": 23.861296555024474,
+            "effective_baseline_n": 69.84788327805381,
+            "pair_rationale": "Changes in household-survey unemployment and establishment-survey employment offer distinct labour-market measures.",
+            "transformations": {
+              "unemployment": "pp",
+              "payrolls": "jobs"
+            },
+            "alignment": "Same native frequency, exact reference dates; no filling. Missing periods retained.",
+            "method": "Three-period mean of standardized right changes minus baseline correlation sign \u00d7 standardized left changes. Baseline-only means/sample stds. Compared with baseline three-period means; six-period same-direction screen. Empirical absolute midrank, not a p-value.",
+            "divergence": -5.256071105177976,
+            "divergence_z": -10.490686839319899,
+            "alternate_divergence_z": -5.2289382248513805,
+            "influence_divergence_z": 2.668308060020992,
+            "extreme_sensitive": true,
+            "absolute_divergence_percentile": 1.0,
+            "reference_mean": -0.009558290395706333,
+            "reference_std": 0.5001114698341711,
+            "baseline_means": {
+              "left": -0.01333333333333333,
+              "right": 93833.33333333333
+            },
+            "baseline_stds": {
+              "left": 0.18558711439863576,
+              "right": 262005.8480755159
+            },
+            "direction": -1,
+            "latest_standardized_changes": [
+              {
+                "date": "2020-01-01",
+                "left": 0.07184406835861307,
+                "right": 0.5464254623255694
+              },
+              {
+                "date": "2020-02-01",
+                "left": -0.46698644433098546,
+                "right": 0.6418431798445862
+              },
+              {
+                "date": "2020-03-01",
+                "left": 4.921318682564998,
+                "right": -5.6938932634181265
+              },
+              {
+                "date": "2020-04-01",
+                "left": 56.11021738807682,
+                "right": -78.48234489562488
+              },
+              {
+                "date": "2020-05-01",
+                "left": -8.549444134674964,
+                "right": 9.618742044033683
+              },
+              {
+                "date": "2020-06-01",
+                "left": -11.782427210812543,
+                "right": 17.317043493467956
+              }
+            ]
+          },
+          "ranking": {
+            "score": 92.5,
+            "components": {
+              "magnitude": 25.0,
+              "historical_rarity": 20.0,
+              "sample_size": 15.0,
+              "completeness": 15.0,
+              "window_stability": 7.5,
+              "freshness": 10.0
+            },
+            "meaning": "Research-priority score, not confidence, significance or economic importance."
+          },
+          "configuration": {
+            "datasets": [
+              "unemployment",
+              "payrolls"
+            ],
+            "transformations": {
+              "unemployment": "pp",
+              "payrolls": "jobs"
+            },
+            "start": "2008-07-01",
+            "end": "2020-06-01",
+            "timeframe": "Custom",
+            "alignment": "native",
+            "rolling_window": 24,
+            "workspace": {
+              "mode": "separate",
+              "chart_type": "line",
+              "layout": "stacked",
+              "axes": "shared",
+              "axis_assignment": {},
+              "hidden": [],
+              "recession": false,
+              "lead_lag": {
+                "dataset_id": "",
+                "periods": 0,
+                "unit": "months"
+              }
+            }
+          },
+          "sources": [
+            {
+              "id": "unemployment",
+              "name": "US unemployment rate (U-3, SA)",
+              "source": "FRED / BLS",
+              "provider_id": "UNRATE",
+              "status": "ok",
+              "frequency": "monthly",
+              "units": "Percent",
+              "seasonal_adjustment": "Seasonally adjusted",
+              "definition": "Civilian unemployed as a percent of the civilian labour force, age 16+, seasonally adjusted.",
+              "quality_warnings": [
+                "1 absent or missing reference periods; calendar lags retain gaps and never use row-count substitution.",
+                "1 explicit missing source observations retained. Non-trading days are not inferred to be observations."
+              ],
+              "input_fingerprint": "8fe3349b76bdfe4ffb43936bf6ab95e23148eeab064e8c6a22280790837c67e1",
+              "url": "https://fred.stlouisfed.org/series/UNRATE",
+              "latest_observation_date": "2026-09-01",
+              "retrieved_at": "2026-10-25T21:58:34.762108+00:00",
+              "publication_date": "2026-10-02",
+              "revision_count": 0,
+              "verification": {
+                "status": "Verified against primary source",
+                "raw_status": "Verified against primary source",
+                "headline_status": "Verified against primary source",
+                "audit_checked_at": "2026-10-24",
+                "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+                "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage.",
+                "headline_reconciliation": {
+                  "reference": "2026-09-01",
+                  "release_date": "2026-10-02",
+                  "published_value": 4.2,
+                  "calculated_value": 4.2,
+                  "rounded_to_release_precision": 4.2,
+                  "difference_at_release_precision": 0.0,
+                  "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+                  "vintage_note": "Latest retrieved revised series compared with this dated release, not a claim that all historical vintages match."
+                }
+              },
+              "limitations": [
+                "Latest revised observations; publication dates and real-time vintages are not implied by reference dates."
+              ]
+            },
+            {
+              "id": "payrolls",
+              "name": "US total nonfarm payroll employment (level, SA)",
+              "source": "FRED / BLS",
+              "provider_id": "PAYEMS",
+              "status": "ok",
+              "frequency": "monthly",
+              "units": "Thousands of persons",
+              "seasonal_adjustment": "Seasonally adjusted",
+              "definition": "CES establishment-survey total nonfarm employment level in thousands of persons; monthly jobs change is adjacent-month difference times 1,000.",
+              "quality_warnings": [],
+              "input_fingerprint": "475e8a454f62c0e767d8ab60da8a86b0aafe6878576a2070f25380585e856b4e",
+              "url": "https://fred.stlouisfed.org/series/PAYEMS",
+              "latest_observation_date": "2026-09-01",
+              "retrieved_at": "2026-10-25T21:58:35.021837+00:00",
+              "publication_date": "2026-10-02",
+              "revision_count": 0,
+              "verification": {
+                "status": "Verified against primary source",
+                "raw_status": "Verified against primary source",
+                "headline_status": "Verified against primary source",
+                "audit_checked_at": "2026-10-24",
+                "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+                "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage.",
+                "headline_reconciliation": {
+                  "reference": "2026-09-01",
+                  "release_date": "2026-10-02",
+                  "published_value": 29000,
+                  "calculated_value": 29000.0,
+                  "rounded_to_release_precision": 29000.0,
+                  "difference_at_release_precision": 0.0,
+                  "source_url": "https://www.bls.gov/news.release/archives/empsit_10022026.htm",
+                  "vintage_note": "Latest retrieved revised series compared with this dated release, not a claim that all historical vintages match."
+                }
+              },
+              "limitations": [
+                "Latest revised observations; publication dates and real-time vintages are not implied by reference dates."
+              ]
+            }
+          ],
+          "limitations": [
+            "Exploratory research candidates, not trading advice, causal evidence or an established regime change.",
+            "Latest revised observations; reference dates are not publication dates. No point-in-time backtest or predictive claim.",
+            "Several predefined tests are examined together. No p-values or family-wise significance claims; selection and repeated-scan bias remain.",
+            "Overlapping windows, autocorrelation and extreme observations limit interpretation. Stability screens reduce noise but do not remove these risks.",
+            "Latest revised observations; publication dates and real-time vintages are not implied by reference dates.",
+            "Sensitive to the largest recent standardized gap: omitting it from the six-period diagnostic changes direction or reduces |z| below 1. Reported results retain all observations; inspect whether one extreme event explains the pattern."
+          ]
+        },
+        {
+          "id": "3682be9c2cc651735e3d",
+          "type": "divergence",
+          "headline": "Monthly PCE inflation / Monthly core PCE inflation: recent standardized changes have diverged from baseline co-movement.",
+          "evidence": {
+            "observation_date": "2020-06-01",
+            "recent": {
+              "start": "2018-07-01",
+              "end": "2020-06-01",
+              "expected": 24,
+              "observations": 24,
+              "missing": 0,
+              "completeness": 1.0
+            },
+            "baseline": {
+              "start": "2008-07-01",
+              "end": "2018-06-01",
+              "expected": 120,
+              "observations": 120,
+              "missing": 0,
+              "completeness": 1.0
+            },
+            "recent_correlation": 0.8087401143475507,
+            "baseline_correlation": 0.6533288872999875,
+            "correlation_difference": 0.15541122704756316,
+            "alternate_recent_correlation": 0.7587156316078875,
+            "alternate_baseline_correlation": 0.6826283668691502,
+            "alternate_difference": 0.07608726473873728,
+            "influence_recent_correlation": 0.6224752845276481,
+            "influence_baseline_correlation": 0.6610068956389733,
+            "influence_difference": -0.03853161111132519,
+            "effective_recent_n": 19.72639029545118,
+            "effective_baseline_n": 94.71549169113784,
+            "pair_rationale": "Headline and core monthly PCE inflation offer related consumption-price measures.",
+            "transformations": {
+              "pce": "mom",
+              "core_pce": "mom"
+            },
+            "alignment": "Same native frequency, exact reference dates; no filling. Missing periods retained.",
+            "method": "Three-period mean of standardized right changes minus baseline correlation sign \u00d7 standardized left changes. Baseline-only means/sample stds. Compared with baseline three-period means; six-period same-direction screen. Empirical absolute midrank, not a p-value.",
+            "divergence": -1.444900328809667,
+            "divergence_z": -3.0680696792488837,
+            "alternate_divergence_z": -1.313754906093638,
+            "influence_divergence_z": -0.07293631202367766,
+            "extreme_sensitive": true,
+            "absolute_divergence_percentile": 0.9915254237288136,
+            "reference_mean": 0.0038397391566616424,
+            "reference_std": 0.47219920647988833,
+            "baseline_means": {
+              "left": 0.10642705419731427,
+              "right": 0.12436446962521783
+            },
+            "baseline_stds": {
+              "left": 0.21408765255493467,
+              "right": 0.07493985472935902
+            },
+            "direction": 1,
+            "latest_standardized_changes": [
+              {
+                "date": "2020-01-01",
+                "left": 0.3223753789818504,
+                "right": 0.7068480154274183
+              },
+              {
+                "date": "2020-02-01",
+                "left": -0.12608674656666166,
+                "right": 0.9452615819387611
+              },
+              {
+                "date": "2020-03-01",
+                "left": -1.8460687662073156,
+                "right": -2.666274454788192
+              },
+              {
+                "date": "2020-04-01",
+                "left": -2.436810901877827,
+                "right": -5.982892964414271
+              },
+              {
+                "date": "2020-05-01",
+                "left": -0.02929193660930002,
+                "right": -0.2648954066172385
+              },
+              {
+                "date": "2020-06-01",
+                "left": 0.9768594517775475,
+                "right": 0.4238439978929291
+              }
+            ]
+          },
+          "ranking": {
+            "score": 86.51,
+            "components": {
+              "magnitude": 19.18,
+              "historical_rarity": 19.83,
+              "sample_size": 15.0,
+              "completeness": 15.0,
+              "window_stability": 7.5,
+              "freshness": 10.0
+            },
+            "meaning": "Research-priority score, not confidence, significance or economic importance."
+          },
+          "configuration": {
+            "datasets": [
+              "pce",
+              "core_pce"
+            ],
+            "transformations": {
+              "pce": "mom",
+              "core_pce": "mom"
+            },
+            "start": "2008-07-01",
+            "end": "2020-06-01",
+            "timeframe": "Custom",
+            "alignment": "native",
+            "rolling_window": 24,
+            "workspace": {
+              "mode": "separate",
+              "chart_type": "line",
+              "layout": "stacked",
+              "axes": "shared",
+              "axis_assignment": {},
+              "hidden": [],
+              "recession": false,
+              "lead_lag": {
+                "dataset_id": "",
+                "periods": 0,
+                "unit": "months"
+              }
+            }
+          },
+          "sources": [
+            {
+              "id": "pce",
+              "name": "US PCE price index (SA)",
+              "source": "FRED / BEA",
+              "provider_id": "PCEPI",
+              "status": "ok",
+              "frequency": "monthly",
+              "units": "Index 2017=100",
+              "seasonal_adjustment": "Seasonally adjusted",
+              "definition": "BEA chain-type price index for personal consumption expenditures; annual inflation is the 12-month index change.",
+              "quality_warnings": [],
+              "input_fingerprint": "1d954b79fa3757c07e4e0e027c9e58b037be0756251d24ddedb3cd24e8718ae8",
+              "url": "https://fred.stlouisfed.org/series/PCEPI",
+              "latest_observation_date": "2026-08-01",
+              "retrieved_at": "2026-10-25T21:58:34.711839+00:00",
+              "publication_date": "2026-09-30",
+              "revision_count": 0,
+              "verification": {
+                "status": "Verified against distributor",
+                "raw_status": "Verified against distributor",
+                "headline_status": "Verified against primary source",
+                "audit_checked_at": "2026-10-24",
+                "source_url": "https://fred.stlouisfed.org/series/PCEPI",
+                "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage.",
+                "headline_reconciliation": {
+                  "reference": "2026-08-01",
+                  "release_date": "2026-09-30",
+                  "published_value": 3.4,
+                  "calculated_value": 3.419031824505425,
+                  "rounded_to_release_precision": 3.4,
+                  "difference_at_release_precision": 0.0,
+                  "source_url": "https://www.bea.gov/news/2026/personal-income-and-outlays-august-2026",
+                  "vintage_note": "Latest retrieved revised series compared with this dated release, not a claim that all historical vintages match."
+                }
+              },
+              "limitations": [
+                "Latest revised observations; publication dates and real-time vintages are not implied by reference dates."
+              ]
+            },
+            {
+              "id": "core_pce",
+              "name": "US core PCE price index (SA)",
+              "source": "FRED / BEA",
+              "provider_id": "PCEPILFE",
+              "status": "ok",
+              "frequency": "monthly",
+              "units": "Index 2017=100",
+              "seasonal_adjustment": "Seasonally adjusted",
+              "definition": "BEA chain-type PCE prices excluding food and energy.",
+              "quality_warnings": [],
+              "input_fingerprint": "ea2c9ec4ed3c196794d27e8e4ade89b32b28fbee38ede146895591960802b9b0",
+              "url": "https://fred.stlouisfed.org/series/PCEPILFE",
+              "latest_observation_date": "2026-08-01",
+              "retrieved_at": "2026-10-25T21:58:34.699897+00:00",
+              "publication_date": "2026-09-30",
+              "revision_count": 0,
+              "verification": {
+                "status": "Verified against distributor",
+                "raw_status": "Verified against distributor",
+                "headline_status": "Verified against primary source",
+                "audit_checked_at": "2026-10-24",
+                "source_url": "https://fred.stlouisfed.org/series/PCEPILFE",
+                "limitation": "Dated release/distributor check only. Revised history is not a point-in-time vintage.",
+                "headline_reconciliation": {
+                  "reference": "2026-08-01",
+                  "release_date": "2026-09-30",
+                  "published_value": 3.0,
+                  "calculated_value": 3.0075959761856064,
+                  "rounded_to_release_precision": 3.0,
+                  "difference_at_release_precision": 0.0,
+                  "source_url": "https://www.bea.gov/news/2026/personal-income-and-outlays-august-2026",
+                  "vintage_note": "Latest retrieved revised series compared with this dated release, not a claim that all historical vintages match."
+                }
+              },
+              "limitations": [
+                "Latest revised observations; publication dates and real-time vintages are not implied by reference dates."
+              ]
+            }
+          ],
+          "limitations": [
+            "Exploratory research candidates, not trading advice, causal evidence or an established regime change.",
+            "Latest revised observations; reference dates are not publication dates. No point-in-time backtest or predictive claim.",
+            "Several predefined tests are examined together. No p-values or family-wise significance claims; selection and repeated-scan bias remain.",
+            "Overlapping windows, autocorrelation and extreme observations limit interpretation. Stability screens reduce noise but do not remove these risks.",
+            "Latest revised observations; publication dates and real-time vintages are not implied by reference dates.",
+            "Sensitive to the largest recent standardized gap: omitting it from the six-period diagnostic changes direction or reduces |z| below 1. Reported results retain all observations; inspect whether one extreme event explains the pattern."
+          ]
+        }
+      ]
+    },
+    "2022-07-01": {
+      "context": "Retrospective replay using today's revised observations, not evidence available at the historical date. Source metadata reflect current retrieval, not past release availability or freshness. These two windows were preselected as pandemic/inflation examples before execution; selection and multiple-look bias remain. Not displayed as current findings.",
+      "divergences": []
+    }
+  },
+  "full_evidence": "Regenerate complete dated inputs with python -m backend.tools.discovery_examples. Local full JSON accompanies the handoff. These records use current revised data, not past release-time availability."
+}
