@@ -25,8 +25,8 @@ from fastapi import Path as ApiPath
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from backend.app.ingestion.runner import IngestionWorker
 from backend.app.ingestion.catalog_refresh import CatalogRefreshWorker
+from backend.app.ingestion.runner import IngestionWorker
 from backend.app.registry.markets import MarketRegistry
 from backend.app.services.direct_answers import PublicTimeSeriesProvider
 from backend.app.v2.ai_guard import AIGuard, BudgetBlocked
@@ -38,6 +38,7 @@ from backend.app.v2.integrity import (
     market_change,
     validate_frame,
 )
+from backend.app.v2.legacy_history import reconcile_rolling_prefix
 from backend.app.v2.movements import movement
 from backend.app.v2.native_compare import compare_native
 from backend.app.v2.native_reader import NativeReader
@@ -287,6 +288,20 @@ class DataService:
             frame = frame[
                 (frame.date >= pd.Timestamp(start)) & (frame.date <= pd.Timestamp(end))
             ]
+            frame, retained_history = reconcile_rolling_prefix(
+                frame, cached[1].observations if cached else [], spec, self.today_fn()
+            )
+            if retained_history:
+                frame, quality_warnings = validate_frame(
+                    [
+                        (r.date, None if pd.isna(r.value) else r.value)
+                        for r in frame.itertuples()
+                    ],
+                    spec,
+                )
+                quality_warnings.append(
+                    retained_history["retained_before_source_start_note"]
+                )
             valid = frame.dropna(subset=["value"])
             if valid.empty:
                 raise RuntimeError("No usable observations")
@@ -339,6 +354,7 @@ class DataService:
                     **release,
                     "freshness_assessment": freshness_reason,
                     "source_check_succeeded": True,
+                    **retained_history,
                 },
                 provider_metadata=self.provider.metadata(spec.id)
                 if hasattr(self.provider, "metadata")

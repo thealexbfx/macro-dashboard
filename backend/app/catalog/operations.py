@@ -228,7 +228,11 @@ def health(
                     observation_count=cache.get("observation_count"),
                     last_check=cache.get("checked_at"),
                     last_success=meta.get("last_source_success_at")
-                    or cache.get("retrieved_at"),
+                    or (
+                        cache.get("retrieved_at")
+                        if meta.get("source_check_succeeded") is True
+                        else None
+                    ),
                     next_check=cache.get("next_due"),
                     latest_observation_date=cache.get("latest"),
                     failures=cache.get("failures", 0),

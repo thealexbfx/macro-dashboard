@@ -51,7 +51,9 @@ def scheduled_service_class(base, dataset_class):
                         "SELECT * FROM source_cache WHERE id=?", (key,)
                     ).fetchone()
                 if cached and datetime.fromisoformat(cached["next_due"]) > now:
-                    d = dataset_class.model_validate(json.loads(cached["payload"]))
+                    d = legacy_telemetry_view(
+                        dataset_class.model_validate(json.loads(cached["payload"]))
+                    )
                     # Reassess reference freshness, never pretend cache read is retrieval.
                     if d.status == "ok" and d.latest_observation_date:
                         stale, reason, _release = assess_freshness(
@@ -67,7 +69,9 @@ def scheduled_service_class(base, dataset_class):
                 owner = uuid.uuid4().hex
                 if not self.store.acquire("source:" + key, owner, now.timestamp(), 120):
                     if cached:
-                        d = dataset_class.model_validate(json.loads(cached["payload"]))
+                        d = legacy_telemetry_view(
+                            dataset_class.model_validate(json.loads(cached["payload"]))
+                        )
                         if d.status == "ok" and d.latest_observation_date:
                             stale, reason, _ = assess_freshness(
                                 SPECS[key],
@@ -93,10 +97,18 @@ def scheduled_service_class(base, dataset_class):
                         )
                         with self.lock:
                             self.cache[key] = (monotonic() - self.ttl - 1, previous)
+                    else:
+                        # An absent persistent row must not promote a preexisting
+                        # in-memory cache hit into a newly checked source success.
+                        with self.lock:
+                            memory = self.cache.get(key)
+                            if memory:
+                                self.cache[key] = (
+                                    monotonic() - self.ttl - 1,
+                                    memory[1],
+                                )
                     d = super().get(key)
-                    succeeded = d.release_metadata.get(
-                        "source_check_succeeded", d.status == "ok"
-                    )
+                    succeeded = d.release_metadata.get("source_check_succeeded") is True
                     failures = (
                         (cached["failures"] if cached else 0) + 1
                         if not succeeded
@@ -106,6 +118,9 @@ def scheduled_service_class(base, dataset_class):
                     metadata = {
                         **d.release_metadata,
                         "last_checked_at": now.isoformat(),
+                        "source_check_telemetry": "recorded_success"
+                        if succeeded
+                        else "recorded_failure",
                         "next_check_at": next_due.isoformat(),
                         "retrieval_time_note": "Provider retrieval and source observation/publication dates are distinct.",
                         "last_source_success_at": now.isoformat()
@@ -152,3 +167,19 @@ def scheduled_service_class(base, dataset_class):
                 ]
 
     return ScheduledDataService
+
+
+def legacy_telemetry_view(dataset):
+    """Annotate old cache reads in memory only; never infer or backfill success."""
+    meta = dataset.release_metadata
+    if "source_check_succeeded" not in meta and not meta.get("last_source_success_at"):
+        return dataset.model_copy(
+            update={
+                "release_metadata": {
+                    **meta,
+                    "source_check_telemetry": "legacy_unverified",
+                    "last_source_success_at": None,
+                }
+            }
+        )
+    return dataset
