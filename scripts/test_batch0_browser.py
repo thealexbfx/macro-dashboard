@@ -56,11 +56,12 @@ def main():
         )
         page.get_by_role("button", name="Next page").click(timeout=60000)
         expect(page.get_by_text("Page 2", exact=False)).to_be_visible()
+        page.get_by_text("More filters", exact=True).click()
         page.get_by_label("Catalog frequency").select_option("annual")
         expect(page.get_by_text("Page 1", exact=False)).to_be_visible()
         page.get_by_label("Catalog region").select_option("JP")
         page.get_by_label("Catalog provider").select_option("fixture_ons")
-        expect(page.get_by_role("row").nth(1)).to_contain_text("annual", timeout=30000)
+        expect(page.locator(".dataset-result").first).to_contain_text("annual", timeout=30000)
         page.screenshot(path=str(output / "explorer-desktop.png"), full_page=True)
         page.get_by_role("button", name="My Research", exact=True).click()
         page.get_by_role("article").filter(
@@ -138,7 +139,7 @@ def main():
         ).to_contain_text("Synthetic failure", timeout=30000)
         page.unroute("**/api/v2/catalog/search")
         page.get_by_role("button", name="Retry catalog").click()
-        expect(page.get_by_role("row").nth(1)).to_be_visible(timeout=30000)
+        expect(page.locator(".dataset-result").first).to_be_visible(timeout=30000)
         page.set_viewport_size({"width": 390, "height": 844})
         page.screenshot(path=str(output / "explorer-mobile.png"), full_page=True)
         # Admin UI uses a synthetic response; backend authentication/header
