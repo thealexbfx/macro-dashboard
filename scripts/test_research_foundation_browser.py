@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from playwright.sync_api import expect, sync_playwright
 
-URL = "http://127.0.0.1:3039"
+URL = os.environ.get("BATCH0_BROWSER_URL", "http://127.0.0.1:3039")
 
 def records(page, store):
     return page.evaluate("""store=>new Promise((resolve,reject)=>{const o=indexedDB.open('macrolens-research');o.onsuccess=()=>{const db=o.result;const tx=db.transaction(store);const q=tx.objectStore(store).getAll();q.onsuccess=()=>{resolve(q.result);db.close();};q.onerror=()=>reject(q.error);};o.onerror=()=>reject(o.error);})""", store)
@@ -31,7 +31,7 @@ def main():
         page.route(URL, lambda route: route.fulfill(status=200, content_type="text/html", body=server))
         page.goto(URL, wait_until="networkidle")
         page.unroute(URL)
-        page.get_by_role("button", name="Investigate", exact=True).click()
+        page.get_by_role("button", name="Research", exact=True).click()
         expect(page.get_by_label("Investigation question")).to_be_visible()
         page.get_by_label("Investigation question").fill("Does the relationship survive revisions?")
         page.get_by_label("Investigation notes", exact=True).fill("My interpretation; not numerical evidence")
@@ -41,7 +41,7 @@ def main():
         assert draft['created_at'].startswith('2026-11-03T00:00:01')
         first_id = draft['id']
         page.get_by_role('button', name='Dataset Explorer', exact=True).click()
-        page.get_by_role('button', name='Investigate', exact=True).click()
+        page.get_by_role('button', name='Research', exact=True).click()
         expect(page.get_by_label('Investigation question')).to_have_value(draft['research_question'])
         page.reload(wait_until='networkidle')
         expect(page.get_by_label('Investigation notes', exact=True)).to_have_value(draft['note'])
@@ -98,14 +98,14 @@ def main():
         broken = browser.new_page()
         broken.add_init_script("localStorage.setItem('ml-research','broken-json');")
         broken.goto(URL, wait_until='networkidle')
-        broken.get_by_role('button', name='Investigate', exact=True).click()
+        broken.get_by_role('button', name='Research', exact=True).click()
         expect(broken.get_by_role('alert').filter(has_text='original browser copy was retained')).to_be_visible()
         assert broken.evaluate("localStorage.getItem('ml-research')") == 'broken-json'
         unavailable = browser.new_page()
         unavailable.add_init_script("Object.defineProperty(window,'indexedDB',{value:undefined});")
         unavailable.goto(URL, wait_until='networkidle')
         # Navigation must not silently drop an unsaved in-memory draft.
-        unavailable.get_by_role('button', name='Investigate', exact=True).click()
+        unavailable.get_by_role('button', name='Research', exact=True).click()
         # Storage errors are also displayed globally so recovery is accessible on Today.
         expect(unavailable.get_by_role('alert').filter(has_text='storage is unavailable')).to_be_visible()
         print(json.dumps({'research_foundation_checks': 16, 'passed': True, 'midnight': {'server_response_clock':'2026-11-02T23:59:59Z','hydration_clock':'2026-11-03T00:00:01Z','end':'2026-11-02','page_errors':errors,'hydration_errors':hydration}}))
