@@ -68,6 +68,7 @@ def main():
             has_text="Synthetic monthly comparison"
         ).get_by_role("button", name="Open investigation").click()
         expect(page.locator(".workspace-chart").first).to_be_visible(timeout=30000)
+        page.get_by_text("Relationships & statistics", exact=True).click()
         expect(
             page.get_by_text("110 overlapping observations", exact=False)
         ).to_be_visible(timeout=30000)

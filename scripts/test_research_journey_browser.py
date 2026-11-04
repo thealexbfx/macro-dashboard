@@ -8,7 +8,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from playwright.sync_api import expect, sync_playwright
-from test_research_foundation_browser import records, URL
+from test_research_foundation_browser import records, URL, writing, annotation
 
 
 def revised_calculation(body):
@@ -78,33 +78,35 @@ def main():
         card = page.locator('.discovery-story').filter(has_text=report['findings'][0]['headline'])
         card.get_by_role('button', name='Investigate', exact=True).click()
         expect(page.get_by_label('Investigation question')).to_have_value(question)
-        expect(page.get_by_label('Working hypothesis')).to_be_visible()
-        expect(page.get_by_role('button', name='Attach supporting calculation', exact=True)).to_be_enabled(timeout=60000)
+        expect(writing(page,'What might explain this?')).to_be_visible()
+        expect(page.get_by_role('button', name='Save as evidence', exact=True)).to_be_enabled(timeout=60000)
         draft = records(page, 'drafts')
         assert draft[-1]['record']['datasets'] == report['findings'][0]['datasets'] or any(d['record']['datasets'] == report['findings'][0]['datasets'] for d in draft)
-        page.get_by_label('Working hypothesis').fill('A shared trend might explain the relationship.')
-        page.get_by_role('button', name='Attach supporting calculation', exact=True).click()
-        page.get_by_label('Annotation for evidence 1').fill('Descriptive support; causality is not established.')
-        page.get_by_role('button', name='Attach supporting calculation', exact=True).click()
+        writing(page,'What might explain this?').fill('A shared trend might explain the relationship.')
+        page.get_by_role('button', name='Save as evidence', exact=True).click()
+        annotation(page,1).fill('Descriptive support; causality is not established.')
+        page.get_by_role('button', name='Save as evidence', exact=True).click()
         expect(page.get_by_role('alert').filter(has_text='already attached')).to_be_visible()
         expect(page.get_by_label('Evidence 2', exact=True)).to_have_count(0)
         # Change the analytical display and attach a genuinely distinct calculation.
+        page.get_by_text('Chart options', exact=True).click()
         page.get_by_text('Individual series displays', exact=False).click()
         page.get_by_label('Transformation for fixture_catalog_002').select_option('percent')
-        expect(page.get_by_role('button', name='Attach contradictory calculation', exact=True)).to_be_enabled(timeout=60000)
-        page.get_by_role('button', name='Attach contradictory calculation', exact=True).click()
+        page.get_by_text('Evidence options', exact=True).click()
+        expect(page.get_by_role('button', name='Save as evidence against', exact=True)).to_be_enabled(timeout=60000)
+        page.get_by_role('button', name='Save as evidence against', exact=True).click()
         expect(page.get_by_label('Evidence 2', exact=True)).to_be_visible()
-        page.get_by_label('Annotation for evidence 2').fill('Different transformations change the comparison.')
+        annotation(page,2).fill('Different transformations change the comparison.')
         page.get_by_label('Alternative explanations', exact=True).fill('A common trend or the selected sample may explain this.')
         page.get_by_label('Limitations and uncertainty', exact=True).fill('Synthetic sample; revised observations; no causal identification.')
         conclusion = 'Provisional: investigate changes before interpreting the levels.'
-        page.get_by_label('Provisional conclusion').fill(conclusion)
-        page.get_by_label('Investigation notes').fill('Keep my working notes.')
+        page.get_by_label('My conclusion').fill(conclusion)
+        writing(page,'Investigation notes').fill('Keep my working notes.')
         page.get_by_role('button', name='Dataset Explorer', exact=True).click()
         page.get_by_role('button', name='Discover', exact=True).click()
         page.get_by_role('navigation').get_by_role('button', name='Research', exact=True).click()
-        expect(page.get_by_label('Provisional conclusion')).to_have_value(conclusion)
-        expect(page.get_by_role('button', name='Attach supporting calculation', exact=True)).to_be_enabled(timeout=60000)
+        expect(page.get_by_label('My conclusion')).to_have_value(conclusion)
+        expect(page.get_by_role('button', name='Save as evidence', exact=True)).to_be_enabled(timeout=60000)
         page.get_by_role('button', name='Save and return to My Research', exact=True).click()
         expect(page.locator('.research-grid').get_by_role('heading', name=question, exact=True)).to_be_visible()
         saved = next(r for r in records(page, 'saved') if r['research_question'] == question)
@@ -117,16 +119,17 @@ def main():
         page.reload(wait_until='networkidle')
         page.get_by_role('button', name='My Research', exact=True).click()
         page.locator('.research-grid').get_by_role('button', name='Open investigation', exact=False).click()
-        expect(page.get_by_label('Working hypothesis')).to_have_value(saved['working_hypothesis'])
+        expect(writing(page,'What might explain this?')).to_have_value(saved['working_hypothesis'])
         question2 = question + ' What survives a revision?'
         conclusion2 = 'Still provisional; the attached evidence needs a robustness check.'
         page.get_by_label('Investigation question').fill(question2)
-        page.get_by_label('Provisional conclusion').fill(conclusion2)
-        page.get_by_role('button', name='Save research', exact=True).click()
+        page.get_by_label('My conclusion').fill(conclusion2)
+        page.get_by_role('button', name='Save changes', exact=True).click()
         expect(page.get_by_text('Investigation saved on this browser', exact=False)).to_be_visible()
         assert len(records(page, 'saved')) == 1
         assert records(page, 'saved')[0]['id'] == identity and records(page, 'saved')[0]['revision'] == 2
         # Use captured settings with latest data, not historical replay.
+        annotation(page,1)
         page.get_by_role('button', name='Use saved settings with latest data', exact=True).first.click()
         expect(page.get_by_label('Transformation for fixture_catalog_002')).to_have_value('level')
         expect(page.get_by_text('Draft saved on this browser', exact=False)).to_be_visible()
@@ -138,20 +141,21 @@ def main():
             route.fulfill(response=response, json=body)
         page.route('**/api/v2/compare', revised)
         page.reload(wait_until='networkidle')
+        annotation(page,1)
         expect(page.get_by_text('Current calculation differs from this attachment.', exact=False).first).to_be_visible(timeout=60000)
-        expect(page.get_by_label('Provisional conclusion')).to_have_value(conclusion2)
+        expect(page.get_by_label('My conclusion')).to_have_value(conclusion2)
         before = records(page, 'saved')[0]
         assert before['supporting_evidence'] == original['supporting_evidence']
         assert before['contradictory_evidence'] == original['contradictory_evidence']
-        page.get_by_role('button', name='Save research', exact=True).click()
+        page.get_by_role('button', name='Save changes', exact=True).click()
         expect(page.get_by_text('Investigation saved on this browser', exact=False)).to_be_visible()
         after = records(page, 'saved')[0]
         assert after['revision'] == 3 and after['conclusion'] == conclusion2
         assert after['original_calculation'] == original['original_calculation']
         assert after['discovery'] == original['discovery'] and after['supporting_evidence'] == original['supporting_evidence']
-        expect(page.get_by_role('button', name='Attach supporting calculation', exact=True)).to_be_enabled(timeout=60000)
+        expect(page.get_by_role('button', name='Save as evidence', exact=True)).to_be_enabled(timeout=60000)
         page.locator('.research-workspace').scroll_into_view_if_needed()
-        page.locator('.coverage-list').scroll_into_view_if_needed()
+        page.locator('.ml-observation-grid').scroll_into_view_if_needed()
         page.screenshot(path=str(output/'research-journey-desktop.png'), full_page=True)
         # Revoked references fail through the existing catalog/compare boundary.
         page.unroute('**/api/v2/compare')
@@ -159,10 +163,10 @@ def main():
         context.route('**/api/v2/compare', lambda route: route.fulfill(status=422, json=dict(detail='Unknown dataset: fixture_catalog_002 (synthetic revoked reference)')))
         page.reload(wait_until='networkidle')
         expect(page.get_by_text('Some saved dataset references are unavailable', exact=False)).to_be_visible(timeout=60000)
-        expect(page.get_by_role('button', name='Attach supporting calculation', exact=True)).to_be_disabled()
-        page.get_by_label('Provisional conclusion').fill('Retained with a revoked reference; do not infer a new result.')
+        expect(page.get_by_role('button', name='Save as evidence', exact=True)).to_be_disabled()
+        page.get_by_label('My conclusion').fill('Retained with a revoked reference; do not infer a new result.')
         page.get_by_label('Start date').fill('2001-01-01')
-        page.get_by_role('button', name='Save research', exact=True).click()
+        page.get_by_role('button', name='Save changes', exact=True).click()
         expect(page.get_by_text('Investigation saved on this browser', exact=False)).to_be_visible()
         unavailable = records(page, 'saved')[0]
         assert unavailable['revision'] == 4 and unavailable['saved_calculation'] == after['saved_calculation']
@@ -170,24 +174,24 @@ def main():
         # Real shared browser storage: stale edits in another tab must not overwrite.
         other = context.new_page()
         other.goto(URL, wait_until='networkidle')
-        expect(other.get_by_label('Working hypothesis')).to_have_value(unavailable['working_hypothesis'])
-        page.get_by_label('Working hypothesis').fill('First tab preserves this newer work.')
+        expect(writing(other,'What might explain this?')).to_have_value(unavailable['working_hypothesis'])
+        writing(page,'What might explain this?').fill('First tab preserves this newer work.')
         expect(page.get_by_text('Draft saved on this browser', exact=False)).to_be_visible()
-        other.get_by_label('Working hypothesis').fill('Stale second tab edits stay in memory.')
+        writing(other,'What might explain this?').fill('Stale second tab edits stay in memory.')
         expect(other.get_by_role('alert').filter(has_text='changed in another tab')).to_be_visible()
-        other.get_by_role('button', name='Save research', exact=True).click()
+        other.get_by_role('button', name='Save changes', exact=True).click()
         expect(other.get_by_role('alert').filter(has_text='changed in another tab')).to_be_visible()
-        page.get_by_role('button', name='Save research', exact=True).click()
+        page.get_by_role('button', name='Save changes', exact=True).click()
         expect(page.get_by_text('Investigation saved on this browser', exact=False)).to_be_visible()
         assert records(page, 'saved')[0]['working_hypothesis'] == 'First tab preserves this newer work.'
         assert records(page, 'saved')[0]['revision'] == 5
-        expect(other.get_by_label('Working hypothesis')).to_have_value('Stale second tab edits stay in memory.')
+        expect(writing(other,'What might explain this?')).to_have_value('Stale second tab edits stay in memory.')
         # Mobile navigation, own question and separate-ID blank/provisional save.
         page.set_viewport_size(dict(width=390, height=844))
         page.get_by_role('button', name='My Research', exact=True).click()
         page.get_by_role('button', name='+ New investigation', exact=True).click()
         page.get_by_label('Investigation question').fill('My separate mobile question')
-        page.get_by_label('Provisional conclusion').fill('No conclusion yet.')
+        page.get_by_label('My conclusion').fill('No conclusion yet.')
         page.get_by_role('button', name='Save and return to My Research', exact=True).click()
         expect(page.locator('.research-grid').get_by_role('heading', name='My separate mobile question', exact=True)).to_be_visible()
         assert len(records(page, 'saved')) == 2 and len({r['id'] for r in records(page,'saved')}) == 2
