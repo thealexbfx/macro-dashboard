@@ -7,6 +7,8 @@ from statistics import mean, pstdev
 
 import pandas as pd
 
+from backend.app.v2.comparison_receipt import calculation_receipt, input_receipt
+
 from macro_engine.research.analytics import relationship
 
 
@@ -100,7 +102,7 @@ def compare_native(catalog, req, legacy_compare=None):
         raise ValueError(
             "Native catalog charts require native alignment; no implicit frequency conversion"
         )
-    series, raw, datasets, frames = [], {}, [], {}
+    series, raw, datasets, frames, input_receipts = [], {}, [], {}, []
     for d in metadata:
         key, frequency = d["id"], d["frequency"]
         if not d.get("native_storage") and legacy_compare is not None:
@@ -117,6 +119,13 @@ def compare_native(catalog, req, legacy_compare=None):
                 }
             )
             old = legacy_compare(single).model_dump()
+            if old.get("provenance"):
+                input_receipts.extend(old["provenance"]["datasets"])
+            else:
+                # Compatibility with legacy comparison adapters lacking receipts.
+                fallback = input_receipt(old["datasets"][0], old["raw_observations"][key])
+                fallback["input_scope"] = "Visible raw observations only; adapter did not expose transform lookback provenance. Exact replay unavailable."
+                input_receipts.append(fallback)
             if len(old["raw_observations"][key]) > 2000:
                 raise ValueError(
                     "Range exceeds 2,000 source observations per dataset; choose a shorter range"
@@ -151,6 +160,7 @@ def compare_native(catalog, req, legacy_compare=None):
             )
         d = page["dataset"]
         points = d.pop("observations")
+        input_receipts.append(input_receipt(d, points))
         visible = [
             o for o in points if str(req.start) <= o["date"][:10] <= str(req.end)
         ]
@@ -228,7 +238,7 @@ def compare_native(catalog, req, legacy_compare=None):
                 }
                 for k, r in pair.dropna().iterrows()
             ]
-    return {
+    result = {
         "datasets": datasets,
         "series": series,
         "raw_observations": raw,
@@ -242,3 +252,5 @@ def compare_native(catalog, req, legacy_compare=None):
             "Latest captured revisions, not a publication-time backtest. Correlation is not causation.",
         ],
     }
+    result["provenance"] = calculation_receipt(req, result, input_receipts)
+    return result

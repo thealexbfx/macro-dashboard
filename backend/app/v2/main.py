@@ -31,6 +31,7 @@ from backend.app.registry.markets import MarketRegistry
 from backend.app.services.direct_answers import PublicTimeSeriesProvider
 from backend.app.v2.ai_guard import AIGuard, BudgetBlocked
 from backend.app.v2.catalog_api import PublicCatalog
+from backend.app.v2.comparison_receipt import calculation_receipt, input_receipt
 from backend.app.v2.definitions import SPECS, Spec
 from backend.app.v2.integrity import (
     assess_freshness,
@@ -141,6 +142,7 @@ class ChartSeries(BaseModel):
 
 
 class ComparisonResponse(BaseModel):
+    provenance: dict | None = None
     scatter: list[dict] = Field(default_factory=list)
     lead_lag: dict | None = None
     series: list[ChartSeries]
@@ -560,9 +562,11 @@ def compare(service, req):
     frames = {}
     chart = []
     raw = {}
+    input_receipts = []
     for d, spec in zip(data, specs):
         frame = clean(pd.DataFrame([o.model_dump() for o in d.observations]))
         frame = frame[frame.date <= pd.Timestamp(req.end)]
+        input_receipts.append(input_receipt(d.model_dump(exclude={"observations"}), [{"date": str(r.date.date()), "value": None if pd.isna(r.value) else float(r.value)} for r in frame.itertuples()]))
         raw[spec.id] = [
             o for o in d.observations if str(req.start) <= o.date <= str(req.end)
         ]
@@ -746,7 +750,7 @@ def compare(service, req):
         warnings.append(
             "One or more series are stale; inspect source and retrieval timestamps."
         )
-    return ComparisonResponse(
+    result = ComparisonResponse(
         scatter=scatter,
         lead_lag=shift.model_dump() if shift and shift.periods else None,
         series=chart,
@@ -756,6 +760,8 @@ def compare(service, req):
         warnings=warnings,
         raw_observations=raw,
     )
+    result.provenance = calculation_receipt(req, result.model_dump(), input_receipts)
+    return result
 
 
 state_store = Store()

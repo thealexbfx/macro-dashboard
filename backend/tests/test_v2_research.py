@@ -208,3 +208,41 @@ def test_zero_and_constant_transform_rejected():
     frame["value"] = 1
     with pytest.raises(ValueError, match="nonconstant"):
         v2.transform(frame, v2.SPECS["cpi"], "standardized", date(2020, 1, 1))
+
+def test_compact_receipt_tracks_inputs_parameters_results_without_inventing_vintage(service):
+    from datetime import datetime
+    from backend.app.v2.comparison_receipt import fingerprint
+
+    request = req(transformations={"cpi": "yoy", "unemployment": "pp"})
+    result = v2.compare(service, request)
+    r = result.provenance
+    assert r["parameters"] == request.model_dump(mode="json")
+    assert r["parameter_fingerprint"] == fingerprint(r["parameters"])
+    assert datetime.fromisoformat(r["calculated_at"]).utcoffset().total_seconds() == 0
+    assert r["method_version"] == "macrolens-comparison-1"
+    assert [d["dataset_id"] for d in r["datasets"]] == request.datasets
+    assert r["datasets"][0]["input_start"] < str(request.start)  # actual transform lookback
+    assert r["datasets"][0]["generation_references"] == []
+    assert r["datasets"][0]["source_checked_at"] is None  # retrieval is not a source check
+    assert r["effective_ranges"][0]["units"] == result.series[0].units
+    assert not r["exact_replay"]["available"]
+    assert "rolling" not in r["statistics"][0]
+    assert "observations" not in r and "raw_observations" not in r
+    repeated = v2.compare(service, request).provenance
+    assert repeated["result_fingerprint"] == r["result_fingerprint"]
+    assert repeated["datasets"][0]["input_fingerprint"] == r["datasets"][0]["input_fingerprint"]
+    assert service.provider.calls == 2  # no extra provider IO for receipts or repeat
+
+
+def test_receipt_fingerprints_change_with_values_not_retrieval_and_allow_unchanged_checks():
+    from backend.app.v2.comparison_receipt import input_receipt
+
+    metadata = {"id": "x", "units": "Percent", "frequency": "daily", "retrieved_at": "2026-01-01T00:00:00Z"}
+    points = [{"date": "2025-12-01", "value": 1.2}]
+    first = input_receipt(metadata, points)
+    checked = input_receipt(metadata | {"retrieved_at": "2026-02-01T00:00:00Z", "release_metadata": {"last_source_success_at": "2026-02-01T00:00:00Z"}}, points)
+    revised = input_receipt(metadata, [{"date": "2025-12-01", "value": 1.3}])
+    assert first["input_fingerprint"] == checked["input_fingerprint"]
+    assert first["input_fingerprint"] != revised["input_fingerprint"]
+    assert first["definition_identifier"] == revised["definition_identifier"]
+    assert checked["source_checked_at"] == "2026-02-01T00:00:00Z"

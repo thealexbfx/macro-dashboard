@@ -488,3 +488,25 @@ def test_legacy_metadata_and_observations_share_one_revision(tmp_path):
     assert page["latest_value"] == page["observations"][-1]["value"] == 2
     page = catalog.observations("cpi", date(2020, 1, 1), date(2020, 12, 31))["dataset"]
     assert page["latest_value"] == page["observations"][-1]["value"] == 999
+
+def test_native_and_mixed_receipts_include_validated_generation_references(catalog):
+    from backend.app.v2.native_compare import compare_native
+
+    request = v.ComparisonRequest(datasets=["fixture_catalog_002", "fixture_catalog_016"], start="2000-01-01", end="2009-12-31")
+    result = compare_native(catalog, request)
+    receipt = result["provenance"]
+    for d in receipt["datasets"]:
+        assert d["generation_references"] == ["catalog_" + d["dataset_id"]]
+        assert d["generation_reference_count"] == 1
+        assert d["definition_identifier_kind"] == "native_definition_hash"
+        assert d["input_count"] > 0 and len(d["input_fingerprint"]) == 64
+    catalog.legacy.get.assert_not_called()
+    points = [{"date": f"2000-{i:02d}-01", "value": float(i)} for i in range(1, 13)]
+    catalog.legacy.get = Mock(return_value=v.Dataset(**v.SPECS["cpi"].__dict__, status="ok", message="fixture", observations=points))
+    mixed = request.model_copy(update={"datasets": ["cpi", "fixture_catalog_002"]})
+    result = compare_native(catalog, mixed, lambda r: v.compare(catalog.legacy, r))
+    assert [d["dataset_id"] for d in result["provenance"]["datasets"]] == mixed.datasets
+    assert result["provenance"]["parameters"]["datasets"] == mixed.datasets
+    assert result["provenance"]["datasets"][0]["generation_references"] == []
+    assert result["provenance"]["datasets"][1]["generation_references"]
+    assert not result["provenance"]["exact_replay"]["available"]
