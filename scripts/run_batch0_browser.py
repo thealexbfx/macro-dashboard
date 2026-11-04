@@ -70,6 +70,10 @@ def main():
                 env=env,
                 check=True,
             )
+            subprocess.run(
+                [sys.executable, "-B", str(root / "scripts/test_research_foundation_browser.py")],
+                cwd=root, env=env, check=True,
+            )
         finally:
             for process in (backend, frontend):
                 if process.poll() is None:

@@ -455,6 +455,7 @@ class NativeReader:
                     }
                 )
             metadata = self._metadata(publication, db)
+            metadata["stored_provenance"].update(definition_hash=d.fingerprint, generation_references=sorted(proofs)[:16], generation_reference_count=len(proofs))
             valid = [r for r in observations if r["value"] is not None]
             checked_at = max((r["checked_at"] for r in rows), default=None)
             refresh_check = metadata["stored_provenance"].get("source_checked_at")

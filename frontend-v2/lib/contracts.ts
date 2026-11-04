@@ -74,6 +74,7 @@ export interface Dataset {
     market_movement?:{value:number|null;unit:string;label:string;previous_date?:string;reference_date?:string;calculation_status?:string};
 }
 export interface Comparison {
+    provenance?: CalculationReceipt | null;
     series: {
         native_frequency?: string;
         horizon_observations?: number;
@@ -120,7 +121,8 @@ export interface Investigation {
     datasets: string[];
     note: string;
     collection: string;
-    version?: 2 | 3;
+    version?: 2 | 3 | 4;
+    research_question?: string;
     workspace?: WorkspaceSettings;
     timeframe?: string;
     transformations?: Record<string, Transformation>;
@@ -128,6 +130,35 @@ export interface Investigation {
     end?: string;
     alignment?: 'native' | 'period_end';
     rolling_window?: number;
+}
+export interface CalculationReceipt {
+    schema_version: 1;
+    method_version: string;
+    calculated_at: string;
+    parameters: Record<string, unknown>;
+    parameter_fingerprint: string;
+    result_fingerprint: string;
+    datasets: {dataset_id:string;provider:string|null;source_identifier:string|null;source_url:string|null;definition_identifier:string;definition_identifier_kind:string;units:string;frequency:string;seasonal_adjustment:string|null;retrieved_at:string|null;source_checked_at:string|null;generation_references:string[];generation_reference_count:number;input_fingerprint:string;input_count:number;input_start:string|null;input_end:string|null;input_scope:string}[];
+    effective_ranges: {dataset_id:string;start:string|null;end:string|null;units:string;transformation:string}[];
+    statistics: Record<string, unknown>[];
+    limitations: string[];
+    exact_replay: {available:false;reason:string};
+}
+export interface EvidenceReference {
+    id:string; dataset_ids:string[]; start:string|null; end:string|null;
+    calculation_fingerprint:string|null; note:string;
+}
+export interface InvestigationV4 extends Investigation {
+    version:4; research_question:string; working_hypothesis:string;
+    supporting_evidence:EvidenceReference[]; contradictory_evidence:EvidenceReference[];
+    alternative_explanations:string; limitations_and_uncertainty:string;
+    conclusion:string; created_at:string|null; updated_at:string|null;
+    migrated_at:string|null; revision:number;
+    workspace:WorkspaceSettings; transformations:Record<string,Transformation>;
+    horizons:Record<string,number>; observation_basis:'native'|'trading_sessions';
+    start:string; end:string; timeframe:string; alignment:'native'|'period_end';
+    rolling_window:number; window_explicit:boolean;
+    original_calculation:CalculationReceipt|null; saved_calculation:CalculationReceipt|null;
 }
 async function retryDelay(milliseconds: number, signal?: AbortSignal) {
     signal?.throwIfAborted();

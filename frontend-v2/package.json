@@ -32,7 +32,8 @@
     "@tailwindcss/postcss": "^4.0.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "15.5.28",
-    "@eslint/eslintrc": "^3.0.0"
+    "@eslint/eslintrc": "^3.0.0",
+    "fake-indexeddb": "6.2.7"
   },
   "type": "module"
 }
