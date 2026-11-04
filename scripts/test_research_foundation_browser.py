@@ -45,7 +45,7 @@ def main():
         expect(page.get_by_label('Investigation question')).to_have_value(draft['research_question'])
         page.reload(wait_until='networkidle')
         expect(page.get_by_label('Investigation notes', exact=True)).to_have_value(draft['note'])
-        expect(page.get_by_role('button', name='Save investigation', exact=False)).to_be_enabled(timeout=60000)
+        expect(page.get_by_role('button', name='Attach supporting calculation', exact=True)).to_be_enabled(timeout=60000)
         page.get_by_role('button', name='Save investigation', exact=False).click()
         expect(page.get_by_text('Investigation saved on this browser', exact=False)).to_be_visible()
         first = records(page, 'saved')[0]
@@ -64,7 +64,7 @@ def main():
             route.fulfill(response=response, json=body)
         page.route('**/api/v2/compare', revised)
         page.reload(wait_until='networkidle')
-        expect(page.get_by_role('button', name='Save investigation', exact=False)).to_be_enabled(timeout=60000)
+        expect(page.get_by_role('button', name='Attach supporting calculation', exact=True)).to_be_enabled(timeout=60000)
         page.get_by_text('Saved evidence and current calculation', exact=True).click()
         expect(page.get_by_text('Result dddddddddddd', exact=False)).to_be_visible()
         assert records(page,'saved')[0]['saved_calculation'] == first['saved_calculation']

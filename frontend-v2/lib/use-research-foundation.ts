@@ -62,8 +62,8 @@ export function useResearchFoundation(){
         draftVersions.current.set(next.id,existing.draft?.draft_revision||0);
         current.current=next;const sequence=++change.current;ack.current=-1;setState(next);await enqueue(()=>persist(next,sequence));
     },[flush,enqueue,persist]);
-    const save=useCallback(async(receipt:CalculationReceipt|null)=>{
-        const snapshot={...structuredClone(current.current),saved_calculation:receipt},sequence=change.current;
+    const save=useCallback(async(receipt?:CalculationReceipt|null)=>{
+        const snapshot={...structuredClone(current.current),saved_calculation:receipt===undefined?current.current.saved_calculation:receipt},sequence=change.current;
         await flush();if(!repo.current)throw new Error('Local storage is unavailable');
         return enqueue(async()=>{
             if(sequence!==change.current||snapshot.id!==current.current.id)throw new Error('New edits arrived while saving. Your draft is retained; save again when ready.');

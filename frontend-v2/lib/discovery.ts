@@ -29,7 +29,7 @@ export interface DiscoveryReport {
 export interface DiscoverySnapshot {finding:DiscoveryFinding;generated_at:string;snapshot_fingerprint:string}
 export function discoveryInvestigation(finding:DiscoveryFinding,report:Pick<DiscoveryReport,'generated_at'|'snapshot_fingerprint'>,id:string,note=''):Investigation {
     // Clone the complete evidence/configuration so future revisions cannot alter this snapshot.
-    return structuredClone({id,title:finding.headline,note,collection:'Discovery Radar',version:3,
+    return structuredClone({id,title:finding.headline,research_question:finding.suggestions?.[0]?.label||'',note,collection:'Discovery Radar',version:3,
         ...finding.configuration,discovery:{finding,generated_at:report.generated_at,snapshot_fingerprint:report.snapshot_fingerprint}});
 }
 
@@ -38,7 +38,7 @@ export interface ResearchSuggestion {id:string;label:string;origin:string;contex
 export interface HistoricalPattern {observations:{date:string;value:number|null}[];units:string;required:number}
 export interface HistoricalRecord {id:string;label:string;created_at:string;notes:string;snapshot:{finding:DiscoveryFinding;pattern:HistoricalPattern;captured_at:string};current_pattern:HistoricalPattern|null;similarity:{matches:boolean;reason:string;shape_correlation?:number;standardized_rmse?:number;amplitude_ratio?:number;then_last_change?:number;now_last_change?:number};comparison_configuration:DiscoveryFinding['configuration']|null}
 export function suggestionInvestigation(finding:DiscoveryFinding,suggestion:ResearchSuggestion,report:Pick<DiscoveryReport,'generated_at'|'snapshot_fingerprint'>,id:string):Investigation {
-    return {...discoveryInvestigation(finding,report,id),...structuredClone(suggestion.configuration),title:suggestion.label,note:suggestion.origin+'. '+suggestion.context};
+    return {...discoveryInvestigation(finding,report,id),...structuredClone(suggestion.configuration),title:suggestion.label,research_question:suggestion.label,note:suggestion.origin+'. '+suggestion.context};
 }
 
 export interface DiscoverySummary {id:string;headline:string;observation_date:string;frequency:string;type:DiscoveryFinding['type'];status:string;evidence_version:number}
