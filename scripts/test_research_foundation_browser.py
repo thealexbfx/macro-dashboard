@@ -49,7 +49,7 @@ def main():
         expect(page.get_by_label("Investigation question")).to_be_visible()
         page.get_by_label("Investigation question").fill("Does the relationship survive revisions?")
         writing(page,'Investigation notes').fill("My interpretation; not numerical evidence")
-        expect(page.get_by_text("Draft saved on this browser", exact=False)).to_be_visible()
+        expect(page.get_by_text("Changes saved in this browser", exact=False)).to_be_visible()
         draft = records(page, 'drafts')[0]['record']
         assert draft['end'] == '2026-11-02'
         assert draft['created_at'].startswith('2026-11-03T00:00:01')
@@ -61,7 +61,7 @@ def main():
         expect(writing(page,'Investigation notes')).to_have_value(draft['note'])
         expect(page.get_by_role('button', name='Save as evidence', exact=True)).to_be_enabled(timeout=60000)
         page.get_by_role('button', name='Save research', exact=True).click()
-        expect(page.get_by_text('Investigation saved on this browser', exact=False)).to_be_visible()
+        expect(page.get_by_text('Saved in this browser', exact=True)).to_be_visible()
         first = records(page, 'saved')[0]
         assert first['id'] == first_id and first['revision'] == 1
         assert first['original_calculation'] == first['saved_calculation']
@@ -84,16 +84,16 @@ def main():
         assert records(page,'saved')[0]['saved_calculation'] == first['saved_calculation']
         writing(page,'Investigation notes').fill('Reconsidered after recalculation')
         page.get_by_role('button', name='Save research', exact=True).click()
-        expect(page.get_by_text('Investigation saved on this browser', exact=False)).to_be_visible()
+        expect(page.get_by_text('Saved in this browser', exact=True)).to_be_visible()
         second = records(page, 'saved')
         assert len(second) == 1 and second[0]['revision'] == 2
         assert second[0]['created_at'] == first['created_at']
         assert second[0]['original_calculation'] == first['original_calculation']
         assert second[0]['saved_calculation']['result_fingerprint'] == 'd' * 64
         page.get_by_role('button', name='My Research', exact=True).click()
-        page.get_by_role('button', name='+ New investigation', exact=True).click()
+        page.get_by_role('button', name='New research', exact=True).click()
         page.get_by_label('Investigation question').fill('A separate question')
-        expect(page.get_by_text('Draft saved on this browser', exact=False)).to_be_visible()
+        expect(page.get_by_text('Changes saved in this browser', exact=False)).to_be_visible()
         assert records(page,'drafts')[0]['record']['id'] != first_id
         assert records(page,'saved')[0]['note'] == 'Reconsidered after recalculation'
         # A failure of the commit is visible; the active edit stays in the workspace.
@@ -103,7 +103,7 @@ def main():
         expect(writing(page,'Investigation notes')).to_have_value('Keep this unsaved draft')
         page.evaluate('()=>{window.restoreWrites();}')
         page.get_by_role('button', name='Retry draft save').click()
-        expect(page.get_by_text('Draft saved on this browser', exact=False)).to_be_visible()
+        expect(page.get_by_text('Changes saved in this browser', exact=False)).to_be_visible()
         page.reload(wait_until='networkidle')
         expect(writing(page,'Investigation notes')).to_have_value('Keep this unsaved draft')
         assert not errors and not hydration, (errors, hydration)

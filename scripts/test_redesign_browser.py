@@ -8,7 +8,7 @@ from test_research_foundation_browser import URL, writing
 
 
 def main():
-    phase = int(os.environ.get('ML_REDESIGN_PHASE', '1'))
+    phase = int(os.environ.get('ML_REDESIGN_PHASE', '4'))
     output = Path(os.environ.get('BATCH0_BROWSER_ARTIFACTS', '/tmp/batch0-browser'))
     output.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as p:
@@ -85,6 +85,38 @@ def main():
         nav.get_by_role('button',name='Home',exact=True).click()
         nav.get_by_role('button',name='Research',exact=True).click()
         expect(writing(page,'Investigation notes')).to_have_value('Keep this across navigation.')
+        if phase>=4:
+            page.set_viewport_size(dict(width=1440,height=1000))
+            page.get_by_label('My conclusion',exact=True).fill('A provisional view, retained with its evidence.')
+            page.get_by_role('button',name='Save and return to My Research',exact=True).click()
+            expect(page.locator('.ml-library-card').filter(has_text='What is changing in this synthetic sample?')).to_be_visible()
+            page.reload(wait_until='networkidle')
+            expect(page.get_by_role('heading',name='My Research',exact=True)).to_be_visible()
+            assert page.locator('.ml-library-card').count()>=2
+            assert page.locator('.ml-library-card').filter(has_text='What is changing in this synthetic sample?').count()==1
+            page.get_by_label('Search saved research').fill('What is changing')
+            assert page.locator('.ml-library-card').count()==1
+            card=page.locator('.ml-library-card').first
+            expect(card.get_by_text('A provisional view, retained with its evidence.',exact=True)).to_be_visible()
+            card.locator('summary').click()
+            with page.expect_download() as event:
+                card.get_by_role('button',name='Export research',exact=True).click()
+            download=event.value
+            exported=json.loads(Path(download.path()).read_text())
+            assert exported['research_question']=='What is changing in this synthetic sample?'
+            assert exported['conclusion']=='A provisional view, retained with its evidence.'
+            card.locator('summary').click()
+            page.get_by_label('Search saved research').fill('')
+            page.screenshot(path=str(output/'phase-4-library-desktop.png'),full_page=True)
+            page.set_viewport_size(dict(width=390,height=844))
+            assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+2')
+            page.screenshot(path=str(output/'phase-4-library-mobile.png'),full_page=True)
+            card=page.locator('.ml-library-card').filter(has_text='What is changing in this synthetic sample?')
+            card.get_by_role('button',name='Continue research',exact=False).click()
+            expect(page.get_by_label('My conclusion',exact=True)).to_have_value('A provisional view, retained with its evidence.')
+            page.go_back(wait_until='networkidle')
+            expect(page.get_by_role('heading',name='My Research',exact=True)).to_be_visible()
+            nav.get_by_role('button',name='Research',exact=True).click()
         page.get_by_label('Help and availability').click()
         expect(page.get_by_text('AI is not active.',exact=False)).to_be_visible()
         page.get_by_label('Help and availability').click()
