@@ -15,8 +15,9 @@ export interface ResearchRepository {
 const request=<T>(r:IDBRequest<T>)=>new Promise<T>((resolve,reject)=>{r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error||new Error('Browser storage request failed'));});
 export async function openResearchRepository(factory:IDBFactory=globalThis.indexedDB,name='macrolens-research'):Promise<ResearchRepository>{
     if(!factory)throw new Error('Browser-local research storage is unavailable. Your draft remains in memory.');
-    const opening=factory.open(name,1);
-    opening.onupgradeneeded=()=>{for(const store of ['saved','drafts','meta'])opening.result.createObjectStore(store);};
+    // Fence older PR1 clients that would drop attachment fields while reserializing v4.
+    const opening=factory.open(name,2);
+    opening.onupgradeneeded=()=>{for(const store of ['saved','drafts','meta'])if(!opening.result.objectStoreNames.contains(store))opening.result.createObjectStore(store);};
     const db=await new Promise<IDBDatabase>((resolve,reject)=>{opening.onsuccess=()=>resolve(opening.result);opening.onerror=()=>reject(opening.error||new Error('Browser storage could not open'));opening.onblocked=()=>reject(new Error('Close older MacroLens tabs to open local research storage'));});
     db.onversionchange=()=>db.close();
     function run<T>(stores:string[],mode:IDBTransactionMode,action:(tx:IDBTransaction)=>Promise<T>):Promise<T>{
@@ -70,13 +71,15 @@ export async function openResearchRepository(factory:IDBFactory=globalThis.index
         },
         save:(incoming,expectedDraft)=>{
             const r=validated(incoming);
-            if(r.saved_calculation&&!receiptMatches(r,r.saved_calculation))throw new Error('Saved calculation does not match investigation parameters');
             return run(['saved','drafts','meta'],'readwrite',async tx=>{
                 const saved=await request<InvestigationV4|undefined>(tx.objectStore('saved').get(r.id));const draft=await request<Draft|undefined>(tx.objectStore('drafts').get(r.id));
                 if(saved)validated(saved);
                 if(draft)validDraft(draft);
                 if((saved?.revision??0)!==r.revision||(draft?.draft_revision??0)!==expectedDraft)throw new ResearchConflict();
-                const record=preserveOriginal(r,saved||draft?.record);
+                // An unchanged saved receipt is historical evidence even after current settings change.
+                // A newly supplied receipt must match the current calculation parameters.
+                if(r.saved_calculation&&!receiptMatches(r,r.saved_calculation)&&JSON.stringify(r.saved_calculation)!==JSON.stringify(saved?.saved_calculation))throw new Error('Saved calculation does not match investigation parameters');
+                const record=preserveOriginal(preserveOriginal(r,draft?.record),saved);
                 record.original_calculation=record.original_calculation||structuredClone(record.saved_calculation);
                 record.revision=r.revision+1;record.updated_at=new Date().toISOString();
                 await request(tx.objectStore('saved').put(record,r.id));await request(tx.objectStore('drafts').delete(r.id));await request(tx.objectStore('meta').put(r.id,'active'));return record;

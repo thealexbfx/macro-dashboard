@@ -147,6 +147,10 @@ export interface CalculationReceipt {
 export interface EvidenceReference {
     id:string; dataset_ids:string[]; start:string|null; end:string|null;
     calculation_fingerprint:string|null; note:string;
+    capture?: {
+        attached_at:string; dataset_labels:Record<string,string>; timeframe:string;
+        workspace:WorkspaceSettings; receipt:CalculationReceipt;
+    };
 }
 export interface InvestigationV4 extends Investigation {
     version:4; research_question:string; working_hypothesis:string;

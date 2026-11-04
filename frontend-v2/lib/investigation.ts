@@ -46,7 +46,20 @@ export function validateReceipt(value:unknown):CalculationReceipt|null {
 }
 function references(value:unknown):EvidenceReference[]{
     if(value===undefined)return [];if(!Array.isArray(value)||value.length>50)throw new InvalidInvestigation('Invalid evidence references');
-    return value.map(v=>{if(!object(v))throw new InvalidInvestigation('Invalid evidence reference');return {id:text(v.id,100),dataset_ids:ids(v.dataset_ids),start:v.start===null?null:day(v.start),end:v.end===null?null:day(v.end),calculation_fingerprint:v.calculation_fingerprint===null?null:text(v.calculation_fingerprint,100),note:text(v.note)};});
+    return value.map(v=>{
+        if(!object(v))throw new InvalidInvestigation('Invalid evidence reference');
+        const reference:EvidenceReference={id:text(v.id,100),dataset_ids:ids(v.dataset_ids),start:v.start===null?null:day(v.start),end:v.end===null?null:day(v.end),calculation_fingerprint:v.calculation_fingerprint===null?null:text(v.calculation_fingerprint,100),note:text(v.note)};
+        if(v.capture!==undefined){
+            if(!object(v.capture)||!object(v.capture.dataset_labels)||!object(v.capture.workspace))throw new InvalidInvestigation('Invalid evidence capture');
+            const receipt=validateReceipt(v.capture.receipt),attached=stamp(v.capture.attached_at);
+            if(!receipt||!attached||receipt.result_fingerprint!==reference.calculation_fingerprint)throw new InvalidInvestigation('Evidence receipt mismatch');
+            const config=migrateInvestigation({id:'capture',title:'Evidence',version:3,note:'',datasets:reference.dataset_ids,...receipt.parameters,workspace:v.capture.workspace},attached);
+            if(!receiptMatches(config,receipt)||config.datasets.join()!==reference.dataset_ids.join()||config.start!==reference.start||config.end!==reference.end||receipt.datasets.map(d=>d.dataset_id).join()!==reference.dataset_ids.join())throw new InvalidInvestigation('Evidence settings mismatch');
+            const labels=v.capture.dataset_labels;
+            reference.capture={attached_at:attached,dataset_labels:Object.fromEntries(reference.dataset_ids.map(id=>[id,text(labels[id],500)])),timeframe:text(v.capture.timeframe,100),workspace:config.workspace,receipt};
+        }
+        return reference;
+    });
 }
 /** Validates old saves without validating IDs against the current public catalog.
  * Unknown/revoked IDs remain references, never authorization or invented evidence. */
@@ -74,6 +87,8 @@ export function migrateInvestigation(value:unknown,now:string,newRecord=false):I
         workspace:restoreWorkspace({...v,datasets:selected} as unknown as Investigation),
         original_calculation:validateReceipt(v.original_calculation),saved_calculation:validateReceipt(v.saved_calculation),
     };
+    const evidenceIds=[...out.supporting_evidence,...out.contradictory_evidence].map(e=>e.id);
+    if(new Set(evidenceIds).size!==evidenceIds.length)throw new InvalidInvestigation('Duplicate evidence IDs');
     out.workspace.recession=!!out.workspace.recession;
     out.workspace.axis_assignment=Object.fromEntries(Object.entries(out.workspace.axis_assignment).filter(([,v])=>v==='left'||v==='right'));
     if(!['months','quarters','weeks','calendar_days'].includes(out.workspace.lead_lag.unit))out.workspace.lead_lag.unit='months';
@@ -86,7 +101,11 @@ export function newInvestigation(id:string,now:string,start:string,end:string):I
     return migrateInvestigation({id,title:'Untitled investigation',datasets:['cpi','unemployment'],note:'',version:3,start,end,timeframe:'5Y',workspace:defaultWorkspace()},now,true);
 }
 export function preserveOriginal(incoming:InvestigationV4,previous?:InvestigationV4):InvestigationV4 {
-    return {...structuredClone(incoming),...(previous?{created_at:previous.created_at,migrated_at:previous.migrated_at,discovery:structuredClone(previous.discovery),historical_context:structuredClone(previous.historical_context),original_calculation:structuredClone(previous.original_calculation)}:{})};
+    const next=structuredClone(incoming);
+    if(!previous)return next;
+    const originals=new Map([...previous.supporting_evidence,...previous.contradictory_evidence].map(e=>[e.id,e]));
+    for(const kind of ['supporting_evidence','contradictory_evidence'] as const)next[kind]=next[kind].map(e=>originals.has(e.id)?{...structuredClone(originals.get(e.id)!),note:e.note}:e);
+    return {...next,created_at:previous.created_at,migrated_at:previous.migrated_at,discovery:structuredClone(previous.discovery),historical_context:structuredClone(previous.historical_context),original_calculation:structuredClone(previous.original_calculation)};
 }
 export function comparisonParameters(i:InvestigationV4,rollingWindow=i.rolling_window){
     return {datasets:i.datasets,transformations:Object.fromEntries(i.datasets.map(id=>[id,i.transformations[id]||'level'])),horizons:Object.fromEntries(i.datasets.map(id=>[id,['percent','mom','pp','jobs'].includes(i.transformations[id]||'level')?(i.horizons[id]||1):1])),observation_basis:i.observation_basis,start:i.start,end:i.end,alignment:i.datasets.length>1?i.alignment:'native',rolling_window:rollingWindow,lead_lag:i.datasets.length>1&&i.datasets.includes(i.workspace.lead_lag.dataset_id)&&i.workspace.lead_lag.periods?i.workspace.lead_lag:null};
