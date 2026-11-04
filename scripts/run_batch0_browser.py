@@ -1,6 +1,7 @@
 """Start isolated synthetic backend and built frontend for browser validation."""
 
 import os
+import socket
 import subprocess
 import sys
 import tempfile
@@ -18,9 +19,19 @@ def main():
         )
     )
     artifacts.mkdir(parents=True, exist_ok=True)
+    # Avoid connecting to a developer's already-running manual preview.
+    def free_port():
+        with socket.socket() as listener:
+            listener.bind(("127.0.0.1", 0))
+            return listener.getsockname()[1]
+    backend_port, frontend_port = free_port(), free_port()
+    while frontend_port == backend_port:
+        frontend_port = free_port()
+    browser_url = f"http://127.0.0.1:{frontend_port}"
     env = dict(
         os.environ,
-        MACROLENS_V2_API_URL="http://127.0.0.1:8139",
+        MACROLENS_V2_API_URL=f"http://127.0.0.1:{backend_port}",
+        BATCH0_BROWSER_URL=browser_url,
         BATCH0_BROWSER_ARTIFACTS=str(artifacts),
     )
     with (
@@ -32,7 +43,7 @@ def main():
                 sys.executable,
                 "-B",
                 str(root / "scripts/validate_batch0_catalog.py"),
-                "--serve",
+                "--serve", "--port", str(backend_port),
             ],
             cwd=root,
             env=env,
@@ -40,7 +51,7 @@ def main():
             stderr=backend_log,
         )
         frontend = subprocess.Popen(
-            ["node", "node_modules/next/dist/bin/next", "start", "-p", "3039"],
+            ["node", "node_modules/next/dist/bin/next", "start", "-p", str(frontend_port)],
             cwd=root / "frontend-v2",
             env=env,
             stdout=frontend_log,
@@ -54,8 +65,8 @@ def main():
                     )
                 try:
                     for url in (
-                        "http://127.0.0.1:8139/health",
-                        "http://127.0.0.1:3039",
+                        f"http://127.0.0.1:{backend_port}/health",
+                        browser_url,
                     ):
                         with urllib.request.urlopen(url, timeout=5) as response:
                             assert response.status == 200
@@ -76,6 +87,10 @@ def main():
             )
             subprocess.run(
                 [sys.executable, "-B", str(root / "scripts/test_research_journey_browser.py")],
+                cwd=root, env=env, check=True,
+            )
+            subprocess.run(
+                [sys.executable, "-B", str(root / "scripts/test_redesign_browser.py")],
                 cwd=root, env=env, check=True,
             )
         finally:

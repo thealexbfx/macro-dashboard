@@ -6,6 +6,8 @@ from pathlib import Path
 
 from playwright.sync_api import expect, sync_playwright
 
+URL = os.environ.get("BATCH0_BROWSER_URL", "http://127.0.0.1:3039")
+
 
 def main():
     output = Path(os.environ.get("BATCH0_BROWSER_ARTIFACTS", "/tmp/batch0-browser"))
@@ -47,7 +49,7 @@ def main():
             + json.dumps(json.dumps(saved))
             + ");localStorage.setItem('ml-favorites','[\"retired_id\",\"fixture_catalog_002\"]');}"
         )
-        page.goto("http://127.0.0.1:3039", wait_until="networkidle")
+        page.goto(URL, wait_until="networkidle")
         page.get_by_role("button", name="Dataset Explorer", exact=True).click()
         expect(page.get_by_text("309 public datasets", exact=False)).to_be_visible(
             timeout=60000
@@ -119,7 +121,7 @@ def main():
             "observations/wb_brent_monthly",
         ):
             assert (
-                page.request.get("http://127.0.0.1:3039/api/v2/" + path).status == 404
+                page.request.get(URL+"/api/v2/" + path).status == 404
             )
         page.get_by_role("button", name="Dataset Explorer", exact=True).click()
         page.route(
@@ -141,13 +143,13 @@ def main():
         page.screenshot(path=str(output / "explorer-mobile.png"), full_page=True)
         # Admin UI uses a synthetic response; backend authentication/header
         # regressions run independently. Never provide a real token to this test.
-        page.goto("http://127.0.0.1:3039/data-health", wait_until="networkidle")
+        page.goto(URL+"/data-health", wait_until="networkidle")
         expect(
             page.get_by_role("heading", name="Data health", exact=True)
         ).to_be_visible()
         assert (
             page.request.get(
-                "http://127.0.0.1:3039/api/v2/discovery/admin/data-health"
+                URL+"/api/v2/discovery/admin/data-health"
             ).status
             == 403
         )

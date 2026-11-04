@@ -1,4 +1,5 @@
 import './globals.css';
+import './redesign.css';
 export const metadata = { title: 'MacroLens | Research workspace', description: 'Macroeconomic research workspace with real source observations' };
 export default function Layout({ children }: {
     children: React.ReactNode;
