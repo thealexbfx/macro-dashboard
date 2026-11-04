@@ -10,6 +10,20 @@ URL = os.environ.get("BATCH0_BROWSER_URL", "http://127.0.0.1:3039")
 def records(page, store):
     return page.evaluate("""store=>new Promise((resolve,reject)=>{const o=indexedDB.open('macrolens-research');o.onsuccess=()=>{const db=o.result;const tx=db.transaction(store);const q=tx.objectStore(store).getAll();q.onsuccess=()=>{resolve(q.result);db.close();};q.onerror=()=>reject(q.error);};o.onerror=()=>reject(o.error);})""", store)
 
+def writing(page, label):
+    field=page.get_by_label(label, exact=True)
+    if not field.is_visible():
+        page.locator('#research-thinking > summary').click()
+    return field
+
+
+def annotation(page, number):
+    field=page.get_by_label(f'Annotation for evidence {number}',exact=True)
+    if not field.is_visible():
+        page.get_by_label(f'Evidence {number}',exact=True).locator('summary').first.click()
+    return field
+
+
 def main():
     output = Path(os.environ.get("BATCH0_BROWSER_ARTIFACTS", "/tmp/batch0-browser"))
     output.mkdir(parents=True, exist_ok=True)
@@ -34,7 +48,7 @@ def main():
         page.get_by_role("button", name="Research", exact=True).click()
         expect(page.get_by_label("Investigation question")).to_be_visible()
         page.get_by_label("Investigation question").fill("Does the relationship survive revisions?")
-        page.get_by_label("Investigation notes", exact=True).fill("My interpretation; not numerical evidence")
+        writing(page,'Investigation notes').fill("My interpretation; not numerical evidence")
         expect(page.get_by_text("Draft saved on this browser", exact=False)).to_be_visible()
         draft = records(page, 'drafts')[0]['record']
         assert draft['end'] == '2026-11-02'
@@ -44,9 +58,9 @@ def main():
         page.get_by_role('button', name='Research', exact=True).click()
         expect(page.get_by_label('Investigation question')).to_have_value(draft['research_question'])
         page.reload(wait_until='networkidle')
-        expect(page.get_by_label('Investigation notes', exact=True)).to_have_value(draft['note'])
-        expect(page.get_by_role('button', name='Attach supporting calculation', exact=True)).to_be_enabled(timeout=60000)
-        page.get_by_role('button', name='Save investigation', exact=False).click()
+        expect(writing(page,'Investigation notes')).to_have_value(draft['note'])
+        expect(page.get_by_role('button', name='Save as evidence', exact=True)).to_be_enabled(timeout=60000)
+        page.get_by_role('button', name='Save research', exact=True).click()
         expect(page.get_by_text('Investigation saved on this browser', exact=False)).to_be_visible()
         first = records(page, 'saved')[0]
         assert first['id'] == first_id and first['revision'] == 1
@@ -64,12 +78,12 @@ def main():
             route.fulfill(response=response, json=body)
         page.route('**/api/v2/compare', revised)
         page.reload(wait_until='networkidle')
-        expect(page.get_by_role('button', name='Attach supporting calculation', exact=True)).to_be_enabled(timeout=60000)
-        page.get_by_text('Saved evidence and current calculation', exact=True).click()
+        expect(page.get_by_role('button', name='Save as evidence', exact=True)).to_be_enabled(timeout=60000)
+        page.get_by_text('Saved results & latest data', exact=True).click()
         expect(page.get_by_text('Result dddddddddddd', exact=False)).to_be_visible()
         assert records(page,'saved')[0]['saved_calculation'] == first['saved_calculation']
-        page.get_by_label('Investigation notes', exact=True).fill('Reconsidered after recalculation')
-        page.get_by_role('button', name='Save investigation', exact=False).click()
+        writing(page,'Investigation notes').fill('Reconsidered after recalculation')
+        page.get_by_role('button', name='Save research', exact=True).click()
         expect(page.get_by_text('Investigation saved on this browser', exact=False)).to_be_visible()
         second = records(page, 'saved')
         assert len(second) == 1 and second[0]['revision'] == 2
@@ -84,14 +98,14 @@ def main():
         assert records(page,'saved')[0]['note'] == 'Reconsidered after recalculation'
         # A failure of the commit is visible; the active edit stays in the workspace.
         page.evaluate("""()=>{const original=IDBObjectStore.prototype.put;window.restoreWrites=()=>IDBObjectStore.prototype.put=original;IDBObjectStore.prototype.put=function(){throw new DOMException('Synthetic quota exceeded','QuotaExceededError');};}""")
-        page.get_by_label('Investigation notes', exact=True).fill('Keep this unsaved draft')
+        writing(page,'Investigation notes').fill('Keep this unsaved draft')
         expect(page.get_by_role('alert').filter(has_text='Synthetic quota exceeded')).to_be_visible()
-        expect(page.get_by_label('Investigation notes', exact=True)).to_have_value('Keep this unsaved draft')
+        expect(writing(page,'Investigation notes')).to_have_value('Keep this unsaved draft')
         page.evaluate('()=>{window.restoreWrites();}')
         page.get_by_role('button', name='Retry draft save').click()
         expect(page.get_by_text('Draft saved on this browser', exact=False)).to_be_visible()
         page.reload(wait_until='networkidle')
-        expect(page.get_by_label('Investigation notes', exact=True)).to_have_value('Keep this unsaved draft')
+        expect(writing(page,'Investigation notes')).to_have_value('Keep this unsaved draft')
         assert not errors and not hydration, (errors, hydration)
         page.screenshot(path=str(output/'research-foundation.png'), full_page=True)
         # Corrupt legacy data and an unavailable storage engine cannot crash the page.

@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from playwright.sync_api import expect, sync_playwright
 from test_research_journey_browser import finding_report
-from test_research_foundation_browser import URL
+from test_research_foundation_browser import URL, writing
 
 
 def main():
@@ -65,10 +65,26 @@ def main():
         page.get_by_label('New research question').fill('What is changing in this synthetic sample?')
         page.get_by_role('button',name='Start research',exact=True).click()
         expect(page.get_by_label('Investigation question')).to_have_value('What is changing in this synthetic sample?')
-        page.get_by_label('Investigation notes').fill('Keep this across navigation.')
+        if phase>=3:
+            expect(page.get_by_role('button',name='Save as evidence',exact=True)).to_be_enabled(timeout=60000)
+            expect(page.get_by_label('Visualization mode')).not_to_be_visible()
+            expect(page.get_by_label('Add data to research')).to_be_visible()
+            page.set_viewport_size(dict(width=1440,height=1000))
+            page.screenshot(path=str(output/f'phase-{phase}-research-desktop.png'),full_page=True)
+            page.set_viewport_size(dict(width=390,height=844))
+            assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+2')
+            page.screenshot(path=str(output/f'phase-{phase}-research-mobile.png'),full_page=True)
+            page.get_by_label('Add data to research').fill('Synthetic 002')
+            option=page.get_by_role('option').first
+            expect(option).to_be_visible()
+            option.click()
+            assert page.locator('.ml-selected-data>button').count()==3
+            page.locator('.ml-selected-data>button').last.click()
+            assert page.locator('.ml-selected-data>button').count()==2
+        writing(page,'Investigation notes').fill('Keep this across navigation.')
         nav.get_by_role('button',name='Home',exact=True).click()
         nav.get_by_role('button',name='Research',exact=True).click()
-        expect(page.get_by_label('Investigation notes')).to_have_value('Keep this across navigation.')
+        expect(writing(page,'Investigation notes')).to_have_value('Keep this across navigation.')
         page.get_by_label('Help and availability').click()
         expect(page.get_by_text('AI is not active.',exact=False)).to_be_visible()
         page.get_by_label('Help and availability').click()
