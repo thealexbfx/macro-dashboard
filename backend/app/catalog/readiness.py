@@ -19,13 +19,14 @@ import pandas as pd
 
 from backend.app.catalog import operations
 from backend.app.catalog.operations import LAGS, registry, resources
+from backend.app.catalog.research_metadata import resolve
 from backend.app.ingestion.native import native_period
 from backend.app.v2.definitions import SPECS
 from backend.app.v2.integrity import assess_freshness, validate_frame
 from backend.app.v2.movements import session_frame
 from backend.app.v2.native_reader import NativeReader
 
-VERSION = "1.0"
+VERSION = "1.1"
 # Also supports a checksum-verified standalone script in /tmp, importing only the
 # existing production libraries. No deployment is needed to execute the audit.
 ROOT = Path(operations.__file__).resolve().parents[3]
@@ -137,6 +138,16 @@ def summarize_history(points, frequency, now, *, spec=None, definition=None):
         "last_observation": parsed[-1][0].isoformat() if parsed else None,
         "first_valid_observation": valid[0][0].isoformat() if valid else None,
         "last_valid_observation": valid[-1][0].isoformat() if valid else None,
+        "last_valid_reference_end": next(
+            (
+                p.get("end")
+                for p in reversed(points)
+                if definition
+                and p.get("value") is not None
+                and p.get("date") == (valid[-1][0].isoformat() if valid else None)
+            ),
+            None,
+        ),
         "coverage_days": (parsed[-1][0] - parsed[0][0]).days + 1 if parsed else 0,
         "expected_periods": None,
         "absent_periods": None,
@@ -227,7 +238,22 @@ def summarize_history(points, frequency, now, *, spec=None, definition=None):
         run = run + 1 if present else 0
         best = max(best, run)
     result["longest_complete_run"] = best
-    if result["absent_periods"] or nulls:
+    missing_mask = aligned.isna()
+    present_positions = [i for i, present in enumerate(aligned.notna()) if present]
+    leading = present_positions[0] if present_positions else len(aligned)
+    trailing = len(aligned) - 1 - present_positions[-1] if present_positions else 0
+    result["analytical_missing_periods"] = int(missing_mask.sum())
+    result["leading_missing_periods"] = leading
+    result["trailing_missing_periods"] = trailing
+    result["internal_missing_periods"] = int(missing_mask.sum()) - leading - trailing
+    result["nulls_outside_analytical_calendar"] = int(
+        values[values.isna()].index.difference(grid).size
+    )
+    result["gap_examples"] = [str(d) for d in aligned.index[missing_mask][:10]]
+    result["gap_interpretation"] = (
+        "Unresolved source availability/calendar gaps; boundary nulls are separate from internal gaps. No interpolation or inferred cause."
+    )
+    if missing_mask.any():
         issue(
             issues,
             "history_gaps",
@@ -270,13 +296,12 @@ def capabilities(history, frequency, metadata_ok, blocked=False):
         minimum = minima[index] if minima else None
         if not minimum:
             reasons.append("No regular-frequency method defined")
-        if (
-            blocked
-            or history["invalid_count"]
-            or history["duplicate_period_count"]
-            or not metadata_ok
-        ):
-            reasons.append("Integrity/publication/metadata checks incomplete or failed")
+        if blocked:
+            reasons.append("Publication/completeness evidence failed")
+        if history["invalid_count"] or history["duplicate_period_count"]:
+            reasons.append("Stored observation integrity failed")
+        if not metadata_ok:
+            reasons.append("Required applicable metadata missing")
         if minimum and history["longest_complete_run"] < minimum:
             reasons.append(
                 f"Requires {minimum} consecutive nonmissing native periods; stored maximum is {history['longest_complete_run']}"
@@ -288,10 +313,30 @@ def capabilities(history, frequency, metadata_ok, blocked=False):
             if reasons
             else "eligible_with_limitations",
             "minimum_complete_periods": minimum,
+            "history_sufficient": bool(
+                minimum and history["longest_complete_run"] >= minimum
+            ),
+            "publication_valid": not blocked,
+            "integrity_valid": not bool(
+                history["invalid_count"] or history["duplicate_period_count"]
+            ),
+            "required_metadata_complete": metadata_ok,
             "reasons": reasons,
             "conditions": "Descriptive data sufficiency only. Check actual transformations, pair overlap, compatible units/frequency, stationarity, effective samples and multiple screening. Does not grant AI/Discovery permission.",
         }
     return result
+
+
+def adjustment_status(spec, value):
+    # Applicability is based on existing reviewed instrument definitions, never on
+    # missingness alone. Unknown adjustment for economic series remains a blocker.
+    if (
+        spec
+        and spec.provider == "yahoo"
+        and spec.representation in {"price", "index", "signed_flow"}
+    ):
+        return "not_applicable"
+    return "documented" if value not in (None, "", "unknown") else "unknown"
 
 
 def public_ids(db, tables):
@@ -444,6 +489,16 @@ def refresh_evidence(db, tables, row, cache, payload, now, issues):
     result["successful_source_check_verified"] = (
         result["last_successful_source_check"] is not None
     )
+    result["evidence_state"] = (
+        "failure_after_recorded_success"
+        if result["successful_source_check_verified"]
+        and (result["failure_count"] or result["error_present"])
+        else "recorded_failure_without_success"
+        if result["failure_count"] or result["error_present"]
+        else "recorded_success"
+        if result["successful_source_check_verified"]
+        else "incomplete_success_telemetry"
+    )
     if not result["configured"] or not result["registered_job"]:
         issue(
             issues,
@@ -554,7 +609,19 @@ def dataset_report(db, tables, row, reader, now):
         "observation_convention",
         "source_url",
     )
+    enriched = resolve(row)
+    metadata["research_definition"] = enriched
+    if enriched["status"] == "reviewed_overlay":
+        metadata["description"] = enriched["definition"]
+        metadata["observation_convention"] = enriched["observation_convention"]
+        if enriched["publication_behavior"]:
+            metadata["publication_schedule"] = enriched["publication_behavior"]
+        if enriched["revision_behavior"]:
+            metadata["revision_behavior"] = enriched["revision_behavior"]
     missing = [name for name in required if metadata.get(name) in (None, "", "unknown")]
+    metadata["adjustment_status"] = adjustment_status(spec, metadata["adjustment"])
+    if metadata["adjustment_status"] == "not_applicable":
+        missing = [name for name in missing if name != "adjustment"]
     metadata["missing_fields"] = missing
     if missing:
         issue(
@@ -656,14 +723,20 @@ def dataset_report(db, tables, row, reader, now):
         }
     elif last:
         next_release = definition.calendar.next_release(now) if definition else None
+        reference_end = history.get("last_valid_reference_end") or last
+        # Annual/quarterly reference starts are not release dates or the end of
+        # their measured period. Do not add a whole year of apparent release lag.
+        reference_age_days = max(
+            0, (now.date() - date.fromisoformat(reference_end)).days
+        )
         freshness = {
             "status": "awaiting_declared_release"
             if next_release
             else "source_lag_review"
-            if (now.date() - date.fromisoformat(last)).days
-            > LAGS.get(row.get("frequency"), 550)
+            if reference_age_days > LAGS.get(row.get("frequency"), 550)
             else "within_coarse_review_threshold",
             "next_release_date": next_release.isoformat() if next_release else None,
+            "age_reference_end": reference_end,
             "method": "Declared future release if available; otherwise existing Data Health age threshold is a review trigger, not a stale-data verdict",
         }
     if freshness["status"] == "source_lag_review":
@@ -681,7 +754,31 @@ def dataset_report(db, tables, row, reader, now):
         if any(x["code"] in {"history_gaps", "large_changes_review"} for x in issues)
         else "stored_structure_checked"
     )
-    if caps["comparisons"]["status"] != "eligible_with_limitations":
+    caps["numerical_lookup"] = {
+        "status": "eligible_with_limitations"
+        if publication_ok
+        and not missing
+        and history["valid_value_count"]
+        and not history["invalid_count"]
+        and not history["duplicate_period_count"]
+        else "insufficient_or_unsupported",
+        "reasons": []
+        if publication_ok
+        and not missing
+        and history["valid_value_count"]
+        and not history["invalid_count"]
+        and not history["duplicate_period_count"]
+        else [
+            "Publication, applicable metadata or valid stored observations unavailable"
+        ],
+        "conditions": "Historical observed-value lookup only; show its reference date, source, retrieval evidence and freshness. Not a live quote or permission grant.",
+    }
+    caps["rolling_relationship_analysis"] = {
+        **caps["historical_relationships"],
+        "conditions": "Each rolling window needs sufficient paired transformed observations, actual overlap, aligned frequency and stable definitions; gaps must interrupt windows. "
+        + caps["historical_relationships"]["conditions"],
+    }
+    if not caps["comparisons"]["history_sufficient"]:
         issue(
             issues,
             "insufficient_comparison_history",
