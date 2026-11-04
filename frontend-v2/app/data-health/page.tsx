@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import {AppShell,viewQuery} from '../../components/app-shell';
 import { displayTime, healthLabel, type DataHealth } from '../../lib/data-health';
 
 export default function DataHealthPage() {
@@ -22,8 +22,7 @@ export default function DataHealthPage() {
     } catch (cause) { setReport(null); setError(cause instanceof Error ? cause.message : 'Unable to load the report.'); }
     finally { setLoading(false); }
   }
-  return <main style={{ maxWidth: 1400, margin: '0 auto', padding: 24 }}>
-    <Link href="/">← MacroLens</Link>
+  return <AppShell active="Data Health" onNavigate={key=>window.location.assign('/?view='+viewQuery(key))}><section className="ml-health">
     <h1>Data health</h1>
     <p>Administrator report. Source checks, observation dates and publication dates are distinct.</p>
     <form onSubmit={event => { event.preventDefault(); void load(); }} style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 24 }}>
@@ -58,5 +57,5 @@ export default function DataHealthPage() {
       <button disabled={loading || report.next_offset === null} onClick={() => void load(report.next_offset ?? 0)}>Next</button>
       <p>A source-lag warning calls for review; it does not claim that an unreleased economic observation is missing. Source failures retain last-good public data.</p>
     </>}
-  </main>;
+  </section></AppShell>;
 }

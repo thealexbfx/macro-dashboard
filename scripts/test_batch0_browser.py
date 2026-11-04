@@ -66,7 +66,7 @@ def main():
         page.get_by_role("button", name="My Research", exact=True).click()
         page.get_by_role("article").filter(
             has_text="Synthetic monthly comparison"
-        ).get_by_role("button", name="Open investigation").click()
+        ).get_by_role("button", name="Continue research").click()
         expect(page.locator(".workspace-chart").first).to_be_visible(timeout=30000)
         page.get_by_text("Relationships & statistics", exact=True).click()
         expect(
@@ -93,7 +93,7 @@ def main():
         page.get_by_role("button", name="My Research", exact=True).click()
         page.get_by_role("article").filter(
             has_text="Synthetic event evidence"
-        ).get_by_role("button", name="Open investigation").click()
+        ).get_by_role("button", name="Continue research").click()
         expect(page.locator(".recharts-scatter-symbol").first).to_be_visible(
             timeout=30000
         )
@@ -105,11 +105,11 @@ def main():
         page.reload(wait_until="networkidle")
         page.get_by_role("button", name="My Research", exact=True).click()
         page.get_by_role("article").filter(has_text="Retired research").get_by_role(
-            "button", name="Open investigation"
+            "button", name="Continue research"
         ).click()
         expect(
             page.get_by_text(
-                "Some saved dataset references are unavailable", exact=False
+                "Some saved data is unavailable", exact=False
             )
         ).to_be_visible(timeout=30000)
         assert json.loads(page.evaluate("localStorage.getItem('ml-research')")) == saved

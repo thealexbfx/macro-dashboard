@@ -73,6 +73,6 @@ export function useResearchFoundation(){
             setStatus(sequence===change.current?'Investigation saved on this browser':'Saved version; newer draft changes are pending');setError('');await refresh();return next;
         });
     },[flush,enqueue,refresh]);
-    function exportDraft(){const url=URL.createObjectURL(new Blob([JSON.stringify(current.current,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='macrolens-investigation.json';a.click();URL.revokeObjectURL(url);}
+    function exportDraft(value:InvestigationV4=current.current){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='macrolens-investigation.json';a.click();URL.revokeObjectURL(url);}
     return {record,setRecord,ready,restored,saved,drafts,status,error:[warning,error].filter(Boolean).join(' '),flush,open,save,fail,exportDraft};
 }
