@@ -30,6 +30,8 @@ HOSTS = frozenset(
         "www.bankofengland.co.uk",
         "www.stat-search.boj.or.jp",
         "dashboard.e-stat.go.jp",
+        "www.e-stat.go.jp",
+        "www150.statcan.gc.ca",
         "assets.publishing.service.gov.uk",
         "d9-wret.s3.us-west-2.amazonaws.com",
         "www.eia.gov",
@@ -89,7 +91,14 @@ def download(
         and dict(parse_qsl(parsed.query)).get("filetype") == "zip"
         and dict(parse_qsl(parsed.query)).get("rel") in {"G17", "H41"}
     )
-    ceiling = 16 * 1024 * 1024 if large_board_zip else MAX_BYTES
+    statcan_cpi_zip = (
+        parsed.hostname == "www150.statcan.gc.ca"
+        and parsed.path in {"/n1/tbl/csv/18100004-eng.zip", "/n1/tbl/csv/18100256-eng.zip"}
+    )
+    ceiling = (
+        32 * 1024 * 1024 if statcan_cpi_zip
+        else 16 * 1024 * 1024 if large_board_zip else MAX_BYTES
+    )
     if not 1 <= maximum <= ceiling or not 1 <= timeout <= 30:
         raise ValueError("Unsafe download bounds")
     if opener is None:
@@ -256,10 +265,8 @@ class SnapshotAdapter:
         if offset < 0 or offset > len(records):
             raise ProviderError("invalid_snapshot_cursor")
         selected = tuple(records[offset : offset + bounds.records])
-        if (
-            len(json.dumps([asdict(p) for p in selected], default=str).encode())
-            > bounds.response_bytes
-        ):
+        page_bytes = json.dumps([asdict(p) for p in selected], default=str).encode()
+        if len(page_bytes) > bounds.response_bytes:
             raise ProviderError("snapshot_page_limit")
         following = (
             str(offset + len(selected))
@@ -268,7 +275,7 @@ class SnapshotAdapter:
         )
         return Page(
             selected,
-            digest([asdict(p) for p in selected]),
+            digest(json.loads(page_bytes)),
             self.expected_hash,
             data["source_url"],
             datetime.fromisoformat(data["checked_at"]),
