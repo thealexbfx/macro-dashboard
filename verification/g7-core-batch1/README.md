@@ -13,7 +13,9 @@ node --test verification/g7-core-batch1/verify.test.mjs
 node verification/g7-core-batch1/verify.mjs "$(mktemp -d)"
 ```
 
-GitHub requires the workflow path on the default branch before it can be dispatched. A separate registration PR can add just the workflow file to main. After that PR is reviewed and merged, open Actions  G7 Core Batch 1 verification  Run workflow, select feature/g7-core-batch1-verification, and click Run workflow. Review the selected commit and download the g7-core-batch1-verification artifact. A green job means report generation succeeded. Use the individual outcomes and receipts to evaluate retrieval.
+The separate **G7 Core Batch 1 audit (development)** registration workflow runs from `main` and checks out the fixed feature commit listed in its YAML. After the registration PR is reviewed and merged, open Actions → G7 Core Batch 1 audit (development) → Run workflow, select `main`, then click Run workflow. Download the `g7-core-batch1-verification` artifact and check each result against the job log. A green job means report generation succeeded.
+
+The reports record `RECENT_SAMPLE_ONLY` for operational successes and `NOT_APPROVED` for production on every mapping. Malformed responses leave identity unresolved. A mismatch requires a conflicting publisher label for the requested series key.
 
 Publisher references
 
