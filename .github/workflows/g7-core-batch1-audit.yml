@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: '6679d973bf7fdd9f86bab4bdeccc4497573daf14' # Reviewed PR #25 feature commit
+          ref: '31ff26b53ecfc29b5db0ec860c5851dbf488ac2b' # Reviewed PR #25 feature commit
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
