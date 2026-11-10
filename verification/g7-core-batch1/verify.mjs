@@ -5,7 +5,7 @@ import {setTimeout as sleep} from 'node:timers/promises';
 
 const candidates = {
   'G7-CA-22': ['V39079', /target for the overnight rate/i],
-  'G7-CA-23': ['V39055', /government of canada benchmark bond yields.*10.year/i],
+  'G7-CA-23': ['BD.CDN.10YR.DQ.YLD', /benchmark bond yield.*10.year/i],
 };
 const euroPolicy = new Set(['G7-DE-22', 'G7-FR-22', 'G7-IT-22']);
 
