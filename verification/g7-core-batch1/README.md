@@ -48,3 +48,20 @@ node verification/g7-core-batch1/verify.mjs "$(mktemp -d)" /path/to/MacroLens_G7
 The configured rows are selected from the authoritative manifest by mapping ID and publisher; API IDs, expected labels and adapter types live in the data-only **`series-registry.json`**. To add a mapping already supported by an adapter, edit the JSON candidate registry rather than editing JavaScript. New original publishers still require audited adapter implementations and tests. Publisher-returned metadata and samples determine the result. This is a **reusable framework**, not yet a complete set of G7 adapters. Adding adapters, full-history validation, revision/vintage reconstruction and source-specific commercial-rights review remain explicit future tasks. A passing test or green workflow does not approve a series for production.
 
 Every new adapter must use bounded publisher requests, emit independent identity/access/history/vintage/rights gates and persist sanitized retrieval evidence. Keep the feature PR unmerged, use the existing manual-only workflow registration process, and do not create production ingestion, schedules, deployments or database changes.
+
+## Expansion: US BLS and ECB (development candidate)
+
+The data-only registry now configures nine country mappings across three original publishers:
+- Canada: CPI, unemployment (Statistics Canada WDS), overnight target and 10-year benchmark (Bank of Canada Valet)
+- United States: headline CPI-U NSA `CUUR0000SA0` and civilian unemployment SA `LNS14000000`, via the official BLS public API v1. BLS v1 returns an identified series and recent numeric observations but **does not independently certify its full descriptive metadata**, base period, or historical/vintage coverage; those remain separate outstanding evidence gates.
+- Germany, France and Italy: three country mapping records linked to **one** ECB euro-area deposit facility candidate `FM.B.U2.EUR.4F.KR.DFR.LEV`. The proposed definition is a shared central-bank rate, not three national rates; its historical role and comparability require separate review. The official ECB SDMX REST data endpoint is queried with a bounded recent-sample CSV request.
+
+Source documentation:
+- https://www.bls.gov/developers/api_signature.htm
+- https://www.bls.gov/cpi/factsheets/cpi-series-ids.htm
+- https://data.ecb.europa.eu/help/api/data
+- https://data.ecb.europa.eu/data/datasets/FM/FM.B.U2.EUR.4F.KR.DFR.LEV
+
+The new adapters have mocked tests, but **no live GitHub-hosted retrieval evidence yet**. A green GitHub Actions job does not imply all mappings passed. The remaining 26 mappings are unconfigured and must be reported as such, not silently substituted. All 35 remain **NOT_APPROVED** for production; rights and vintages remain pending.
+
+No publisher credentials, deployment, scheduled trigger, or production database changes are introduced. Each publisher adapter sends read-only HTTPS requests only to its strict first-party host allowlist.
