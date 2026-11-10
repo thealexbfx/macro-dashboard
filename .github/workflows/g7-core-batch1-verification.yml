@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '22'
       - name: Test verifier with mocked transport
-        run: node --test verification/g7-core-batch1/verify.test.mjs
+        run: node --test verification/g7-core-batch1/*.test.mjs
       - name: Retrieve publisher evidence
         run: node verification/g7-core-batch1/verify.mjs "$RUNNER_TEMP/g7-core-batch1"
       - name: Upload sanitized reports
