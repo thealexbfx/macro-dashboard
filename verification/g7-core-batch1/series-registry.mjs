@@ -18,6 +18,12 @@ export function getSeriesSpec(mappingId) {
         !['SA', 'NSA'].includes(spec.expectedAdjustment)) {
       throw new Error('Invalid Statistics Canada candidate metadata');
     }
+  } else if (spec.adapter === 'bls-v1') {
+    if (!/^[A-Z0-9]{10,24}$/.test(spec.seriesId) ||
+        !['SA','NSA'].includes(spec.expectedAdjustment) ||
+        !spec.expectedDefinition || !spec.expectedUnit) throw new Error('Invalid BLS mapping');
+  } else if (spec.adapter === 'ecb-csv') {
+    if (spec.seriesKey !== 'B.U2.EUR.4F.KR.DFR.LEV') throw new Error('Unsupported ECB rate key');
   } else {
     throw new Error('Unsupported adapter: ' + String(spec.adapter));
   }
