@@ -18,9 +18,13 @@ export function parseManifest(csv) {
   });
   const expected = new Set(['US', 'GB', 'DE', 'FR', 'IT', 'CA', 'JP'].flatMap(
     country => ['01', '07', '11', '22', '23'].map(concept => 'G7-' + country + '-' + concept)));
-  if (rows.length !== 35 || rows.some(row =>
-    !expected.delete(row.mapping_id) || row.operational_outcome !== 'NOT_TESTED')) {
-    throw new Error('Unexpected Batch 1 seed mappings or statuses');
+  const seen = new Set();
+  if (![35, 245].includes(rows.length) || rows.some(row =>
+    !/^G7-(US|GB|DE|FR|IT|CA|JP)-(0[1-9]|[12][0-9]|3[0-5])$/.test(row.mapping_id) ||
+    seen.has(row.mapping_id) || (seen.add(row.mapping_id), false) ||
+    row.operational_outcome !== 'NOT_TESTED') ||
+    [...expected].some(id => !seen.has(id))) {
+    throw new Error('Unexpected G7 manifest mappings, count or seed statuses');
   }
   return rows;
 }
