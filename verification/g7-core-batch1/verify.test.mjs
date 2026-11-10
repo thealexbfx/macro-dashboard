@@ -89,3 +89,18 @@ test('invalid JSON and malformed payloads leave identity unresolved', async () =
     assert.equal(result.production_approval, 'NOT_APPROVED');
   }
 });
+
+const yieldCandidate = rows.find(row => row.mapping_id === 'G7-CA-23');
+test('Canada 10-year yield uses the publisher Valet series identifier rather than legacy V39055', async () => {
+  const series = 'BD.CDN.10YR.DQ.YLD';
+  const result = await verify(yieldCandidate, async (url, options) => {
+    assert.equal(url, 'https://www.bankofcanada.ca/valet/observations/' + series + '/json?recent=5');
+    assert.equal(options.method, 'GET');
+    return Response.json({seriesDetail: {[series]: {label: 'Benchmark bond yield, 10-year', description: 'The yield on the Government of Canada 10-year benchmark bond.'}}, observations: [{d: '2026-11-06', [series]: {v: '3.65'}}]});
+  }, immediate);
+  assert.equal(result.outcome, 'VERIFIED');
+  assert.equal(result.verification_scope, 'RECENT_SAMPLE_ONLY');
+  assert.equal(result.history_status, 'SAMPLE_ONLY');
+  assert.equal(result.rights_status, 'PENDING');
+  assert.equal(result.production_approval, 'NOT_APPROVED');
+});
