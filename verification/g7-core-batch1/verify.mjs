@@ -5,6 +5,7 @@ import {setTimeout as sleep} from 'node:timers/promises';
 import {verifyStatcan} from './statcan.mjs';
 import {verifyBls} from './bls.mjs';
 import {verifyEcb} from './ecb.mjs';
+import {verifyOns, verifyBoe} from './uk.mjs';
 import {getSeriesSpec, validateManifestRegistry} from './series-registry.mjs';
 
 const euroPolicy = new Set(['G7-DE-22', 'G7-FR-22', 'G7-IT-22']);
@@ -104,6 +105,8 @@ export async function verify(row, transport = fetch, delay = sleep) {
   if (spec?.adapter === 'statcan-wds') return verifyStatcan(row, result, spec, transport, delay);
   if (spec?.adapter === 'bls-v1') return verifyBls(row, result, spec, transport, delay);
   if (spec?.adapter === 'ecb-csv') return verifyEcb(row, result, spec, transport, delay);
+  if (spec?.adapter === 'ons-timeseries') return verifyOns(row, result, spec, transport, delay);
+  if (spec?.adapter === 'boe-iadb') return verifyBoe(row, result, spec, transport, delay);
   if (!url) return result;
 
   const {payload, error, ...receipt} = await request(url, transport, delay);
