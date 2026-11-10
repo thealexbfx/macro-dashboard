@@ -6,9 +6,12 @@ export const seriesRegistry = Object.freeze(loaded);
 export function getSeriesSpec(mappingId) {
   const spec = Object.hasOwn(seriesRegistry, mappingId) ? seriesRegistry[mappingId] : null;
   if (!spec) return null;
-  if (!/^[a-z0-9 .*-]{1,120}$/i.test(spec.expectedLabel) ||
-      !/^G7-(US|GB|DE|FR|IT|CA|JP)-(0[1-9]|[12][0-9]|3[0-5])$/.test(mappingId)) {
-    throw new Error('Invalid candidate mapping configuration');
+  if (!/^G7-(US|GB|DE|FR|IT|CA|JP)-(0[1-9]|[12][0-9]|3[0-5])$/.test(mappingId)) {
+    throw new Error('Invalid candidate mapping identifier');
+  }
+  if (['boc-valet', 'statcan-wds'].includes(spec.adapter) &&
+      !/^[a-z0-9 .*-]{1,120}$/i.test(spec.expectedLabel)) {
+    throw new Error('Invalid candidate publisher label');
   }
   if (spec.adapter === 'boc-valet') {
     if (!/^[A-Za-z0-9._-]{1,80}$/.test(spec.seriesId)) throw new Error('Invalid Bank of Canada series ID');
