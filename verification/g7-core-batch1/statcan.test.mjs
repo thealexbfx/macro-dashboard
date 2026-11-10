@@ -59,7 +59,7 @@ test('StatsCan contradictory series title is MISMATCH and observations are never
 
 test('StatsCan invalid JSON, missing vector and network errors cannot be verified', async () => {
   const malformed = await verify(row('G7-CA-07'), async () => new Response('<html>blocked</html>'), immediate);
-  assert.equal(malformed.outcome, 'ACCESS_BLOCKED');
+  assert.equal(malformed.outcome, 'UNRESOLVED');
   assert.equal(malformed.identity_status, 'UNRESOLVED');
   const missing = await verify(row('G7-CA-07'), async () => Response.json([{status:'FAILURE', object:{responseStatusCode: 101}}]), immediate);
   assert.equal(missing.outcome, 'UNRESOLVED');
