@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: 'd08f8bdca471de9593b07706776a066ec639a056' # Reviewed PR #25 feature commit
+          ref: 'f72cd5e8584a8fa4ef7ac469ffc8148608ad4948' # Reviewed PR #25 feature commit
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -22,7 +22,7 @@ jobs:
       - name: Record audited commit
         run: git rev-parse HEAD
       - name: Test verifier with mocked transport
-        run: node --test verification/g7-core-batch1/verify.test.mjs
+        run: node --test verification/g7-core-batch1/*.test.mjs
       - name: Retrieve publisher evidence
         run: node verification/g7-core-batch1/verify.mjs "$RUNNER_TEMP/g7-core-batch1"
       - name: Upload sanitized reports
