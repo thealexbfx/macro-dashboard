@@ -29,7 +29,8 @@ export function getSeriesSpec(mappingId) {
     if (spec.seriesKey !== 'B.U2.EUR.4F.KR.DFR.LEV') throw new Error('Unsupported ECB rate key');
   } else if (spec.adapter === 'ons-timeseries') {
     if (!/^[A-Z0-9]{4}$/.test(spec.seriesId) ||
-        !/^(economy|employmentandlabourmarket)\/[a-z0-9/]+\/timeseries\/[a-z0-9]{4}\/[a-z0-9]+$/.test(spec.path) ||
+        !/^(economy|employmentandlabourmarket)$/.test(spec.path.split('/')[0]) ||
+        spec.path.split('/').some(s => !/^[a-z0-9]+$/.test(s)) ||
         !spec.path.includes('/timeseries/'+spec.seriesId.toLowerCase()+'/') ||
         typeof spec.expectedLabel !== 'string' || spec.expectedLabel.length > 150 ||
         !['SA','NSA'].includes(spec.expectedAdjustment)) throw new Error('Invalid ONS series configuration');
