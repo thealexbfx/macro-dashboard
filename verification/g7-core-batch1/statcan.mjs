@@ -66,7 +66,11 @@ export async function verifyStatcan(row, original, transport = fetch, delay = as
   const meta = await postWds('getSeriesInfoFromVector', spec.vectorId, transport, delay);
   result.api_receipts.push({url: meta.url, http_status: meta.http_status, retrieved_utc: meta.retrieved_utc ?? null, error: meta.error ?? null});
   result.http_status = meta.http_status;
-  if (meta.error) return {...result, outcome: 'ACCESS_BLOCKED', access_status: 'BLOCKED', error_category: meta.error};
+  if (meta.error) {
+    const transportFailure = meta.error === 'network_or_timeout' || /^http_/.test(meta.error);
+    return {...result, outcome: transportFailure ? 'ACCESS_BLOCKED' : 'UNRESOLVED',
+      access_status: transportFailure ? 'BLOCKED' : 'RETRIEVED', error_category: meta.error};
+  }
   result.access_status = 'RETRIEVED';
   const item = successfulObject(meta.payload, spec.vectorId);
   if (!item || typeof item.SeriesTitleEn !== 'string') return {...result, error_category: 'unusable_series_metadata'};
@@ -89,7 +93,11 @@ export async function verifyStatcan(row, original, transport = fetch, delay = as
   const obs = await postWds('getDataFromVectorsAndLatestNPeriods', spec.vectorId, transport, delay);
   result.api_receipts.push({url: obs.url, http_status: obs.http_status, retrieved_utc: obs.retrieved_utc ?? null, error: obs.error ?? null});
   result.http_status = obs.http_status;
-  if (obs.error) return {...result, outcome: 'ACCESS_BLOCKED', error_category: obs.error, access_status: 'BLOCKED'};
+  if (obs.error) {
+    const transportFailure = obs.error === 'network_or_timeout' || /^http_/.test(obs.error);
+    return {...result, outcome: transportFailure ? 'ACCESS_BLOCKED' : 'UNRESOLVED',
+      error_category: obs.error, access_status: transportFailure ? 'BLOCKED' : 'RETRIEVED'};
+  }
   const data = successfulObject(obs.payload, spec.vectorId);
   if (!data || !Array.isArray(data.vectorDataPoint)) return {...result, error_category: 'unusable_observation_response'};
   const points = data.vectorDataPoint.flatMap(p => {
