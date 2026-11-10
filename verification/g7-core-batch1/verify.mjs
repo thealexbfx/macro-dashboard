@@ -3,6 +3,8 @@ import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 import {setTimeout as sleep} from 'node:timers/promises';
 import {verifyStatcan} from './statcan.mjs';
+import {verifyBls} from './bls.mjs';
+import {verifyEcb} from './ecb.mjs';
 import {getSeriesSpec, validateManifestRegistry} from './series-registry.mjs';
 
 const euroPolicy = new Set(['G7-DE-22', 'G7-FR-22', 'G7-IT-22']);
@@ -100,6 +102,8 @@ export async function verify(row, transport = fetch, delay = sleep) {
       'Source-specific commercial display and export review pending.',
   };
   if (spec?.adapter === 'statcan-wds') return verifyStatcan(row, result, spec, transport, delay);
+  if (spec?.adapter === 'bls-v1') return verifyBls(row, result, spec, transport, delay);
+  if (spec?.adapter === 'ecb-csv') return verifyEcb(row, result, spec, transport, delay);
   if (!url) return result;
 
   const {payload, error, ...receipt} = await request(url, transport, delay);

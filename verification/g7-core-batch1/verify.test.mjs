@@ -11,15 +11,20 @@ const label = 'Target for the overnight rate';
 const sample = (observations, seriesDetail = {V39079: {label}}) =>
   Response.json({seriesDetail, observations});
 
-test('manifest preserves 35 mappings and the three ECB links share one key', async () => {
+test('manifest preserves 35 mappings and three euro-area countries share one ECB series', async () => {
   assert.equal(rows.length, 35);
+  const keys = new Set();
   for (const country of ['DE', 'FR', 'IT']) {
     const row = rows.find(row => row.mapping_id === 'G7-' + country + '-22');
-    const result = await verify(row, () => assert.fail('Unexpected request'), immediate);
-    assert.equal(result.canonical_series_key, 'ECB-POLICY-RATE');
-    assert.equal(result.outcome, 'UNRESOLVED');
-    assert.equal(result.error_category, 'missing_exact_identifier');
+    const result = await verify(row, async () => { throw new Error('simulated offline'); }, immediate);
+    keys.add(result.canonical_series_key);
+    assert.equal(result.canonical_series_key, 'ECB:B.U2.EUR.4F.KR.DFR.LEV');
+    assert.equal(result.outcome, 'ACCESS_BLOCKED');
+    assert.equal(result.identity_status, 'UNRESOLVED');
+    assert.equal(result.production_approval, 'NOT_APPROVED');
+    assert.equal(result.rights_status, 'PENDING');
   }
+  assert.equal(keys.size, 1);
 });
 
 test('matched publisher and old samples establish neither discontinuation nor history, vintages or rights', async () => {

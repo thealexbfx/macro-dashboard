@@ -26,5 +26,39 @@
     "seriesId": "BD.CDN.10YR.DQ.YLD",
     "expectedLabel": "benchmark bond yield.*10.year",
     "discoveryUrl": "https://www.bankofcanada.ca/valet/series/BD.CDN.10YR.DQ.YLD/json"
+  },
+  "G7-US-07": {
+    "adapter": "bls-v1",
+    "seriesId": "CUUR0000SA0",
+    "expectedDefinition": "CPI-U all items, US city average, not seasonally adjusted",
+    "expectedAdjustment": "NSA",
+    "expectedUnit": "1982-84=100 index",
+    "discoveryUrl": "https://www.bls.gov/cpi/factsheets/cpi-series-ids.htm"
+  },
+  "G7-US-11": {
+    "adapter": "bls-v1",
+    "seriesId": "LNS14000000",
+    "expectedDefinition": "Civilian unemployment rate, 16 years and over, seasonally adjusted",
+    "expectedAdjustment": "SA",
+    "expectedUnit": "Percent",
+    "discoveryUrl": "https://www.bls.gov/developers/api_signature_v2.htm"
+  },
+  "G7-DE-22": {
+    "adapter": "ecb-csv",
+    "seriesKey": "B.U2.EUR.4F.KR.DFR.LEV",
+    "expectedDefinition": "ECB euro area deposit facility rate, rate change date series",
+    "discoveryUrl": "https://data.ecb.europa.eu/data/datasets/FM/FM.B.U2.EUR.4F.KR.DFR.LEV"
+  },
+  "G7-FR-22": {
+    "adapter": "ecb-csv",
+    "seriesKey": "B.U2.EUR.4F.KR.DFR.LEV",
+    "expectedDefinition": "ECB euro area deposit facility rate, rate change date series",
+    "discoveryUrl": "https://data.ecb.europa.eu/data/datasets/FM/FM.B.U2.EUR.4F.KR.DFR.LEV"
+  },
+  "G7-IT-22": {
+    "adapter": "ecb-csv",
+    "seriesKey": "B.U2.EUR.4F.KR.DFR.LEV",
+    "expectedDefinition": "ECB euro area deposit facility rate, rate change date series",
+    "discoveryUrl": "https://data.ecb.europa.eu/data/datasets/FM/FM.B.U2.EUR.4F.KR.DFR.LEV"
   }
 }

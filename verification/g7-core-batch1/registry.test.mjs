@@ -7,9 +7,9 @@ const csv = await readFile(new URL('manifest.csv', import.meta.url), 'utf8');
 const rows = parseManifest(csv);
 const immediate = async () => {};
 
-test('one shared registry configures four first-party mappings and leaves 31 explicit exceptions', () => {
+test('one shared registry configures nine mappings and leaves 26 explicit exceptions', () => {
   assert.deepEqual(validateManifestRegistry(rows), {
-    manifest_count: 35, configured_count: 4, unconfigured_count: 31,
+    manifest_count: 35, configured_count: 9, unconfigured_count: 26,
   });
   assert.equal(getSeriesSpec('G7-CA-23').seriesId, 'BD.CDN.10YR.DQ.YLD');
   assert.equal(getSeriesSpec('G7-CA-07').adapter, 'statcan-wds');
@@ -21,9 +21,9 @@ test('all 35 pilot mappings produce an audit result without querying unconfigure
   const outputs = await Promise.all(rows.map(row =>
     verify(row, async () => { networkCalls++; throw Error('network intentionally unavailable'); }, immediate)));
   assert.equal(outputs.length, 35);
-  assert.equal(networkCalls, 12); // Three bounded attempts for each of four registered mappings.
-  assert.equal(outputs.filter(r => r.outcome === 'ACCESS_BLOCKED').length, 4);
-  assert.equal(outputs.filter(r => r.outcome === 'UNRESOLVED').length, 31);
+  assert.equal(networkCalls, 27); // Three bounded attempts for each of nine registered mappings.
+  assert.equal(outputs.filter(r => r.outcome === 'ACCESS_BLOCKED').length, 9);
+  assert.equal(outputs.filter(r => r.outcome === 'UNRESOLVED').length, 26);
   assert.ok(outputs.every(r => r.production_approval === 'NOT_APPROVED'));
   assert.ok(outputs.every(r => r.rights_status === 'PENDING'));
 });

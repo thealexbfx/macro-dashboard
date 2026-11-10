@@ -6,9 +6,12 @@ export const seriesRegistry = Object.freeze(loaded);
 export function getSeriesSpec(mappingId) {
   const spec = Object.hasOwn(seriesRegistry, mappingId) ? seriesRegistry[mappingId] : null;
   if (!spec) return null;
-  if (!/^[a-z0-9 .*-]{1,120}$/i.test(spec.expectedLabel) ||
-      !/^G7-(US|GB|DE|FR|IT|CA|JP)-(0[1-9]|[12][0-9]|3[0-5])$/.test(mappingId)) {
-    throw new Error('Invalid candidate mapping configuration');
+  if (!/^G7-(US|GB|DE|FR|IT|CA|JP)-(0[1-9]|[12][0-9]|3[0-5])$/.test(mappingId)) {
+    throw new Error('Invalid candidate mapping identifier');
+  }
+  if (['boc-valet', 'statcan-wds'].includes(spec.adapter) &&
+      !/^[a-z0-9 .*-]{1,120}$/i.test(spec.expectedLabel)) {
+    throw new Error('Invalid candidate publisher label');
   }
   if (spec.adapter === 'boc-valet') {
     if (!/^[A-Za-z0-9._-]{1,80}$/.test(spec.seriesId)) throw new Error('Invalid Bank of Canada series ID');
@@ -18,6 +21,12 @@ export function getSeriesSpec(mappingId) {
         !['SA', 'NSA'].includes(spec.expectedAdjustment)) {
       throw new Error('Invalid Statistics Canada candidate metadata');
     }
+  } else if (spec.adapter === 'bls-v1') {
+    if (!/^[A-Z0-9]{10,24}$/.test(spec.seriesId) ||
+        !['SA','NSA'].includes(spec.expectedAdjustment) ||
+        !spec.expectedDefinition || !spec.expectedUnit) throw new Error('Invalid BLS mapping');
+  } else if (spec.adapter === 'ecb-csv') {
+    if (spec.seriesKey !== 'B.U2.EUR.4F.KR.DFR.LEV') throw new Error('Unsupported ECB rate key');
   } else {
     throw new Error('Unsupported adapter: ' + String(spec.adapter));
   }
