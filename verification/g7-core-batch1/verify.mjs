@@ -2,6 +2,7 @@ import {readFile, mkdir, writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 import {setTimeout as sleep} from 'node:timers/promises';
+import {verifyStatcan} from './statcan.mjs';
 
 const candidates = {
   'G7-CA-22': ['V39079', /target for the overnight rate/i],
@@ -95,6 +96,7 @@ export async function verify(row, transport = fetch, delay = sleep) {
     rights_note: id.endsWith('-23') ? 'Review yield methodology, market data provenance and commercial display/export rights.' :
       'Source-specific commercial display and export review pending.',
   };
+  if (id === 'G7-CA-07' || id === 'G7-CA-11') return verifyStatcan(row, result, transport, delay);
   if (!url) return result;
 
   const {payload, error, ...receipt} = await request(url, transport, delay);
