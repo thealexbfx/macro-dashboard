@@ -32,12 +32,14 @@ test('matched publisher and old samples establish neither discontinuation nor hi
   assert.equal(result.outcome, 'VERIFIED');
   assert.equal(result.first_evidenced, '2000-01-04');
   assert.equal(result.last_evidenced, '2000-01-04');
+  assert.equal(result.verification_scope, 'RECENT_SAMPLE_ONLY');
+  assert.equal(result.production_approval, 'NOT_APPROVED');
   assert.equal(result.history_status, 'SAMPLE_ONLY');
   assert.equal(result.vintage_status, 'NOT_ESTABLISHED');
   assert.equal(result.rights_status, 'PENDING');
 });
 
-test('invalid metadata is a mismatch', async () => {
+test('a conflicting publisher label is a mismatch', async () => {
   const result = await check(async () => sample([], {V39079: {label: 'Wrong series'}}));
   assert.equal(result.outcome, 'MISMATCH');
   assert.equal(result.error_category, 'invalid_metadata');
@@ -69,4 +71,21 @@ test('oversize response never produces a verified observation', async () => {
   const result = await check(async () => new Response('x'.repeat(65537)));
   assert.equal(result.error_category, 'response_too_large');
   assert.deepEqual(result.observations, []);
+});
+
+test('invalid JSON and malformed payloads leave identity unresolved', async () => {
+  for (const [response, error] of [
+    [new Response('<html>upstream error</html>'), 'invalid_json'],
+    [Response.json(null), 'malformed_payload'],
+    [sample([], {V39079: {}}), 'malformed_payload'],
+    [sample({}), 'malformed_payload'],
+  ]) {
+    const result = await check(async () => response);
+    assert.equal(result.outcome, 'UNRESOLVED');
+    assert.equal(result.identity_status, 'UNRESOLVED');
+    assert.equal(result.access_status, 'RETRIEVED');
+    assert.equal(result.http_status, 200);
+    assert.equal(result.error_category, error);
+    assert.equal(result.production_approval, 'NOT_APPROVED');
+  }
 });
