@@ -1,10 +1,6 @@
 // Official Statistics Canada WDS verification, strictly recent-sample only.
 // Documentation: https://www.statcan.gc.ca/en/developers/wds/user-guide
 const ROOT = 'https://www150.statcan.gc.ca/t1/wds/rest/';
-const specs = {
-  'G7-CA-07': {vectorId: 41690973, productId: 18100004, label: /all.items/i, table: '18-10-0004-01', expectedAdjustment: 'Not seasonally adjusted'},
-  'G7-CA-11': {vectorId: 2062815, productId: 14100287, label: /unemployment rate/i, table: '14-10-0287-01', expectedAdjustment: 'Seasonally adjusted'},
-};
 const safe = value => typeof value === 'string' ? value.replace(/[\x00-\x1f\x7f]/g, ' ').slice(0, 240) : null;
 
 async function postWds(method, vectorId, transport, delay) {
@@ -54,12 +50,11 @@ function successfulObject(payload, vectorId) {
   return record.object;
 }
 
-export async function verifyStatcan(row, original, transport = fetch, delay = async () => {}) {
-  const spec = specs[row.mapping_id];
-  if (!spec) return original;
+export async function verifyStatcan(row, original, spec, transport = fetch, delay = async () => {}) {
+  if (!spec || spec.adapter !== 'statcan-wds') return original;
   const source_url = ROOT + 'getSeriesInfoFromVector';
   const result = {...original, publisher_series_id: 'v' + spec.vectorId,
-    source_url, publisher_discovery_url: 'https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=' + spec.productId + '01',
+    source_url, publisher_discovery_url: spec.discoveryUrl,
     metadata_url: source_url, observations_url: ROOT + 'getDataFromVectorsAndLatestNPeriods',
     error_category: null, api_receipts: [],
     rights_note: 'Statistics Canada Open Licence applicability to exact series, commercial display, export and attribution requires review.'};
@@ -79,9 +74,9 @@ export async function verifyStatcan(row, original, transport = fetch, delay = as
     terminated: item.terminated};
   result.definition = result.metadata.title;
   // MISMATCH is reserved for clearly contradictory publisher metadata.
-  if (Number(item.productId) !== spec.productId || !spec.label.test(item.SeriesTitleEn) ||
-      (row.mapping_id === 'G7-CA-07' && /seasonally adjusted/i.test(item.SeriesTitleEn)) ||
-      (row.mapping_id === 'G7-CA-11' && /not seasonally adjusted/i.test(item.SeriesTitleEn))) {
+  if (Number(item.productId) !== spec.productId || !new RegExp(spec.expectedLabel, 'i').test(item.SeriesTitleEn) ||
+      (spec.expectedAdjustment === 'NSA' && /seasonally adjusted/i.test(item.SeriesTitleEn) && !/not seasonally adjusted/i.test(item.SeriesTitleEn)) ||
+      (spec.expectedAdjustment === 'SA' && /not seasonally adjusted/i.test(item.SeriesTitleEn))) {
     return {...result, outcome: 'MISMATCH', identity_status: 'MISMATCH',
       error_category: 'publisher_metadata_conflict',
       mismatch_notes: 'Official vector metadata contradicts the specified table, item or seasonal adjustment.'};
