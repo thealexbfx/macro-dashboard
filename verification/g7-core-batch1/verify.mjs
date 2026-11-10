@@ -87,7 +87,7 @@ export async function verify(row, transport = fetch, delay = sleep) {
     publisher_series_id: series ?? null, definition: null, frequency: null, unit: null,
     seasonal_adjustment: null, first_evidenced: null, last_evidenced: null,
     check_utc: new Date().toISOString(), http_status: null, observations: [], metadata: null,
-    outcome: 'UNRESOLVED', identity_status: 'UNRESOLVED', access_status: 'NOT_TESTED',
+    outcome: 'UNRESOLVED', verification_scope: 'NONE', production_approval: 'NOT_APPROVED', identity_status: 'UNRESOLVED', access_status: 'NOT_TESTED',
     history_status: 'NOT_ESTABLISHED', vintage_status: 'NOT_ESTABLISHED',
     rights_status: 'PENDING', comparability: row.comparability,
     mismatch_notes: null, review_note: row.review_note,
@@ -101,12 +101,15 @@ export async function verify(row, transport = fetch, delay = sleep) {
   Object.assign(result, receipt);
   if (error) {
     const invalid = error === 'invalid_json';
-    return {...result, outcome: invalid ? 'MISMATCH' : 'ACCESS_BLOCKED',
+    return {...result, outcome: invalid ? 'UNRESOLVED' : 'ACCESS_BLOCKED',
       access_status: invalid ? 'RETRIEVED' : 'BLOCKED', error_category: error};
   }
   result.access_status = 'RETRIEVED';
   const metadata = payload?.seriesDetail?.[series];
-  if (typeof metadata?.label !== 'string' || !expectedLabel.test(metadata.label)) {
+  if (typeof metadata?.label !== 'string' || !metadata.label.trim() || !Array.isArray(payload?.observations)) {
+    return {...result, error_category: 'malformed_payload'};
+  }
+  if (!expectedLabel.test(metadata.label)) {
     return {...result, outcome: 'MISMATCH', error_category: 'invalid_metadata',
       identity_status: 'MISMATCH', mismatch_notes: 'Expected series key and publisher label were not evidenced.'};
   }
@@ -114,9 +117,6 @@ export async function verify(row, transport = fetch, delay = sleep) {
   result.metadata = {label: clean(metadata.label), description: clean(metadata.description)};
   result.definition = result.metadata.description || result.metadata.label;
   result.identity_status = 'MATCHED';
-  if (!Array.isArray(payload.observations)) {
-    return {...result, outcome: 'MISMATCH', error_category: 'invalid_observations'};
-  }
   const observations = payload.observations.flatMap(item => {
     const value = item?.[series]?.v;
     return typeof item?.d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.d) &&
@@ -125,7 +125,7 @@ export async function verify(row, transport = fetch, delay = sleep) {
   }).sort((a, b) => a.period.localeCompare(b.period));
   if (!observations.length) return {...result, error_category: 'no_usable_observations'};
 
-  return {...result, outcome: 'VERIFIED', observations: observations.slice(-5),
+  return {...result, outcome: 'VERIFIED', verification_scope: 'RECENT_SAMPLE_ONLY', observations: observations.slice(-5),
     first_evidenced: observations.at(-5)?.period ?? observations[0].period,
     last_evidenced: observations.at(-1).period, history_status: 'SAMPLE_ONLY',
     frequency: 'Daily', error_category: null};
@@ -136,12 +136,16 @@ async function main(out) {
   const rows = parseManifest(await readFile(new URL('manifest.csv', import.meta.url), 'utf8'));
   const records = [];
   for (const row of rows) records.push(await verify(row));
+  for (const row of records.filter(record => record.source_url)) {
+    console.log(JSON.stringify({mapping_id: row.mapping_id, outcome: row.outcome,
+      http_status: row.http_status, error_category: row.error_category}));
+  }
   const fields = [...new Set(records.flatMap(Object.keys))];
   const cell = value => '"' + (value == null ? '' : typeof value === 'object' ? JSON.stringify(value) :
     String(value)).replaceAll('"', '""') + '"';
   const matrix = [fields.join(','), ...records.map(row => fields.map(key => cell(row[key])).join(','))];
   const summary = ['# G7 Core Batch 1 verification', '',
-    'Verified means the publisher identity and a recent sample were retrieved. History, vintages and rights have separate gates.',
+    'VERIFIED records establish publisher identity and retrieval of a bounded recent sample only. Full historical coverage and release vintages are unconfirmed. Commercial rights remain pending and production approval has not been granted.',
     '', '| Mapping | Publisher | Outcome | HTTP | Error | Rights |',
     '| --- | --- | --- | --- | --- | --- |',
     ...records.map(r => '| ' + [r.mapping_id, r.publisher, r.outcome, r.http_status ?? '-',
