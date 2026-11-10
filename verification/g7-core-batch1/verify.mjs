@@ -3,11 +3,8 @@ import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';
 import {setTimeout as sleep} from 'node:timers/promises';
 import {verifyStatcan} from './statcan.mjs';
+import {getSeriesSpec, validateManifestRegistry} from './series-registry.mjs';
 
-const candidates = {
-  'G7-CA-22': ['V39079', /target for the overnight rate/i],
-  'G7-CA-23': ['BD.CDN.10YR.DQ.YLD', /benchmark bond yield.*10.year/i],
-};
 const euroPolicy = new Set(['G7-DE-22', 'G7-FR-22', 'G7-IT-22']);
 
 export function parseManifest(csv) {
@@ -21,9 +18,13 @@ export function parseManifest(csv) {
   });
   const expected = new Set(['US', 'GB', 'DE', 'FR', 'IT', 'CA', 'JP'].flatMap(
     country => ['01', '07', '11', '22', '23'].map(concept => 'G7-' + country + '-' + concept)));
-  if (rows.length !== 35 || rows.some(row =>
-    !expected.delete(row.mapping_id) || row.operational_outcome !== 'NOT_TESTED')) {
-    throw new Error('Unexpected Batch 1 seed mappings or statuses');
+  const seen = new Set();
+  if (![35, 245].includes(rows.length) || rows.some(row =>
+    !/^G7-(US|GB|DE|FR|IT|CA|JP)-(0[1-9]|[12][0-9]|3[0-5])$/.test(row.mapping_id) ||
+    seen.has(row.mapping_id) || (seen.add(row.mapping_id), false) ||
+    row.operational_outcome !== 'NOT_TESTED') ||
+    [...expected].some(id => !seen.has(id))) {
+    throw new Error('Unexpected G7 manifest mappings, count or seed statuses');
   }
   return rows;
 }
@@ -79,7 +80,9 @@ async function request(url, transport, delay) {
 export async function verify(row, transport = fetch, delay = sleep) {
   const id = row.mapping_id;
   const shared = euroPolicy.has(id);
-  const [series, expectedLabel] = candidates[id] ?? [];
+  const spec = getSeriesSpec(id);
+  const series = spec?.adapter === 'boc-valet' ? spec.seriesId : null;
+  const expectedLabel = series ? new RegExp(spec.expectedLabel, 'i') : null;
   const url = series ? 'https://www.bankofcanada.ca/valet/observations/' + series + '/json?recent=5' : null;
   const result = {
     mapping_id: id, publisher: row.proposed_original_publisher,
@@ -96,7 +99,7 @@ export async function verify(row, transport = fetch, delay = sleep) {
     rights_note: id.endsWith('-23') ? 'Review yield methodology, market data provenance and commercial display/export rights.' :
       'Source-specific commercial display and export review pending.',
   };
-  if (id === 'G7-CA-07' || id === 'G7-CA-11') return verifyStatcan(row, result, transport, delay);
+  if (spec?.adapter === 'statcan-wds') return verifyStatcan(row, result, spec, transport, delay);
   if (!url) return result;
 
   const {payload, error, ...receipt} = await request(url, transport, delay);
@@ -135,7 +138,9 @@ export async function verify(row, transport = fetch, delay = sleep) {
 
 async function main(out) {
   if (!out) throw new Error('Supply a disposable output directory');
-  const rows = parseManifest(await readFile(new URL('manifest.csv', import.meta.url), 'utf8'));
+  const manifestPath = process.argv[3] || new URL('manifest.csv', import.meta.url);
+  const rows = parseManifest(await readFile(manifestPath, 'utf8'));
+  const registry = validateManifestRegistry(rows);
   const records = [];
   for (const row of rows) records.push(await verify(row));
   for (const row of records.filter(record => record.source_url)) {
@@ -147,6 +152,7 @@ async function main(out) {
     String(value)).replaceAll('"', '""') + '"';
   const matrix = [fields.join(','), ...records.map(row => fields.map(key => cell(row[key])).join(','))];
   const summary = ['# G7 Core Batch 1 verification', '',
+    'Mappings: ' + registry.manifest_count + ' | Configured: ' + registry.configured_count + ' | Unconfigured: ' + registry.unconfigured_count, '' ,
     'VERIFIED records establish publisher identity and retrieval of a bounded recent sample only. Full historical coverage and release vintages are unconfirmed. Commercial rights remain pending and production approval has not been granted.',
     '', '| Mapping | Publisher | Outcome | HTTP | Error | Rights |',
     '| --- | --- | --- | --- | --- | --- |',

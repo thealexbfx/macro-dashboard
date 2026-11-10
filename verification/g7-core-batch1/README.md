@@ -32,3 +32,19 @@ Publisher references
 - Real GDP expenditure table 36-10-0104-01: https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610010401 (candidate GDP vector is still unresolved; note changing chain-dollar reference years)
 
 No successful WDS retrieval has yet been observed in a GitHub-hosted run. A successful WDS response checks recent samples only, not full history or historic release vintages. Do not approve any of these series for production, and retain all rights gates as pending.
+
+## Manifest-driven verification engine (development extension)
+
+The reusable pilot runner reads a candidate manifest and dispatches by publisher adapter through `series-registry.mjs`. Mapping records are immutable proposals, not approvals. The registry currently configures **four Canadian mappings**: two Bank of Canada Valet and two Statistics Canada WDS. All other records remain explicit `UNRESOLVED / NOT_TESTED` exceptions, including Canada's GDP and the shared ECB policy mapping.
+
+The runner accepts either the original 35-row batch or the full 245-row core manifest. Supply the latter as an optional third command-line argument (all rows must have the `operational_outcome=NOT_TESTED` seed state and include the pilot mappings). Example:
+
+```sh
+node --test verification/g7-core-batch1/*.test.mjs
+node verification/g7-core-batch1/verify.mjs "$(mktemp -d)"
+node verification/g7-core-batch1/verify.mjs "$(mktemp -d)" /path/to/MacroLens_G7_Core_Data_Manifest_v1_Reviewed.csv
+```
+
+The configured rows are selected from the authoritative manifest by mapping ID and publisher; API IDs, expected labels and adapter types live in the data-only **`series-registry.json`**. To add a mapping already supported by an adapter, edit the JSON candidate registry rather than editing JavaScript. New original publishers still require audited adapter implementations and tests. Publisher-returned metadata and samples determine the result. This is a **reusable framework**, not yet a complete set of G7 adapters. Adding adapters, full-history validation, revision/vintage reconstruction and source-specific commercial-rights review remain explicit future tasks. A passing test or green workflow does not approve a series for production.
+
+Every new adapter must use bounded publisher requests, emit independent identity/access/history/vintage/rights gates and persist sanitized retrieval evidence. Keep the feature PR unmerged, use the existing manual-only workflow registration process, and do not create production ingestion, schedules, deployments or database changes.

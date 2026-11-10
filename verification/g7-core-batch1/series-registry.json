@@ -1,0 +1,30 @@
+{
+  "G7-CA-07": {
+    "adapter": "statcan-wds",
+    "vectorId": 41690973,
+    "productId": 18100004,
+    "expectedLabel": "all.items",
+    "expectedAdjustment": "NSA",
+    "discoveryUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1810000401"
+  },
+  "G7-CA-11": {
+    "adapter": "statcan-wds",
+    "vectorId": 2062815,
+    "productId": 14100287,
+    "expectedLabel": "unemployment rate",
+    "expectedAdjustment": "SA",
+    "discoveryUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701"
+  },
+  "G7-CA-22": {
+    "adapter": "boc-valet",
+    "seriesId": "V39079",
+    "expectedLabel": "target for the overnight rate",
+    "discoveryUrl": "https://www.bankofcanada.ca/valet/series/V39079/json"
+  },
+  "G7-CA-23": {
+    "adapter": "boc-valet",
+    "seriesId": "BD.CDN.10YR.DQ.YLD",
+    "expectedLabel": "benchmark bond yield.*10.year",
+    "discoveryUrl": "https://www.bankofcanada.ca/valet/series/BD.CDN.10YR.DQ.YLD/json"
+  }
+}
