@@ -17,17 +17,25 @@ export async function verifyOns(row, original, spec, transport=fetch, delay=asyn
     access_status:blocked(receipt.error)?'BLOCKED':'RETRIEVED',error_category:receipt.error};
   result.access_status='RETRIEVED';
   let obj;try{obj=JSON.parse(receipt.text);}catch{return {...result,error_category:'invalid_json'};}
-  if(!obj||typeof obj!=='object'||Array.isArray(obj)||typeof obj.description!=='string')
+  if(!obj||typeof obj!=='object'||Array.isArray(obj))
     return {...result,error_category:'missing_series_metadata'};
-  const title=obj.description;
+  // ONS time-series responses may contain the descriptive fields in a
+  // nested description object, while test/legacy payloads expose flat fields.
+  const detail=typeof obj.description==='object' && obj.description!==null &&
+    !Array.isArray(obj.description) ? obj.description : obj;
+  const title=typeof detail.description==='string' ? detail.description : null;
+  const cdid=detail.cdid ?? obj.cdid;
+  const dataset=detail.datasetId ?? detail.dataset ?? obj.dataset;
+  if(!title || typeof cdid!=='string' || !cdid.trim())
+    return {...result,error_category:'missing_series_metadata'};
   result.definition=safeText(title);
-  result.metadata={description:safeText(title),cdid:safeText(obj.cdid),dataset:safeText(obj.dataset),
-    unit:safeText(obj.unit)};
-  if(typeof obj.cdid==='string'&&obj.cdid.toUpperCase()!==spec.seriesId)
+  result.metadata={description:safeText(title),cdid:safeText(cdid),dataset:safeText(dataset),
+    unit:safeText(detail.unit ?? obj.unit)};
+  if(cdid.toUpperCase()!==spec.seriesId)
     return {...result,outcome:'MISMATCH',identity_status:'MISMATCH',error_category:'cdid_conflict'};
   if(!new RegExp(spec.expectedLabel,'i').test(title))
     return {...result,outcome:'MISMATCH',identity_status:'MISMATCH',error_category:'title_conflict'};
-  result.identity_status=typeof obj.cdid==='string'?'PUBLISHER_ID_AND_LABEL_MATCHED':'PUBLISHER_ROUTE_AND_LABEL_MATCHED';
+  result.identity_status='PUBLISHER_ID_AND_LABEL_MATCHED';
   // ONS MGSX is a rolling three-month labour-market estimate; do not call it a single-month measure.
   const entries=Array.isArray(obj.months)?obj.months:[];
   const samples=entries.flatMap(p=>{
