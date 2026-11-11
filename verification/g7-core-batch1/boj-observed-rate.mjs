@@ -27,7 +27,9 @@ export function extractObservedBoj(payload) {
     return {outcome:'UNRESOLVED',error_category:'unexpected_series_identity',shape:diagnostic};
   if(payload.NEXTPOSITION!=null) return {outcome:'UNRESOLVED',error_category:'pagination_not_exhausted',shape:diagnostic};
   const item=rows[0];
-  if(typeof item.UNIT!=='string'|| !/^%(?: per annum)?$/i.test(item.UNIT.trim()))
+  // BOJ publisher's exact official unit label is 'percent per annum';
+  // percentage-point value is preserved with no factor-of-100 conversion.
+  if(typeof item.UNIT!=='string'|| !/^(?:%|% per annum|percent per annum)$/i.test(item.UNIT.trim()))
     return {outcome:'UNRESOLVED',error_category:'unexpected_rate_unit',shape:diagnostic};
   const title=item.NAME_OF_TIME_SERIES;
   if(typeof title!=='string' || !/uncollateralized|unsecured/i.test(title) ||
