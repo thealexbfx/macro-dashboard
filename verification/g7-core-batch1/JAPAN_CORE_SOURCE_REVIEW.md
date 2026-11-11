@@ -52,3 +52,18 @@ GitHub artifact: `boj_policy_decision_sample_2025.json` (disposable development 
 **Known unfilled policy-event gap:** June 16, 2026 (around 1.0%) and September 18, 2026 (around 1.25%) appear as original BOJ PDF decision statements in the official 2026 archive https://www.boj.or.jp/en/mopo/mpmdeci/state_2026/ . A subsequent separately reviewed PDF extraction/evidence layer must verify dates, decision language, rate, any applicability/effective dates and archived source versions before adding these records. An event-series covering just a few rate changes also **does not** prove all intervening policy meetings or long historical completeness.
 
 Original-publisher 2025 statements and 2026 archive verified in source research; the new GitHub-hosted event verifier has not yet run. Commercial publication/redistribution and release vintages remain PENDING.
+
+## 2026 BOJ original PDF decision evidence
+
+Original official Bank of Japan source PDFs, first pages manually reviewed:
+
+| Decision date | Policy target (around) | Explicit effective date | Exact publisher source |
+|---|---:|---|---|
+| 2026-06-16 | 1.00% | 2026-06-17 | https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260616a.pdf |
+| 2026-09-18 | 1.25% | 2026-09-24 | https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260918a.pdf |
+
+For these two PDF documents the new development-only adapter fetches bounded PDF bytes from fixed BOJ URLs, checks PDF signature and content type, extracts **only page 1** using local `pdftotext` without network access, and separately verifies original publisher identity, decision date, target sentence, and the effective date in the **guideline-specific footnote**. The effective date is **not** assumed to equal the meeting date. If `pdftotext` is unavailable or fails, the result is unresolved with a diagnostic category, never a pass.
+
+Audit output: `boj_policy_decision_sample_2026.json`. No full PDF files or extracted document text are stored in artifacts or committed; only small typed event receipts and source URLs. These are **two selected 2026 changes only**; together with the two verified 2025 statements they do **not** establish uninterrupted historical policy changes, publication vintages, rate regimes or completeness. The BOJ core `G7-JP-22` mapping remains UNCONFIGURED, commercial rights PENDING and production NOT_APPROVED.
+
+The new PDF adapter has not yet passed a real GitHub-hosted audit. The workflow may pass even if both PDF events are unresolved; check each outcome in the artifact.
