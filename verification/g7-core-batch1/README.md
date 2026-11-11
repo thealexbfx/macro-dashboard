@@ -65,3 +65,13 @@ Source documentation:
 The new adapters have mocked tests, but **no live GitHub-hosted retrieval evidence yet**. A green GitHub Actions job does not imply all mappings passed. The remaining 26 mappings are unconfigured and must be reported as such, not silently substituted. All 35 remain **NOT_APPROVED** for production; rights and vintages remain pending.
 
 No publisher credentials, deployment, scheduled trigger, or production database changes are introduced. Each publisher adapter sends read-only HTTPS requests only to its strict first-party host allowlist.
+
+## ONS response-shape diagnosis — development only
+
+Previous GitHub runs reached both ONS series with HTTP 200 but failed `missing_series_metadata`, even after adding support for nested descriptions. This stage deliberately does **not** guess another response schema or relax publisher identity checks. For only the two affected ONS mappings, when required metadata are absent, the verifier now records `ons_response_shape`: bounded JSON field **names**, JSON **types**, and the monthly array count/first observation's field names. No field values, descriptions, rates, cookies, credentials or raw response snippets are recorded in this diagnostic. The output lives in the disposable verification artifact, not the production database.
+
+The new diagnostic is not proof of identity or of valid observations; the affected mapping must stay `UNRESOLVED` until publisher evidence passes. Review the `ons_response_shape` keys in the hosted JSON report, then implement a focused parser fix with a regression test. Full history, vintages and commercial rights remain separate pending gates.
+
+## Hosted ONS schema finding (audit #10)
+
+The GitHub-hosted diagnostic artifact from run `42945028924` confirmed nested `description.cdid` and **`description.title`** (not `description.description`) in both ONS D7BT and MGSX responses. The branch now accepts the publisher-provided `description.title`, still requires matching publisher `cdid`, and still checks the full expected title regex and usable observations before recent-sample VERIFIED. This change is not itself hosted-verified. If the next publisher response differs in its title wording or month periods, keep the mapping unresolved and report exact evidence; do not relax definition matching silently.

@@ -4,6 +4,32 @@ const months={JAN:'01',FEB:'02',MAR:'03',APR:'04',MAY:'05',JUN:'06',
   JUL:'07',AUG:'08',SEP:'09',OCT:'10',NOV:'11',DEC:'12'};
 const blocked = e => e==='network_or_timeout'||/^http_/.test(e);
 
+// Diagnostic intentionally records field names and JSON types only: never
+// response bodies, observation values, descriptions, access tokens or cookies.
+// The exact publisher payload stays out of public workflow artifacts.
+export function onsShapeDiagnostic(payload) {
+  const fields = value => value && typeof value === 'object' && !Array.isArray(value)
+    ? Object.keys(value).filter(key => /^[a-zA-Z][a-zA-Z0-9_]{0,49}$/.test(key))
+      .slice(0, 24).sort() : [];
+  const kind = value => Array.isArray(value) ? 'array' : value===null ? 'null' : typeof value;
+  const detail = payload && typeof payload === 'object' && !Array.isArray(payload)
+    ? payload.description : null;
+  return {
+    schema_only: true,
+    root_type: kind(payload),
+    root_keys: fields(payload),
+    description_type: kind(detail),
+    description_keys: fields(detail),
+    cdid_type: kind(payload?.cdid),
+    nested_cdid_type: kind(detail?.cdid),
+    nested_title_type: kind(detail?.title),
+    root_title_type: kind(payload?.description),
+    months_type: kind(payload?.months),
+    months_count: Array.isArray(payload?.months) ? payload.months.length : null,
+    first_month_keys: Array.isArray(payload?.months) ? fields(payload.months[0]) : [],
+  };
+}
+
 export async function verifyOns(row, original, spec, transport=fetch, delay=async()=>{}) {
   const url='https://www.ons.gov.uk/'+spec.path+'/data';
   const result={...original,source_url:url,publisher_series_id:spec.seriesId,
@@ -18,16 +44,19 @@ export async function verifyOns(row, original, spec, transport=fetch, delay=asyn
   result.access_status='RETRIEVED';
   let obj;try{obj=JSON.parse(receipt.text);}catch{return {...result,error_category:'invalid_json'};}
   if(!obj||typeof obj!=='object'||Array.isArray(obj))
-    return {...result,error_category:'missing_series_metadata'};
+    return {...result,error_category:'missing_series_metadata',ons_response_shape:onsShapeDiagnostic(obj)};
   // ONS time-series responses may contain the descriptive fields in a
   // nested description object, while test/legacy payloads expose flat fields.
   const detail=typeof obj.description==='object' && obj.description!==null &&
     !Array.isArray(obj.description) ? obj.description : obj;
-  const title=typeof detail.description==='string' ? detail.description : null;
+  // Actual ONS publisher response (hosted audit #10): description.title.
+  // Preserve flat legacy fixtures for compatibility; require exact CDID either way.
+  const title=typeof detail.title==='string' ? detail.title :
+    typeof detail.description==='string' ? detail.description : null;
   const cdid=detail.cdid ?? obj.cdid;
   const dataset=detail.datasetId ?? detail.dataset ?? obj.dataset;
   if(!title || typeof cdid!=='string' || !cdid.trim())
-    return {...result,error_category:'missing_series_metadata'};
+    return {...result,error_category:'missing_series_metadata',ons_response_shape:onsShapeDiagnostic(obj)};
   result.definition=safeText(title);
   result.metadata={description:safeText(title),cdid:safeText(cdid),dataset:safeText(dataset),
     unit:safeText(detail.unit ?? obj.unit)};
