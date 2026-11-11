@@ -38,3 +38,7 @@ The Statistics Dashboard API is another publicly available no-registration sourc
 **Next publisher implementation priority**: search the BOJ `getMetadata` API and official national source tables for exact Japanese codes, implement independent original-publisher metadata checks, and add the vetted mappings to the JSON registry. Do not request secret credentials in a public Actions workflow.
 
 All rights reviews PENDING; all production approvals NOT_APPROVED; no DB writes/deployments/schedules.
+
+## Additional BOJ database evidence
+
+The BOJ API User Manual's DB-name table identifies `FM01` as **Uncollateralized Overnight Call Rate (average), updated every business day** and `IR01` as **The Basic Discount Rates and Basic Loan Rates (formerly Official Discount Rates)**. These are *not automatically equivalent* to the current monetary-policy target. The next Japan discovery step is the public, read-only metadata endpoint `https://www.stat-search.boj.or.jp/api/v1/getMetadata?format=json&lang=en&db=FM01`, followed by a deliberate policy-target-vs-effective-market-rate decision. Do not use `FM01` for the policy mapping until this distinction is explicitly addressed. Source: BOJ API User Manual, section II, DB Names, February 18 2026.
