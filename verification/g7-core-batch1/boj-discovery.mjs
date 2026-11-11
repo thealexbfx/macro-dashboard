@@ -7,13 +7,40 @@ const keyList=value=>value && typeof value==='object' && !Array.isArray(value)
   ? Object.keys(value).filter(x=>/^[A-Za-z][A-Za-z0-9_]{0,49}$/.test(x)).sort().slice(0,24) : [];
 const kind=value=>value===null?'null':Array.isArray(value)?'array':typeof value;
 export function bojMetadataShape(value) {
-  const first=Array.isArray(value)?value[0]:null;
+  const first=Array.isArray(value?.RESULTSET) ? value.RESULTSET[0] : null;
   return {schema_only:true,root_type:kind(value),root_keys:keyList(value),
-    root_array_length:Array.isArray(value)?value.length:null,
-    first_entry_type:kind(first),first_entry_keys:keyList(first),
+    resultset_type:kind(value?.RESULTSET),
+    resultset_count:Array.isArray(value?.RESULTSET)?value.RESULTSET.length:null,
+    resultset_first_entry_type:kind(first),
+    resultset_first_entry_keys:keyList(first),
     first_level_types:Object.fromEntries(keyList(value).map(k=>[k,kind(value[k])])),
-    // Never persist any publisher string values or individual series codes.
+    // Never persist arbitrary publisher values.
   };
+}
+
+// Public-publisher metadata shortlist, not a policy-rate definition or approval.
+// Whitelist exact fields, forbid arbitrary object spreading or raw API outputs.
+export function selectBojRateCandidates(payload) {
+  if(!payload || payload.STATUS!==200 || payload.DB?.toUpperCase()!=='FM01' ||
+      !Array.isArray(payload.RESULTSET)) return [];
+  const out=[];
+  for(const entry of payload.RESULTSET) {
+    if(!entry || typeof entry!=='object' || Array.isArray(entry)) continue;
+    const code=entry.SERIES_CODE, name=entry.NAME_OF_TIME_SERIES;
+    if(typeof code!=='string' || !/^[A-Za-z0-9_]{2,40}$/.test(code) ||
+       typeof name!=='string' || name.length>240 ||
+       !/(overnight|call rates?|policy rate|interest rate)/i.test(name)) continue;
+    const unit=entry.UNIT,frequency=entry.FREQUENCY,category=entry.CATEGORY;
+    out.push({series_code:code,name:name.slice(0,180),
+      unit:typeof unit==='string'?unit.slice(0,60):null,
+      frequency:typeof frequency==='string'?frequency.slice(0,32):null,
+      category:typeof category==='string'?category.slice(0,100):null,
+      candidate_only:true,policy_target_equivalence:'NOT_ESTABLISHED'});
+  }
+  const rank=name=>/uncollateralized.*overnight|overnight.*uncollateralized/i.test(name)?0:
+    /overnight/i.test(name)?1:/call rates?/i.test(name)?2:3;
+  return out.sort((a,b)=>rank(a.name)-rank(b.name) ||
+    a.series_code.localeCompare(b.series_code)).slice(0,12);
 }
 export async function probeBojMetadata(transport=fetch,delay=async()=>{}) {
   const receipt={source:'Bank of Japan',database:'FM01',
@@ -52,8 +79,13 @@ export async function probeBojMetadata(transport=fetch,delay=async()=>{}) {
     finally {await reader.cancel().catch(()=>{});}
     let json;
     try{json=JSON.parse(text);}catch{return {...meta,error_category:'invalid_json'};}
-    return {...meta,error_category:null,shape:bojMetadataShape(json),
-      // API response may be valid JSON but be an error or limited response.
-      operational_result:'RETRIEVED_METADATA_RESPONSE_NOT_SERIES_VERIFIED'};
+    const status=json && typeof json==='object' ? json.STATUS : null;
+    const validated=status===200 && json.DB?.toUpperCase()==='FM01' &&
+      Array.isArray(json.RESULTSET);
+    return {...meta,error_category:validated?null:'unexpected_boj_envelope',
+      publisher_status:typeof status==='number'?status:null,
+      shape:bojMetadataShape(json),candidates:validated?selectBojRateCandidates(json):[],
+      // Metadata discovery never changes any 35-row G7 mapping outcomes.
+      operational_result:validated?'METADATA_CATALOGUE_DISCOVERY_ONLY':'UNRESOLVED_METADATA_RESPONSE'};
   }
 }

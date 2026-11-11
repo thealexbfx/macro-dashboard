@@ -55,3 +55,14 @@ Official API manual: https://www.stat-search.boj.or.jp/ssi/docs/info/nme_aphelp_
 Official Statistics Dashboard API (other Japanese core indicator discovery): https://dashboard.e-stat.go.jp/en/static/api?language=en
 
 Do not add schedule, production writes or authentication tokens to the audit.
+
+## FM01 RESULTSET series shortlist, official metadata review phase
+
+Hosted BOJ discovery run `42948395774` confirmed `STATUS` is numeric and `RESULTSET` is an array, but **did not expose the contents of any RESULTSET entry**. The follow-up probe now:
+- requires the BOJ envelope to include `STATUS=200`, `DB=FM01` and a `RESULTSET` array; HTTP 200 alone is insufficient;
+- reports the first result's field **names and types** and the catalogue entry count;
+- extracts at most **12** narrowly filtered public-publisher series metadata candidates matching `overnight`, `call rate`, `policy rate` or `interest rate`, ranking uncollateralized overnight first;
+- captures only `SERIES_CODE`, `NAME_OF_TIME_SERIES`, `UNIT`, `FREQUENCY` and `CATEGORY` with strict type/length checks. It never persists arbitrary `NOTES`, raw responses, auth headers or observation arrays;
+- writes this to the existing disposable BOJ-only JSON evidence file. This is a development-only public publisher discovery record, not a production series registry.
+
+**Important:** observed call rates are money-market outcomes. The selected series remains `candidate_only` with `policy_target_equivalence=NOT_ESTABLISHED`, and `G7-JP-22` is still unconfigured. A proposed Japanese policy rate must match an explicit policy target definition and vintage/methodology history before its mapping can be considered, and all commercial licensing review stays pending. No automatic series approval or DB writes.
