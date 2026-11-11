@@ -48,3 +48,24 @@ test('BOJ network and unexpected HTML do not verify observed series',async()=>{
   assert.equal(html.error_category,'invalid_json');
   assert.equal(html.production_approval,'NOT_APPROVED');
 });
+
+test('BOJ official percent per annum unit retains raw percentage value without multiplying or dividing',()=>{
+  const official=structuredClone(example);
+  official.RESULTSET[0].UNIT='percent per annum';
+  official.RESULTSET[0].VALUES.VALUES=[0.51,null,0.52,0.53];
+  const result=extractObservedBoj(official);
+  assert.equal(result.outcome,'RECENT_OBSERVED_RATE_SAMPLE');
+  assert.deepEqual(result.last_observations.map(x=>x.value),[0.51,0.52,0.53]);
+  assert.equal(result.unit,'percent per annum');
+  assert.equal(result.policy_target_equivalence,'NOT_ESTABLISHED');
+  assert.equal(result.production_approval,'NOT_APPROVED');
+});
+test('BOJ unit check rejects related but different scales or economic concepts',()=>{
+  for(const unit of ['basis points','JPY','per month','rate','percent change','percentage points']) {
+    const inconsistent=structuredClone(example);
+    inconsistent.RESULTSET[0].UNIT=unit;
+    const result=extractObservedBoj(inconsistent);
+    assert.equal(result.outcome,'UNRESOLVED',unit);
+    assert.equal(result.error_category,'unexpected_rate_unit',unit);
+  }
+});
