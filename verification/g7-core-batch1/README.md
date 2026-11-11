@@ -75,3 +75,11 @@ The new diagnostic is not proof of identity or of valid observations; the affect
 ## Hosted ONS schema finding (audit #10)
 
 The GitHub-hosted diagnostic artifact from run `42945028924` confirmed nested `description.cdid` and **`description.title`** (not `description.description`) in both ONS D7BT and MGSX responses. The branch now accepts the publisher-provided `description.title`, still requires matching publisher `cdid`, and still checks the full expected title regex and usable observations before recent-sample VERIFIED. This change is not itself hosted-verified. If the next publisher response differs in its title wording or month periods, keep the mapping unresolved and report exact evidence; do not relax definition matching silently.
+
+## Next publisher batch: US Treasury and BOJ discovery
+
+Adds candidate `G7-US-23` using the **U.S. Treasury's own monthly XML Atom feed**, field `BC_10YEAR`. The raw field is a nominal 10-year par constant-maturity yield, not one bond's quoted yield. A new bounded read-only `us-treasury-xml` adapter and mock safety tests have been added. The 35-row pilot now has **13 configured mapping candidates** (prior 12 plus US Treasury), 22 still unconfigured. **The new series has not yet passed a GitHub-hosted retrieval.**
+
+The Bank of Japan launched its publicly accessible time-series API in February 2026. The Japan policy-rate mapping is **not added** because an overnight money-market *observed* rate is not automatically equivalent to the Bank's announced policy target. Exact series IDs and concept comparison must first be verified against original BOJ metadata. See `BOJ_TREASURY_SOURCE_REVIEW.md` for source URLs, definition distinctions and future checks.
+
+Historical coverage, original release vintages, source attribution, third-party market-data provenance, commercial display/export and production signoff remain entirely pending. No secrets, schedules, production writes or deployment hooks have been added.
