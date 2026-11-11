@@ -36,9 +36,11 @@ export function selectBojRateCandidates(payload) {
       frequency:typeof frequency==='string'?frequency.slice(0,32):null,
       category:typeof category==='string'?category.slice(0,100):null,
       candidate_only:true,policy_target_equivalence:'NOT_ESTABLISHED'});
-    if(out.length===12) break;
   }
-  return out;
+  const rank=name=>/uncollateralized.*overnight|overnight.*uncollateralized/i.test(name)?0:
+    /overnight/i.test(name)?1:/call rates?/i.test(name)?2:3;
+  return out.sort((a,b)=>rank(a.name)-rank(b.name) ||
+    a.series_code.localeCompare(b.series_code)).slice(0,12);
 }
 export async function probeBojMetadata(transport=fetch,delay=async()=>{}) {
   const receipt={source:'Bank of Japan',database:'FM01',
