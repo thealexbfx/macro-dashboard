@@ -22,7 +22,7 @@ export function onsShapeDiagnostic(payload) {
     description_keys: fields(detail),
     cdid_type: kind(payload?.cdid),
     nested_cdid_type: kind(detail?.cdid),
-    nested_title_type: kind(detail?.description),
+    nested_title_type: kind(detail?.title),
     root_title_type: kind(payload?.description),
     months_type: kind(payload?.months),
     months_count: Array.isArray(payload?.months) ? payload.months.length : null,
