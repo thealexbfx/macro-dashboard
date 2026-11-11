@@ -49,7 +49,10 @@ export async function verifyOns(row, original, spec, transport=fetch, delay=asyn
   // nested description object, while test/legacy payloads expose flat fields.
   const detail=typeof obj.description==='object' && obj.description!==null &&
     !Array.isArray(obj.description) ? obj.description : obj;
-  const title=typeof detail.description==='string' ? detail.description : null;
+  // Actual ONS publisher response (hosted audit #10): description.title.
+  // Preserve flat legacy fixtures for compatibility; require exact CDID either way.
+  const title=typeof detail.title==='string' ? detail.title :
+    typeof detail.description==='string' ? detail.description : null;
   const cdid=detail.cdid ?? obj.cdid;
   const dataset=detail.datasetId ?? detail.dataset ?? obj.dataset;
   if(!title || typeof cdid!=='string' || !cdid.trim())
