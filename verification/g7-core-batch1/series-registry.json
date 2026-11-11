@@ -60,5 +60,29 @@
     "seriesKey": "B.U2.EUR.4F.KR.DFR.LEV",
     "expectedDefinition": "ECB euro area deposit facility rate, rate change date series",
     "discoveryUrl": "https://data.ecb.europa.eu/data/datasets/FM/FM.B.U2.EUR.4F.KR.DFR.LEV"
+  },
+  "G7-GB-07": {
+    "adapter": "ons-timeseries",
+    "seriesId": "D7BT",
+    "path": "economy/inflationandpriceindices/timeseries/d7bt/mm23",
+    "expectedLabel": "CPI INDEX 00: ALL ITEMS",
+    "expectedUnit": "Index (2015=100)",
+    "frequency": "Monthly",
+    "expectedAdjustment": "NSA"
+  },
+  "G7-GB-11": {
+    "adapter": "ons-timeseries",
+    "seriesId": "MGSX",
+    "path": "employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms",
+    "expectedLabel": "Unemployment rate.*16 and over.*seasonally adjusted",
+    "expectedUnit": "Percent",
+    "frequency": "Rolling 3-month estimate, labelled by ONS month",
+    "expectedAdjustment": "SA"
+  },
+  "G7-GB-22": {
+    "adapter": "boe-iadb",
+    "seriesId": "IUDBEDR",
+    "discoveryUrl": "https://www.bankofengland.co.uk/boeapps/database/Bank-Rate.asp",
+    "expectedDefinition": "Official Bank Rate"
   }
 }

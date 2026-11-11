@@ -3,7 +3,7 @@ import {setTimeout as sleep} from 'node:timers/promises';
 
 export async function publisherRequest(url, {method = 'GET', body = undefined, accept = 'application/json',
   transport = fetch, delay = sleep, maxBytes = 131072} = {}) {
-  if (!/^https:\/\/(api\.bls\.gov|data-api\.ecb\.europa\.eu)\//.test(url)) throw new Error('Publisher URL not allowlisted');
+  if (!/^https:\/\/(api\.bls\.gov|data-api\.ecb\.europa\.eu|www\.ons\.gov\.uk|www\.bankofengland\.co\.uk)\//.test(url)) throw new Error('Publisher URL not allowlisted');
   if (!['GET','POST'].includes(method)) throw new Error('Unsafe method');
   for (let attempt=1; attempt<=3; attempt++) {
     await delay(attempt * 350);
