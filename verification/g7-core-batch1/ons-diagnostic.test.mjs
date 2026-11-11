@@ -44,3 +44,25 @@ test('ONS verified mocks are not burdened with diagnostic payload',async()=>{
   assert.equal(result.outcome,'VERIFIED');
   assert.equal(result.ons_response_shape,undefined);
 });
+
+test('ONS live publisher schema uses nested description.title, not description.description',async()=>{
+  const sample={description:{cdid:'D7BT',datasetId:'MM23',title:'CPI INDEX 00: ALL ITEMS 2015=100',unit:'Index'},
+    months:[{date:'2026 OCT',year:'2026',month:'OCT',value:'140.3'}]};
+  const r=await verify(candidate,async()=>Response.json(sample),immediate);
+  assert.equal(r.outcome,'VERIFIED');
+  assert.equal(r.identity_status,'PUBLISHER_ID_AND_LABEL_MATCHED');
+  assert.equal(r.metadata.cdid,'D7BT');
+  assert.equal(r.metadata.dataset,'MM23');
+  assert.equal(r.verification_scope,'RECENT_SAMPLE_ONLY');
+  assert.equal(r.rights_status,'PENDING');
+  assert.equal(r.production_approval,'NOT_APPROVED');
+});
+test('ONS real-schema missing CDID stays unresolved despite matching title and observations',async()=>{
+  const r=await verify(candidate,async()=>Response.json({
+    description:{title:'CPI INDEX 00: ALL ITEMS 2015=100'},
+    months:[{date:'2026 OCT',value:'140.3'}]}),immediate);
+  assert.equal(r.outcome,'UNRESOLVED');
+  assert.equal(r.identity_status,'UNRESOLVED');
+  assert.equal(r.ons_response_shape.nested_title_type,'string');
+  assert.equal(r.production_approval,'NOT_APPROVED');
+});
