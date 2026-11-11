@@ -19,7 +19,7 @@ export function observedBojShape(payload) {
 }
 export function extractObservedBoj(payload) {
   const diagnostic=observedBojShape(payload);
-  if(!payload || payload.STATUS!==200 || payload.DB!==DB ||
+  if(!payload || payload.STATUS!==200 || (payload.DB ?? payload.PARAMETER?.DB)?.toUpperCase()!==DB ||
       !Array.isArray(payload.RESULTSET))
     return {outcome:'UNRESOLVED',error_category:'invalid_boj_envelope',shape:diagnostic};
   const rows=payload.RESULTSET;
@@ -28,7 +28,7 @@ export function extractObservedBoj(payload) {
   const item=rows[0];
   const title=item.NAME_OF_TIME_SERIES;
   if(typeof title!=='string' || !/uncollateralized|unsecured/i.test(title) ||
-      !/overnight/i.test(title) || !/average/i.test(title))
+      !/overnight/i.test(title))
     return {outcome:'UNRESOLVED',error_category:'series_definition_not_proven',shape:diagnostic};
   if(item.FREQUENCY!=='DAILY')
     return {outcome:'UNRESOLVED',error_category:'frequency_not_daily',shape:diagnostic};
@@ -44,12 +44,12 @@ export function extractObservedBoj(payload) {
   for(let i=0;i<periods.length;i++) {
     const period=periods[i],value=values[i];
     if(value===null)continue;
-    if(typeof period!=='string'|| !/^\d{8}$/.test(period)||
+    if(!(typeof period==='string'||Number.isSafeInteger(period)) || !/^\d{8}$/.test(String(period))||
        !(typeof value==='number'||typeof value==='string') ||
        !/^-?\d{1,3}(?:\.\d{1,8})?$/.test(String(value)) ||
        !Number.isFinite(Number(value)))return {
          outcome:'UNRESOLVED',error_category:'invalid_observation',shape:diagnostic};
-    samples.push({date:period,value:Number(value)});
+    samples.push({date:String(period),value:Number(value)});
   }
   if(!samples.length)return {outcome:'UNRESOLVED',error_category:'no_numeric_samples',shape:diagnostic};
   return {outcome:'RECENT_OBSERVED_RATE_SAMPLE',error_category:null,
