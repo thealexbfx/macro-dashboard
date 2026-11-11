@@ -34,6 +34,8 @@ export function getSeriesSpec(mappingId) {
         !spec.path.includes('/timeseries/'+spec.seriesId.toLowerCase()+'/') ||
         typeof spec.expectedLabel !== 'string' || spec.expectedLabel.length > 150 ||
         !['SA','NSA'].includes(spec.expectedAdjustment)) throw new Error('Invalid ONS series configuration');
+  } else if (spec.adapter === 'us-treasury-xml') {
+    if (spec.seriesId !== 'BC_10YEAR') throw new Error('Unsupported Treasury maturity field');
   } else if (spec.adapter === 'boe-iadb') {
     if (spec.seriesId !== 'IUDBEDR') throw new Error('Unsupported BoE series identifier');
   } else {
