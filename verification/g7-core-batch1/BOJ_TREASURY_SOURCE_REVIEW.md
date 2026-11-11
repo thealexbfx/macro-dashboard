@@ -66,3 +66,14 @@ Hosted BOJ discovery run `42948395774` confirmed `STATUS` is numeric and `RESULT
 - writes this to the existing disposable BOJ-only JSON evidence file. This is a development-only public publisher discovery record, not a production series registry.
 
 **Important:** observed call rates are money-market outcomes. The selected series remains `candidate_only` with `policy_target_equivalence=NOT_ESTABLISHED`, and `G7-JP-22` is still unconfigured. A proposed Japanese policy rate must match an explicit policy target definition and vintage/methodology history before its mapping can be considered, and all commercial licensing review stays pending. No automatic series approval or DB writes.
+
+## BOJ actual observed O/N market rate — development-only sample adapter
+
+Verified metadata discovery in hosted audit #15 identified `FM01 / STRDCLUCON` (uncollateralized overnight call rate, **average**); `STRDCLUCONH` and `STRDCLUCONL` are different high/low rate series, and `STRDCLUCV` is market volume, not a rate. The new `getDataCode` probe queries only original BOJ `FM01` and exact `STRDCLUCON` for the current and previous calendar months (BOJ daily series date filters use `YYYYMM`).
+
+Official reference: https://www.stat-search.boj.or.jp/info/api_manual_en.pdf
+Endpoint: `https://www.stat-search.boj.or.jp/api/v1/getDataCode?format=json&lang=en&db=FM01&startDate=YYYYMM&endDate=YYYYMM&code=STRDCLUCON`.
+
+The probe checks in-body `STATUS=200`, echoed DB (direct or PARAMETER.DB), one exact `SERIES_CODE`, daily frequency, percent units, overnight-call label, numeric data, aligned survey dates, and absent pagination. It writes only a bounded recent observation sample and status in `boj_observed_overnight_rate_sample.json` in an ephemeral audit artifact; malformed JSON, incompatible publisher responses and missing samples remain `UNRESOLVED`. This artifact is not an entry in the 35-country-policy manifest, and success is deliberately labelled `RECENT_OBSERVED_RATE_SAMPLE`, **not** `VERIFIED G7-JP-22`.
+
+**Policy target mapping remains unresolved.** The announced BOJ monetary-policy target is a different concept from the daily observed unsecured overnight money-market rate; any economic comparison must label and distinguish them. Historical completeness, vintage integrity, terms and commercial redistribution remain pending; production approval is NOT_APPROVED. No secrets or database changes.
