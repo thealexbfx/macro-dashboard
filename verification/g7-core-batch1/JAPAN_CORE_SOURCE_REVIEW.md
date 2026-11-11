@@ -52,3 +52,18 @@ GitHub artifact: `boj_policy_decision_sample_2025.json` (disposable development 
 **Known unfilled policy-event gap:** June 16, 2026 (around 1.0%) and September 18, 2026 (around 1.25%) appear as original BOJ PDF decision statements in the official 2026 archive https://www.boj.or.jp/en/mopo/mpmdeci/state_2026/ . A subsequent separately reviewed PDF extraction/evidence layer must verify dates, decision language, rate, any applicability/effective dates and archived source versions before adding these records. An event-series covering just a few rate changes also **does not** prove all intervening policy meetings or long historical completeness.
 
 Original-publisher 2025 statements and 2026 archive verified in source research; the new GitHub-hosted event verifier has not yet run. Commercial publication/redistribution and release vintages remain PENDING.
+
+## Original BOJ PDF policy changes — June and September 2026
+
+Primary-source PDF page 1 has now been independently reviewed:
+- June 16, 2026: BOJ original English decision https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260616a.pdf specifies **around 1.00%**, with the *new money-market guideline effective June 17, 2026* in its footnote.
+- September 18, 2026: BOJ original English decision https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260918a.pdf specifies **around 1.25%**, with the *new money-market guideline effective September 24, 2026* in its footnote.
+
+These are distinct from the simultaneous complementary deposit facility and basic loan interest rates. A date on the published announcement is **not** silently used as the effective date.
+
+New development verifier `boj-policy-pdf.mjs` retrieves **only these two fixed original BOJ URLs**, reads at most 512 KiB per PDF, forbids redirects, checks an original PDF signature and content type, then uses `pdftotext` in fixed, no-shell, first-page-only mode with a strict 5-second timeout and 128 KiB text cap. It verifies publisher, document title, unique announced target, exact decision date and exact effective-date footnote independently, and writes only concise results to `boj_policy_decision_sample_2026_pdf.json`. No original PDF bytes or full extracted text are published in artifacts. `pdftotext` is a binary on the **ephemeral GitHub runner**; if missing, unsupported or unable to decode, the event stays `UNRESOLVED` with `pdf_extraction_failed_or_missing` rather than being marked verified. No packages or workflow privileges are added.
+
+**Coverage limitation:** selected source events alone cannot prove there were no other policy meetings or changes. In particular, the current proposal does not audit the official 2026 January, March, April, July and October **no-change** statements or establish longer history. `G7-JP-22` remains UNCONFIGURED, full history and vintages remain unverified, all commercial redistribution rights remain PENDING, and production approval is NOT_APPROVED.
+
+Evidence for the source documents is grounded in the BOJ official 2026 policy release archive:
+https://www.boj.or.jp/en/mopo/mpmdeci/state_2026/index.htm
