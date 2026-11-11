@@ -84,5 +84,11 @@
     "seriesId": "IUDBEDR",
     "discoveryUrl": "https://www.bankofengland.co.uk/boeapps/database/Bank-Rate.asp",
     "expectedDefinition": "Official Bank Rate"
+  },
+  "G7-US-23": {
+    "adapter": "us-treasury-xml",
+    "seriesId": "BC_10YEAR",
+    "expectedDefinition": "Nominal 10-year Treasury par yield, constant maturity",
+    "discoveryUrl": "https://home.treasury.gov/treasury-daily-interest-rate-xml-feed"
   }
 }
