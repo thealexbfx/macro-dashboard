@@ -77,3 +77,13 @@ Endpoint: `https://www.stat-search.boj.or.jp/api/v1/getDataCode?format=json&lang
 The probe checks in-body `STATUS=200`, echoed DB (direct or PARAMETER.DB), one exact `SERIES_CODE`, daily frequency, percent units, overnight-call label, numeric data, aligned survey dates, and absent pagination. It writes only a bounded recent observation sample and status in `boj_observed_overnight_rate_sample.json` in an ephemeral audit artifact; malformed JSON, incompatible publisher responses and missing samples remain `UNRESOLVED`. This artifact is not an entry in the 35-country-policy manifest, and success is deliberately labelled `RECENT_OBSERVED_RATE_SAMPLE`, **not** `VERIFIED G7-JP-22`.
 
 **Policy target mapping remains unresolved.** The announced BOJ monetary-policy target is a different concept from the daily observed unsecured overnight money-market rate; any economic comparison must label and distinguish them. Historical completeness, vintage integrity, terms and commercial redistribution remain pending; production approval is NOT_APPROVED. No secrets or database changes.
+
+## Hosted audit #16 unit correction — original BOJ source confirmed
+
+GitHub-hosted audit `42950347631` (47/47 mocked tests) retrieved `getDataCode` over HTTP 200, but the observed-rate probe correctly remained `UNRESOLVED / unexpected_rate_unit`. The original BOJ series page explicitly displays the denomination for `FM01'STRDCLUCON` as **percent per annum**:
+
+https://www.stat-search.boj.or.jp/ssi/mtshtml/strdclucon_en.html
+
+The development adapter now accepts only the already supported percent forms and the exact publisher label `percent per annum` (case-insensitive). It **does not multiply or divide** the original numeric values by 100 and rejects basis points, currencies, and unspecified unit strings. New mock regression tests confirm unchanged rate values and failure for incompatible units.
+
+This adjustment is grounded in the official series page, **not evidence that the newly adjusted adapter has yet passed a real hosted observation check**. BOJ observed overnight money-market rate still lives entirely outside `G7-JP-22`; policy target identity, history, revisions, rights and production signoff stay pending.
