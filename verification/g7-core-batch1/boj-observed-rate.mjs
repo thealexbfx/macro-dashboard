@@ -44,9 +44,9 @@ export function extractObservedBoj(payload) {
   for(let i=0;i<periods.length;i++) {
     const period=periods[i],value=values[i];
     if(value===null)continue;
-    if(typeof period!=='string'|| !/^\\d{8}$/.test(period)||
+    if(typeof period!=='string'|| !/^\d{8}$/.test(period)||
        !(typeof value==='number'||typeof value==='string') ||
-       !/^-?\\d{1,3}(?:\\.\\d{1,8})?$/.test(String(value)) ||
+       !/^-?\d{1,3}(?:\.\d{1,8})?$/.test(String(value)) ||
        !Number.isFinite(Number(value)))return {
          outcome:'UNRESOLVED',error_category:'invalid_observation',shape:diagnostic};
     samples.push({date:period,value:Number(value)});
