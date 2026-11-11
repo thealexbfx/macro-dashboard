@@ -7,6 +7,7 @@ import {verifyBls} from './bls.mjs';
 import {verifyEcb} from './ecb.mjs';
 import {verifyOns, verifyBoe} from './uk.mjs';
 import {verifyTreasury} from './treasury.mjs';
+import {probeBojMetadata} from './boj-discovery.mjs';
 import {getSeriesSpec, validateManifestRegistry} from './series-registry.mjs';
 
 const euroPolicy = new Set(['G7-DE-22', 'G7-FR-22', 'G7-IT-22']);
@@ -168,7 +169,12 @@ async function main(out) {
     ...records.map(r => '| ' + [r.mapping_id, r.publisher, r.outcome, r.http_status ?? '-',
       r.error_category ?? '-', r.rights_status].join(' | ') + ' |'), ''];
   await mkdir(out, {recursive: true});
+  // Discovery is separately reported; it never participates in the 35 mapping outcomes.
+  const bojDiscovery = await probeBojMetadata();
+  console.log(JSON.stringify({publisher_discovery:'BOJ-FM01',http_status:bojDiscovery.http_status,
+    error_category:bojDiscovery.error_category,series_verified:false}));
   await Promise.all([
+    writeFile(join(out, 'boj_fm01_metadata_discovery.json'), JSON.stringify(bojDiscovery, null, 2) + '\n'),
     writeFile(join(out, 'g7_core_batch1_verification.json'), JSON.stringify(records, null, 2) + '\n'),
     writeFile(join(out, 'g7_core_batch1_matrix.csv'), matrix.join('\n') + '\n'),
     writeFile(join(out, 'G7_CORE_BATCH1_SUMMARY.md'), summary.join('\n')),

@@ -42,3 +42,16 @@ All rights reviews PENDING; all production approvals NOT_APPROVED; no DB writes/
 ## Additional BOJ database evidence
 
 The BOJ API User Manual's DB-name table identifies `FM01` as **Uncollateralized Overnight Call Rate (average), updated every business day** and `IR01` as **The Basic Discount Rates and Basic Loan Rates (formerly Official Discount Rates)**. These are *not automatically equivalent* to the current monetary-policy target. The next Japan discovery step is the public, read-only metadata endpoint `https://www.stat-search.boj.or.jp/api/v1/getMetadata?format=json&lang=en&db=FM01`, followed by a deliberate policy-target-vs-effective-market-rate decision. Do not use `FM01` for the policy mapping until this distinction is explicitly addressed. Source: BOJ API User Manual, section II, DB Names, February 18 2026.
+
+## BOJ FM01 live metadata discovery — audit-ready, not series verification
+
+The dev-only runner now sends a bounded, unauthenticated GET to the BOJ first-party metadata endpoint:
+`https://www.stat-search.boj.or.jp/api/v1/getMetadata?format=json&lang=en&db=FM01`.
+It produces a separate artifact file `boj_fm01_metadata_discovery.json` containing HTTP status, timestamp, JSON field names/types and array sizes, but **not metadata values or series codes**. Its 2 MiB maximum response, three-attempt bounded retry, 8-second request timeout and read-only request rule avoid blind bulk ingestion. An oversized or malformed response stays a diagnostic error, never a verified mapping.
+
+`G7-JP-22` remains unconfigured. The rate target needs exact definition and code from official metadata and a cross-country concept decision; `FM01` covers the **observed** uncollateralized overnight call rate. Finding the BOJ API response schema does not establish a current policy-target series, historical vintages, commercial rights or any production approval.
+
+Official API manual: https://www.stat-search.boj.or.jp/ssi/docs/info/nme_aphelp_en.html
+Official Statistics Dashboard API (other Japanese core indicator discovery): https://dashboard.e-stat.go.jp/en/static/api?language=en
+
+Do not add schedule, production writes or authentication tokens to the audit.
