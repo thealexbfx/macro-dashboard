@@ -9,6 +9,7 @@ import {verifyOns, verifyBoe} from './uk.mjs';
 import {verifyTreasury} from './treasury.mjs';
 import {probeBojMetadata} from './boj-discovery.mjs';
 import {probeObservedBoj} from './boj-observed-rate.mjs';
+import {probeBojPolicyGuideline} from './boj-policy-guideline.mjs';
 import {getSeriesSpec, validateManifestRegistry} from './series-registry.mjs';
 
 const euroPolicy = new Set(['G7-DE-22', 'G7-FR-22', 'G7-IT-22']);
@@ -178,7 +179,13 @@ async function main(out) {
   console.log(JSON.stringify({publisher_sample:'BOJ-STRDCLUCON',http_status:observedBoj.http_status,
     outcome:observedBoj.outcome,error_category:observedBoj.error_category,
     policy_target_verified:false}));
+  const policyGuideline = await probeBojPolicyGuideline();
+  console.log(JSON.stringify({publisher_policy_snapshot:'BOJ-GUIDELINE',
+    http_status:policyGuideline.http_status,outcome:policyGuideline.outcome,
+    level:policyGuideline.level??null,error_category:policyGuideline.error_category,
+    historical_series_verified:false}));
   await Promise.all([
+    writeFile(join(out, 'boj_policy_target_snapshot.json'), JSON.stringify(policyGuideline, null, 2) + '\n'),
     writeFile(join(out, 'boj_observed_overnight_rate_sample.json'), JSON.stringify(observedBoj, null, 2) + '\n'),
     writeFile(join(out, 'boj_fm01_metadata_discovery.json'), JSON.stringify(bojDiscovery, null, 2) + '\n'),
     writeFile(join(out, 'g7_core_batch1_verification.json'), JSON.stringify(records, null, 2) + '\n'),
