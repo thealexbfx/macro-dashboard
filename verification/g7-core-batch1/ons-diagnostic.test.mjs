@@ -66,3 +66,15 @@ test('ONS real-schema missing CDID stays unresolved despite matching title and o
   assert.equal(r.ons_response_shape.nested_title_type,'string');
   assert.equal(r.production_approval,'NOT_APPROVED');
 });
+
+test('ONS schema-only title diagnostic distinguishes nested title from legacy description without exposing either value',()=>{
+  const secret='DO_NOT_EXPORT_PUBLISHER_TITLE_VALUE';
+  const current=onsShapeDiagnostic({description:{cdid:null,title:secret},months:[]});
+  assert.equal(current.nested_title_type,'string');
+  assert.equal(current.nested_cdid_type,'null');
+  assert.equal(current.description_keys.includes('title'),true);
+  assert.equal(JSON.stringify(current).includes(secret),false);
+  const older=onsShapeDiagnostic({description:{description:secret},months:[]});
+  assert.equal(older.nested_title_type,'undefined');
+  assert.equal(JSON.stringify(older).includes(secret),false);
+});
