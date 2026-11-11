@@ -53,3 +53,19 @@ test('BoE missing column and upstream access failures keep gates locked',async()
   assert.equal(blocked.outcome,'ACCESS_BLOCKED');
   assert.equal(blocked.production_approval,'NOT_APPROVED');
 });
+
+test('ONS publisher nested description metadata is accepted only with exact CDID',async()=>{
+  const nested={description:{cdid:'D7BT',datasetId:'MM23',description:'CPI INDEX 00: ALL ITEMS 2015=100',unit:'Index'},
+    months:[{date:'2026 OCT',value:'140.3'}]};
+  const passed=await verify(row('G7-GB-07'),async()=>Response.json(nested),immediate);
+  assert.equal(passed.outcome,'VERIFIED');
+  assert.equal(passed.identity_status,'PUBLISHER_ID_AND_LABEL_MATCHED');
+  assert.equal(passed.metadata.dataset,'MM23');
+  const noId=await verify(row('G7-GB-07'),async()=>Response.json({
+    description:{description:nested.description.description},months:nested.months}),immediate);
+  assert.equal(noId.outcome,'UNRESOLVED');
+  const conflict=await verify(row('G7-GB-07'),async()=>Response.json({
+    ...nested,description:{...nested.description,cdid:'D7BZ'}}),immediate);
+  assert.equal(conflict.outcome,'MISMATCH');
+  assert.equal(conflict.production_approval,'NOT_APPROVED');
+});
