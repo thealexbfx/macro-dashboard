@@ -25,7 +25,10 @@ export function extractObservedBoj(payload) {
   const rows=payload.RESULTSET;
   if(rows.length!==1 || rows[0]?.SERIES_CODE!==SERIES)
     return {outcome:'UNRESOLVED',error_category:'unexpected_series_identity',shape:diagnostic};
+  if(payload.NEXTPOSITION!=null) return {outcome:'UNRESOLVED',error_category:'pagination_not_exhausted',shape:diagnostic};
   const item=rows[0];
+  if(typeof item.UNIT!=='string'|| !/^%(?: per annum)?$/i.test(item.UNIT.trim()))
+    return {outcome:'UNRESOLVED',error_category:'unexpected_rate_unit',shape:diagnostic};
   const title=item.NAME_OF_TIME_SERIES;
   if(typeof title!=='string' || !/uncollateralized|unsecured/i.test(title) ||
       !/overnight/i.test(title))
