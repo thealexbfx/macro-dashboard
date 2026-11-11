@@ -38,3 +38,17 @@ Original issuer/publisher candidates include Japan Ministry of Finance reference
 5. Separate production approval
 
 **No source page read grants commercial redistribution permission.** No scheduled, credentialed or production deployment actions.
+
+## Partial historical BOJ decision evidence — 2025 HTML originals
+
+The development verifier now checks **two specific original BOJ archived money-market-guideline statements**, not a full historical series:
+- January 24, 2025, original HTML https://www.boj.or.jp/en/mopo/mpmdeci/state_2025/k250124a.htm, announced target **around 0.50%**.
+- December 19, 2025, original HTML https://www.boj.or.jp/en/mopo/mpmdeci/state_2025/k251219a.htm, announced target **around 0.75%**.
+
+Each event's audit receipt requires the dated original HTML source to contain the correct BOJ publisher name, calendar decision date, exact policy-target phrase and expected numerical target. A contradicting number is flagged `MISMATCH`; a missing date, publisher, guideline, bad HTTP/content type, malformed HTML or access issue remains `UNRESOLVED`. It records the **decision date** but explicitly sets `effective_date:null` and `effective_date_status:NOT_ESTABLISHED`; these concepts are not interchangeable.
+
+GitHub artifact: `boj_policy_decision_sample_2025.json` (disposable development verification). No original page bodies stored and no database writes. The entire `G7-JP-22` historical core mapping remains **UNCONFIGURED** and **NOT_APPROVED** even if both sample events succeed.
+
+**Known unfilled policy-event gap:** June 16, 2026 (around 1.0%) and September 18, 2026 (around 1.25%) appear as original BOJ PDF decision statements in the official 2026 archive https://www.boj.or.jp/en/mopo/mpmdeci/state_2026/ . A subsequent separately reviewed PDF extraction/evidence layer must verify dates, decision language, rate, any applicability/effective dates and archived source versions before adding these records. An event-series covering just a few rate changes also **does not** prove all intervening policy meetings or long historical completeness.
+
+Original-publisher 2025 statements and 2026 archive verified in source research; the new GitHub-hosted event verifier has not yet run. Commercial publication/redistribution and release vintages remain PENDING.
