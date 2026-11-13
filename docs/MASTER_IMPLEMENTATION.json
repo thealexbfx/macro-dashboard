@@ -22,8 +22,8 @@
       "depends_on": [
         "catalog"
       ],
-      "status": "SIX_CPI_SERIES_STAGED_BROADER_G7_PENDING",
-      "acceptance": "Verify incremental CPI refresh and expand original-source historical staging with per-series receipts."
+      "status": "SIX_CPI_SERIES_REPEAT_VERIFIED_BROADER_G7_PENDING",
+      "acceptance": "Verify handling of the next actual CPI release and expand original-source historical staging with per-series receipts."
     },
     {
       "id": "today",
@@ -787,12 +787,25 @@
             "explicit_nulls": 0
           }
         ]
+      },
+      "hosted_repeat_receipt": {
+        "run_id": 43352801924,
+        "artifact_id": 14004448234,
+        "head": "848979862b5509d453984bf52ac2dfd8cbc17552",
+        "refresh_exit_status": 0,
+        "unchanged_series": 6,
+        "observations": 4278,
+        "explicit_publisher_nulls": 984,
+        "revisions": 0,
+        "release_grants": 0,
+        "cross_run_observation_sha256": "62e3d4ba98a0295ee5eb5071085bcbd795772406b1a783acc8fceb9d49f82168",
+        "scope": "Ordered observation identity, values, payload, revision numbers and artifact hashes match the first hosted backfill. Same-release repeat used an advanced development clock."
       }
     },
     "browser_blocker": "Local Chromium failed to create its Unix singleton socket. Hosted browser acceptance remains required.",
     "next": [
       "Inspect hosted Research validation jobs, including browser acceptance.",
-      "Validate an incremental refresh against the six-series CPI baseline and reconcile coverage and revisions before any promotion.",
+      "Use the verified CPI baseline to test the next actual publisher release and reconcile revisions. Continue original-source G7 backfills in development.",
       "Expand official G7 backfills, reconcile BOJ regimes, and document rights per exact source.",
       "Validate Discovery thresholds and streaks on historical official inputs, broaden grounded Ask and test saved research compatibility in the browser.",
       "Run staged release and rollback acceptance before requesting any production approval."

@@ -138,6 +138,9 @@ def main():
             if result["state"] in {"idle", "busy"}:
                 break
         failures = any(job["failures"] for job in worker.status())
+    with store.connection() as db:
+        grants = db.execute("SELECT count(*) FROM catalog_release_grants").fetchone()[0]
+    failures = failures or grants != 0
     summary = report(store)
     print(json.dumps(summary, indent=2), flush=True)
     if args.all_series_once:
@@ -146,6 +149,7 @@ def main():
             "series_staged": len(summary),
             "observations_staged": sum(row["observations"] for row in summary),
             "explicit_publisher_nulls": sum(len(row["missing"]) for row in summary),
+            "release_grants": grants,
             "production_approved": False,
             "commercial_rights": "PENDING",
         }), flush=True)

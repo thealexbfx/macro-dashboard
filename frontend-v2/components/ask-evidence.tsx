@@ -74,7 +74,6 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
         dataset?.allowed_transformations.includes('percent') === true;
     const sourceUrl = result?.dataset.primary_source_url || result?.dataset.source_url;
     return <section className="ml-surface">
-        <h1>Ask MacroLens</h1>
         <p>What changed between the two most recent usable observations?</p>
         <form onSubmit={event => {event.preventDefault(); if (id) void calculate();}}>
             <label htmlFor="ask-search">Search datasets</label>{' '}

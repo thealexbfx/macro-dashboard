@@ -203,6 +203,8 @@ def test_repeat_cli_advances_each_scoped_worker_and_reports_consistency(tmp_path
         {"observations": 1, "missing": []} for key in keys
     ])
     assert g7_cpi_refresh.main() == 0
-    records = [json.loads(line) for line in capsys.readouterr().out.splitlines()
+    output = capsys.readouterr().out.splitlines()
+    assert json.loads(output[-1])["release_grants"] == 0
+    records = [json.loads(line) for line in output
                if '"repeat_consistent"' in line]
     assert {row["dataset_id"] for row in records if row["repeat_consistent"]} == set(keys)
