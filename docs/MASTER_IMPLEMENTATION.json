@@ -6,7 +6,7 @@
     {
       "id": "baseline",
       "depends_on": [],
-      "status": "LOCAL_BUILD_AND_TESTS_BROWSER_PENDING",
+      "status": "HOSTED_RESEARCH_VALIDATION_PASSED",
       "acceptance": "Confirm exact-head hosted validation and run browser acceptance against the disposable synthetic catalog"
     },
     {
@@ -92,7 +92,7 @@
         "reliability",
         "discovery"
       ],
-      "status": "REQUIRES_OWNER_APPROVAL",
+      "status": "DISPOSABLE_REHEARSAL_PASSED_CAPACITY_HEADROOM_OPEN",
       "acceptance": "Validate operator runbook, release and rollback in a disposable environment and obtain approval before production"
     }
   ],
@@ -802,9 +802,8 @@
         "scope": "Ordered observation identity, values, payload, revision numbers and artifact hashes match the first hosted backfill. Same-release repeat used an advanced development clock."
       }
     },
-    "browser_blocker": "Local Chromium failed to create its Unix singleton socket. Hosted browser acceptance remains required.",
     "next": [
-      "Inspect hosted Research validation jobs, including browser acceptance.",
+      "Measure the full refresh workload with additional memory headroom and verify API behavior under load before release.",
       "Use the verified CPI baseline to test the next actual publisher release and reconcile revisions. Continue original-source G7 backfills in development.",
       "Expand official G7 backfills, reconcile BOJ regimes, and document rights per exact source.",
       "Validate Discovery thresholds and streaks on historical official inputs, broaden grounded Ask and test saved research compatibility in the browser.",
@@ -827,6 +826,36 @@
         "archive_member": "g17_data.xml"
       },
       "production_activated": false
+    },
+    "hosted_release_validation": {
+      "head": "4712672ee52aadd37546b4eac56eb4a851c5b059",
+      "research_run_id": 43356807422,
+      "release": {
+        "run_id": 43356807479,
+        "public": 194,
+        "actual_native_observations": 176383,
+        "p95_ms": 144.71147099993686,
+        "rollback_and_restore_passed": true,
+        "production_access": false
+      },
+      "refresh": {
+        "run_id": 43356807539,
+        "native_datasets": 164,
+        "public_datasets": 194,
+        "capacity_headroom_bytes": 0,
+        "api_p95_ms": 377.383836000007,
+        "api_status": {
+          "200": 4704,
+          "503": 29,
+          "429": 1
+        },
+        "saved_research_preserved": true,
+        "production_access": false
+      },
+      "memory_limit_mib": 512,
+      "refresh_memory_peak_mib": 512,
+      "refresh_oom_kills": 0,
+      "refresh_scope": "SYNTHETIC observations, actual captured row-count profiles and reviewed definitions; offline transport/parser injection"
     }
   }
 }
