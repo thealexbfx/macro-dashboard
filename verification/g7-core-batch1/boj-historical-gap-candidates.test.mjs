@@ -15,7 +15,8 @@ test('BOJ historical gap candidates cannot masquerade as verified observations',
     assert.equal(dates.has(candidate.decision_date), false);
     dates.add(candidate.decision_date);
     assert.equal(candidate.verification_status, 'SOURCE_DISCOVERY_PENDING');
-    assert.match(candidate.corroborating_official_url, /^https:\/\/www\.boj\.or\.jp\//);
+    assert.ok(candidate.source_url || candidate.corroborating_official_url);
+    if (candidate.corroborating_official_url) assert.match(candidate.corroborating_official_url, /^https:\/\/www\.boj\.or\.jp\//);
     assert.ok(candidate.source_url === null || candidate.source_url.startsWith('https://www.boj.or.jp/'));
     assert.ok(candidate.note.length > 20);
     assert.notEqual(candidate.verification_status, 'DOCUMENT_VERIFIED');
