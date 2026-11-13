@@ -30,5 +30,11 @@ test('candidate source audit preserves production safeguards',async()=>{
   assert.equal(report.candidate_count,6);
   assert.equal(report.mapping_status,'UNCONFIGURED');
   assert.equal(report.production_approval,'NOT_APPROVED');
-  assert.ok(report.source_count>=6);
+  assert.equal(report.source_count, new Set([
+    'https://www.boj.or.jp/en/research/brp/ron_2007/ron0707c.htm',
+    'https://www.boj.or.jp/en/mopo/mpmsche_minu/minu_2007/g070221.pdf',
+    'https://www.boj.or.jp/en/mopo/mpmdeci/state_2008/index.htm',
+    'https://www.boj.or.jp/en/mopo/mpmsche_minu/minu_2018/g180731.htm',
+    'https://www.boj.or.jp/en/mopo/mpmdeci/state_2021/k210319a.pdf',
+  ]).size);
 });
