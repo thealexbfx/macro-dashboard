@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: '4c883db8112c24362dd6913d56db1676557ced14' # Reviewed BOJ historical development commit
+          ref: '897521f5fd4aef249e66bb513fd4ae5db1248be1' # Reviewed BOJ historical development commit
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
