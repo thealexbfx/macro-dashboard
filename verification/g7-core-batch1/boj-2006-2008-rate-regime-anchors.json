@@ -65,6 +65,30 @@
       "target_percent": 0.5,
       "source_url": "https://www.boj.or.jp/en/research/brp/ron_2008/ron0808b.htm",
       "status": "PUBLISHER_ANNUAL_SUMMARY_VERIFIED"
+    },
+    {
+      "period": "2006-07-14/2007-02-20",
+      "target_percent": 0.25,
+      "source_url": "https://www.boj.or.jp/en/about/activities/act/data/ar0703.pdf",
+      "source_type": "ORIGINAL_PUBLISHER_ANNUAL_REVIEW",
+      "status": "PUBLISHER_ANNUAL_REVIEW_CONFIRMS_SEVEN_UNCHANGED_MEETINGS",
+      "notes": "BOJ annual review says seven meetings August 2006 to January 2007 retained around 0.25% target; review each decision for date-level evidence"
+    },
+    {
+      "period": "2006-03-09/2006-07-13",
+      "target_percent": null,
+      "target_label": "effectively zero percent",
+      "source_url": "https://www.boj.or.jp/en/about/activities/act/data/ar0703.pdf",
+      "source_type": "ORIGINAL_PUBLISHER_ANNUAL_REVIEW",
+      "status": "PUBLISHER_ANNUAL_REVIEW_CONFIRMS_FOUR_UNCHANGED_MEETINGS_APRIL_JUNE",
+      "notes": "Do not encode qualitative effectively zero as numeric zero"
+    },
+    {
+      "period": "2007-02-21/2007-03-31",
+      "target_percent": 0.5,
+      "source_url": "https://www.boj.or.jp/en/mopo/diet/d_report/hanki07b.htm",
+      "source_type": "ORIGINAL_PUBLISHER_SEMIANNUAL_REPORT",
+      "status": "PUBLISHER_REPORT_CONFIRMS_MARCH_UNCHANGED"
     }
   ],
   "outstanding": [
@@ -72,6 +96,7 @@
     "Reconcile 2008 rate target changes and all intervening dates",
     "Determine completeness of all monetary-policy meetings, not just statement index",
     "Resolve regime semantics and effective-date conventions",
-    "Commercial rights review and production authorization"
+    "Commercial rights review and production authorization",
+    "Annual BOJ reviews confirm unchanged decision intervals but cannot substitute for complete meeting-by-meeting original decision verification"
   ]
 }
