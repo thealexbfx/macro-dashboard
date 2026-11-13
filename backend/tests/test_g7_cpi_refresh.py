@@ -123,3 +123,25 @@ def test_statcan_large_zip_budget_is_restricted_to_exact_table_path():
     assert body == b"test-bytes"
     with pytest.raises(ValueError, match="Unsafe download bounds"):
         download(JP_LIST, maximum=32 * 1024**2, opener=Opener())
+
+
+def test_staged_publisher_release_timestamps_hash_and_paginate(tmp_path):
+    from datetime import date
+    from backend.app.ingestion.native import Observation
+    from backend.app.ingestion.official_snapshots import SnapshotAdapter, freeze
+    from backend.app.ingestion.partition_contracts import Bounds, Window
+
+    publication = configuration()[1]["jp_cpi_all_items_2025_nsa"]
+    released = datetime(2020, 10, 23, tzinfo=UTC)
+    point = Observation("2020-09", "202009", 98.4, release_at=released)
+    path, digest = freeze(
+        tmp_path, publication.definition, [point], b"synthetic source fixture",
+        publication.source_url,
+    )
+    adapter = SnapshotAdapter(path, digest)
+    window = Window(date(2020, 1, 1), date(2020, 12, 31))
+    page = adapter.fetch(publication.definition, window, None, Bounds())
+    assert page.points == (point,)
+    assert page.next_cursor is None
+    assert len(page.content_hash) == 64
+    assert adapter.fetch(publication.definition, window, None, Bounds()).content_hash == page.content_hash
