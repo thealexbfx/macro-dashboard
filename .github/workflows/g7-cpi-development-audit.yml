@@ -52,6 +52,7 @@ jobs:
           import sys
           from backend.app.ingestion.partitioned import PartitionedIngestion
           from backend.app.ingestion.official_snapshots import SnapshotAdapter
+          from backend.app.ingestion import g7_cpi
           from scripts.g7_cpi_refresh import main
 
           def instrument(cls, name):
@@ -68,6 +69,18 @@ jobs:
           instrument(PartitionedIngestion, "_validate")
           instrument(PartitionedIngestion, "_promote")
           instrument(SnapshotAdapter, "fetch")
+          # Development-only: show whether a publisher landing-page change,
+          # source download, or archive parser caused a Canadian failure.
+          for name in ("resolve", "statcan_rows"):
+              original = getattr(g7_cpi, name)
+              def diagnostic(*args, _original=original, _name=name, **kwargs):
+                  try:
+                      return _original(*args, **kwargs)
+                  except Exception as exc:
+                      print("DEV_ONLY_CPI_SOURCE_FAILURE", _name,
+                            type(exc).__name__, str(exc)[:180], flush=True)
+                      raise
+              setattr(g7_cpi, name, diagnostic)
           sys.argv = ["g7_cpi_refresh", sys.argv[1], "--initialize", "--all-series-once"]
           raise SystemExit(main())
           PY
