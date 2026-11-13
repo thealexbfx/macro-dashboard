@@ -51,12 +51,13 @@ export async function historicalCensus({transport=fetch}={}) {
           const html=bytes.toString('utf8');
           dates=archiveDates(html,year);
           // Extract linked documents only within the annual statement table.
-          const table=html.match(/<table\b[^>]*>[\s\S]*?<\/table>/i)?.[0]??'';
+          const tables=[...html.matchAll(/<table\b[^>]*>[\s\S]*?<\/table>/gi)].map(x=>x[0]);
+          const table=tables.find(t=>/<th\b[^>]*>\s*Date\s*<\/th>/i.test(t)&&/<th\b[^>]*>\s*Title\s*<\/th>/i.test(t))??'';
           const rows=[...table.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)];
           for(const row of rows){
             const cells=[...row[1].matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/gi)].map(x=>x[1]);
             if(cells.length<2)continue;
-            const dateText=cells[0].replace(/<[^>]*>/g,' ').replace(/&nbsp;|&#160;/gi,' ').replace(/\s+/g,' ').trim();
+            const dateText=cells[0].replace(/<[^>]*>/g,' ').replace(/&nbsp;|&#160;|&#x[a-f0-9]+;/gi,' ').replace(/\s+/g,' ').trim();
             const match=dateText.match(/([A-Za-z]+)\.?\s+(\d{1,2}),?\s+(\d{4})/);
             if(!match)continue;
             const month=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'].indexOf(match[1].slice(0,3).toLowerCase())+1;
@@ -64,9 +65,10 @@ export async function historicalCensus({transport=fetch}={}) {
             const date=match[3]+'-'+String(month).padStart(2,'0')+'-'+match[2].padStart(2,'0');
             if(!dates?.includes(date))continue;
             for(const link of cells[1].matchAll(/<a\b[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi)){
-              const absolute=new URL(link[1],url);
+              let absolute;
+              try { absolute=new URL(link[1],url); } catch { continue; }
               if(absolute.protocol!=='https:'||absolute.hostname!=='www.boj.or.jp')continue;
-              const title=link[2].replace(/<[^>]*>/g,' ').replace(/&nbsp;|&#160;/gi,' ').replace(/\s+/g,' ').trim();
+              const title=link[2].replace(/<[^>]*>/g,' ').replace(/&nbsp;|&#160;|&#x[a-f0-9]+;/gi,' ').replace(/\s+/g,' ').trim();
               statement_links.push({date,url:absolute.href,title,title_classification:classifyStatementTitle(title),
                 document_verified:false});
             }
