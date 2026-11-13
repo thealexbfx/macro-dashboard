@@ -1,0 +1,64 @@
+name: One-off G7 CPI development audit (isolated)
+on:
+  pull_request:
+    paths:
+      - .github/workflows/g7-cpi-development-audit.yml
+permissions:
+  contents: read
+jobs:
+  review-six-cpi-series:
+    # Explicitly exclude fork PRs. No secrets, deployments, schedules or prod databases.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install audit-only dependencies
+        run: python -m pip install -r requirements.txt -r backend/requirements.txt -r requirements-dev.txt
+      - name: Stage offline publisher excerpt snapshots in runner temp
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/macrolens-g7-cpi"
+          python research/development/g7-fundamentals/stage_release_samples.py \
+            research/development/g7-fundamentals/release_samples.json \
+            "$RUNNER_TEMP/macrolens-g7-cpi/excerpt-staging.sqlite3" \
+            > "$RUNNER_TEMP/macrolens-g7-cpi/excerpt-report.json"
+          python - <<'PY'
+          import json,os,sqlite3
+          from pathlib import Path
+          path=Path(os.environ['RUNNER_TEMP'])/'macrolens-g7-cpi/excerpt-staging.sqlite3'
+          with sqlite3.connect(path) as db:
+              rows=db.execute("SELECT COUNT(*),COUNT(DISTINCT id) FROM observations").fetchone()
+              blocked=db.execute("SELECT COUNT(*) FROM series WHERE paid_display!=0 OR export!=0 OR ai!=0 OR radar!=0").fetchone()[0]
+          assert rows[1]==6 and blocked==0, (rows,blocked)
+          print(json.dumps({'excerpt_series':rows[1],'excerpt_observations':rows[0],'public_grants':blocked,'status':'EXCERPT_ONLY_NOT_FULL_HISTORY'}))
+          PY
+      - name: Attempt bounded original-publisher CPI refresh in disposable workspace
+        id: official
+        shell: bash
+        run: |
+          set -uo pipefail
+          status=0
+          python scripts/g7_cpi_refresh.py "$RUNNER_TEMP/macrolens-g7-cpi/live" --initialize \
+            > "$RUNNER_TEMP/macrolens-g7-cpi/official-refresh.log" 2>&1 || status=$?
+          printf '{"exit_status":%d,"production_approved":false,"commercial_rights":"PENDING"}\n' "$status" \
+            > "$RUNNER_TEMP/macrolens-g7-cpi/live-status.json"
+          echo "### Original-publisher development refresh" >> "$GITHUB_STEP_SUMMARY"
+          echo "Process exit status: $status. This is a development connectivity/ingestion attempt, not historical or commercial verification." >> "$GITHUB_STEP_SUMMARY"
+          # Keep source failures visible in the evidence. This separate audit job is
+          # intentionally non-gating because publisher networks can be unavailable.
+          exit 0
+      - name: Preserve audited development receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: g7-cpi-development-audit
+          path: ${{ runner.temp }}/macrolens-g7-cpi/
+          if-no-files-found: error
+          retention-days: 7
