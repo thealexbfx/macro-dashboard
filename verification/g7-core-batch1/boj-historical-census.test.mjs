@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {historicalCensus,censusYears} from './boj-historical-census.mjs';
+import {historicalCensus,censusYears,classifyStatementTitle} from './boj-historical-census.mjs';
 
 const table=year=>'<!doctype html><html><h1>Statements on Monetary Policy '+year+'</h1>'+
  '<table><tr><th>Date</th><th>Title</th></tr>'+
@@ -26,4 +26,11 @@ test('malformed index does not become a verified census',async()=>{
  const report=await historicalCensus({transport:async()=>new Response('<html>no table</html>',
  {headers:{'content-type':'text/html'}})});
  assert.ok(report.periods.every(p=>p.census_status==='UNRESOLVED'&&p.reason==='archive_table_unproven'));
+});
+
+test('title classifications do not certify policy rates',()=>{
+ assert.equal(classifyStatementTitle('Policy unchanged, Announced at 12:34 pm'),
+ 'TITLE_SAYS_UNCHANGED_NOT_DOCUMENT_VERIFIED');
+ assert.equal(classifyStatementTitle('On Monetary Policy Decisions'),
+ 'REQUIRES_ORIGINAL_DOCUMENT_REVIEW');
 });
