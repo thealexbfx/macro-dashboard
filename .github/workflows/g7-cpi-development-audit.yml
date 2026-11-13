@@ -3,6 +3,12 @@ on:
   pull_request:
     paths:
       - .github/workflows/g7-cpi-development-audit.yml
+# Keep only the latest head of each PR in the hosted validation queue.
+# Never cancel a run from another PR or branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 jobs:
