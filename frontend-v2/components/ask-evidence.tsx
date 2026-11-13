@@ -5,7 +5,10 @@ import {request, type Dataset} from '../lib/contracts';
 import {summarizeObservations} from '../lib/ask-evidence';
 
 type Preview = {dataset: Dataset};
-const eligible = (dataset: Dataset) => !/yahoo/i.test([dataset.source, dataset.provider, dataset.source_url].join(' '));
+// A client-side precaution, not a commercial-use licence or server-side rights gate.
+const eligible = (dataset: Dataset) => !/yahoo|yfinance/i.test(
+    [dataset.source, dataset.provider, dataset.source_url, dataset.primary_source_url].join(' ')
+);
 
 export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse: () => void}) {
     const [id, setId] = useState('');
@@ -26,7 +29,7 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
         try {
             const data = await request<Preview>(`observations/${encodeURIComponent(id)}?preview=true&limit=40`, undefined, controller.signal);
             if (!controller.signal.aborted) {
-                if (data.dataset.id !== id) throw Error('Dataset identity mismatch');
+                if (data.dataset.id !== id || !eligible(data.dataset)) throw Error('Dataset identity or source eligibility mismatch');
                 setResult(data);
             }
         } catch {
