@@ -81,6 +81,8 @@ export async function historicalCensus({transport=fetch}={}) {
       census_status:dates?'PUBLISHER_INDEX_DATES_EXTRACTED':'UNRESOLVED',
       listed_dates:dates??[],listed_date_count:dates?.length??0,
       statement_links,statement_link_count:statement_links.length,
+      dates_without_statement_links:(dates??[]).filter(d=>!statement_links.some(l=>l.date===d)),
+      document_link_coverage_status:!dates?'UNRESOLVED':(dates.every(d=>statement_links.some(l=>l.date===d))?'ALL_INDEX_DATES_LINKED':'LINKS_MISSING'),
       reason:dates?null:receipt.reason??'archive_table_unproven'});
   }
   return {scope:'HISTORICAL_STATEMENT_INDEX_DATES_ONLY',historical_completeness:'PARTIAL',
@@ -92,5 +94,7 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   const report=await historicalCensus();
   await mkdir(process.argv[2],{recursive:true});
   await writeFile(join(process.argv[2],'boj_historical_census_discovery.json'),JSON.stringify(report,null,2)+'\n');
-  console.log(JSON.stringify({years:report.periods.length,unresolved:report.periods.filter(p=>p.census_status==='UNRESOLVED').length}));
+  console.log(JSON.stringify({years:report.periods.length,unresolved:report.periods.filter(p=>p.census_status==='UNRESOLVED').length,
+    statement_links:report.periods.reduce((n,p)=>n+p.statement_link_count,0),
+    unlinked_dates:report.periods.reduce((n,p)=>n+p.dates_without_statement_links.length,0)}));
 }
