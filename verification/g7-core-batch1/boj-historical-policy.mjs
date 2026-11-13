@@ -213,17 +213,32 @@ function dateFromArchive(label) {
 }
 
 export function archiveDates(html, year) {
-  const caption = new RegExp('<caption[^>]*>\\s*Statements on Monetary Policy\\s+' + year + '\\s*</caption>', 'i');
-  const table = [...html.matchAll(/<table\b[^>]*>[\s\S]*?<\/table\s*>/gi)].find(([tag]) => caption.test(tag));
-  if (!table) return null;
+  // The publisher's year indexes may use a heading rather than a table caption.
+  // Identify the table by its Date/Title header and its nearby year heading,
+  // never by arbitrary date-looking text elsewhere on the page.
+  const heading = new RegExp('Statements on Monetary Policy\\s+' + year, 'i');
+  const tables = [...html.matchAll(/<table\b[^>]*>[\s\S]*?<\/table\s*>/gi)];
+  const candidates = tables.filter(match => {
+    const prefix = html.slice(Math.max(0, match.index - 2500), match.index);
+    const body = match[0];
+    const rows = [...body.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr\s*>/gi)];
+    const first = rows[0]?.[1] ?? '';
+    const headers = [...first.matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]\s*>/gi)]
+      .map(cell => htmlText(cell[1]).toLowerCase());
+    return (heading.test(prefix) || heading.test(body)) &&
+      headers.length >= 2 && headers[0] === 'date' && headers[1] === 'title';
+  });
+  if (candidates.length !== 1) return null;
   const dates = new Set();
-  for (const [, row] of table[0].matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr\s*>/gi)) {
-    const cell = row.trim().match(/^<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]\s*>/i)?.[1];
-    if (cell === undefined) return null;
-    const label = htmlText(cell);
-    if (label === 'Date') continue;
-    const date = dateFromArchive(label);
+  const rows = [...candidates[0][0].matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr\s*>/gi)].slice(1);
+  if (!rows.length) return null;
+  for (const [, row] of rows) {
+    const cells = [...row.matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]\s*>/gi)];
+    if (cells.length < 2) return null;
+    const date = dateFromArchive(htmlText(cells[0][1]));
     if (!date || !date.startsWith(year + '-')) return null;
+    // A listed decision must link to a publisher document, not merely be text.
+    if (!/<a\b[^>]*href\s*=/i.test(cells[1][1])) return null;
     if (date <= cutoff) dates.add(date);
   }
   return dates.size ? [...dates].sort() : null;
