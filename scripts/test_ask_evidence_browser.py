@@ -79,6 +79,14 @@ def main():
         expect(page.get_by_text("Change =", exact=False)).to_have_count(0)
         page.unroute("**/api/v2/observations/" + chosen + "?*")
 
+        chooser.select_option("cpi")
+        page.get_by_label("Calculation", exact=True).select_option("percent")
+        page.get_by_role("button", name="Show evidence").click()
+        expect(page.get_by_text("Relative change =", exact=False)).to_be_visible()
+        chooser.select_option("unemployment")
+        expect(page.get_by_label("Calculation", exact=True)).to_have_value("difference")
+        expect(page.get_by_role("option", name="Relative percentage change")).to_have_count(0)
+
         assert not errors, errors
         print(json.dumps({
             "ask_browser_checks": 10, "passed": True,

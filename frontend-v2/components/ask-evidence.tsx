@@ -2,16 +2,17 @@
 
 import {useEffect, useRef, useState} from 'react';
 import {request, type Dataset} from '../lib/contracts';
-import {summarizeObservations} from '../lib/ask-evidence';
+import {relativeChange, summarizeObservations} from '../lib/ask-evidence';
 
 type Preview = {dataset: Dataset};
 // A client-side precaution, not a commercial-use licence or server-side rights gate.
 const eligible = (dataset: Dataset) => !/yahoo|yfinance/i.test(
     [dataset.source, dataset.provider, dataset.source_url, dataset.primary_source_url].join(' ')
-);
+) && dataset.release_metadata?.source_error_code !== 'market_source_rights_pending';
 
 export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse: () => void}) {
     const [id, setId] = useState('');
+    const [mode, setMode] = useState<'difference' | 'percent'>('difference');
     const [result, setResult] = useState<Preview | null>(null);
     const [pending, setPending] = useState(false);
     const [error, setError] = useState('');
@@ -40,6 +41,10 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
     }
 
     const evidence = result && summarizeObservations(result.dataset.observations ?? []);
+    const percent = evidence && relativeChange(evidence);
+    const selected = datasets.find(dataset => dataset.id === id);
+    const supportsPercent = (dataset: Dataset | undefined) =>
+        dataset?.allowed_transformations.includes('percent') === true;
     const sourceUrl = result?.dataset.primary_source_url || result?.dataset.source_url;
     return <section className="ml-surface">
         <h1>Ask MacroLens</h1>
@@ -48,10 +53,17 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
             <label htmlFor="ask-dataset">Dataset</label>{' '}
             <select id="ask-dataset" value={id} onChange={event => {
                 active.current?.abort();
-                setId(event.target.value); setResult(null); setError(''); setPending(false);
+                setId(event.target.value); setMode('difference'); setResult(null); setError(''); setPending(false);
             }}>
                 <option value="">Choose a dataset</option>
                 {datasets.filter(eligible).map(dataset => <option key={dataset.id} value={dataset.id}>{dataset.name}</option>)}
+            </select>{' '}
+            <label htmlFor="ask-calculation">Calculation</label>{' '}
+            <select id="ask-calculation" value={mode} onChange={event =>
+                setMode(event.target.value === 'percent' ? 'percent' : 'difference')
+            }>
+                <option value="difference">Difference in source units</option>
+                {supportsPercent(selected) && <option value="percent">Relative percentage change</option>}
             </select>{' '}
             <button type="submit" disabled={!id || pending}>{pending ? 'Retrieving evidence…' : 'Show evidence'}</button>
         </form>
@@ -63,7 +75,13 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
                 <h2>{result.dataset.name}</h2>
                 <p>{evidence.latest.date} · {evidence.latest.value} {result.dataset.units}</p>
                 <p>{evidence.previous.date} · {evidence.previous.value} {result.dataset.units}</p>
-                <p>Change = {evidence.latest.value} − {evidence.previous.value} = {Number(evidence.change.toPrecision(8))} in source units.</p>
+                {mode === 'difference' ? (
+                    <p>Change = {evidence.latest.value} − {evidence.previous.value} = {Number(evidence.change.toPrecision(8))} in source units.</p>
+                ) : percent === null || !supportsPercent(result.dataset) ? (
+                    <p>Relative change requires two positive values from a dataset that supports percentage change.</p>
+                ) : (
+                    <p>Relative change = (({evidence.latest.value} − {evidence.previous.value}) ÷ {evidence.previous.value}) × 100 = {Number(percent.toPrecision(8))}%.</p>
+                )}
                 <p>Dataset {result.dataset.id} · {result.dataset.source} · {result.dataset.status}</p>
                 {result.dataset.message && <p>{result.dataset.message}</p>}
                 {sourceUrl && /^https?:\/\//i.test(sourceUrl) && <p><a href={sourceUrl}>Source for {result.dataset.name}</a></p>}
