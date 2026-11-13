@@ -10,7 +10,7 @@ jobs:
     # Explicitly exclude fork PRs. No secrets, deployments, schedules or prod databases.
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    timeout-minutes: 16
+    timeout-minutes: 24
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -68,7 +68,7 @@ jobs:
           instrument(PartitionedIngestion, "_validate")
           instrument(PartitionedIngestion, "_promote")
           instrument(SnapshotAdapter, "fetch")
-          sys.argv = ["g7_cpi_refresh", sys.argv[1], "--initialize"]
+          sys.argv = ["g7_cpi_refresh", sys.argv[1], "--initialize", "--all-series-once"]
           raise SystemExit(main())
           PY
           printf '{"exit_status":%d,"production_approved":false,"commercial_rights":"PENDING"}\n' "$status" \
