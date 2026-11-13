@@ -45,8 +45,32 @@ jobs:
         run: |
           set -uo pipefail
           status=0
-          python -m scripts.g7_cpi_refresh "$RUNNER_TEMP/macrolens-g7-cpi/live" --initialize \
+          # Instrument development-only failure boundaries in this disposable process.
+          # No application debugging behavior or production logging is changed.
+          python - "$RUNNER_TEMP/macrolens-g7-cpi/live" <<'PY' \
             > "$RUNNER_TEMP/macrolens-g7-cpi/official-refresh.log" 2>&1 || status=$?
+          import sys
+          from backend.app.ingestion.partitioned import PartitionedIngestion
+          from backend.app.ingestion.official_snapshots import SnapshotAdapter
+          from scripts.g7_cpi_refresh import main
+
+          def instrument(cls, name):
+              original = getattr(cls, name)
+              def diagnostic(self, *args, **kwargs):
+                  try:
+                      return original(self, *args, **kwargs)
+                  except Exception as exc:
+                      print("DEV_ONLY_INGEST_FAILURE", cls.__name__, name,
+                            type(exc).__name__, str(exc)[:160], flush=True)
+                      raise
+              setattr(cls, name, diagnostic)
+
+          instrument(PartitionedIngestion, "_validate")
+          instrument(PartitionedIngestion, "_promote")
+          instrument(SnapshotAdapter, "fetch")
+          sys.argv = ["g7_cpi_refresh", sys.argv[1], "--initialize"]
+          raise SystemExit(main())
+          PY
           printf '{"exit_status":%d,"production_approved":false,"commercial_rights":"PENDING"}\n' "$status" \
             > "$RUNNER_TEMP/macrolens-g7-cpi/live-status.json"
           echo "### Original-publisher development refresh" >> "$GITHUB_STEP_SUMMARY"
