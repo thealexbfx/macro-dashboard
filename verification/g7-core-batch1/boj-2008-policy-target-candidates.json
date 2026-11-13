@@ -1,0 +1,29 @@
+{
+  "scope": "DEVELOPMENT_ONLY",
+  "economic_series": "BOJ_UNCOLLATERALIZED_OVERNIGHT_CALL_RATE_TARGET",
+  "production_approval": "NOT_APPROVED",
+  "commercial_rights": "PENDING",
+  "full_history_verified": false,
+  "events": [
+    {
+      "date": "2008-10-31",
+      "instrument": "UNCOLLATERALIZED_OVERNIGHT_CALL_RATE_TARGET",
+      "value_percent": 0.3,
+      "change_basis_points": -20,
+      "effective": "IMMEDIATE",
+      "url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2008/k081031.pdf",
+      "evidence": "page 1 paragraph 2(1) and attachment 1 page 3",
+      "status": "ORIGINAL_DOCUMENT_MANUALLY_REVIEWED"
+    },
+    {
+      "date": "2008-12-19",
+      "instrument": "UNCOLLATERALIZED_OVERNIGHT_CALL_RATE_TARGET",
+      "value_percent": 0.1,
+      "change_basis_points": -20,
+      "effective": "IMMEDIATE",
+      "url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2008/k081219.pdf",
+      "evidence": "page 1 paragraph 1(a) and attachment 1 page 3",
+      "status": "ORIGINAL_DOCUMENT_MANUALLY_REVIEWED"
+    }
+  ]
+}

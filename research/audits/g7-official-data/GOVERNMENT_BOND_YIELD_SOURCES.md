@@ -1,0 +1,32 @@
+# G7 sovereign yield sources
+
+**D** means daily publisher route identified; **V** means exact tenor availability or selector requires verification. The matrix is a research map. France lists the CNO-TEC maturity family and requires evidence of a continuous series per tenor. Italy's BDS table requires a selector-level check before any cell can be promoted. See the dataset CSV for proposed selectors.
+
+| Sovereign and route | 1Y | 2Y | 3Y | 5Y | 7Y | 10Y | 20Y | 30Y | Definition and archive |
+|---|---|---|---|---|---|---|---|---|---|
+| US Treasury daily par curve | D | D | D | D | D | D | D | D | Indicative secondary-market quotes feed fitted par constant maturities. CSV archive begins 1990, with maturity-specific gaps. Treasury changed to monotone convex methodology in December 2021. 20Y and 30Y have legacy interruptions. |
+| UK BoE nominal government liability curve | D | D | D | D | D | D | D | V | Fitted zero-coupon spot rates. Nominal data start 1970 in the published archive; available maturity range varies by date. Workbook selector and observed coverage at long maturities need a replay. |
+| Canada BoC fitted curve | D | D | D | D | D | D | D | D | Zero-coupon yields from GoC bonds and bills. Daily grid of 120 points from 0.25 to 30 years. Archive start and final dates must be captured per file. |
+| Germany Bundesbank listed federal securities | D | D | D | D | D | D | D | V | Svensson zero-coupon term structure. Published parameters and point series are separate. Verify 30Y publication and supported fit range before extrapolating. |
+| France Banque de France CNO-TEC | V | V | V | V | V | D | V | V | Theoretical constant-maturity actuarial yield, interpolated from eligible OATs. Publisher describes CNO-TEC n, n from 1 to 30. Daily publication of TEC10 is established. The generic definition does not establish continuous public archive coverage for every n. |
+| Italy Banca d’Italia BDS BMK0200 | V | V | V | V | V | V | V | V | Gross yield to maturity on selected benchmark securities. Candidate 10Y selector needs confirmation. Rendistato is a weighted basket with maturity buckets. MEF auction yields are issue events. Neither is a 10Y benchmark substitute. |
+| Japan MOF JGB rates | D | D | D | D | D | D | D | D | Published fixed-maturity JGB rates. MOF links history from 1974. Inspect methodology/Q&A, archival encoding, tenor start dates and blank cells before ingestion. |
+
+## Publisher evidence and alternate series
+
+- **US**. [Treasury archive](https://home.treasury.gov/interest-rates-data-csv-archive/) · [Methodology](https://home.treasury.gov/policy-issues/financing-the-government/interest-rate-statistics/treasury-yield-curve-methodology) · [H.15 distribution](https://www.federalreserve.gov/datadownload/Choose.aspx?rel=H15). The current `us10y` is FRED DGS10, which is eligible for a source parity audit. Treasury real par and Federal Reserve real fitted series are separate curves with different definitions.
+- **UK**. [BoE yield curves](https://www.bankofengland.co.uk/statistics/yield-curves) · [DMO data](https://www.dmo.gov.uk/data/). Nominal and real fitted curves are separate. Auction results describe issuance. Preserve the published compounding convention.
+- **Canada**. [Zero-coupon archive](https://www.bankofcanada.ca/rates/interest-rates/bond-yield-curves/) · [Benchmark bond yields](https://www.bankofcanada.ca/rates/interest-rates/canadian-bonds/). Benchmark yields are mid-market closes for selected issues around their labelled terms. Benchmark rolls can introduce level changes independent of movements in the fitted curve.
+- **Germany**. [Term structure](https://www.bundesbank.de/en/statistics/money-and-capital-markets/interest-rates-and-yields/daily-term-structure-on-listed-federal-securities-651570) · [Current federal securities yields](https://www.bundesbank.de/en/statistics/money-and-capital-markets/interest-rates-and-yields/daily-yields-of-current-federal-securities-772220). Curve model and actual securities form separate families.
+- **France**. [CNO-TEC definitions and daily publication](https://www.banque-france.fr/fr/statistiques/taux-et-cours/indices-obligataires-2026-09-14) · [Webstat](https://webstat.banque-france.fr/) · [AFT](https://www.aft.gouv.fr/en).
+- **Italy**. [BDS definitions including BMK0200](https://www.bancaditalia.it/pubblicazioni/metodi-e-fonti-note/metodi-note-2022/en_MFN_note-met_20221115.pdf?language_id=1) · [Rendistato](https://www.bancaditalia.it/compiti/operazioni-mef/rendistato-rendiob/index.html?com.dotmarketing.htmlpage.language=102).
+- **Japan**. [MOF history and Q&A](https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/index.htm).
+
+Rights classifications for these direct daily yield routes are provisionally B pending product-specific review of exact files and underlying quotation inputs. Existing reviewed Federal Reserve own-source rows are separate. The 10Y ECB monthly convergence series (e.g. `IRS.M.IT.L.L40.CI.0000.EUR.N.Z`, with separate DE and FR keys) is a harmonised, narrower monthly comparison. Confirm country method, exact source reuse and date range. It does not provide daily history. The ECB aggregate curve uses euro-area securities, not a country’s curve. [ECB Italy metadata](https://data.ecb.europa.eu/data/datasets/IRS/IRS.M.IT.L.L40.CI.0000.EUR.N.Z).
+
+## Spreads and historical verification
+
+- Strongest initial spreads are within the same issuer, source, nominal curve and fixing. Compute same-date 10Y–2Y or 30Y–5Y in basis points with explicit source units.
+- For France/Italy/Germany, a comparable monthly 10Y convergence spread is the simplest starting point once source definitions and rights match. Daily OAT–Bund or BTP–Bund requires comparable benchmark construction, issue roll handling and aligned fixing times. Cross-currency differences include monetary regimes and currency risk. They are not credit spreads.
+- Use intersection of valid native observation dates and document holiday/time-zone policy. Never forward-fill across a missing session to manufacture a daily movement. Preserve missing observations and flag maturity gaps, methodology and compounding changes. Do not subtract a zero-coupon rate from a par yield as if definitions match.
+- The source archives were identified. This audit did not replay individual daily files to certify first/last valid date, stale tails or null conventions per tenor. Hold the tenors marked V until exact selectors, calendars and coverage reports are recorded.

@@ -1,0 +1,69 @@
+'use client';
+
+import {useEffect, useRef, useState} from 'react';
+import {request, type Dataset, type Observation} from '../lib/contracts';
+import {summarizeObservations} from '../lib/ask-evidence';
+
+type Preview = {dataset: Dataset; observations: Observation[]};
+
+export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse: () => void}) {
+    const [id, setId] = useState('');
+    const [result, setResult] = useState<Preview | null>(null);
+    const [pending, setPending] = useState(false);
+    const [error, setError] = useState('');
+    const active = useRef<AbortController | null>(null);
+    useEffect(() => () => active.current?.abort(), []);
+
+    async function calculate() {
+        active.current?.abort();
+        const controller = new AbortController();
+        active.current = controller;
+        setPending(true);
+        setError('');
+        setResult(null);
+        try {
+            const data = await request<Preview>(`observations/${encodeURIComponent(id)}?preview=true&limit=40`, undefined, controller.signal);
+            if (!controller.signal.aborted) {
+                if (data.dataset.id !== id) throw Error('Dataset identity mismatch');
+                setResult(data);
+            }
+        } catch {
+            if (!controller.signal.aborted) setError('Evidence is unavailable for this dataset. Try again or choose another dataset.');
+        } finally {
+            if (!controller.signal.aborted) setPending(false);
+        }
+    }
+
+    const evidence = result && summarizeObservations(result.observations ?? []);
+    const sourceUrl = result?.dataset.primary_source_url || result?.dataset.source_url;
+    return <section className="ml-surface">
+        <h1>Ask MacroLens</h1>
+        <p>What changed between the two most recent usable observations?</p>
+        <form onSubmit={event => {event.preventDefault(); if (id) void calculate();}}>
+            <label htmlFor="ask-dataset">Dataset</label>{' '}
+            <select id="ask-dataset" value={id} onChange={event => {
+                active.current?.abort();
+                setId(event.target.value); setResult(null); setError(''); setPending(false);
+            }}>
+                <option value="">Choose a dataset</option>
+                {datasets.map(dataset => <option key={dataset.id} value={dataset.id}>{dataset.name}</option>)}
+            </select>{' '}
+            <button type="submit" disabled={!id || pending}>{pending ? 'Retrieving evidence…' : 'Show evidence'}</button>
+        </form>
+        <button type="button" onClick={onBrowse}>Browse the data library</button>
+        <div aria-live="polite">
+            {error && <p>{error}</p>}
+            {result && !evidence && <p>Two distinct, finite observations are required in the returned preview.</p>}
+            {result && evidence && <>
+                <h2>{result.dataset.name}</h2>
+                <p>{evidence.latest.date} · {evidence.latest.value} {result.dataset.units}</p>
+                <p>{evidence.previous.date} · {evidence.previous.value} {result.dataset.units}</p>
+                <p>Change = {evidence.latest.value} − {evidence.previous.value} = {Number(evidence.change.toPrecision(8))} in source units.</p>
+                <p>Dataset {result.dataset.id} · {result.dataset.source} · {result.dataset.status}</p>
+                {result.dataset.message && <p>{result.dataset.message}</p>}
+                {sourceUrl && /^https?:\/\//i.test(sourceUrl) && <p><a href={sourceUrl}>Source for {result.dataset.name}</a></p>}
+                <p>Missing values were skipped. The dates can span more than one reporting period. These observations alone cannot establish a cause.</p>
+            </>}
+        </div>
+    </section>;
+}
