@@ -1,10 +1,11 @@
 'use client';
 
 import {useEffect, useRef, useState} from 'react';
-import {request, type Dataset, type Observation} from '../lib/contracts';
+import {request, type Dataset} from '../lib/contracts';
 import {summarizeObservations} from '../lib/ask-evidence';
 
-type Preview = {dataset: Dataset; observations: Observation[]};
+type Preview = {dataset: Dataset};
+const eligible = (dataset: Dataset) => !/yahoo/i.test([dataset.source, dataset.provider, dataset.source_url].join(' '));
 
 export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse: () => void}) {
     const [id, setId] = useState('');
@@ -15,6 +16,7 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
     useEffect(() => () => active.current?.abort(), []);
 
     async function calculate() {
+        if (!datasets.some(dataset => dataset.id === id && eligible(dataset))) return;
         active.current?.abort();
         const controller = new AbortController();
         active.current = controller;
@@ -34,7 +36,7 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
         }
     }
 
-    const evidence = result && summarizeObservations(result.observations ?? []);
+    const evidence = result && summarizeObservations(result.dataset.observations ?? []);
     const sourceUrl = result?.dataset.primary_source_url || result?.dataset.source_url;
     return <section className="ml-surface">
         <h1>Ask MacroLens</h1>
@@ -46,7 +48,7 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
                 setId(event.target.value); setResult(null); setError(''); setPending(false);
             }}>
                 <option value="">Choose a dataset</option>
-                {datasets.map(dataset => <option key={dataset.id} value={dataset.id}>{dataset.name}</option>)}
+                {datasets.filter(eligible).map(dataset => <option key={dataset.id} value={dataset.id}>{dataset.name}</option>)}
             </select>{' '}
             <button type="submit" disabled={!id || pending}>{pending ? 'Retrieving evidence…' : 'Show evidence'}</button>
         </form>
