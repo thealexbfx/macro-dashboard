@@ -40,3 +40,17 @@ def test_unexpected_xml_declarations_are_rejected():
     payload = b"<!DOCTYPE foo [<!ENTITY secret SYSTEM 'file:///etc/passwd'>]><foo/>"
     with pytest.raises(ValueError, match="Unexpected XML document declarations"):
         parse_selected(ENTRY, archive("H15_data.xml", payload))
+
+
+def test_current_g17_lowercase_archive_and_ambiguous_archive():
+    entry = ENTRY | {"source": {"provider": "federal_reserve", "selector": "G17/TEST"}}
+    payload = b'<Root><Series SERIES_NAME="TEST"><Obs TIME_PERIOD="2026-09-30" OBS_VALUE="76.9"/></Series></Root>'
+    _, observations, _ = parse_selected(entry, archive("g17_data.xml", payload))
+    assert observations[0].value == 76.9
+
+    stream = io.BytesIO()
+    with zipfile.ZipFile(stream, "w") as zipout:
+        for name in ("G17_data.xml", "g17_data.xml"):
+            zipout.writestr(name, payload)
+    with pytest.raises(ValueError, match="Ambiguous"):
+        parse_selected(entry, stream.getvalue())

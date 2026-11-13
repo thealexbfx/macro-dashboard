@@ -21,12 +21,20 @@ def parse_selected(entry, body):
         ceiling = 192 if release in {"G17", "H41"} else 96
         if len(files) > 48 or sum(f.file_size for f in files) > ceiling * 1024 * 1024:
             raise ValueError("Federal Reserve ZIP exceeds bounded expansion")
-        member = f"{release}_data.xml"
-        if member not in archive.namelist():
+        expected_member = f"{release}_data.xml"
+        accepted = {expected_member}
+        if release == "G17":
+            # The Board ships this exact lowercase member in its current G.17 ZIP.
+            accepted.add("g17_data.xml")
+        matches = [entry for entry in files if entry.filename in accepted]
+        if not matches:
             raise ValueError(
-                f"Federal Reserve ZIP missing exact {member} member; "
+                f"Federal Reserve ZIP missing exact {expected_member} member; "
                 "publisher format must be reviewed before ingestion"
             )
+        if len(matches) != 1:
+            raise ValueError("Ambiguous Federal Reserve data archive members")
+        member = matches[0]
         with archive.open(member) as source:
             # Standard ElementTree does not resolve external entities; reject DTDs.
             prefix = source.read(2048)

@@ -79,16 +79,22 @@ def main():
         expect(page.get_by_text("Change =", exact=False)).to_have_count(0)
         page.unroute("**/api/v2/observations/" + chosen + "?*")
 
+        search = page.get_by_role("searchbox", name="Search datasets")
+        search.fill("US Consumer Price Index (CPI)")
+        expect(chooser.locator('option[value="cpi"]')).to_be_attached()
         chooser.select_option("cpi")
         page.get_by_label("Calculation", exact=True).select_option("percent")
         page.get_by_role("button", name="Show evidence").click()
         expect(page.get_by_text("Relative change =", exact=False)).to_be_visible()
+        search.fill("unemployment")
+        expect(chooser.locator('option[value="unemployment"]')).to_be_attached()
         chooser.select_option("unemployment")
         expect(page.get_by_label("Calculation", exact=True)).to_have_value("difference")
         expect(page.get_by_role("option", name="Relative percentage change")).to_have_count(0)
 
         # An exact ID outside the initial catalog page can be found and used.
         outside = "fixture_catalog_250"
+        search.fill("")
         expect(chooser.locator(f'option[value="{outside}"]')).to_have_count(0)
         page.get_by_role("searchbox", name="Search datasets").fill(outside)
         expect(chooser.locator(f'option[value="{outside}"]')).to_be_attached()
