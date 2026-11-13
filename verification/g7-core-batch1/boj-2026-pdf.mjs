@@ -9,8 +9,8 @@ export const PDF_EVENTS=Object.freeze([
    url:'https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260918a.pdf'}
 ]);
 const MAX_PDF_BYTES=524288;
-export function pdfToText(pdf, spawn = spawnSync) {
-  const result = spawn('pdftotext', ['-f', '1', '-l', '1', '-enc', 'UTF-8', '-', '-'], {
+export function pdfToText(pdf, spawn = spawnSync, lastPage = 1) {
+  const result = spawn('pdftotext', ['-f', '1', '-l', String(lastPage), '-enc', 'UTF-8', '-', '-'], {
     input: pdf, timeout: 5000, maxBuffer: 262144, encoding: 'utf8', windowsHide: true,
     env: {...process.env, LC_ALL: 'C'},
   });
