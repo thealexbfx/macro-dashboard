@@ -93,7 +93,7 @@ def main():
         expect(page.get_by_role("option", name="Relative percentage change")).to_have_count(0)
 
         # An exact ID outside the initial catalog page can be found and used.
-        outside = "fixture_catalog_250"
+        outside = "fixture_catalog_247"
         search.fill("")
         expect(chooser.locator(f'option[value="{outside}"]')).to_have_count(0)
         page.get_by_role("searchbox", name="Search datasets").fill(outside)
@@ -102,9 +102,18 @@ def main():
         page.get_by_role("button", name="Show evidence").click()
         expect(page.get_by_text("Dataset " + outside, exact=False)).to_be_visible()
 
+        # Multiple events on the same date are not comparable daily observations.
+        irregular = "fixture_catalog_250"
+        search.fill(irregular)
+        expect(chooser.locator(f'option[value="{irregular}"]')).to_be_attached()
+        chooser.select_option(irregular)
+        page.get_by_role("button", name="Show evidence").click()
+        expect(page.get_by_text("Two distinct, finite observations", exact=False)).to_be_visible()
+        expect(page.get_by_text("Change =", exact=False)).to_have_count(0)
+
         assert not errors, errors
         print(json.dumps({
-            "ask_browser_checks": 16, "passed": True,
+            "ask_browser_checks": 19, "passed": True,
             "selected_fixture_dataset": chosen, "screenshots": 1, "page_errors": errors,
         }))
         browser.close()

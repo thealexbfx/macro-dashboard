@@ -809,6 +809,24 @@
       "Expand official G7 backfills, reconcile BOJ regimes, and document rights per exact source.",
       "Validate Discovery thresholds and streaks on historical official inputs, broaden grounded Ask and test saved research compatibility in the browser.",
       "Run staged release and rollback acceptance before requesting any production approval."
-    ]
+    ],
+    "hosted_dataset_expansion": {
+      "head": "ff6f19196e968f8cffe0d9bcc8a0a24d5f1ffb6f",
+      "run_id": 43354310203,
+      "memory_limit_mib": 512,
+      "representative_datasets": 8,
+      "representative_observations": 34624,
+      "first_release_rehearsal_datasets": 13,
+      "first_release_rehearsal_observations": 9298,
+      "g17": {
+        "id": "fred_848fe5e65c6c554669f1",
+        "selector": "CAPUTL.B50001.S",
+        "observations": 717,
+        "first_period": "1967-01",
+        "last_period": "2026-09",
+        "archive_member": "g17_data.xml"
+      },
+      "production_activated": false
+    }
   }
 }
