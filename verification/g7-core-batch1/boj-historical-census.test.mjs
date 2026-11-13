@@ -38,14 +38,15 @@ test('title classifications do not certify policy rates',()=>{
  'REQUIRES_ORIGINAL_DOCUMENT_REVIEW');
 });
 
-test('publisher dates without a linked original document remain explicitly unresolved',async()=>{
+test('publisher rows without document anchors fail closed at census extraction',async()=>{
  const report=await historicalCensus({transport:async url=>{
   const year=Number(url.match(/state_(\d{4})/)[1]);
   return new Response('<!doctype html><html><h1>Statements on Monetary Policy '+year+'</h1><table><tr><th>Date</th><th>Title</th></tr><tr><td>Dec. 19, '+year+'</td><td>No linked document</td></tr></table></html>',{headers:{'content-type':'text/html'}});
  }});
  for(const p of report.periods){
-  assert.equal(p.document_link_coverage_status,'LINKS_MISSING');
-  assert.deepEqual(p.dates_without_statement_links,[p.year+'-12-19']);
+  assert.equal(p.document_link_coverage_status,'UNRESOLVED');
+  assert.deepEqual(p.dates_without_statement_links,[]);
+  assert.equal(p.census_status,'UNRESOLVED');
  }
 });
 
