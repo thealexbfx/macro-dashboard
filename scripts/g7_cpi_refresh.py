@@ -59,16 +59,56 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("workspace", type=Path)
     parser.add_argument("--initialize", action="store_true")
+    parser.add_argument(
+        "--all-series-once", action="store_true",
+        help="Stage each publisher series independently and immediately in this disposable workspace",
+    )
     args = parser.parse_args()
     store = open_workspace(args.workspace, args.initialize)
-    worker = CatalogRefresh(store, private_sources=configuration(), fetch=download)
-    for _ in range(16):
-        result = worker.run_once()
-        print(json.dumps(result))
-        if result["state"] in {"idle", "busy"}:
-            break
-    print(json.dumps(report(store), indent=2))
-    return int(any(job["failures"] for job in worker.status()))
+    sources = configuration()
+    failures = False
+    if args.all_series_once:
+        # Each scoped worker registers only its own series, avoiding the
+        # normal cross-series 60-second stagger while keeping network reads
+        # sequential, bounded, and strictly development-only.
+        rules, publications, entries = sources
+        for key in sorted(rules):
+            worker = CatalogRefresh(
+                store, private_sources=(
+                    {key: rules[key]}, {key: publications[key]}, {key: entries[key]}
+                ), fetch=download,
+            )
+            for _ in range(16):
+                result = worker.run_once()
+                print(json.dumps(result | {"audit_dataset_id": key}), flush=True)
+                if result["state"] != "checkpointed":
+                    break
+            else:
+                failures = True
+            if result["state"] in {"failed", "busy", "idle", "checkpointed"}:
+                failures = True
+            failures = failures or any(job["failures"] for job in worker.status())
+    else:
+        worker = CatalogRefresh(store, private_sources=sources, fetch=download)
+        for _ in range(16):
+            result = worker.run_once()
+            print(json.dumps(result))
+            if result["state"] in {"idle", "busy"}:
+                break
+        failures = any(job["failures"] for job in worker.status())
+    summary = report(store)
+    print(json.dumps(summary, indent=2), flush=True)
+    if args.all_series_once:
+        print(json.dumps({
+            "series_expected": len(sources[0]),
+            "series_staged": len(summary),
+            "observations_staged": sum(row["observations"] for row in summary),
+            "explicit_publisher_nulls": sum(len(row["missing"]) for row in summary),
+            "production_approved": False,
+            "commercial_rights": "PENDING",
+        }), flush=True)
+        failures = failures or len(summary) != len(sources[0])
+    return int(failures)
 
 
 if __name__ == "__main__":
