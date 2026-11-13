@@ -63,9 +63,25 @@ def main():
         expect(page.get_by_text("Change =", exact=False)).to_have_count(0)
         page.unroute("**/api/v2/observations/" + chosen + "?*")
 
+        # Changing publisher metadata between catalog listing and retrieval must
+        # not make an unreviewed market source available in Ask.
+        mismatched = dict(preview)
+        mismatched["source"] = "Yahoo Finance"
+        page.route(
+            "**/api/v2/observations/" + chosen + "?*",
+            lambda route: route.fulfill(
+                status=200, content_type="application/json",
+                body=json.dumps({"dataset": mismatched}),
+            ),
+        )
+        page.get_by_role("button", name="Show evidence").click()
+        expect(page.get_by_text("Evidence is unavailable for this dataset.", exact=False)).to_be_visible()
+        expect(page.get_by_text("Change =", exact=False)).to_have_count(0)
+        page.unroute("**/api/v2/observations/" + chosen + "?*")
+
         assert not errors, errors
         print(json.dumps({
-            "ask_browser_checks": 8, "passed": True,
+            "ask_browser_checks": 10, "passed": True,
             "selected_fixture_dataset": chosen, "screenshots": 1, "page_errors": errors,
         }))
         browser.close()
