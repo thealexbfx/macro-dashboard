@@ -124,6 +124,32 @@ def test_statcan_large_zip_budget_is_restricted_to_exact_table_path():
     with pytest.raises(ValueError, match="Unsafe download bounds"):
         download(JP_LIST, maximum=32 * 1024**2, opener=Opener())
 
+    # Both exact Canadian CPI bulk tables may use the larger budget; a
+    # near-match, a different publisher and a query-string variant may not.
+    class CanadianResponse(io.BytesIO):
+        headers = {}
+        def __init__(self, url):
+            super().__init__(b"fixture")
+            self.url = url
+        def geturl(self):
+            return self.url
+
+    class CanadianOpener:
+        def open(self, request, timeout=None):
+            return CanadianResponse(request.full_url)
+
+    for pid in ("18100004", "18100256"):
+        url = f"https://www150.statcan.gc.ca/n1/tbl/csv/{pid}-eng.zip"
+        body, _ = download(url, maximum=32 * 1024**2, opener=CanadianOpener())
+        assert body == b"fixture"
+    for url in (
+        "https://www150.statcan.gc.ca/n1/tbl/csv/18100005-eng.zip",
+        "https://www150.statcan.gc.ca/n1/tbl/csv/18100004-eng.zip?version=2",
+        "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1810000401",
+    ):
+        with pytest.raises(ValueError, match="Unsafe download bounds"):
+            download(url, maximum=32 * 1024**2, opener=CanadianOpener())
+
 
 def test_staged_publisher_release_timestamps_hash_and_paginate(tmp_path):
     from datetime import date
