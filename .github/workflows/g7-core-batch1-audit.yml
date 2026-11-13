@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: 'e24ad23614fc256a37a00601f7069a7dd272f6cc' # Reviewed BOJ historical development commit
+          ref: '6c69f6025266023a9c828837fdd1d5367188743a' # Reviewed BOJ historical development commit
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -37,6 +37,8 @@ jobs:
         run: node verification/g7-core-batch1/boj-historical-gap-sources.mjs "$RUNNER_TEMP/g7-core-batch1"
       - name: Extract historical BOJ statement index dates (not complete meeting census)
         run: node verification/g7-core-batch1/boj-historical-census.mjs "$RUNNER_TEMP/g7-core-batch1"
+      - name: Crosswalk BOJ historical statement dates against selected manifest
+        run: node verification/g7-core-batch1/boj-historical-coverage.mjs "$RUNNER_TEMP/g7-core-batch1"
       - name: Upload sanitized reports
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
