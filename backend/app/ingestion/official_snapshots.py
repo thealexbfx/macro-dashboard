@@ -96,7 +96,7 @@ def download(
     # default publisher budget; preserve the 8 MiB limit elsewhere.
     statcan_cpi_zip = (
         parsed.hostname == "www150.statcan.gc.ca"
-        and re.fullmatch(r"/n1/tbl/csv/18100(?:004|256)-eng\\.zip", parsed.path) is not None
+        and re.fullmatch(r"/n1/tbl/csv/18100(?:004|256)-eng\.zip", parsed.path) is not None
         and parsed.query == ""
     )
     ceiling = (
