@@ -2,6 +2,8 @@
 
 import argparse
 import json
+from datetime import UTC, datetime, timedelta
+from hashlib import sha256
 from pathlib import Path
 
 from backend.app.catalog.releases import migrate as migrate_releases
@@ -55,6 +57,29 @@ def report(store):
         return result
 
 
+def observation_state(store, key):
+    with store.connection() as db:
+        rows = db.execute(
+            """SELECT period_key, payload, value, revision, artifact_hash
+               FROM norm_observations WHERE dataset_id=? ORDER BY period_key""",
+            (key,),
+        ).fetchall()
+        revisions = db.execute(
+            "SELECT count(*) FROM norm_revisions WHERE dataset_id=?", (key,)
+        ).fetchone()[0]
+    digest = sha256(json.dumps([tuple(row) for row in rows]).encode()).hexdigest()
+    return {"periods": len(rows), "revisions": revisions, "observation_hash": digest}
+
+
+def run_series(worker, key, phase):
+    for _ in range(16):
+        result = worker.run_once()
+        print(json.dumps(result | {"audit_dataset_id": key, "phase": phase}), flush=True)
+        if result["state"] != "checkpointed":
+            break
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("workspace", type=Path)
@@ -63,7 +88,13 @@ def main():
         "--all-series-once", action="store_true",
         help="Stage each publisher series independently and immediately in this disposable workspace",
     )
+    parser.add_argument(
+        "--verify-repeat", action="store_true",
+        help="Recheck all six sources in the same isolated workspace after advancing the audit clock",
+    )
     args = parser.parse_args()
+    if args.verify_repeat and not args.all_series_once:
+        parser.error("--verify-repeat requires --all-series-once")
     store = open_workspace(args.workspace, args.initialize)
     sources = configuration()
     failures = False
@@ -73,21 +104,32 @@ def main():
         # sequential, bounded, and strictly development-only.
         rules, publications, entries = sources
         for key in sorted(rules):
+            scoped = ({key: rules[key]}, {key: publications[key]}, {key: entries[key]})
+            clock_offset = timedelta()
             worker = CatalogRefresh(
-                store, private_sources=(
-                    {key: rules[key]}, {key: publications[key]}, {key: entries[key]}
-                ), fetch=download,
+                store, private_sources=scoped, fetch=download,
+                now=lambda: datetime.now(UTC) + clock_offset,
             )
-            for _ in range(16):
-                result = worker.run_once()
-                print(json.dumps(result | {"audit_dataset_id": key}), flush=True)
-                if result["state"] != "checkpointed":
-                    break
-            else:
+            result = run_series(worker, key, "initial")
+            if result["state"] not in {"changed", "unchanged"}:
                 failures = True
-            if result["state"] in {"failed", "busy", "idle", "checkpointed"}:
-                failures = True
-            failures = failures or any(job["failures"] for job in worker.status())
+                continue
+            if not args.verify_repeat:
+                continue
+            before = observation_state(store, key)
+            clock_offset = timedelta(seconds=max(0, result["next_due"] - datetime.now(UTC).timestamp()) + 1)
+            repeated = run_series(worker, key, "repeat")
+            after = observation_state(store, key)
+            stable = before == after
+            valid = (
+                repeated["state"] == "unchanged" and stable
+                or repeated["state"] == "changed" and not stable
+            )
+            print(json.dumps({
+                "dataset_id": key, "repeat_state": repeated["state"],
+                "before": before, "after": after, "repeat_consistent": valid,
+            }), flush=True)
+            failures = failures or not valid
     else:
         worker = CatalogRefresh(store, private_sources=sources, fetch=download)
         for _ in range(16):

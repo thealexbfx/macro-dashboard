@@ -87,7 +87,7 @@ jobs:
                             type(exc).__name__, str(exc)[:180], flush=True)
                       raise
               setattr(g7_cpi, name, diagnostic)
-          sys.argv = ["g7_cpi_refresh", sys.argv[1], "--initialize", "--all-series-once"]
+          sys.argv = ["g7_cpi_refresh", sys.argv[1], "--initialize", "--all-series-once", "--verify-repeat"]
           raise SystemExit(main())
           PY
           printf '{"exit_status":%d,"production_approved":false,"commercial_rights":"PENDING"}\n' "$status" \
@@ -98,7 +98,7 @@ jobs:
             echo "::warning title=Official CPI staging incomplete::One or more original publisher series failed. Review the artifact official-refresh.log and live-status.json; a green audit job is NOT approval."
             echo "**INCOMPLETE:** one or more official series could not be staged. Do not treat this job as successful historical verification." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "All configured series staged in a disposable database; rights, independent history verification and production approval remain pending." >> "$GITHUB_STEP_SUMMARY"
+            echo "All six series staged and rechecked in a disposable database; rights and production approval remain pending." >> "$GITHUB_STEP_SUMMARY"
           fi
           # This diagnostic audit remains non-gating because original publishers
           # can be temporarily unavailable; the artifact retains the true status.

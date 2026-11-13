@@ -1,5 +1,7 @@
 import csv
 import io
+import json
+import sys
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -8,7 +10,8 @@ from backend.app.ingestion.catalog_refresh import CatalogRefresh
 from backend.app.ingestion.official_snapshots import safe_url, download
 from backend.app.ingestion.contracts import ProviderError
 from backend.app.ingestion.g7_cpi import JP_LIST, JP_TITLE, configuration
-from scripts.g7_cpi_refresh import open_workspace, report
+from scripts import g7_cpi_refresh
+from scripts.g7_cpi_refresh import observation_state, open_workspace, report
 
 
 def test_native_cpi_refresh_preserves_last_good_and_revisions(tmp_path):
@@ -56,10 +59,12 @@ def test_native_cpi_refresh_preserves_last_good_and_revisions(tmp_path):
     )
     assert worker.run_once()["state"] == "changed"
     baseline = report(store)
+    baseline_state = observation_state(store, key)
     now += timedelta(days=1)
     state["edition"] = 1
     assert worker.run_once()["state"] == "unchanged"
     assert report(store) == baseline
+    assert observation_state(store, key) == baseline_state
     now += timedelta(days=1)
     state["edition"] = 2
     assert worker.run_once()["error_code"] == "http_429"
@@ -76,6 +81,7 @@ def test_native_cpi_refresh_preserves_last_good_and_revisions(tmp_path):
     updated = report(store)[0]
     assert updated["last_period"] == "2025-10"
     assert updated["revisions"] == 1
+    assert observation_state(store, key)["observation_hash"] != baseline_state["observation_hash"]
     with store.connection() as db:
         assert db.execute("SELECT count(*) FROM catalog_release_grants").fetchone()[0] == 0
         assert db.execute("SELECT value FROM norm_observations WHERE period_key='1970-01'").fetchone()[0] == 99.9
@@ -171,3 +177,32 @@ def test_staged_publisher_release_timestamps_hash_and_paginate(tmp_path):
     assert page.next_cursor is None
     assert len(page.content_hash) == 64
     assert adapter.fetch(publication.definition, window, None, Bounds()).content_hash == page.content_hash
+
+def test_repeat_cli_advances_each_scoped_worker_and_reports_consistency(tmp_path, monkeypatch, capsys):
+    class Worker:
+        def __init__(self, store, *, private_sources, fetch, now):
+            self.key = next(iter(private_sources[0]))
+            self.now = now
+            self.due = None
+
+        def run_once(self):
+            timestamp = self.now().timestamp()
+            if self.due is None:
+                self.due = timestamp + 86400
+                return {"state": "changed", "next_due": self.due}
+            assert timestamp >= self.due
+            return {"state": "unchanged"}
+
+    workspace = tmp_path / "repeat"
+    monkeypatch.setattr(sys, "argv", [
+        "g7_cpi_refresh", str(workspace), "--initialize", "--all-series-once", "--verify-repeat",
+    ])
+    monkeypatch.setattr(g7_cpi_refresh, "CatalogRefresh", Worker)
+    keys = configuration()[0]
+    monkeypatch.setattr(g7_cpi_refresh, "report", lambda store: [
+        {"observations": 1, "missing": []} for key in keys
+    ])
+    assert g7_cpi_refresh.main() == 0
+    records = [json.loads(line) for line in capsys.readouterr().out.splitlines()
+               if '"repeat_consistent"' in line]
+    assert {row["dataset_id"] for row in records if row["repeat_consistent"]} == set(keys)
