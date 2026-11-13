@@ -48,3 +48,19 @@ test('publisher dates without a linked original document remain explicitly unres
   assert.deepEqual(p.dates_without_statement_links,[p.year+'-12-19']);
  }
 });
+
+test('original publisher links are captured as unverified evidence',async()=>{
+ const report=await historicalCensus({transport:async url=>{
+  const year=Number(url.match(/state_(\d{4})/)[1]);
+  return new Response('<!doctype html><html><h1>Statements on Monetary Policy '+year+'</h1>'+
+  '<table><tr><th>Date</th><th>Title</th></tr>'+
+  '<tr><td>Dec. 19, '+year+'</td><td><a href="/en/mopo/mpmdeci/mpr_'+year+'/k'+year+'.pdf">Policy unchanged</a></td></tr></table></html>',
+  {headers:{'content-type':'text/html'}});
+ }});
+ for(const p of report.periods){
+  assert.equal(p.statement_link_count,1);
+  assert.equal(p.statement_links[0].date,p.year+'-12-19');
+  assert.equal(p.statement_links[0].document_verified,false);
+  assert.equal(p.statement_links[0].title_classification,'TITLE_SAYS_UNCHANGED_NOT_DOCUMENT_VERIFIED');
+ }
+});
