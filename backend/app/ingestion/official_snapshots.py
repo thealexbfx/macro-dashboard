@@ -270,10 +270,15 @@ class SnapshotAdapter:
         if offset < 0 or offset > len(records):
             raise ProviderError("invalid_snapshot_cursor")
         selected = tuple(records[offset : offset + bounds.records])
-        if (
-            len(json.dumps([asdict(p) for p in selected], default=str).encode())
-            > bounds.response_bytes
-        ):
+        # Release timestamps are datetime values in native observations. Convert
+        # to an exact ISO-8601 string for both page-size accounting and the
+        # stable content fingerprint; json.dumps(default=str) in one path
+        # would otherwise disagree with the digest path.
+        payload = [asdict(point) for point in selected]
+        for row in payload:
+            if row["release_at"] is not None:
+                row["release_at"] = row["release_at"].isoformat()
+        if len(json.dumps(payload).encode()) > bounds.response_bytes:
             raise ProviderError("snapshot_page_limit")
         following = (
             str(offset + len(selected))
@@ -282,7 +287,7 @@ class SnapshotAdapter:
         )
         return Page(
             selected,
-            digest([asdict(p) for p in selected]),
+            digest(payload),
             self.expected_hash,
             data["source_url"],
             datetime.fromisoformat(data["checked_at"]),
