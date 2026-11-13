@@ -23,9 +23,9 @@ def parse_selected(entry, body):
             raise ValueError("Federal Reserve ZIP exceeds bounded expansion")
         expected_member = f"{release}_data.xml"
         accepted = {expected_member}
-        if release == "G17":
-            # The Board ships this exact lowercase member in its current G.17 ZIP.
-            accepted.add("g17_data.xml")
+        if release in {"G17", "H6", "H10"}:
+            # The Board ships lowercase data members in these releases.
+            accepted.add(expected_member.lower())
         matches = [entry for entry in files if entry.filename in accepted]
         if not matches:
             raise ValueError(

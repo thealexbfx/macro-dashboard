@@ -42,15 +42,16 @@ def test_unexpected_xml_declarations_are_rejected():
         parse_selected(ENTRY, archive("H15_data.xml", payload))
 
 
-def test_current_g17_lowercase_archive_and_ambiguous_archive():
-    entry = ENTRY | {"source": {"provider": "federal_reserve", "selector": "G17/TEST"}}
+@pytest.mark.parametrize("release", ["G17", "H6", "H10"])
+def test_verified_lowercase_archive_and_ambiguous_archive(release):
+    entry = ENTRY | {"source": {"provider": "federal_reserve", "selector": f"{release}/TEST"}}
     payload = b'<Root><Series SERIES_NAME="TEST"><Obs TIME_PERIOD="2026-09-30" OBS_VALUE="76.9"/></Series></Root>'
-    _, observations, _ = parse_selected(entry, archive("g17_data.xml", payload))
+    _, observations, _ = parse_selected(entry, archive(f"{release.lower()}_data.xml", payload))
     assert observations[0].value == 76.9
 
     stream = io.BytesIO()
     with zipfile.ZipFile(stream, "w") as zipout:
-        for name in ("G17_data.xml", "g17_data.xml"):
+        for name in (f"{release}_data.xml", f"{release.lower()}_data.xml"):
             zipout.writestr(name, payload)
     with pytest.raises(ValueError, match="Ambiguous"):
         parse_selected(entry, stream.getvalue())
