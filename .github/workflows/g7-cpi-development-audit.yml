@@ -45,7 +45,7 @@ jobs:
         run: |
           set -uo pipefail
           status=0
-          python scripts/g7_cpi_refresh.py "$RUNNER_TEMP/macrolens-g7-cpi/live" --initialize \
+          python -m scripts.g7_cpi_refresh "$RUNNER_TEMP/macrolens-g7-cpi/live" --initialize \
             > "$RUNNER_TEMP/macrolens-g7-cpi/official-refresh.log" 2>&1 || status=$?
           printf '{"exit_status":%d,"production_approved":false,"commercial_rights":"PENDING"}\n' "$status" \
             > "$RUNNER_TEMP/macrolens-g7-cpi/live-status.json"
