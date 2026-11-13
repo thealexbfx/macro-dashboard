@@ -9,33 +9,44 @@ export const PDF_EVENTS=Object.freeze([
    url:'https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/k260918a.pdf'}
 ]);
 const MAX_PDF_BYTES=524288;
-const pdfToText=pdf=>{
-  const result=spawnSync('pdftotext',['-f','1','-l','1','-','-'],{
-    input:pdf,timeout:5000,maxBuffer:262144,encoding:'utf8',windowsHide:true
+export function pdfToText(pdf, spawn = spawnSync) {
+  const result = spawn('pdftotext', ['-f', '1', '-l', '1', '-enc', 'UTF-8', '-', '-'], {
+    input: pdf, timeout: 5000, maxBuffer: 262144, encoding: 'utf8', windowsHide: true,
+    env: {...process.env, LC_ALL: 'C'},
   });
-  if(result.error||result.status!==0||typeof result.stdout!=='string')return null;
-  return result.stdout;
-};
+  if (result.error?.code === 'ENOENT') return {error_category: 'pdftotext_missing'};
+  if (result.error?.code === 'ETIMEDOUT') return {error_category: 'pdf_text_extraction_timeout'};
+  if (result.error?.code === 'ENOBUFS') return {error_category: 'pdf_text_extraction_output_limit'};
+  if (result.error || result.status !== 0) {
+    const malformed = !result.error && result.status === 1 &&
+      /couldn.t find trailer dictionary|couldn.t read xref table|damaged pdf|may not be a pdf|invalid xref/i.test(result.stderr ?? '');
+    return {error_category: malformed ? 'malformed_pdf' : 'pdf_text_extraction_failed'};
+  }
+  if (typeof result.stdout !== 'string' || !result.stdout.trim()) {
+    return {error_category: 'pdf_text_extraction_empty'};
+  }
+  return {text: result.stdout};
+}
 const dateWords=day=>new Date(day+'T00:00:00Z').toLocaleDateString('en-US',{
   month:'long',day:'numeric',year:'numeric',timeZone:'UTC'});
 export function verifyBojPdfDecision(text,event) {
-  if(typeof text!=='string'||text.length>200000)
+  if(typeof text!=='string'||!text.trim()||text.length>200000)
     return {outcome:'UNRESOLVED',error_category:'missing_extracted_text'};
   const normalized=text.replace(/\s+/g,' ').trim();
   if(!normalized.includes('Bank of Japan')||
      !normalized.includes('Change in the Guideline for Money Market Operations'))
     return {outcome:'UNRESOLVED',error_category:'publisher_or_document_identity_missing'};
-  if(!normalized.includes(dateWords(event.decision_date)))
+  if(!normalized.replace(/^\d+\s+/, '').startsWith(dateWords(event.decision_date)+' Bank of Japan Change in the Guideline for Money Market Operations'))
     return {outcome:'UNRESOLVED',error_category:'decision_date_not_proven'};
   const match=normalized.match(/The Bank will encourage the uncollateralized overnight call rate to remain at around\s+(\d{1,2}(?:\.\d{1,2})?)\s+percent\b/i);
   if(!match)return {outcome:'UNRESOLVED',error_category:'target_guideline_not_proven'};
   if(Number(match[1])!==event.expected_percent)
-    return {outcome:'MISMATCH',error_category:'announced_rate_conflicts_with_source'};
+    return {outcome:'UNRESOLVED',error_category:'announced_rate_conflicts_with_source'};
   const footnote=normalized.match(/new guideline for money market operations will be effective from\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),\s+(20\d\d)/i);
   if(!footnote)return {outcome:'UNRESOLVED',error_category:'effective_date_not_proven'};
   const effective=new Date(footnote[1]+' '+footnote[2]+', '+footnote[3]+' 00:00:00 GMT');
   if(Number.isNaN(effective.valueOf())||effective.toISOString().slice(0,10)!==event.effective_date)
-    return {outcome:'MISMATCH',error_category:'effective_date_conflicts_with_source'};
+    return {outcome:'UNRESOLVED',error_category:'effective_date_conflicts_with_source'};
   return {outcome:'PUBLISHER_DECISION_EVENT_SAMPLE',error_category:null,
     decision_date:event.decision_date,effective_date:event.effective_date,
     effective_date_source:'BOJ_ORIGINAL_STATEMENT_FOOTNOTE',
@@ -79,10 +90,17 @@ export async function probeBoj2026Pdfs(transport=fetch,delay=async()=>{},extract
         receipt={...common,outcome:'UNRESOLVED',error_category:oversize?'oversize_pdf':'pdf_body_read_failed'};break;}
       const pdf=Buffer.concat(chunks);
       if(pdf.subarray(0,5).toString('ascii')!=='%PDF-'){
-        receipt={...common,outcome:'UNRESOLVED',error_category:'missing_pdf_magic'};break;}
-      let text=null;try{text=extractText(pdf);}catch{}
-      if(!text){receipt={...common,outcome:'UNRESOLVED',error_category:'pdf_text_extraction_unavailable'};break;}
-      receipt={...common,...verifyBojPdfDecision(text,event)};break;
+        receipt={...common,outcome:'UNRESOLVED',error_category:'malformed_pdf'};break;}
+      let extraction;
+      try {
+        extraction = extractText(pdf);
+      } catch {
+        extraction = {error_category: 'pdf_text_extraction_failed'};
+      }
+      receipt = extraction.text === undefined
+        ? {...common, outcome: 'UNRESOLVED', error_category: extraction.error_category}
+        : {...common, ...verifyBojPdfDecision(extraction.text, event)};
+      break;
     }
     output.events.push({source_url:event.url,expected_decision_date:event.decision_date,
       ...(receipt??{outcome:'UNRESOLVED',error_category:'no_receipt'})});
