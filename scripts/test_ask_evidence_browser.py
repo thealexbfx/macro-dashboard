@@ -80,7 +80,7 @@ def main():
         page.unroute("**/api/v2/observations/" + chosen + "?*")
 
         search = page.get_by_role("searchbox", name="Search datasets")
-        search.fill("US Consumer Price Index (CPI)")
+        search.fill("CPIAUCSL")
         expect(chooser.locator('option[value="cpi"]')).to_be_attached()
         chooser.select_option("cpi")
         page.get_by_label("Calculation", exact=True).select_option("percent")
