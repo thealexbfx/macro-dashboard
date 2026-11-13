@@ -88,8 +88,14 @@ jobs:
             > "$RUNNER_TEMP/macrolens-g7-cpi/live-status.json"
           echo "### Original-publisher development refresh" >> "$GITHUB_STEP_SUMMARY"
           echo "Process exit status: $status. This is a development connectivity/ingestion attempt, not historical or commercial verification." >> "$GITHUB_STEP_SUMMARY"
-          # Keep source failures visible in the evidence. This separate audit job is
-          # intentionally non-gating because publisher networks can be unavailable.
+          if [ "$status" -ne 0 ]; then
+            echo "::warning title=Official CPI staging incomplete::One or more original publisher series failed. Review the artifact official-refresh.log and live-status.json; a green audit job is NOT approval."
+            echo "**INCOMPLETE:** one or more official series could not be staged. Do not treat this job as successful historical verification." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "All configured series staged in a disposable database; rights, independent history verification and production approval remain pending." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          # This diagnostic audit remains non-gating because original publishers
+          # can be temporarily unavailable; the artifact retains the true status.
           exit 0
       - name: Preserve audited development receipts
         if: always()
