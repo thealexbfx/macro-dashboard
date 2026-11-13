@@ -894,6 +894,17 @@ def observation_range(
 
 @app.post("/api/v2/compare", response_model=ComparisonResponse)
 def comparison(req: ComparisonRequest):
+    market_registry = MarketRegistry()
+    withheld = [
+        key
+        for key in req.datasets
+        if key in SPECS and market_observations_withheld(market_registry.get(key))
+    ]
+    if withheld:
+        raise HTTPException(
+            403,
+            f"{MARKET_RIGHTS_MESSAGE} Affected datasets: {', '.join(withheld)}.",
+        )
     try:
         with analytical_workload.enter():
             if any(k in public_catalog.native.publications for k in req.datasets):

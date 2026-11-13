@@ -22,8 +22,8 @@
       "depends_on": [
         "catalog"
       ],
-      "status": "PARTIAL",
-      "acceptance": "Run six CPI staging adapters, expand original-source backfills and collect immutable receipts for all feasible indicators"
+      "status": "SIX_CPI_SERIES_STAGED_BROADER_G7_PENDING",
+      "acceptance": "Verify incremental CPI refresh and expand original-source historical staging with per-series receipts."
     },
     {
       "id": "today",
@@ -728,12 +728,71 @@
       "public_grants": 0,
       "live_series_staged_locally": 0,
       "live_blocker": "network_or_tls_failure for each series from this environment",
-      "hosted_run_to_inspect": 43350274332
+      "last_inspected_hosted_receipt": {
+        "run_id": 43352059108,
+        "artifact_id": 14004117705,
+        "head": "2a79d8032c24cb61c9eabbea6fd8f87f4109bc2d",
+        "refresh_exit_status": 0,
+        "observations_staged": 4278,
+        "explicit_publisher_nulls": 984,
+        "commercial_rights": "PENDING",
+        "production_approved": false,
+        "series": [
+          {
+            "id": "ca_cpi_all_items_nsa",
+            "observations": 1353,
+            "first_period": "1914-01",
+            "first_observation": "1914-01",
+            "last_period": "2026-09",
+            "explicit_nulls": 0
+          },
+          {
+            "id": "ca_cpi_median_yoy",
+            "observations": 441,
+            "first_period": "1949-01",
+            "first_observation": "1990-01",
+            "last_period": "2026-09",
+            "explicit_nulls": 492
+          },
+          {
+            "id": "ca_cpi_trim_yoy",
+            "observations": 441,
+            "first_period": "1949-01",
+            "first_observation": "1990-01",
+            "last_period": "2026-09",
+            "explicit_nulls": 492
+          },
+          {
+            "id": "jp_cpi_all_items_2025_nsa",
+            "observations": 681,
+            "first_period": "1970-01",
+            "first_observation": "1970-01",
+            "last_period": "2026-09",
+            "explicit_nulls": 0
+          },
+          {
+            "id": "jp_cpi_ex_fresh_food_2025_nsa",
+            "observations": 681,
+            "first_period": "1970-01",
+            "first_observation": "1970-01",
+            "last_period": "2026-09",
+            "explicit_nulls": 0
+          },
+          {
+            "id": "jp_cpi_ex_fresh_food_energy_2025_nsa",
+            "observations": 681,
+            "first_period": "1970-01",
+            "first_observation": "1970-01",
+            "last_period": "2026-09",
+            "explicit_nulls": 0
+          }
+        ]
+      }
     },
     "browser_blocker": "Local Chromium failed to create its Unix singleton socket. Hosted browser acceptance remains required.",
     "next": [
-      "Read latest PR-head Research validation jobs and the isolated CPI artifact, including live-status.json and official-refresh.log.",
-      "If Canadian CPI still fails, use the exact source error and archive limits before changing parsing. Validate six complete histories with per-series coverage and null counts.",
+      "Inspect hosted Research validation jobs, including browser acceptance.",
+      "Validate an incremental refresh against the six-series CPI baseline and reconcile coverage and revisions before any promotion.",
       "Expand official G7 backfills, reconcile BOJ regimes, and document rights per exact source.",
       "Validate Discovery thresholds and streaks on historical official inputs, broaden grounded Ask and test saved research compatibility in the browser.",
       "Run staged release and rollback acceptance before requesting any production approval."
