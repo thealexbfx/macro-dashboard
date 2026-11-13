@@ -14,17 +14,25 @@ def parse_selected(entry, body):
     release, series = entry["source"]["selector"].split("/")
     d = definition(entry)
     points, metadata, active = [], {}, False
+    if not zipfile.is_zipfile(io.BytesIO(body)):
+        raise ValueError("Federal Reserve response is not a ZIP archive; no observations accepted")
     with zipfile.ZipFile(io.BytesIO(body)) as archive:
         files = archive.infolist()
         ceiling = 192 if release in {"G17", "H41"} else 96
         if len(files) > 48 or sum(f.file_size for f in files) > ceiling * 1024 * 1024:
             raise ValueError("Federal Reserve ZIP exceeds bounded expansion")
-        with archive.open(f"{release}_data.xml") as source:
+        member = f"{release}_data.xml"
+        if member not in archive.namelist():
+            raise ValueError(
+                f"Federal Reserve ZIP missing exact {member} member; "
+                "publisher format must be reviewed before ingestion"
+            )
+        with archive.open(member) as source:
             # Standard ElementTree does not resolve external entities; reject DTDs.
             prefix = source.read(2048)
             if b"<!DOCTYPE" in prefix or b"<!ENTITY" in prefix:
                 raise ValueError("Unexpected XML document declarations")
-        with archive.open(f"{release}_data.xml") as source:
+        with archive.open(member) as source:
             root = None
             for event, element in ET.iterparse(source, events=("start", "end")):
                 tag = element.tag.split("}")[-1]
