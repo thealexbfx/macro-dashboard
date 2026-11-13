@@ -5,6 +5,7 @@ import {request, type Dataset} from '../lib/contracts';
 import {relativeChange, summarizeObservations} from '../lib/ask-evidence';
 
 type Preview = {dataset: Dataset};
+type CatalogMatches = {items: Dataset[]};
 // A client-side precaution, not a commercial-use licence or server-side rights gate.
 const eligible = (dataset: Dataset) => !/yahoo|yfinance/i.test(
     [dataset.source, dataset.provider, dataset.source_url, dataset.primary_source_url].join(' ')
@@ -12,6 +13,10 @@ const eligible = (dataset: Dataset) => !/yahoo|yfinance/i.test(
 
 export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse: () => void}) {
     const [id, setId] = useState('');
+    const [query, setQuery] = useState('');
+    const [matches, setMatches] = useState<Dataset[]>([]);
+    const [searchStatus, setSearchStatus] = useState('');
+    const [chosen, setChosen] = useState<Dataset>();
     const [mode, setMode] = useState<'difference' | 'percent'>('difference');
     const [result, setResult] = useState<Preview | null>(null);
     const [pending, setPending] = useState(false);
@@ -19,8 +24,30 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
     const active = useRef<AbortController | null>(null);
     useEffect(() => () => active.current?.abort(), []);
 
+    const term = query.trim();
+    useEffect(() => {
+        if (!term) return;
+        const controller = new AbortController();
+        const timer = window.setTimeout(() => {
+            request<CatalogMatches>(`catalog?query=${encodeURIComponent(term)}&limit=30`, undefined, controller.signal)
+                .then(({items}) => {
+                    if (controller.signal.aborted) return;
+                    const visible = items.filter(eligible);
+                    setMatches(visible);
+                    setSearchStatus(visible.length ? '' : 'No matching datasets available for Ask.');
+                })
+                .catch(() => {
+                    if (!controller.signal.aborted) setSearchStatus('Dataset search is unavailable. Try another search.');
+                });
+        }, 250);
+        return () => {window.clearTimeout(timer); controller.abort();};
+    }, [term]);
+
+    const options = new Map((term ? matches : datasets.filter(eligible)).map(dataset => [dataset.id, dataset]));
+    if (chosen && !options.has(chosen.id)) options.set(chosen.id, chosen);
+
     async function calculate() {
-        if (!datasets.some(dataset => dataset.id === id && eligible(dataset))) return;
+        if (!options.has(id)) return;
         active.current?.abort();
         const controller = new AbortController();
         active.current = controller;
@@ -42,7 +69,7 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
 
     const evidence = result && summarizeObservations(result.dataset.observations ?? []);
     const percent = evidence && relativeChange(evidence);
-    const selected = datasets.find(dataset => dataset.id === id);
+    const selected = options.get(id);
     const supportsPercent = (dataset: Dataset | undefined) =>
         dataset?.allowed_transformations.includes('percent') === true;
     const sourceUrl = result?.dataset.primary_source_url || result?.dataset.source_url;
@@ -50,13 +77,24 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
         <h1>Ask MacroLens</h1>
         <p>What changed between the two most recent usable observations?</p>
         <form onSubmit={event => {event.preventDefault(); if (id) void calculate();}}>
+            <label htmlFor="ask-search">Search datasets</label>{' '}
+            <input id="ask-search" type="search" maxLength={200} value={query} onChange={event => {
+                const next = event.target.value;
+                if (next.trim() !== term) {
+                    setMatches([]);
+                    setSearchStatus(next.trim() ? 'Searching datasets…' : '');
+                }
+                setQuery(next);
+            }}/>{' '}
+            {term && <span role="status">{searchStatus}</span>}
             <label htmlFor="ask-dataset">Dataset</label>{' '}
             <select id="ask-dataset" value={id} onChange={event => {
                 active.current?.abort();
+                setChosen(options.get(event.target.value));
                 setId(event.target.value); setMode('difference'); setResult(null); setError(''); setPending(false);
             }}>
                 <option value="">Choose a dataset</option>
-                {datasets.filter(eligible).map(dataset => <option key={dataset.id} value={dataset.id}>{dataset.name}</option>)}
+                {Array.from(options.values(), dataset => <option key={dataset.id} value={dataset.id}>{dataset.name}</option>)}
             </select>{' '}
             <label htmlFor="ask-calculation">Calculation</label>{' '}
             <select id="ask-calculation" value={mode} onChange={event =>

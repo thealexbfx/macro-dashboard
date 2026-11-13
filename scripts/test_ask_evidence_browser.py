@@ -87,9 +87,18 @@ def main():
         expect(page.get_by_label("Calculation", exact=True)).to_have_value("difference")
         expect(page.get_by_role("option", name="Relative percentage change")).to_have_count(0)
 
+        # An exact ID outside the initial catalog page can be found and used.
+        outside = "fixture_catalog_250"
+        expect(chooser.locator(f'option[value="{outside}"]')).to_have_count(0)
+        page.get_by_role("searchbox", name="Search datasets").fill(outside)
+        expect(chooser.locator(f'option[value="{outside}"]')).to_be_attached()
+        chooser.select_option(outside)
+        page.get_by_role("button", name="Show evidence").click()
+        expect(page.get_by_text("Dataset " + outside, exact=False)).to_be_visible()
+
         assert not errors, errors
         print(json.dumps({
-            "ask_browser_checks": 10, "passed": True,
+            "ask_browser_checks": 16, "passed": True,
             "selected_fixture_dataset": chosen, "screenshots": 1, "page_errors": errors,
         }))
         browser.close()
