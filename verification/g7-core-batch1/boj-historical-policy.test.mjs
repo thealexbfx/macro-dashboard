@@ -18,7 +18,7 @@ const statement = (date, body, record = row(date)) => {
 const parse = (date, body) => parseDecision(statement(date, body), row(date));
 const table = (year, rows) => '<table><caption>Statements on Monetary Policy ' + year +
   '</caption><tr><th>Date</th><th>Title</th></tr>' +
-  rows.map(label => '<tr><td>' + label + '</td><td>Decision</td></tr>').join('') + '</table>';
+  rows.map(label => '<tr><td>' + label + '</td><td><a href="decision.htm">Decision</a></td></tr>').join('') + '</table>';
 
 test('early call rate and zero-rate guidance preserve the distinction between a level and an instruction', () => {
   const result = parse('1998-09-09', 'The Bank of Japan will encourage the uncollateralized overnight call rate to move on average around 0.25%.');
@@ -91,6 +91,19 @@ test('publisher archive de-duplicates dates and rejects unexpected dates or shap
   assert.equal(archiveDates(table(2026, ['Oct. 30, 2025']), 2026), null);
   assert.equal(archiveDates(table(2026, ['Feb. 30, 2026']), 2026), null);
   assert.equal(archiveDates('<h1>Bank of Japan</h1>', 2026), null);
+});
+
+test('publisher annual table without caption uses heading and linked titles', () => {
+  const html = '<h1>Statements on Monetary Policy 2024</h1>' +
+    '<table><thead><tr><th>Date</th><th>Title</th></tr></thead><tbody>' +
+    '<tr><td>Dec.&nbsp;19,&nbsp;2024</td><td><a href="k241219a.htm">Statement on Monetary Policy</a></td></tr>' +
+    '<tr><td>Dec. 19, 2024</td><td><a href="reference.pdf">Reference</a></td></tr>' +
+    '<tr><td>Mar. 19, 2024</td><td><a href="k240319a.htm">Changes in the Framework</a></td></tr>' +
+    '</tbody></table>';
+  assert.deepEqual(archiveDates(html, 2024), ['2024-03-19','2024-12-19']);
+  assert.equal(archiveDates(html.replace('<h1>Statements on Monetary Policy 2024</h1>', ''), 2024), null);
+  assert.equal(archiveDates(html.replace('href="k240319a.htm"', 'data-url="k240319a.htm"'), 2024), null);
+  assert.equal(archiveDates(html + html, 2024), null);
 });
 
 test('transport receipts stay bounded, sanitized and partial even when a year reconciles', async () => {
