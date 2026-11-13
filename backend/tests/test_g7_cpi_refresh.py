@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from backend.app.ingestion.catalog_refresh import CatalogRefresh
+from backend.app.ingestion.official_snapshots import safe_url, download
 from backend.app.ingestion.contracts import ProviderError
 from backend.app.ingestion.g7_cpi import JP_LIST, JP_TITLE, configuration
 from scripts.g7_cpi_refresh import open_workspace, report
@@ -84,3 +85,41 @@ def test_native_cpi_refresh_preserves_last_good_and_revisions(tmp_path):
 def test_development_cli_requires_initialized_workspace(tmp_path):
     with pytest.raises(ValueError, match="dedicated initialized"):
         open_workspace(tmp_path)
+
+
+def test_official_cpi_allowlist_is_exact_and_https_only():
+    for url in (
+        "https://www150.statcan.gc.ca/n1/tbl/csv/18100004-eng.zip",
+        "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1810000401",
+        JP_LIST,
+        "https://www.e-stat.go.jp/en/stat-search/files?stat_infid=1234",
+    ):
+        assert safe_url(url) == url
+    for url in (
+        "http://www150.statcan.gc.ca/n1/tbl/csv/18100004-eng.zip",
+        "https://www150.statcan.gc.ca.evil.example/n1/tbl/csv/18100004-eng.zip",
+        "https://www.e-stat.go.jp.evil.example/en/stat-search/files",
+        "https://www.e-stat.go.jp:444/en/stat-search/files",
+        "https://www.e-stat.go.jp/en/stat-search/files?token=secret",
+    ):
+        with pytest.raises(ProviderError, match="unapproved_official_host"):
+            safe_url(url)
+
+
+def test_statcan_large_zip_budget_is_restricted_to_exact_table_path():
+    class Response(io.BytesIO):
+        headers = {}
+        def geturl(self):
+            return "https://www150.statcan.gc.ca/n1/tbl/csv/18100004-eng.zip"
+
+    class Opener:
+        def open(self, request, timeout=None):
+            return Response(b"test-bytes")
+
+    body, _ = download(
+        "https://www150.statcan.gc.ca/n1/tbl/csv/18100004-eng.zip",
+        maximum=32 * 1024**2, opener=Opener(),
+    )
+    assert body == b"test-bytes"
+    with pytest.raises(ValueError, match="Unsafe download bounds"):
+        download(JP_LIST, maximum=32 * 1024**2, opener=Opener())
