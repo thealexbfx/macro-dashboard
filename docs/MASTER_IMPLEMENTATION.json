@@ -6,16 +6,16 @@
     {
       "id": "baseline",
       "depends_on": [],
-      "status": "INTEGRATED_UNVERIFIED",
-      "acceptance": "Run existing frontend/backend build and browser acceptance on this integration head"
+      "status": "LOCAL_BUILD_AND_TESTS_BROWSER_PENDING",
+      "acceptance": "Confirm exact-head hosted validation and run browser acceptance against the disposable synthetic catalog"
     },
     {
       "id": "catalog",
       "depends_on": [
         "baseline"
       ],
-      "status": "INHERITED_REQUIRES_VALIDATION",
-      "acceptance": "Compare exact public IDs and validate representative data and saved research using isolated state"
+      "status": "EXACT_RELEASE_IDS_CHECKED",
+      "acceptance": "194 release-catalog IDs match the product base. Confirm exact IDs through the staged release API and reopen representative saved research"
     },
     {
       "id": "g7",
@@ -30,8 +30,8 @@
       "depends_on": [
         "catalog"
       ],
-      "status": "PARTIAL",
-      "acceptance": "Verify timestamps, freshness and disable unsupported market feeds through centralized rights gating"
+      "status": "MARKET_RIGHTS_HOLD_IMPLEMENTED",
+      "acceptance": "Confirm available observations and timestamps in the browser, and review exact-source terms before enabling withheld market data"
     },
     {
       "id": "research",
@@ -46,8 +46,8 @@
       "depends_on": [
         "research"
       ],
-      "status": "PARTIAL",
-      "acceptance": "Verify V2 detection and add threshold and streak coverage with historical backtests"
+      "status": "STREAKS_IMPLEMENTED_BACKTEST_PENDING",
+      "acceptance": "Confirm latest-session streaks and existing anomaly thresholds against representative historical official inputs"
     },
     {
       "id": "ask",
@@ -718,6 +718,25 @@
         "title": "G7 Core Phase B / Batch 1: verify 35 official series in read-only GitHub workflow",
         "state": "open"
       }
+    ]
+  },
+  "checkpoint": {
+    "previous_head": "0ecfd6b8bba0f0b16b5392d4de8469c09a1cbcfe",
+    "development_cpi": {
+      "excerpt_series": 6,
+      "excerpt_observations": 54,
+      "public_grants": 0,
+      "live_series_staged_locally": 0,
+      "live_blocker": "network_or_tls_failure for each series from this environment",
+      "hosted_run_to_inspect": 43350274332
+    },
+    "browser_blocker": "Local Chromium failed to create its Unix singleton socket. Hosted browser acceptance remains required.",
+    "next": [
+      "Read latest PR-head Research validation jobs and the isolated CPI artifact, including live-status.json and official-refresh.log.",
+      "If Canadian CPI still fails, use the exact source error and archive limits before changing parsing. Validate six complete histories with per-series coverage and null counts.",
+      "Expand official G7 backfills, reconcile BOJ regimes, and document rights per exact source.",
+      "Validate Discovery thresholds and streaks on historical official inputs, broaden grounded Ask and test saved research compatibility in the browser.",
+      "Run staged release and rollback acceptance before requesting any production approval."
     ]
   }
 }

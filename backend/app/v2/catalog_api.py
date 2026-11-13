@@ -5,6 +5,12 @@ from dataclasses import asdict
 from datetime import date
 
 from backend.app.catalog.manifest import Manifest
+from backend.app.registry.market_rights import (
+    MARKET_RIGHTS_CODE,
+    MARKET_RIGHTS_MESSAGE,
+    market_observations_withheld,
+)
+from backend.app.registry.markets import MarketRegistry
 from backend.app.v2.definitions import SPECS
 from backend.app.v2.integrity import assess_freshness
 
@@ -13,15 +19,22 @@ class PublicCatalog:
     def __init__(self, legacy, stored, native):
         self.legacy, self.stored, self.native = legacy, stored, native
         self.manifest = Manifest.load()
+        self.markets = MarketRegistry()
 
     def metadata(self, key):
         if key in SPECS:
+            withheld = market_observations_withheld(self.markets.get(key))
             return {
                 "catalog_evidence": self.manifest.get(key)["rights"],
                 **asdict(SPECS[key]),
                 "observations": [],
                 "status": "unavailable",
-                "message": "Load observations on demand",
+                "message": MARKET_RIGHTS_MESSAGE
+                if withheld
+                else "Load observations on demand",
+                "release_metadata": {"source_error_code": MARKET_RIGHTS_CODE}
+                if withheld
+                else {},
                 "latest_value": None,
                 "latest_observation_date": None,
                 "change": None,
@@ -113,7 +126,10 @@ class PublicCatalog:
             return self.native.observations(
                 key, start, end, limit=limit, offset=offset, preview=preview
             )
-        if key not in SPECS:
+        if market_observations_withheld(self.markets.get(key)) and key in SPECS:
+            d = self.metadata(key)
+            points, more = [], False
+        elif key not in SPECS:
             d = self.stored.get(key).model_dump()
             points = [
                 o for o in d.pop("observations") if str(start) <= o["date"] <= str(end)
@@ -130,7 +146,9 @@ class PublicCatalog:
                 self.legacy.get(key)
             order = "DESC" if preview else "ASC"
             with self.legacy.store.connection() as db:
-                db.execute("BEGIN")  # Metadata and points must use the same cache revision.
+                db.execute(
+                    "BEGIN"
+                )  # Metadata and points must use the same cache revision.
                 meta = db.execute(
                     "SELECT json_remove(payload,'$.observations') FROM source_cache WHERE id=?",
                     (key,),

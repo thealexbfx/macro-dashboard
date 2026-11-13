@@ -19,7 +19,12 @@ from backend.app.v2.ai_guard import (
     BudgetBlocked,
 )
 from backend.app.v2.definitions import SPECS
-from backend.app.v2.dynamic_scan import detect_change, grouped, raw_preview
+from backend.app.v2.dynamic_scan import (
+    daily_streak,
+    detect_change,
+    grouped,
+    raw_preview,
+)
 from backend.app.v2.followups import suggestions
 from backend.app.v2.history import HistoricalLibrary, similarity
 from backend.app.v2.main import (
@@ -696,3 +701,45 @@ def test_cross_process_scan_lease_never_returns_raw_candidate_identities(
     store.release("scan", "other-process")
     updated = r.get()
     assert updated["findings"][0]["id"] == initial["findings"][0]["id"]
+
+
+def test_discovery_rights_filter_keeps_persisted_market_evidence(tmp_path):
+    store = Store(tmp_path / "rights.sqlite3")
+    with store.connection(True) as db:
+        for key in ("gold", "cpi"):
+            snapshot = json.dumps({"datasets": [key]})
+            db.execute(
+                "INSERT INTO stories VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (key, key, "", "", "", "", "Archived", 1, snapshot, "", "", "[]"),
+            )
+            db.execute(
+                "INSERT INTO library VALUES (?,?,?,?,?)",
+                (key, key, "", '{"finding":' + snapshot + "}", ""),
+            )
+
+    memory = DiscoveryMemory(store, withheld=("gold",))
+    library = HistoricalLibrary(store, transform, withheld=("gold",))
+    assert memory.counts()["archived"] == 1
+    assert [row["id"] for row in memory.summaries(limit=1)["items"]] == ["cpi"]
+    assert memory.list(identity="gold") == []
+    assert library.count() == 1
+    assert library.records([], limit=1, offset=1) == []
+    with store.connection() as db:
+        assert db.execute("SELECT COUNT(*) FROM stories").fetchone()[0] == 2
+        assert db.execute("SELECT COUNT(*) FROM library").fetchone()[0] == 2
+
+
+def test_daily_streak_stops_at_missing_flat_and_opposite_moves():
+    dates = pd.to_datetime(
+        ["2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-09"]
+    )
+    for prior in (0, np.nan, 1):
+        values = pd.Series([-1, -1, prior, -2, -3], index=dates)
+        assert daily_streak(values) == {
+            "direction": "down",
+            "sessions": 2,
+            "first_move_date": "2026-11-06",
+            "last_move_date": "2026-11-09",
+        }
+    assert daily_streak(pd.Series([1, 2, 3, 4, 0], index=dates)) is None
+    assert daily_streak(pd.Series([1, 2, 3, 4, np.nan], index=dates)) is None
