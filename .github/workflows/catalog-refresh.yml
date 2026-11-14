@@ -11,13 +11,17 @@ on:
 permissions:
   contents: read
 jobs:
-  combined_512m:
+  combined_capacity:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         datasets: [20, 50, 70, 100, 150, 164]
+        memory_mib: [512]
+        include:
+          - datasets: 164
+            memory_mib: 768
     steps:
       - uses: actions/checkout@v4
       - name: Build production-Python validation image
@@ -30,14 +34,14 @@ jobs:
           mkfs.ext4 -F "$RUNNER_TEMP/refresh-disk.img"
           sudo mount -o loop "$RUNNER_TEMP/refresh-disk.img" "$RUNNER_TEMP/refresh-disk"
           trap 'sudo umount "$RUNNER_TEMP/refresh-disk"' EXIT
-          docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
+          docker run --rm --memory=${{ matrix.memory_mib }}m --memory-swap=${{ matrix.memory_mib }}m --cpus=0.5 --network=none \
             -e TMPDIR=/disposable -v "$RUNNER_TEMP/refresh-disk:/disposable" \
             -v "$RUNNER_TEMP/refresh:/results" --entrypoint python catalog-refresh \
-            -m scripts.validate_catalog_refresh --datasets ${{ matrix.datasets }} --output /results/capacity.json
+            -m scripts.validate_catalog_refresh --datasets ${{ matrix.datasets }} --memory-mib ${{ matrix.memory_mib }} --output /results/capacity.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: catalog-refresh-${{ matrix.datasets }}
+          name: catalog-refresh-${{ matrix.datasets }}-${{ matrix.memory_mib }}m
           path: ${{ runner.temp }}/refresh/
           retention-days: 7
   official_sources:

@@ -26,15 +26,16 @@ def main():
     parser.add_argument(
         "--datasets", type=int, choices=(20, 50, 70, 100, 150, 164), required=True
     )
+    parser.add_argument("--memory-mib", type=int, choices=(512, 768), default=512)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     with tempfile.TemporaryDirectory(
         prefix="macrolens-refresh-disposable-"
     ) as directory:
-        run(Path(directory), args.datasets, args.output)
+        run(Path(directory), args.datasets, args.output, memory_mib=args.memory_mib)
 
 
-def run(root, count, output):
+def run(root, count, output, *, memory_mib=512):
     database = root / "disposable.sqlite3"
     os.environ.update(
         MACROLENS_V2_STATE_DB=str(database),
@@ -478,7 +479,7 @@ def run(root, count, output):
     }
     if result["cgroup"]["available"]:
         cg = result["cgroup"]
-        assert cg["memory_max"] == 512 * 1024 * 1024 and cg["swap_max"] == 0
+        assert cg["memory_max"] == memory_mib * 1024 * 1024 and cg["swap_max"] == 0
         assert cg["cpu_max"] == "50000 100000"
         assert cg["memory_events"].get("oom_kill", 0) == 0
         result["capacity_headroom_bytes"] = cg["memory_max"] - cg["memory_peak"]
