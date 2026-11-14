@@ -21,6 +21,23 @@ from threading import Event, Thread
 from scripts.linux_cgroup import snapshot
 
 
+def memory_sample():
+    status = Path("/proc/self/status")
+    rss = next(
+        (int(line.split()[1]) * 1024 for line in status.read_text().splitlines()
+         if line.startswith("VmRSS:")),
+        None,
+    ) if status.exists() else None
+    cgroup = snapshot()
+    stats = cgroup.get("memory_stat", {})
+    return {
+        "process_rss_bytes": rss,
+        "cgroup_current_bytes": cgroup.get("memory_current"),
+        "cgroup_anon_bytes": stats.get("anon"),
+        "cgroup_file_bytes": stats.get("file"),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -277,8 +294,18 @@ def run(root, count, output, *, memory_mib=512):
     keeper.execute("PRAGMA journal_mode=WAL")
     started, cpu = time.perf_counter(), time.process_time()
 
+    memory_samples = [{"elapsed_seconds": 0, **memory_sample()}]
+
     def sample():
+        next_memory_sample = started + 1
         while not stop.wait(0.05):
+            now = time.perf_counter()
+            if now >= next_memory_sample:
+                memory_samples.append({
+                    "elapsed_seconds": round(now - started, 3),
+                    **memory_sample(),
+                })
+                next_memory_sample = now + 1
             for label, suffix in (("db", ""), ("wal", "-wal"), ("shm", "-shm")):
                 p = Path(str(database) + suffix)
                 sizes[label] = max(sizes[label], p.stat().st_size if p.exists() else 0)
@@ -485,6 +512,8 @@ def run(root, count, output, *, memory_mib=512):
         result["capacity_headroom_bytes"] = cg["memory_max"] - cg["memory_peak"]
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2) + "\n")
+    trace = output.with_name(f"{output.stem}-memory.json")
+    trace.write_text(json.dumps(memory_samples, indent=2) + "\n")
     print(json.dumps(result), flush=True)
     keeper.close()
 

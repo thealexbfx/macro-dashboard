@@ -19,9 +19,17 @@ jobs:
       matrix:
         datasets: [20, 50, 70, 100, 150, 164]
         memory_mib: [512]
+        trial: [1]
         include:
           - datasets: 164
             memory_mib: 768
+            trial: 1
+          - datasets: 164
+            memory_mib: 512
+            trial: 2
+          - datasets: 164
+            memory_mib: 768
+            trial: 2
     steps:
       - uses: actions/checkout@v4
       - name: Build production-Python validation image
@@ -41,7 +49,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: catalog-refresh-${{ matrix.datasets }}-${{ matrix.memory_mib }}m
+          name: catalog-refresh-${{ matrix.datasets }}-${{ matrix.memory_mib }}m-trial-${{ matrix.trial }}
           path: ${{ runner.temp }}/refresh/
           retention-days: 7
   official_sources:
