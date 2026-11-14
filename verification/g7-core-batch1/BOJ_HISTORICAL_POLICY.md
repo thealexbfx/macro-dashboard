@@ -1,6 +1,6 @@
 # Bank of Japan historical monetary policy candidate
 
-This development audit covers 40 selected original decisions through October 30, 2026. The BOJ annual statement indexes for 2024–2026 supply an independent date census for the March 2024 onward framework. Date reconciliation is a narrower claim than full historical or instrument coverage. Run #22 verified two 2026 statements in the earlier verifier. The new historical audit awaits a hosted run.
+This development audit covers 42 selected original decisions through October 30, 2026. The BOJ annual statement indexes for 2024–2026 supply an independent date census for the March 2024 onward framework. Date reconciliation is a narrower claim than full historical or instrument coverage. Run #22 verified two 2026 statements in the earlier verifier. The new historical audit awaits a hosted run.
 
 ## Source inventory
 
@@ -25,7 +25,7 @@ This development audit covers 40 selected original decisions through October 30,
 | October 2010 to April 2013 | Comprehensive easing combined a 0–0.1% overnight call range and asset purchases. | Introduction only. Asset purchase and intervening guidelines remain open. |
 | April 2013 to January 2016 | QQE targeted annual monetary-base growth, initially around ¥60–70 trillion per year. | Introduction and October 2014 expansion. Other decisions and instruments remain open. |
 | January to September 2016 | QQE plus a −0.1% rate on a tier of BOJ current-account balances, effective February 16, 2016. | Negative-rate anchor. Concurrent monetary-base and tier changes need separate reconstruction. |
-| September 2016 to March 2024 | YCC combined a −0.1% policy-balance rate and around 0% 10-year JGB yield target. Later bands, fixed-rate offers and references had distinct roles. | Introduction, December 2022 and July/October 2023 changes, and January 2024 snapshot. Earlier YCC modifications, including 2018 and 2021, and the full meeting census remain open. |
+| September 2016 to March 2024 | YCC combined a −0.1% policy-balance rate and around 0% 10-year JGB yield target. Later bands, fixed-rate offers and references had distinct roles. | Introduction, July 2018 qualitative flexibility, March 2021 clarification of the ±0.25 percentage-point band, December 2022 and July/October 2023 changes, and January 2024 snapshot. The full meeting census and intervening decisions remain open. |
 | March 19, 2024 onward | Short-term rate again the main tool. Announced call range 0–0.1%, effective March 21. Subsequent announced increases to 0.25%, 0.50%, 0.75%, 1.00% and 1.25%. | 22 selected statements, including intervening reaffirmations, through October 30, 2026. Audit reconciles listed dates and independently tests source text and supported effective dates. |
 
 September 9, 1998 is a defensible starting anchor for the reconstructed decision history. March 19, 2024 is the candidate start for a contiguous modern call-guideline segment, subject to hosted reconciliation and an independent coverage review. Keep event-level regimes, instruments, and qualifiers. A scalar series that crosses reserve quantity, reserve-tier rates and JGB yield targeting would change economic meaning. A future call-guideline view can preserve point guidance, ranges and qualitative guidance with gaps during regimes where no comparable call target applies.

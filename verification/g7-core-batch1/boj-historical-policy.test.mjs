@@ -29,7 +29,9 @@ test('early call rate and zero-rate guidance preserve the distinction between a 
   assert.equal(zirp.targets[0].value, null);
   assert.equal(zirp.targets[1].qualifier, 'INITIAL_GUIDANCE_ONLY');
   assert.equal(zirp.targets[1].value, 0.15);
-  assert.equal(parse('2006-03-09', call.replace('around ', 'effectively zero percent.')).targets[0].qualifier, 'EFFECTIVELY_ZERO');
+  const zero = parse('2006-03-09', call.replace('around ', 'effectively zero percent.'));
+  assert.equal(zero.targets[0].qualifier, 'EFFECTIVELY_ZERO');
+  assert.equal(zero.targets[0].value, null);
 });
 
 test('QE and QQE retain their own units, amounts, and ranges', () => {
@@ -148,4 +150,18 @@ test('YCC yield targets, reference bands and purchase offers use separate instru
     ['BOJ_POLICY_RATE_BALANCES', -0.1], ['JGB_10Y_YIELD_TARGET', 0], ['JGB_10Y_YIELD_UPPER_REFERENCE', 1],
   ]);
   assert.equal(parse('2023-10-31', basics + reference.replace('1.0', '0.5')).verification_status, 'UNRESOLVED');
+});
+
+test('YCC flexibility in 2018 and the clarified 2021 band retain different qualifiers', () => {
+  const basics = 'The Bank will apply a negative interest rate of minus 0.1 percent to the Policy-Rate Balances. 10-year JGB yields will remain at around zero percent. ';
+  const flexible = parse('2018-07-31', basics + 'The yields may move upward and downward to some extent.');
+  assert.equal(flexible.verification_status, 'DOCUMENT_VERIFIED');
+  assert.equal(flexible.targets[2].qualifier, 'QUALITATIVE_FLEXIBILITY');
+  assert.equal(flexible.targets[2].value, null);
+  const band = 'The range of 10-year Japanese government bond yield fluctuations would be between around plus and minus 0.25 percent from the target level.';
+  const clarified = parse('2021-03-19', basics + band);
+  assert.equal(clarified.verification_status, 'DOCUMENT_VERIFIED');
+  assert.equal(clarified.targets[2].value, 0.25);
+  assert.equal(clarified.targets[2].unit, 'percentage_points');
+  assert.equal(parse('2021-03-19', basics + band.replace('0.25', '0.50')).verification_status, 'UNRESOLVED');
 });

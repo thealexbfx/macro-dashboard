@@ -97,8 +97,8 @@ export function parseDecision(raw, row) {
       target('OVERNIGHT_CALL_RATE', initial, percentage, 'INITIAL_GUIDANCE_ONLY'),
     ];
   } else if (rule === 'zero') {
-    if (new RegExp(callPrefix + 'remain at effectively zero percent', 'i').test(text)) parsed = 0;
-    targets = [target('OVERNIGHT_CALL_RATE', parsed, percentage, 'EFFECTIVELY_ZERO')];
+    if (new RegExp(callPrefix + 'remain at effectively zero percent', 'i').test(text)) parsed = 'EFFECTIVELY_ZERO';
+    targets = [target('OVERNIGHT_CALL_RATE', null, percentage, 'EFFECTIVELY_ZERO')];
   } else if (rule === 'reserves') {
     parsed = uniqueMatch(text, reservePattern, asNumberOrRange);
     targets = [target('BOJ_CURRENT_ACCOUNT_BALANCES', parsed, 'trillion_jpy', 'AROUND')];
@@ -115,6 +115,18 @@ export function parseDecision(raw, row) {
     if (rule.startsWith('ycc') && rate !== undefined && [...text.matchAll(yccPattern)].length) {
       parsed = [rate, 0];
       targets.push(target('JGB_10Y_YIELD_TARGET', 0, percentage, 'AROUND'));
+      if (rule === 'ycc_qualitative_flex') {
+        const flexibility = /yields may move upward and downward to some extent/i.test(text);
+        parsed.push(flexibility);
+        targets.push(target('JGB_10Y_YIELD_DEVIATION', null, 'percentage_points', 'QUALITATIVE_FLEXIBILITY'));
+      }
+      if (rule === 'ycc_clarified_band') {
+        const band = uniqueMatch(text,
+          /yield fluctuations would be between around plus and minus (\d+(?:\.\d+)?) percent from the target level/gi,
+          asNumberOrRange);
+        parsed.push(band);
+        targets.push(target('JGB_10Y_YIELD_DEVIATION', band, 'percentage_points', 'SYMMETRIC_BAND'));
+      }
       if (rule === 'ycc_band' || rule === 'ycc_flex') {
         const pattern = rule === 'ycc_band'
           ? /to between around plus and minus (\d+(?:\.\d+)?) percentage points/gi
@@ -151,7 +163,7 @@ export function parseDecision(raw, row) {
 }
 
 async function retrieve(file, transport, delay, extract) {
-  if (!/^(?:state_\d{4}\/(?:index|k\d+[a-z]?)\.htm|mpr_\d{4}\/k\d+[a-z]?\.(?:htm|pdf))$/.test(file)) {
+  if (!/^(?:state_\d{4}\/(?:index\.htm|k\d+[a-z]?\.(?:htm|pdf))|mpr_\d{4}\/k\d+[a-z]?\.(?:htm|pdf))$/.test(file)) {
     throw new Error('Invalid BOJ manifest path');
   }
   const pdf = file.endsWith('.pdf');
