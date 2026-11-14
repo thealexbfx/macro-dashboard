@@ -1,0 +1,140 @@
+{
+  "release_snapshots": [
+    {
+      "producer": "Statistics Canada",
+      "url": "https://www150.statcan.gc.ca/n1/daily-quotidien/261019/dq261019a-eng.pdf",
+      "release": "2026-10-19",
+      "licence": "https://www.statcan.gc.ca/en/terms-conditions/open-licence",
+      "series": [
+        {
+          "id": "ca.cpi.all_items.nsa",
+          "selector": "18-10-0004-01; Canada; All-items; index",
+          "units": "2002=100",
+          "adjustment": "NSA",
+          "months": [
+            "2025-09",
+            "2026-08",
+            "2026-09"
+          ],
+          "row": "<tr><td><strong>All-items</strong></td><td><strong>164.9</strong></td><td><strong>169.8</strong></td><td><strong>170.0</strong></td><td><strong>0.1</strong></td><td><strong>3.1</strong></td></tr>",
+          "cells": "html",
+          "expected": "170.0"
+        },
+        {
+          "id": "ca.cpi.median.yoy",
+          "selector": "18-10-0256-01; Canada; CPI-median; year-over-year change",
+          "units": "percent YoY",
+          "adjustment": "Derived from seasonally adjusted component series",
+          "months": [
+            "2026-04",
+            "2026-05",
+            "2026-06",
+            "2026-07",
+            "2026-08",
+            "2026-09"
+          ],
+          "row": "| CPI-median⁴,⁶ | 2.1 | 2.1 | 1.9 | 2.0 | 2.0 | 1.9 |",
+          "cells": "markdown",
+          "expected": "1.9"
+        },
+        {
+          "id": "ca.cpi.trim.yoy",
+          "selector": "18-10-0256-01; Canada; CPI-trim; year-over-year change",
+          "units": "percent YoY",
+          "adjustment": "Derived from seasonally adjusted component series",
+          "months": [
+            "2026-04",
+            "2026-05",
+            "2026-06",
+            "2026-07",
+            "2026-08",
+            "2026-09"
+          ],
+          "row": "| CPI-trim⁴,⁷ | 2.0 | 2.0 | 1.9 | 1.9 | 1.9 | 1.8 |",
+          "cells": "markdown",
+          "expected": "1.8"
+        }
+      ]
+    },
+    {
+      "producer": "Statistics Bureau of Japan",
+      "url": "https://www.stat.go.jp/data/cpi/sokuhou/tsuki/pdf/zenkoku.pdf",
+      "release": "2026-10-23",
+      "licence": "https://www.stat.go.jp/english/info/riyou.html",
+      "series": [
+        {
+          "id": "jp.cpi.all_items.2025.nsa",
+          "selector": "September 2026 national CPI release, Table 1; All items; index",
+          "units": "2025=100",
+          "adjustment": "NSA",
+          "months": [
+            "2025-09",
+            "2025-10",
+            "2025-11",
+            "2025-12",
+            "2026-01",
+            "2026-02",
+            "2026-03",
+            "2026-04",
+            "2026-05",
+            "2026-06",
+            "2026-07",
+            "2026-08",
+            "2026-09"
+          ],
+          "row": "100.1 100.7 101.0 100.9 100.8 100.2 100.6 101.0 101.5 101.6 102.0 102.2 102.2",
+          "cells": "whitespace",
+          "expected": "102.2"
+        },
+        {
+          "id": "jp.cpi.ex_fresh_food.2025.nsa",
+          "selector": "September 2026 national CPI release, Table 1; All items less fresh food; index",
+          "units": "2025=100",
+          "adjustment": "NSA",
+          "months": [
+            "2025-09",
+            "2025-10",
+            "2025-11",
+            "2025-12",
+            "2026-01",
+            "2026-02",
+            "2026-03",
+            "2026-04",
+            "2026-05",
+            "2026-06",
+            "2026-07",
+            "2026-08",
+            "2026-09"
+          ],
+          "row": "100.1 100.7 101.1 100.9 100.7 100.2 100.7 101.1 101.6 101.7 102.1 102.0 102.3",
+          "cells": "whitespace",
+          "expected": "102.3"
+        },
+        {
+          "id": "jp.cpi.ex_fresh_food_energy.2025.nsa",
+          "selector": "September 2026 national CPI release, Table 1; All items less fresh food and energy; index",
+          "units": "2025=100",
+          "adjustment": "NSA",
+          "months": [
+            "2025-09",
+            "2025-10",
+            "2025-11",
+            "2025-12",
+            "2026-01",
+            "2026-02",
+            "2026-03",
+            "2026-04",
+            "2026-05",
+            "2026-06",
+            "2026-07",
+            "2026-08",
+            "2026-09"
+          ],
+          "row": "100.4 101.1 101.2 101.1 101.0 101.1 101.4 101.4 101.6 101.7 102.1 102.5 102.8",
+          "cells": "whitespace",
+          "expected": "102.8"
+        }
+      ]
+    }
+  ]
+}

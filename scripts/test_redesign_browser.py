@@ -118,7 +118,10 @@ def main():
             expect(page.get_by_role('heading',name='My Research',exact=True)).to_be_visible()
             nav.get_by_role('button',name='Research',exact=True).click()
         page.get_by_label('Help and availability').click()
-        expect(page.get_by_text('AI is not active.',exact=False)).to_be_visible()
+        # Ask now offers bounded, source-grounded observation comparisons,
+        # rather than the former inactive AI placeholder.
+        expect(page.get_by_text('Research with observed data',exact=True)).to_be_visible()
+        expect(page.get_by_role('button',name='Ask MacroLens',exact=True)).to_be_visible()
         page.get_by_label('Help and availability').click()
         assert not errors, errors
         print(json.dumps(dict(redesign_phase=phase,passed=True,primary_sections=4,home_markets=3,page_errors=errors)))

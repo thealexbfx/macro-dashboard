@@ -1,0 +1,861 @@
+{
+  "issue": 77,
+  "product_base": "861735c72d1629798ecd962af70a3b442dddb8a5",
+  "g7_verifier_base": "3fed4817bde54b4b4cbf775e90c023c2da543351",
+  "tasks": [
+    {
+      "id": "baseline",
+      "depends_on": [],
+      "status": "HOSTED_RESEARCH_VALIDATION_PASSED",
+      "acceptance": "Confirm exact-head hosted validation and run browser acceptance against the disposable synthetic catalog"
+    },
+    {
+      "id": "catalog",
+      "depends_on": [
+        "baseline"
+      ],
+      "status": "EXACT_RELEASE_IDS_CHECKED",
+      "acceptance": "194 release-catalog IDs match the product base. Confirm exact IDs through the staged release API and reopen representative saved research"
+    },
+    {
+      "id": "g7",
+      "depends_on": [
+        "catalog"
+      ],
+      "status": "SIX_CPI_SERIES_REPEAT_VERIFIED_BROADER_G7_PENDING",
+      "acceptance": "Verify handling of the next actual CPI release and expand original-source historical staging with per-series receipts."
+    },
+    {
+      "id": "today",
+      "depends_on": [
+        "catalog"
+      ],
+      "status": "MARKET_RIGHTS_HOLD_IMPLEMENTED",
+      "acceptance": "Confirm available observations and timestamps in the browser, and review exact-source terms before enabling withheld market data"
+    },
+    {
+      "id": "research",
+      "depends_on": [
+        "catalog"
+      ],
+      "status": "INHERITED_REQUIRES_VALIDATION",
+      "acceptance": "Test range changes, indexed comparison, filters, alignment, holiday gaps and favorites"
+    },
+    {
+      "id": "discovery",
+      "depends_on": [
+        "research"
+      ],
+      "status": "STREAKS_IMPLEMENTED_BACKTEST_PENDING",
+      "acceptance": "Confirm latest-session streaks and existing anomaly thresholds against representative historical official inputs"
+    },
+    {
+      "id": "ask",
+      "depends_on": [
+        "catalog"
+      ],
+      "status": "PARTIAL",
+      "acceptance": "Browser-test observation evidence and expand grounded questions using existing validated comparison receipts"
+    },
+    {
+      "id": "saved",
+      "depends_on": [
+        "research"
+      ],
+      "status": "INHERITED_REQUIRES_VALIDATION",
+      "acceptance": "Run migration, conflict and export scenarios without changing saved IDs"
+    },
+    {
+      "id": "trust",
+      "depends_on": [
+        "g7",
+        "today"
+      ],
+      "status": "BLOCKED_FOR_PROMOTION",
+      "acceptance": "Collect exact-source rights, provenance, complete histories and approval before commercial promotion"
+    },
+    {
+      "id": "reliability",
+      "depends_on": [
+        "baseline",
+        "research",
+        "ask",
+        "saved"
+      ],
+      "status": "OPEN",
+      "acceptance": "Run typecheck, lint, build, browser and backend suites, then measure performance and audit isolation"
+    },
+    {
+      "id": "release",
+      "depends_on": [
+        "trust",
+        "reliability",
+        "discovery"
+      ],
+      "status": "DISPOSABLE_REHEARSAL_PASSED_CAPACITY_HEADROOM_OPEN",
+      "acceptance": "Validate operator runbook, release and rollback in a disposable environment and obtain approval before production"
+    }
+  ],
+  "inventory": {
+    "branches": [
+      "audit/g7-official-data-foundation",
+      "audit/production-ux-quality",
+      "chore/boj-2006-2008-queue-audit",
+      "chore/boj-archive-contract-audit",
+      "chore/boj-archive-parser-audit",
+      "chore/boj-gap-audit-test-fix",
+      "chore/boj-historical-census-audit",
+      "chore/boj-historical-coverage-audit",
+      "chore/boj-historical-gap-source-audit",
+      "chore/boj-historical-link-coverage-audit",
+      "chore/boj-historical-regex-fix-audit",
+      "chore/boj-link-fixture-fix-audit",
+      "chore/boj-title-classification-audit",
+      "chore/g7-audit-boj-history",
+      "chore/g7-audit-install-poppler",
+      "chore/g7-audit-pin-boj-2026-pdf-decisions",
+      "chore/g7-audit-pin-boj-2026-pdf-events",
+      "chore/g7-audit-pin-boj-metadata-discovery",
+      "chore/g7-audit-pin-boj-observed-samples",
+      "chore/g7-audit-pin-boj-official-unit",
+      "chore/g7-audit-pin-boj-policy-guideline",
+      "chore/g7-audit-pin-boj-policy-history",
+      "chore/g7-audit-pin-boj-resultset-review",
+      "chore/g7-audit-pin-manifest-engine",
+      "chore/g7-audit-pin-ons-diagnostic-testfix",
+      "chore/g7-audit-pin-ons-nested-metadata",
+      "chore/g7-audit-pin-ons-title-fix",
+      "chore/g7-audit-pin-treasury-boj-discovery",
+      "chore/g7-audit-pin-uk-official",
+      "chore/g7-audit-pin-us-ecb",
+      "chore/g7-audit-pin-us-ecb-testfix",
+      "chore/g7-batch1-audit-pin-statcan",
+      "chore/g7-batch1-audit-pin-yield-fix",
+      "chore/g7-ons-schema-diagnostic-audit",
+      "chore/official-cpi-manual-dispatch",
+      "chore/register-g7-core-batch1-audit",
+      "economy-page-refactor",
+      "euro-live-data-expansion",
+      "feature/boj-archive-date-parser",
+      "feature/boj-historical-gap-reconstruction",
+      "feature/discovery-engine-phase1",
+      "feature/discovery-radar-phase2",
+      "feature/discovery-redesign-integration",
+      "feature/g7-boj-2026-pdf-decisions",
+      "feature/g7-boj-2026-pdf-event-receipts",
+      "feature/g7-boj-historical-policy-audit",
+      "feature/g7-boj-historical-policy-decisions",
+      "feature/g7-boj-metadata-discovery",
+      "feature/g7-boj-observed-unit-normalization",
+      "feature/g7-boj-overnight-observed-samples",
+      "feature/g7-boj-pdf-extraction-fix",
+      "feature/g7-boj-policy-guideline-snapshot",
+      "feature/g7-boj-resultset-candidate-review",
+      "feature/g7-core-batch1-verification",
+      "feature/g7-fundamental-data-batch1",
+      "feature/g7-manifest-driven-verifier",
+      "feature/g7-ons-response-diagnostics",
+      "feature/g7-publisher-coverage-us-ecb",
+      "feature/g7-uk-official-coverage",
+      "feature/g7-us-treasury-boj-discovery",
+      "feature/macrolens-21-discover-data",
+      "feature/macrolens-21-library-polish",
+      "feature/macrolens-21-research-charts",
+      "feature/macrolens-21-shell-home",
+      "feature/macrolens-batch0-foundation",
+      "feature/macrolens-catalog-refresh",
+      "feature/macrolens-dataset-suitability-audit",
+      "feature/macrolens-full-dataset-expansion",
+      "feature/macrolens-release-100",
+      "feature/macrolens-universal-refresh",
+      "feature/macrolens-v2",
+      "feature/read-only-research-readiness-audit",
+      "feature/research-journey-complete",
+      "feature/research-journey-foundation",
+      "feature/targeted-readiness-corrections",
+      "fix/research-audit-validation",
+      "main",
+      "market-page-refactor",
+      "rebuild/three-job-product",
+      "redesign/chart-first",
+      "redesign-ui",
+      "refactor-cleanup",
+      "refactor-modules-phase1"
+    ],
+    "pull_requests": [
+      {
+        "number": 76,
+        "title": "Run BOJ 2006–2008 source review queue in manual audit",
+        "head": "chore/boj-2006-2008-queue-audit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 75,
+        "title": "Pin BOJ audit to corrected source-contract test",
+        "head": "chore/boj-archive-contract-audit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 74,
+        "title": "Correct BOJ missing-link audit test fixture",
+        "head": "chore/boj-link-fixture-fix-audit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 73,
+        "title": "Audit BOJ historical document link coverage",
+        "head": "chore/boj-historical-link-coverage-audit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 72,
+        "title": "Re-run BOJ historical audit with corrected regex",
+        "head": "chore/boj-historical-regex-fix-audit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 71,
+        "title": "Audit BOJ historical statement links and cautious title classification",
+        "head": "chore/boj-title-classification-audit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 70,
+        "title": "Register BOJ historical statement coverage audit",
+        "head": "chore/boj-historical-coverage-audit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 69,
+        "title": "Register historical BOJ annual index date audit",
+        "head": "chore/boj-historical-census-audit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 68,
+        "title": "Pin BOJ source audit to corrected test commit",
+        "head": "chore/boj-gap-audit-test-fix",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 67,
+        "title": "Register read-only BOJ historical gap source audit",
+        "head": "chore/boj-historical-gap-source-audit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 66,
+        "title": "Begin BOJ historical gap reconstruction with official-source candidates",
+        "head": "feature/boj-historical-gap-reconstruction",
+        "base": "feature/boj-archive-date-parser",
+        "status": "draft"
+      },
+      {
+        "number": 64,
+        "title": "Register BOJ archive parser audit commit",
+        "head": "chore/boj-archive-parser-audit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 63,
+        "title": "Fix BOJ annual archive date reconciliation parser",
+        "head": "feature/boj-archive-date-parser",
+        "base": "feature/g7-boj-historical-policy-audit",
+        "status": "draft"
+      },
+      {
+        "number": 62,
+        "title": "Register the manual BOJ historical policy audit",
+        "head": "chore/g7-audit-boj-history",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 61,
+        "title": "Reconstruct BOJ monetary-policy history by operating regime",
+        "head": "feature/g7-boj-historical-policy-audit",
+        "base": "feature/g7-boj-pdf-extraction-fix",
+        "status": "draft"
+      },
+      {
+        "number": 60,
+        "title": "Install Poppler for the manual G7 development audit",
+        "head": "chore/g7-audit-install-poppler",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 59,
+        "title": "Fix BOJ 2026 PDF extraction diagnostics",
+        "head": "feature/g7-boj-pdf-extraction-fix",
+        "base": "feature/g7-boj-2026-pdf-event-receipts",
+        "status": "draft"
+      },
+      {
+        "number": 58,
+        "title": "G7 audit: manually check original BOJ 2026 PDF policy decisions",
+        "head": "chore/g7-audit-pin-boj-2026-pdf-events",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 57,
+        "title": "G7 Japan: verify BOJ 2026 PDF policy decisions and explicit effective dates",
+        "head": "feature/g7-boj-2026-pdf-event-receipts",
+        "base": "feature/g7-boj-historical-policy-decisions",
+        "status": "draft"
+      },
+      {
+        "number": 56,
+        "title": "G7 manual audit: check June and September 2026 BOJ policy PDFs",
+        "head": "chore/g7-audit-pin-boj-2026-pdf-decisions",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 55,
+        "title": "G7 Japan: validate BOJ June/September 2026 original PDF decisions and effective dates",
+        "head": "feature/g7-boj-2026-pdf-decisions",
+        "base": "feature/g7-boj-historical-policy-decisions",
+        "status": "draft"
+      },
+      {
+        "number": 54,
+        "title": "G7 manual audit: test two BOJ archived decision records without policy-series approval",
+        "head": "chore/g7-audit-pin-boj-policy-history",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 53,
+        "title": "G7 Japan: independently check original BOJ 2025 policy decisions without inventing history",
+        "head": "feature/g7-boj-historical-policy-decisions",
+        "base": "feature/g7-boj-policy-guideline-snapshot",
+        "status": "draft"
+      },
+      {
+        "number": 52,
+        "title": "G7 audit: check BOJ official monetary-policy target snapshot separately",
+        "head": "chore/g7-audit-pin-boj-policy-guideline",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 51,
+        "title": "G7 Japan: BOJ announced policy guideline snapshot and exact-source review",
+        "head": "feature/g7-boj-policy-guideline-snapshot",
+        "base": "feature/g7-boj-observed-unit-normalization",
+        "status": "draft"
+      },
+      {
+        "number": 50,
+        "title": "G7 audit: test official BOJ percent-per-annum unit fix",
+        "head": "chore/g7-audit-pin-boj-official-unit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 49,
+        "title": "BOJ observed O/N rate: accept official percent-per-annum unit with no rescaling",
+        "head": "feature/g7-boj-observed-unit-normalization",
+        "base": "feature/g7-boj-overnight-observed-samples",
+        "status": "draft"
+      },
+      {
+        "number": 48,
+        "title": "G7 manual audit: check BOJ observed overnight rate without policy mapping",
+        "head": "chore/g7-audit-pin-boj-observed-samples",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 47,
+        "title": "G7 Japan: independently verify BOJ observed overnight call-rate sample",
+        "head": "feature/g7-boj-overnight-observed-samples",
+        "base": "feature/g7-boj-resultset-candidate-review",
+        "status": "draft"
+      },
+      {
+        "number": 46,
+        "title": "G7 manual audit: inspect BOJ official RESULTSET candidate metadata",
+        "head": "chore/g7-audit-pin-boj-resultset-review",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 45,
+        "title": "G7 Japan: inspect official BOJ RESULTSET and review candidate call-rate series codes",
+        "head": "feature/g7-boj-resultset-candidate-review",
+        "base": "feature/g7-boj-metadata-discovery",
+        "status": "draft"
+      },
+      {
+        "number": 44,
+        "title": "G7 development audit: safely inspect BOJ official metadata endpoint",
+        "head": "chore/g7-audit-pin-boj-metadata-discovery",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 43,
+        "title": "G7 Core: read-only BOJ metadata discovery without Japan series approval",
+        "head": "feature/g7-boj-metadata-discovery",
+        "base": "feature/g7-us-treasury-boj-discovery",
+        "status": "draft"
+      },
+      {
+        "number": 42,
+        "title": "G7 development audit: test official US Treasury 10-year series",
+        "head": "chore/g7-audit-pin-treasury-boj-discovery",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 41,
+        "title": "G7 Core: official US Treasury 10Y verifier and BOJ source discovery",
+        "head": "feature/g7-us-treasury-boj-discovery",
+        "base": "feature/g7-ons-response-diagnostics",
+        "status": "draft"
+      },
+      {
+        "number": 40,
+        "title": "G7 audit: rerun ONS verification after schema diagnostic test fix",
+        "head": "chore/g7-audit-pin-ons-diagnostic-testfix",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 39,
+        "title": "G7 audit: test ONS title parser fix grounded in hosted evidence",
+        "head": "chore/g7-audit-pin-ons-title-fix",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 38,
+        "title": "G7 audit: pin manual hosted ONS response-schema diagnostic",
+        "head": "chore/g7-ons-schema-diagnostic-audit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 37,
+        "title": "G7 ONS: emit sanitized response schema diagnostics for unresolved metadata",
+        "head": "feature/g7-ons-response-diagnostics",
+        "base": "feature/g7-uk-official-coverage",
+        "status": "draft"
+      },
+      {
+        "number": 36,
+        "title": "G7 audit: recheck official ONS nested series metadata",
+        "head": "chore/g7-audit-pin-ons-nested-metadata",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 35,
+        "title": "G7 development audit: manually verify first-party UK ONS and BoE adapters",
+        "head": "chore/g7-audit-pin-uk-official",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 34,
+        "title": "G7 Core: UK ONS and Bank of England official-source verification adapters",
+        "head": "feature/g7-uk-official-coverage",
+        "base": "feature/g7-publisher-coverage-us-ecb",
+        "status": "draft"
+      },
+      {
+        "number": 33,
+        "title": "G7 development audit: pin to corrected ECB shared-key test",
+        "head": "chore/g7-audit-pin-us-ecb-testfix",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 32,
+        "title": "G7 development audit: pin hosted run to US BLS and ECB coverage branch",
+        "head": "chore/g7-audit-pin-us-ecb",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 31,
+        "title": "G7 Core: add BLS US CPI/unemployment and shared ECB policy-rate adapters",
+        "head": "feature/g7-publisher-coverage-us-ecb",
+        "base": "feature/g7-manifest-driven-verifier",
+        "status": "draft"
+      },
+      {
+        "number": 30,
+        "title": "G7 audit: pin hosted test to manifest-driven verifier (development)",
+        "head": "chore/g7-audit-pin-manifest-engine",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 29,
+        "title": "G7 Core: manifest-driven verification registry and reusable dispatch",
+        "head": "feature/g7-manifest-driven-verifier",
+        "base": "feature/g7-core-batch1-verification",
+        "status": "draft"
+      },
+      {
+        "number": 28,
+        "title": "G7 core: register hosted Statistics Canada WDS checks (development-only)",
+        "head": "chore/g7-batch1-audit-pin-statcan",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 27,
+        "title": "G7 audit: pin next hosted run to corrected Canadian yield adapter",
+        "head": "chore/g7-batch1-audit-pin-yield-fix",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 26,
+        "title": "Register manual G7 Core Batch 1 development audit",
+        "head": "chore/register-g7-core-batch1-audit",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 25,
+        "title": "G7 Core Phase B / Batch 1 verification harness",
+        "head": "feature/g7-core-batch1-verification",
+        "base": "main",
+        "status": "draft"
+      },
+      {
+        "number": 23,
+        "title": "Register manual official CPI connectivity check",
+        "head": "chore/official-cpi-manual-dispatch",
+        "base": "main",
+        "status": "merged"
+      },
+      {
+        "number": 22,
+        "title": "MacroLens 2.1 (4/4): research library and responsive consistency",
+        "head": "feature/macrolens-21-library-polish",
+        "base": "feature/macrolens-21-research-charts",
+        "status": "draft"
+      },
+      {
+        "number": 21,
+        "title": "MacroLens 2.1 (3/4): progressive Research and coherent charts",
+        "head": "feature/macrolens-21-research-charts",
+        "base": "feature/macrolens-21-discover-data",
+        "status": "draft"
+      },
+      {
+        "number": 20,
+        "title": "MacroLens 2.1 (2/4): concise Discover and search-first data library",
+        "head": "feature/macrolens-21-discover-data",
+        "base": "feature/macrolens-21-shell-home",
+        "status": "draft"
+      },
+      {
+        "number": 19,
+        "title": "MacroLens 2.1 (1/4): design system, navigation and Home",
+        "head": "feature/macrolens-21-shell-home",
+        "base": "feature/research-journey-complete",
+        "status": "draft"
+      },
+      {
+        "number": 18,
+        "title": "Research Journey Product PR 2: investigate, challenge and conclude",
+        "head": "feature/research-journey-complete",
+        "base": "feature/research-journey-foundation",
+        "status": "draft"
+      },
+      {
+        "number": 17,
+        "title": "Research Journey Product PR 1: durable investigation foundation",
+        "head": "feature/research-journey-foundation",
+        "base": "feature/targeted-readiness-corrections",
+        "status": "draft"
+      },
+      {
+        "number": 16,
+        "title": "Correct research readiness and preserve bounded-source refresh history",
+        "head": "feature/targeted-readiness-corrections",
+        "base": "feature/read-only-research-readiness-audit",
+        "status": "draft"
+      },
+      {
+        "number": 15,
+        "title": "Add read-only 194-dataset quality and research readiness audit",
+        "head": "feature/read-only-research-readiness-audit",
+        "base": "feature/macrolens-v2",
+        "status": "draft"
+      },
+      {
+        "number": 14,
+        "title": "Complete monitored public refresh and prepare reviewed 194-dataset catalog",
+        "head": "feature/macrolens-universal-refresh",
+        "base": "feature/macrolens-v2",
+        "status": "merged"
+      },
+      {
+        "number": 13,
+        "title": "Prepare coordinated 100-dataset publication and 70-series automatic refresh",
+        "head": "feature/macrolens-release-100",
+        "base": "feature/macrolens-v2",
+        "status": "merged"
+      },
+      {
+        "number": 12,
+        "title": "Add opt-in catalog ingestion and refresh with explicit publication gates",
+        "head": "feature/macrolens-catalog-refresh",
+        "base": "feature/macrolens-v2",
+        "status": "merged"
+      },
+      {
+        "number": 11,
+        "title": "Integrate 185 datasets and prepare the first gated 13-dataset live release",
+        "head": "feature/macrolens-full-dataset-expansion",
+        "base": "feature/macrolens-v2",
+        "status": "merged"
+      },
+      {
+        "number": 10,
+        "title": "Audit dataset suitability and clarify research-use limitations",
+        "head": "feature/macrolens-dataset-suitability-audit",
+        "base": "feature/macrolens-v2",
+        "status": "merged"
+      },
+      {
+        "number": 9,
+        "title": "Batch 0: permission-aware catalog, native ingestion and research integration",
+        "head": "feature/macrolens-batch0-foundation",
+        "base": "feature/macrolens-v2",
+        "status": "merged"
+      },
+      {
+        "number": 8,
+        "title": "MacroLens V2: dynamic discovery, historical memory and guarded AI research",
+        "head": "feature/macrolens-v2",
+        "base": "redesign-ui",
+        "status": "draft"
+      },
+      {
+        "number": 7,
+        "title": "Integrate Discovery Radar into live chart-first MacroLens",
+        "head": "feature/discovery-redesign-integration",
+        "base": "redesign-ui",
+        "status": "merged"
+      },
+      {
+        "number": 6,
+        "title": "Add interactive Discovery Radar and investigation workflow",
+        "head": "feature/discovery-radar-phase2",
+        "base": "feature/discovery-engine-phase1",
+        "status": "draft"
+      },
+      {
+        "number": 5,
+        "title": "Add Phase 1 discovery analysis foundation",
+        "head": "feature/discovery-engine-phase1",
+        "base": "main",
+        "status": "draft"
+      },
+      {
+        "number": 4,
+        "title": "Make MacroLens chart-first with no typing forms",
+        "head": "redesign/chart-first",
+        "base": "redesign-ui",
+        "status": "merged"
+      },
+      {
+        "number": 3,
+        "title": "Rebuild MacroLens around three daily research jobs",
+        "head": "rebuild/three-job-product",
+        "base": "redesign-ui",
+        "status": "merged"
+      },
+      {
+        "number": 2,
+        "title": "Improve production Streamlit UX and research evidence integrity",
+        "head": "audit/production-ux-quality",
+        "base": "redesign-ui",
+        "status": "merged"
+      },
+      {
+        "number": 1,
+        "title": "Integrate audited research interfaces and resolve test validation failures",
+        "head": "fix/research-audit-validation",
+        "base": "redesign-ui",
+        "status": "merged"
+      }
+    ],
+    "standalone_issues": [
+      {
+        "number": 77,
+        "title": "MacroLens master autonomous implementation — entire platform, G7 data, research tools and release readiness",
+        "state": "open"
+      },
+      {
+        "number": 65,
+        "title": "Reconstruct BOJ 2006–2008 rate decisions and 2016–2024 YCC history",
+        "state": "open"
+      },
+      {
+        "number": 24,
+        "title": "G7 Core Phase B / Batch 1: verify 35 official series in read-only GitHub workflow",
+        "state": "open"
+      }
+    ]
+  },
+  "checkpoint": {
+    "previous_head": "0ecfd6b8bba0f0b16b5392d4de8469c09a1cbcfe",
+    "development_cpi": {
+      "excerpt_series": 6,
+      "excerpt_observations": 54,
+      "public_grants": 0,
+      "live_series_staged_locally": 0,
+      "live_blocker": "network_or_tls_failure for each series from this environment",
+      "last_inspected_hosted_receipt": {
+        "run_id": 43352059108,
+        "artifact_id": 14004117705,
+        "head": "2a79d8032c24cb61c9eabbea6fd8f87f4109bc2d",
+        "refresh_exit_status": 0,
+        "observations_staged": 4278,
+        "explicit_publisher_nulls": 984,
+        "commercial_rights": "PENDING",
+        "production_approved": false,
+        "series": [
+          {
+            "id": "ca_cpi_all_items_nsa",
+            "observations": 1353,
+            "first_period": "1914-01",
+            "first_observation": "1914-01",
+            "last_period": "2026-09",
+            "explicit_nulls": 0
+          },
+          {
+            "id": "ca_cpi_median_yoy",
+            "observations": 441,
+            "first_period": "1949-01",
+            "first_observation": "1990-01",
+            "last_period": "2026-09",
+            "explicit_nulls": 492
+          },
+          {
+            "id": "ca_cpi_trim_yoy",
+            "observations": 441,
+            "first_period": "1949-01",
+            "first_observation": "1990-01",
+            "last_period": "2026-09",
+            "explicit_nulls": 492
+          },
+          {
+            "id": "jp_cpi_all_items_2025_nsa",
+            "observations": 681,
+            "first_period": "1970-01",
+            "first_observation": "1970-01",
+            "last_period": "2026-09",
+            "explicit_nulls": 0
+          },
+          {
+            "id": "jp_cpi_ex_fresh_food_2025_nsa",
+            "observations": 681,
+            "first_period": "1970-01",
+            "first_observation": "1970-01",
+            "last_period": "2026-09",
+            "explicit_nulls": 0
+          },
+          {
+            "id": "jp_cpi_ex_fresh_food_energy_2025_nsa",
+            "observations": 681,
+            "first_period": "1970-01",
+            "first_observation": "1970-01",
+            "last_period": "2026-09",
+            "explicit_nulls": 0
+          }
+        ]
+      },
+      "hosted_repeat_receipt": {
+        "run_id": 43352801924,
+        "artifact_id": 14004448234,
+        "head": "848979862b5509d453984bf52ac2dfd8cbc17552",
+        "refresh_exit_status": 0,
+        "unchanged_series": 6,
+        "observations": 4278,
+        "explicit_publisher_nulls": 984,
+        "revisions": 0,
+        "release_grants": 0,
+        "cross_run_observation_sha256": "62e3d4ba98a0295ee5eb5071085bcbd795772406b1a783acc8fceb9d49f82168",
+        "scope": "Ordered observation identity, values, payload, revision numbers and artifact hashes match the first hosted backfill. Same-release repeat used an advanced development clock."
+      }
+    },
+    "next": [
+      "Measure the full refresh workload with additional memory headroom and verify API behavior under load before release.",
+      "Use the verified CPI baseline to test the next actual publisher release and reconcile revisions. Continue original-source G7 backfills in development.",
+      "Expand official G7 backfills, reconcile BOJ regimes, and document rights per exact source.",
+      "Validate Discovery thresholds and streaks on historical official inputs, broaden grounded Ask and test saved research compatibility in the browser.",
+      "Run staged release and rollback acceptance before requesting any production approval."
+    ],
+    "hosted_dataset_expansion": {
+      "head": "ff6f19196e968f8cffe0d9bcc8a0a24d5f1ffb6f",
+      "run_id": 43354310203,
+      "memory_limit_mib": 512,
+      "representative_datasets": 8,
+      "representative_observations": 34624,
+      "first_release_rehearsal_datasets": 13,
+      "first_release_rehearsal_observations": 9298,
+      "g17": {
+        "id": "fred_848fe5e65c6c554669f1",
+        "selector": "CAPUTL.B50001.S",
+        "observations": 717,
+        "first_period": "1967-01",
+        "last_period": "2026-09",
+        "archive_member": "g17_data.xml"
+      },
+      "production_activated": false
+    },
+    "hosted_release_validation": {
+      "head": "4712672ee52aadd37546b4eac56eb4a851c5b059",
+      "research_run_id": 43356807422,
+      "release": {
+        "run_id": 43356807479,
+        "public": 194,
+        "actual_native_observations": 176383,
+        "p95_ms": 144.71147099993686,
+        "rollback_and_restore_passed": true,
+        "production_access": false
+      },
+      "refresh": {
+        "run_id": 43356807539,
+        "native_datasets": 164,
+        "public_datasets": 194,
+        "capacity_headroom_bytes": 0,
+        "api_p95_ms": 377.383836000007,
+        "api_status": {
+          "200": 4704,
+          "503": 29,
+          "429": 1
+        },
+        "saved_research_preserved": true,
+        "production_access": false
+      },
+      "memory_limit_mib": 512,
+      "refresh_memory_peak_mib": 512,
+      "refresh_oom_kills": 0,
+      "refresh_scope": "SYNTHETIC observations, actual captured row-count profiles and reviewed definitions; offline transport/parser injection"
+    }
+  }
+}

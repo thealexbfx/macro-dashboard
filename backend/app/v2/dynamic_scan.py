@@ -14,7 +14,7 @@ from backend.app.v2.definitions import SPECS
 from backend.app.v2.movements import movement, session_frame
 from backend.app.v2.state import dumps
 
-VERSION = "3.2.2"
+VERSION = "3.2.3"
 MODES = {
     **old.MODES,
     "initial_claims": "percent",
@@ -458,6 +458,26 @@ def grouped(candidates):
     return result
 
 
+def daily_streak(values):
+    """Count consecutive signed session moves ending at the latest observation."""
+    if values.empty or not np.isfinite(values.iloc[-1]) or values.iloc[-1] == 0:
+        return None
+    latest = values.iloc[-1]
+    run = 0
+    for change in reversed(values.to_numpy()):
+        if not np.isfinite(change) or change == 0 or (change > 0) != (latest > 0):
+            break
+        run += 1
+    if run < 2:
+        return None
+    return {
+        "direction": "up" if latest > 0 else "down",
+        "sessions": run,
+        "first_move_date": str(values.index[-run].date()),
+        "last_move_date": str(values.index[-1].date()),
+    }
+
+
 def scan(data, transform_fn, as_of):
     end = as_of - timedelta(days=1)
     sources = {d.id: d for d in data}
@@ -465,6 +485,7 @@ def scan(data, transform_fn, as_of):
     prepared = {}
     excluded = []
     horizon_results = []
+    streaks = []
     for d in data:
         if d.id not in MODES or not eligible(d):
             excluded.append(
@@ -505,6 +526,10 @@ def scan(data, transform_fn, as_of):
         try:
             values, meta, _grid = pattern_values(d, transform_fn, 1, end)
             prepared[d.id] = (values, meta["units"])
+            if d.frequency == "daily":
+                streak = daily_streak(values)
+                if streak:
+                    streaks.append({"dataset": d.id, "name": SHORT[d.id], **streak})
         except (ValueError, KeyError, TypeError):
             pass
     for a, b, why in PAIRS:
@@ -542,6 +567,7 @@ def scan(data, transform_fn, as_of):
     return {
         "findings": grouped(candidates),
         "horizon_results": horizon_results,
+        "daily_streaks": sorted(streaks, key=lambda s: (-s["sessions"], s["dataset"])),
         "as_of": str(as_of),
         "generated_at": pd.Timestamp.now(tz="UTC").isoformat(),
         "methodology_version": VERSION,
@@ -557,6 +583,7 @@ def scan(data, transform_fn, as_of):
         "limitations": old.LIMITATIONS,
         "methodology": {
             "movements": "99th absolute same-horizon empirical midrank, |z|≥2.5, ≥90% completeness; recent-half 97th percentile. Daily 1/5/21/63/252 declared trading-session positions; weekly 1/4/13/52 weeks; monthly 1/3/12 months; quarterly 1/4 quarters. No inferential p-values.",
+            "streaks": "Two or more consecutive same-direction completed daily session moves. Flat moves and missing sessions break the streak.",
             "relationships": "Five original and eight additional predefined pairs; native changes, disjoint windows, coverage, influence and AR(1) screens from Phase 3.1.",
             "ranking": "Magnitude, rarity, sample, completeness, stability, quality, freshness, predeclared relevance and meaningful novelty. Priority is not confidence or economic importance.",
             "calendar": "Known closures are excluded only in the explicit trading-session basis. Actual provider observations override calendar assumptions; unknown gaps retain positions. Compact previews connect known values and disclose missing slots.",

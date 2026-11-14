@@ -6,6 +6,7 @@ partitioning, so changing latest-only APIs cannot mix vintages between pages.
 
 import json
 import math
+import re
 import ssl
 import time
 from dataclasses import asdict
@@ -25,6 +26,8 @@ HOSTS = frozenset(
         "ec.europa.eu",
         "www.ons.gov.uk",
         "api.ons.gov.uk",
+        "www150.statcan.gc.ca",  # Statistics Canada bulk CPI tables
+        "www.e-stat.go.jp",     # Japan Statistics Bureau e-Stat file history
         "data-api.ecb.europa.eu",
         "sdmx.oecd.org",
         "www.bankofengland.co.uk",
@@ -89,7 +92,18 @@ def download(
         and dict(parse_qsl(parsed.query)).get("filetype") == "zip"
         and dict(parse_qsl(parsed.query)).get("rel") in {"G17", "H41"}
     )
-    ceiling = 16 * 1024 * 1024 if large_board_zip else MAX_BYTES
+    # The original Statistics Canada table archives are larger than the
+    # default publisher budget; preserve the 8 MiB limit elsewhere.
+    statcan_cpi_zip = (
+        parsed.hostname == "www150.statcan.gc.ca"
+        and re.fullmatch(r"/n1/tbl/csv/18100(?:004|256)-eng\.zip", parsed.path) is not None
+        and parsed.query == ""
+    )
+    ceiling = (
+        32 * 1024 * 1024 if statcan_cpi_zip
+        else 16 * 1024 * 1024 if large_board_zip
+        else MAX_BYTES
+    )
     if not 1 <= maximum <= ceiling or not 1 <= timeout <= 30:
         raise ValueError("Unsafe download bounds")
     if opener is None:
@@ -256,10 +270,15 @@ class SnapshotAdapter:
         if offset < 0 or offset > len(records):
             raise ProviderError("invalid_snapshot_cursor")
         selected = tuple(records[offset : offset + bounds.records])
-        if (
-            len(json.dumps([asdict(p) for p in selected], default=str).encode())
-            > bounds.response_bytes
-        ):
+        # Release timestamps are datetime values in native observations. Convert
+        # to an exact ISO-8601 string for both page-size accounting and the
+        # stable content fingerprint; json.dumps(default=str) in one path
+        # would otherwise disagree with the digest path.
+        payload = [asdict(point) for point in selected]
+        for row in payload:
+            if row["release_at"] is not None:
+                row["release_at"] = row["release_at"].isoformat()
+        if len(json.dumps(payload).encode()) > bounds.response_bytes:
             raise ProviderError("snapshot_page_limit")
         following = (
             str(offset + len(selected))
@@ -268,7 +287,7 @@ class SnapshotAdapter:
         )
         return Page(
             selected,
-            digest([asdict(p) for p in selected]),
+            digest(payload),
             self.expected_hash,
             data["source_url"],
             datetime.fromisoformat(data["checked_at"]),

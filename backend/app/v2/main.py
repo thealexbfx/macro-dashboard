@@ -15,7 +15,6 @@ from threading import Lock
 from time import monotonic
 from typing import Literal
 from urllib.parse import quote
-from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
@@ -28,6 +27,11 @@ from pydantic import BaseModel, Field
 from backend.app.ingestion.catalog_refresh import CatalogRefreshWorker
 from backend.app.ingestion.runner import IngestionWorker
 from backend.app.registry.markets import MarketRegistry
+from backend.app.registry.market_rights import (
+    MARKET_RIGHTS_CODE,
+    MARKET_RIGHTS_MESSAGE,
+    market_observations_withheld,
+)
 from backend.app.services.direct_answers import PublicTimeSeriesProvider
 from backend.app.v2.ai_guard import AIGuard, BudgetBlocked
 from backend.app.v2.catalog_api import PublicCatalog
@@ -154,14 +158,6 @@ class ComparisonResponse(BaseModel):
 
 
 class V2PublicProvider(PublicTimeSeriesProvider):
-    def __init__(self, timeout_seconds=8, now_fn=None):
-        super().__init__(timeout_seconds)
-        self.now_fn = now_fn or (lambda: datetime.now(UTC))
-        self._metadata = {}
-
-    def metadata(self, key):
-        return self._metadata.get(key, {})
-
     def _get(self, url):
         if url.startswith("https://fred.stlouisfed.org/graph/fredgraph.csv?"):
             response = requests.get(
@@ -191,85 +187,33 @@ class V2PublicProvider(PublicTimeSeriesProvider):
                 )
         return rows
 
-    def market_series(self, spec, start, end):
-        p1 = int(datetime.combine(start, datetime.min.time(), tzinfo=UTC).timestamp())
-        p2 = int(
-            datetime.combine(
-                end + timedelta(days=1), datetime.min.time(), tzinfo=UTC
-            ).timestamp()
-        )
-        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(spec.provider_id, safe='')}?period1={p1}&period2={p2}&interval=1d&events=history"
-        raw = json.loads(self._get(url))
-        chart = raw.get("chart", {})
-        result = (chart.get("result") or [None])[0]
-        if chart.get("error") or not result:
-            raise ValueError(
-                "Yahoo returned no requested instrument; no substitution allowed"
-            )
-        meta = result.get("meta", {})
-        expected_type = "FUTURE" if spec.key in ("gold", "wti") else "INDEX"
-        if (
-            meta.get("symbol") != spec.provider_id
-            or meta.get("instrumentType") != expected_type
-            or meta.get("currency") != "USD"
-        ):
-            raise ValueError(
-                "Yahoo symbol, instrument type or currency does not match registered definition"
-            )
-        try:
-            tz = ZoneInfo(meta["exchangeTimezoneName"])
-        except (KeyError, ValueError) as exc:
-            raise ValueError("Provider-local time zone unavailable") from exc
-        stamps = result.get("timestamp") or []
-        closes = ((result.get("indicators") or {}).get("quote") or [{}])[0].get(
-            "close"
-        ) or []
-        if len(stamps) != len(closes):
-            raise ValueError("Yahoo timestamp/close length mismatch")
-        now = self.now_fn()
-        rows = []
-        kept = []
-        for stamp, close in zip(stamps, closes):
-            instant = datetime.fromtimestamp(stamp, tz=UTC)
-            day = instant.astimezone(tz).date()
-            if (
-                start <= day <= end
-                and day < now.astimezone(tz).date()
-                and instant.date() < now.date()
-            ):
-                rows.append((day, None if close is None else float(close)))
-                kept.append(instant.isoformat())
-        self._metadata[spec.key] = {
-            "symbol": meta.get("symbol"),
-            "exchange": meta.get("fullExchangeName"),
-            "instrument_type": meta.get("instrumentType"),
-            "currency": meta.get("currency"),
-            "timezone": meta.get("exchangeTimezoneName"),
-            "contract_label": meta.get("shortName"),
-            "regular_quote_timestamp": datetime.fromtimestamp(
-                meta["regularMarketTime"], tz=UTC
-            ).isoformat()
-            if meta.get("regularMarketTime")
-            else None,
-            "regular_quote_value": meta.get("regularMarketPrice"),
-            "last_completed_bar_timestamp": kept[-1] if kept else None,
-            "close_field": "indicators.quote.close (unadjusted); no adjclose or settlement substitution",
-            "date_convention": "Provider-local daily bar label, not an exchange settlement timestamp",
-        }
-        return rows
-
 
 class DataService:
     def __init__(self, provider=None, today_fn=None, ttl=900):
         self.provider = provider or V2PublicProvider(timeout_seconds=8)
+        self.markets = MarketRegistry()
         self.today_fn = today_fn or (lambda: datetime.now(UTC).date())
         self.ttl = ttl
         self.cache = {}
         self.lock = Lock()
 
+    def withheld_dataset(self, key):
+        if market_observations_withheld(self.markets.get(key)):
+            return Dataset(
+                **asdict(SPECS[key]),
+                status="unavailable",
+                message=MARKET_RIGHTS_MESSAGE,
+                release_metadata={"source_error_code": MARKET_RIGHTS_CODE},
+            )
+        return None
+
     def get(self, key):
         if key not in SPECS:
             raise ValueError("Unknown dataset ID")
+        if isinstance(self.provider, PublicTimeSeriesProvider):
+            withheld = self.withheld_dataset(key)
+            if withheld is not None:
+                return withheld
         with self.lock:
             cached = self.cache.get(key)
             if cached and monotonic() - cached[0] < (
@@ -284,7 +228,7 @@ class DataService:
             rows = (
                 self.provider.fred_series(spec.provider_id, start, end)
                 if spec.source.startswith("FRED")
-                else self.provider.market_series(MarketRegistry().get(key), start, end)
+                else self.provider.market_series(self.markets.get(key), start, end)
             )
             frame, quality_warnings = validate_frame(rows, spec)
             frame = frame[
@@ -566,7 +510,18 @@ def compare(service, req):
     for d, spec in zip(data, specs):
         frame = clean(pd.DataFrame([o.model_dump() for o in d.observations]))
         frame = frame[frame.date <= pd.Timestamp(req.end)]
-        input_receipts.append(input_receipt(d.model_dump(exclude={"observations"}), [{"date": str(r.date.date()), "value": None if pd.isna(r.value) else float(r.value)} for r in frame.itertuples()]))
+        input_receipts.append(
+            input_receipt(
+                d.model_dump(exclude={"observations"}),
+                [
+                    {
+                        "date": str(r.date.date()),
+                        "value": None if pd.isna(r.value) else float(r.value),
+                    }
+                    for r in frame.itertuples()
+                ],
+            )
+        )
         raw[spec.id] = [
             o for o in d.observations if str(req.start) <= o.date <= str(req.end)
         ]
@@ -939,6 +894,17 @@ def observation_range(
 
 @app.post("/api/v2/compare", response_model=ComparisonResponse)
 def comparison(req: ComparisonRequest):
+    market_registry = MarketRegistry()
+    withheld = [
+        key
+        for key in req.datasets
+        if key in SPECS and market_observations_withheld(market_registry.get(key))
+    ]
+    if withheld:
+        raise HTTPException(
+            403,
+            f"{MARKET_RIGHTS_MESSAGE} Affected datasets: {', '.join(withheld)}.",
+        )
     try:
         with analytical_workload.enter():
             if any(k in public_catalog.native.publications for k in req.datasets):
@@ -962,7 +928,14 @@ def health():
 
 
 # Additive V2 Discovery endpoint; older comparison requests retain native defaults.
-discovery_service = DynamicDiscovery(service, transform, state_store)
+discovery_service = DynamicDiscovery(
+    service,
+    transform,
+    state_store,
+    withheld=tuple(
+        s.key for s in MarketRegistry().specs if market_observations_withheld(s)
+    ),
+)
 ai_guard = AIGuard(state_store)
 # Disabled by default, independently of AI. Only the three internal pilot datasets.
 ingestion_worker = IngestionWorker(

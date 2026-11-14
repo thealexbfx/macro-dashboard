@@ -44,6 +44,9 @@ def scheduled_service_class(base, dataset_class):
         def get(self, key):
             if key not in SPECS:
                 raise ValueError("Unknown dataset ID")
+            withheld = self.withheld_dataset(key)
+            if withheld is not None:
+                return withheld
             with self.key_locks[key]:
                 now = self.now_fn()
                 with self.store.connection() as db:
