@@ -14,7 +14,9 @@
       "event": "OPERATING_TARGET_SWITCH_FROM_CURRENT_ACCOUNT_BALANCES",
       "source_url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2006/k060309.htm",
       "source_type": "ORIGINAL_POLICY_DECISION",
-      "status": "SOURCE_TEXT_VERIFIED"
+      "status": "ORIGINAL_DOCUMENT_MANUALLY_REVIEWED",
+      "effective_date": null,
+      "effective_date_status": "NOT_STATED_IN_REVIEWED_GUIDELINE"
     },
     {
       "date": "2006-07-14",
@@ -22,10 +24,12 @@
       "target_label": "around 0.25 percent",
       "instrument": "UNCOLLATERALIZED_OVERNIGHT_CALL_RATE",
       "event": "TARGET_INCREASE",
-      "source_url": "https://www.boj.or.jp/en/research/brp/ron_2007/ron0707c.htm",
-      "source_type": "ORIGINAL_PUBLISHER_RESEARCH_SUMMARY",
-      "decision_url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2006/k060714.pdf",
-      "status": "PUBLISHER_SUMMARY_VERIFIED_DECISION_DOCUMENT_REVIEW_PENDING"
+      "source_url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2006/k060714.pdf",
+      "source_type": "ORIGINAL_POLICY_DECISION",
+      "status": "ORIGINAL_DOCUMENT_MANUALLY_REVIEWED",
+      "corroborating_url": "https://www.boj.or.jp/en/research/brp/ron_2007/ron0707c.htm",
+      "effective_date": "2006-07-14",
+      "effective_date_status": "IMMEDIATE_PER_DECISION"
     },
     {
       "date": "2007-02-21",
@@ -33,10 +37,12 @@
       "target_label": "around 0.5 percent",
       "instrument": "UNCOLLATERALIZED_OVERNIGHT_CALL_RATE",
       "event": "TARGET_INCREASE",
-      "source_url": "https://www.boj.or.jp/en/research/brp/ron_2007/ron0707c.htm",
-      "source_type": "ORIGINAL_PUBLISHER_RESEARCH_SUMMARY",
-      "decision_url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2007/k070221.pdf",
-      "status": "PUBLISHER_SUMMARY_VERIFIED_DECISION_DOCUMENT_REVIEW_PENDING"
+      "source_url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2007/k070221.pdf",
+      "source_type": "ORIGINAL_POLICY_DECISION",
+      "status": "ORIGINAL_DOCUMENT_MANUALLY_REVIEWED",
+      "corroborating_url": "https://www.boj.or.jp/en/research/brp/ron_2007/ron0707c.htm",
+      "effective_date": "2007-02-21",
+      "effective_date_status": "IMMEDIATE_PER_DECISION"
     },
     {
       "date": "2008-10-31",
@@ -46,7 +52,9 @@
       "event": "TARGET_DECREASE",
       "source_url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2008/k081031.pdf",
       "source_type": "ORIGINAL_POLICY_DECISION",
-      "status": "ORIGINAL_DOCUMENT_MANUALLY_REVIEWED"
+      "status": "ORIGINAL_DOCUMENT_MANUALLY_REVIEWED",
+      "effective_date": "2008-10-31",
+      "effective_date_status": "IMMEDIATE_PER_DECISION"
     },
     {
       "date": "2008-12-19",
@@ -56,7 +64,9 @@
       "event": "TARGET_DECREASE",
       "source_url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2008/k081219.pdf",
       "source_type": "ORIGINAL_POLICY_DECISION",
-      "status": "ORIGINAL_DOCUMENT_MANUALLY_REVIEWED"
+      "status": "ORIGINAL_DOCUMENT_MANUALLY_REVIEWED",
+      "effective_date": "2008-12-19",
+      "effective_date_status": "IMMEDIATE_PER_DECISION"
     }
   ],
   "independent_reconciliation": [
