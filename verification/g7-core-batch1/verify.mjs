@@ -39,7 +39,7 @@ export function parseManifest(csv) {
 }
 
 const limit = 65536;
-async function boundedJson(response) {
+async function boundedJson(response, maxBytes) {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let size = 0;
@@ -49,7 +49,7 @@ async function boundedJson(response) {
       const {value, done} = await reader.read();
       if (done) return JSON.parse(body + decoder.decode());
       size += value.byteLength;
-      if (size > limit) throw new RangeError('response_too_large');
+      if (size > maxBytes) throw new RangeError('response_too_large');
       body += decoder.decode(value, {stream: true});
     }
   } finally {
@@ -57,7 +57,7 @@ async function boundedJson(response) {
   }
 }
 
-async function request(url, transport, delay) {
+async function request(url, transport, delay, maxBytes = limit) {
   for (let attempt = 1; attempt <= 3; attempt++) {
     await delay(attempt * 1000);
     let response;
@@ -77,7 +77,7 @@ async function request(url, transport, delay) {
       return {...receipt, error: 'http_' + response.status};
     }
     try {
-      return {...receipt, payload: await boundedJson(response)};
+      return {...receipt, payload: await boundedJson(response, maxBytes)};
     } catch (error) {
       if (error instanceof SyntaxError) return {...receipt, error: 'invalid_json'};
       if (error instanceof RangeError) return {...receipt, error: 'response_too_large'};
@@ -86,13 +86,13 @@ async function request(url, transport, delay) {
   }
 }
 
-export async function verify(row, transport = fetch, delay = sleep) {
+export async function verify(row, transport = fetch, delay = sleep, {valetHistory = false} = {}) {
   const id = row.mapping_id;
   const shared = euroPolicy.has(id);
   const spec = getSeriesSpec(id);
   const series = spec?.adapter === 'boc-valet' ? spec.seriesId : null;
   const expectedLabel = series ? new RegExp(spec.expectedLabel, 'i') : null;
-  const url = series ? 'https://www.bankofcanada.ca/valet/observations/' + series + '/json?recent=5' : null;
+  const url = series ? 'https://www.bankofcanada.ca/valet/observations/' + series + (valetHistory ? '/json' : '/json?recent=5') : null;
   const result = {
     mapping_id: id, publisher: row.proposed_original_publisher,
     canonical_series_key: shared ? 'ECB-POLICY-RATE' : id,
@@ -116,7 +116,7 @@ export async function verify(row, transport = fetch, delay = sleep) {
   if (spec?.adapter === 'us-treasury-xml') return verifyTreasury(row, result, spec, transport, delay);
   if (!url) return result;
 
-  const {payload, error, ...receipt} = await request(url, transport, delay);
+  const {payload, error, ...receipt} = await request(url, transport, delay, valetHistory ? 4 * 1024 * 1024 : limit);
   Object.assign(result, receipt);
   if (error) {
     const invalid = error === 'invalid_json';
@@ -136,6 +136,31 @@ export async function verify(row, transport = fetch, delay = sleep) {
   result.metadata = {label: clean(metadata.label), description: clean(metadata.description)};
   result.definition = result.metadata.description || result.metadata.label;
   result.identity_status = 'MATCHED';
+  if (valetHistory) {
+    const points = [];
+    const dates = new Set();
+    if (metadata.metadata?.unit !== 'Percent' || metadata.metadata?.frequency !== 'Business daily') {
+      return {...result, error_category: 'history_metadata_mismatch'};
+    }
+    for (const item of payload.observations) {
+      const period = item?.d;
+      const day = typeof period === 'string' ? new Date(period) : null;
+      const value = item?.[series]?.v;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(period ?? '') || !Number.isFinite(day?.getTime()) ||
+          day.toISOString().slice(0, 10) !== period || dates.has(period) ||
+          (value !== null && !(typeof value === 'string' && /^-?\d+(\.\d+)?$/.test(value) && value.length <= 24))) {
+        return {...result, error_category: 'invalid_history_observation'};
+      }
+      dates.add(period);
+      points.push({period, value});
+    }
+    points.sort((a, b) => a.period.localeCompare(b.period));
+    if (!points.some(point => point.value !== null)) return {...result, error_category: 'no_usable_observations'};
+    return {...result, outcome: 'VERIFIED', verification_scope: 'PUBLISHER_HISTORY_RESPONSE',
+      history_status: 'PUBLISHER_RESPONSE_CAPTURED', frequency: 'Business daily', unit: 'Percent',
+      observations: points, first_evidenced: points[0].period, last_evidenced: points.at(-1).period,
+      error_category: null};
+  }
   const observations = payload.observations.flatMap(item => {
     const value = item?.[series]?.v;
     return typeof item?.d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.d) &&

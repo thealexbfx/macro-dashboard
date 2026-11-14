@@ -83,3 +83,16 @@ Adds candidate `G7-US-23` using the **U.S. Treasury's own monthly XML Atom feed*
 The Bank of Japan launched its publicly accessible time-series API in February 2026. The Japan policy-rate mapping is **not added** because an overnight money-market *observed* rate is not automatically equivalent to the Bank's announced policy target. Exact series IDs and concept comparison must first be verified against original BOJ metadata. See `BOJ_TREASURY_SOURCE_REVIEW.md` for source URLs, definition distinctions and future checks.
 
 Historical coverage, original release vintages, source attribution, third-party market-data provenance, commercial display/export and production signoff remain entirely pending. No secrets, schedules, production writes or deployment hooks have been added.
+
+### Canadian daily history capture
+
+Run `node verification/g7-core-batch1/capture-valet-history.mjs /path/to/new-disposable-directory` to capture the complete response returned by each configured Valet endpoint and write dated observation receipts. The default batch verifier still reports recent samples. The history command validates the exact series identity, publisher unit and frequency, calendar dates, duplicate dates and numeric values. It preserves explicit publisher nulls and leaves rights and production approval pending.
+
+Original publisher responses taken on 14 November 2026 and parsed locally:
+
+| Mapping | Publisher series | First date | Last date | Observations | Nulls |
+|---|---|---|---|---:|---:|
+| G7-CA-22 | V39079 | 2009-04-21 | 2026-11-12 | 4,569 | 0 |
+| G7-CA-23 | BD.CDN.10YR.DQ.YLD | 2001-01-02 | 2026-11-12 | 6,467 | 0 |
+
+Source SHA-256 values in table order are `fe8fff3310e578f518137e93eb75114b53d44af78d5f51883a6d5b19910dab86` and `077df5492c3e427bfcabc484e191bca48e31e8be091aaf2b2418748e9c8a4492`. The policy history starts where this Valet series starts. Earlier policy frameworks and independently reconciled coverage remain separate work.
