@@ -27,6 +27,9 @@ HOSTS = frozenset(
         "www.ons.gov.uk",
         "api.ons.gov.uk",
         "www150.statcan.gc.ca",  # Statistics Canada bulk CPI tables
+        "www.bankofcanada.ca",
+        "www.esri.cao.go.jp",
+        "www.mof.go.jp",
         "www.e-stat.go.jp",     # Japan Statistics Bureau e-Stat file history
         "data-api.ecb.europa.eu",
         "sdmx.oecd.org",
