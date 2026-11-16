@@ -2,8 +2,12 @@
 import argparse
 import json
 import os
+import sqlite3
+from contextlib import closing
 from pathlib import Path
 
+from backend.app.catalog.releases import migrate as migrate_releases
+from backend.app.ingestion.g7_cpi import configuration
 from backend.app.ingestion.native import Definition, Observation, SourceCalendar, native_period
 from backend.app.ingestion.official_snapshots import SnapshotAdapter, freeze
 from backend.app.ingestion.partition_contracts import Window
@@ -56,12 +60,66 @@ def period_key(suffix, period):
     return period
 
 
-def stage(receipts, workspace):
+def import_cpi(store, source_path):
+    """Copy only the CPI native histories and their ingestion proof records."""
+    _, configs, entries = configuration()
+    publications = {
+        key: NativePublication(
+            config.definition, f"{'Canada' if key.startswith('ca_') else 'Japan'} CPI: {entries[key]['label']}",
+            "G7 core", "CA" if key.startswith("ca_") else "JP",
+            config.source_url, entries[key]["licence"],
+            (f"Official source: {config.source_url}",), "PRIVATE_PREVIEW_RIGHTS_PENDING",
+            ("Publisher history captured for private development. Release rights pending.",),
+        )
+        for key, config in configs.items()
+    }
+    with closing(sqlite3.connect(source_path.resolve().as_uri() + "?mode=ro", uri=True)) as source:
+        source.execute("PRAGMA query_only=ON")
+        source.execute("BEGIN")
+        rows = source.execute(
+            "SELECT id, definition_hash, public_display, rights_state, ai_allowed, discovery_allowed FROM norm_datasets"
+        ).fetchall()
+        expected = {
+            (key, config.definition.fingerprint, 0, "unreviewed", 0, 0)
+            for key, config in configs.items()
+        }
+        if set(rows) != expected or source.execute("SELECT 1 FROM catalog_release_grants LIMIT 1").fetchone():
+            raise ValueError("Expected a private six-series CPI audit database")
+        tables = {
+            "norm_datasets": "",
+            "norm_generations": " WHERE id IN (SELECT active_generation FROM norm_dataset_state)",
+            "norm_partitions": " WHERE generation_id IN (SELECT active_generation FROM norm_dataset_state)",
+            "norm_pages": """ WHERE partition_id IN (
+                SELECT p.id FROM norm_partitions p JOIN norm_dataset_state s ON p.generation_id=s.active_generation)""",
+            "norm_dataset_state": "",
+            "norm_staged": " WHERE generation_id IN (SELECT active_generation FROM norm_dataset_state)",
+            "catalog_staging_receipts": " WHERE generation_id IN (SELECT active_generation FROM norm_dataset_state)",
+            "catalog_staging_digests": " WHERE generation_id IN (SELECT active_generation FROM norm_dataset_state)",
+            "norm_observations": " WHERE generation_id IN (SELECT active_generation FROM norm_dataset_state)",
+            "catalog_dataset_completeness": " WHERE batch_id IN (SELECT active_generation FROM norm_dataset_state)",
+        }
+        with store.connection(True) as target:
+            for table, condition in tables.items():
+                names = [row[1] for row in target.execute(f"PRAGMA table_info({table})")]
+                columns = ", ".join(names)
+                result = source.execute(f"SELECT {columns} FROM {table}{condition}")
+                placeholders = ", ".join("?" for _ in names)
+                target.executemany(f"INSERT INTO {table} ({columns}) VALUES ({placeholders})", result)
+    reader = PreviewReader(store.path, publications)
+    with reader.connection() as db:
+        for key, publication in publications.items():
+            _, generation = reader._permission(db, key)
+            reader._receipt(db, publication.definition, generation)
+    return publications
+
+
+def stage(receipts, workspace, *, cpi_database=None):
     workspace.mkdir()
     store = Store(workspace / "private-g7.sqlite3")
     with store.connection(True) as db:
         migrate(db)
-    publications = {}
+        migrate_releases(db)
+    publications = import_cpi(store, cpi_database) if cpi_database else {}
     for suffix, (name, provider, frequency, units, selector) in SERIES.items():
         mapping = "G7-" + suffix
         path = receipts / f"{mapping}.json"
@@ -108,9 +166,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("receipts", type=Path)
     parser.add_argument("new_workspace", type=Path)
+    parser.add_argument("--cpi-database", type=Path, help="Private six-series CPI audit SQLite database")
     parser.add_argument("--port", type=int, default=8140)
     args = parser.parse_args()
-    store, reader = stage(args.receipts, args.new_workspace)
+    store, reader = stage(args.receipts, args.new_workspace, cpi_database=args.cpi_database)
     os.environ.update(MACROLENS_V2_STATE_DB=str(store.path), MACROLENS_AI_ENABLED="false",
                       MACROLENS_INGESTION_ENABLED="0", MACROLENS_CATALOG_REFRESH_ENABLED="0")
     import uvicorn

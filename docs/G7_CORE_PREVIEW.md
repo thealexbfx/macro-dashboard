@@ -22,7 +22,21 @@ use the same application endpoints as the regular dataset explorer. The preview
 builds a new SQLite database and content-addressed snapshots. It preserves
 publisher nulls and carries receipt hashes through the native ingestion engine.
 
-This loopback preview contains the eleven new histories. The existing release
-database and the six CPI development histories are separate. Legacy metadata
-remains visible, while legacy provider fetching, scheduled refresh, and AI are
-disabled. Rights review remains pending. Use private local development only.
+To add the six Canadian and Japanese CPI histories, use the
+`live/g7-cpi-development.sqlite3` database from the
+[hosted CPI audit](https://github.com/thealexbfx/macro-dashboard/actions/runs/43352801924)
+or a new successful six-series development refresh:
+
+```sh
+python -m scripts.serve_g7_core_preview /path/to/receipts /path/to/new-workspace \
+  --cpi-database /path/to/g7-cpi-development.sqlite3
+```
+
+The importer verifies the six exact definitions and checks that the source
+database has no release grants. It copies the active native histories and their
+ingestion proof records into the new workspace without writing to the input
+database.
+
+Legacy metadata remains visible. The existing release database is separate.
+Legacy provider fetching, scheduled refresh, and AI are disabled. Rights review
+remains pending. Use private local development only.
