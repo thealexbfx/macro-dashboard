@@ -13,6 +13,7 @@ from backend.app.ingestion.official_snapshots import SnapshotAdapter, freeze
 from backend.app.ingestion.partition_contracts import Window
 from backend.app.ingestion.partitioned import PartitionedIngestion
 from backend.app.ingestion.partition_schema import migrate
+from backend.app.v2.catalog_api import PublicCatalog
 from backend.app.v2.native_reader import NativePublication, NativeReader
 from backend.app.v2.state import Store
 
@@ -30,6 +31,11 @@ SERIES = {
     "JP-11": ("Japan unemployment", "estat", "monthly", "Percent", "1-a-1/both-sexes"),
     "JP-23": ("Japan 10-year government constant-maturity yield", "mof_jp", "daily", "Percent", "10Y"),
 }
+
+
+class PreviewCatalog(PublicCatalog):
+    def page(self, **filters):
+        return super().page(**filters) | {"scope": "private_preview"}
 
 
 class PreviewReader(NativeReader):
@@ -176,7 +182,6 @@ def main():
     from starlette.middleware.trustedhost import TrustedHostMiddleware
 
     from backend.app.v2 import main as v
-    from backend.app.v2.catalog_api import PublicCatalog
 
     def unavailable(*_args, **_kwargs):
         raise ValueError("Legacy observations are outside this private preview")
@@ -184,7 +189,7 @@ def main():
     v.legacy_service.provider.fred_series = unavailable
     v.legacy_service.provider.market_series = unavailable
     v.refresh_scheduler.start = lambda: None
-    v.public_catalog = PublicCatalog(v.legacy_service, v.service.reader, reader)
+    v.public_catalog = PreviewCatalog(v.legacy_service, v.service.reader, reader)
     v.app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost"])
     uvicorn.run(v.app, host="127.0.0.1", port=args.port)
 

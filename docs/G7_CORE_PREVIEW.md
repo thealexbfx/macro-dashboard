@@ -40,3 +40,13 @@ database.
 Legacy metadata remains visible. The existing release database is separate.
 Legacy provider fetching, scheduled refresh, and AI are disabled. Rights review
 remains pending. Use private local development only.
+
+With both local servers running and Playwright Chromium installed, run the
+browser walkthrough from the repository root:
+
+```sh
+python -m scripts.test_g7_preview_browser
+```
+
+The walkthrough expects the combined 17-series preview, including the CPI
+database. Set `MACROLENS_G7_PREVIEW_URL` if the frontend uses another port.
