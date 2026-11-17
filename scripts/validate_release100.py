@@ -27,14 +27,130 @@ def main():
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--expansion-bundle", type=Path)
+    parser.add_argument("--g7-receipts", type=Path)
+    parser.add_argument("--g7-cpi-database", type=Path)
     args = parser.parse_args()
+    if (args.g7_receipts or args.g7_cpi_database) and not all(
+        (args.expansion_bundle, args.g7_receipts, args.g7_cpi_database)
+    ):
+        parser.error("The combined G7 rehearsal requires the expansion bundle, receipts and CPI database")
     with tempfile.TemporaryDirectory(prefix="release100-disposable-") as directory:
         exercise(
-            Path(directory), args.bundle.resolve(), args.output, args.expansion_bundle
+            Path(directory),
+            args.bundle.resolve(),
+            args.output,
+            args.expansion_bundle,
+            g7_receipts=args.g7_receipts,
+            g7_cpi_database=args.g7_cpi_database,
         )
 
 
-def exercise(root, bundle, output, expansion_bundle=None):
+class RehearsalReader:
+    """Route test reads to the original, independent permission checks."""
+
+    def __init__(self, public, private):
+        if public.publications.keys() & private.publications.keys():
+            raise ValueError("Public and private dataset IDs overlap")
+        self.public = public
+        self.private = private
+        self.publications = public.publications | private.publications
+
+    def catalogue(self):
+        return self.public.catalogue() + self.private.catalogue()
+
+    def metadata(self, key):
+        reader = self.private if key in self.private.publications else self.public
+        return reader.metadata(key)
+
+    def observations(self, key, start, end, **page):
+        reader = self.private if key in self.private.publications else self.public
+        return reader.observations(key, start, end, **page)
+
+
+def combined_g7_checks(v, request, public_ids, receipts, cpi_database, workspace):
+    from scripts.serve_g7_core_preview import PreviewCatalog, stage
+
+    private_store, private_reader = stage(receipts, workspace, cpi_database=cpi_database)
+    private_ids = set(private_reader.publications)
+    assert len(private_ids) == 17 and not (private_ids & public_ids)
+    private_yield, public_yield = "g7_de_23", "frb_real_yield_10y_daily"
+    compare_body = {
+        "datasets": [private_yield, public_yield],
+        "start": "2020-01-01",
+        "end": "2021-01-01",
+    }
+
+    def assert_public_isolation():
+        code, page = request("GET", "/api/v2/catalog?category=G7%20core")
+        assert code == 200 and page["total"] == 0
+        assert "G7 core" not in page["facets"]["category"]
+        for key in sorted(private_ids):
+            assert request("GET", f"/api/v2/catalog/{key}")[0] == 404, key
+            assert request("GET", f"/api/v2/observations/{key}?preview=true")[0] == 404, key
+        assert request("POST", "/api/v2/compare", compare_body)[0] == 422
+
+    assert_public_isolation()
+    public = v.public_catalog
+    private = PreviewCatalog(
+        public.legacy, public.stored, RehearsalReader(public.native, private_reader)
+    )
+    v.public_catalog = private
+    try:
+        seen = set()
+        offset = 0
+        while offset is not None:
+            code, page = request("GET", f"/api/v2/catalog?limit=100&offset={offset}")
+            assert code == 200 and page["scope"] == "private_preview"
+            assert page["total"] == len(public_ids) + len(private_ids)
+            ids = {item["id"] for item in page["items"]}
+            assert len(ids) == len(page["items"]) and not (seen & ids)
+            seen.update(ids)
+            offset = page["next_offset"]
+        assert seen == public_ids | private_ids
+        code, page = request("GET", "/api/v2/catalog?category=G7%20core")
+        assert code == 200 and page["total"] == len(private_ids)
+        assert {item["id"] for item in page["items"]} == private_ids
+        for key in sorted(private_ids):
+            code, data = request("GET", f"/api/v2/observations/{key}?preview=true")
+            assert code == 200, (key, code, data)
+            dataset = data["dataset"]
+            assert dataset["id"] == key and dataset["source_url"].startswith("https://"), key
+            assert any(point["value"] is not None for point in dataset["observations"]), key
+            assert dataset["stored_provenance"]["generation_reference_count"] > 0, key
+            assert dataset["stored_provenance"]["license_url"] is None, key
+        code, data = request("POST", "/api/v2/compare", compare_body)
+        assert code == 200, (code, data)
+        assert {series["id"] for series in data["series"]} == {private_yield, public_yield}
+        assert all(series["observations"] for series in data["series"])
+        assert len(data["provenance"]["datasets"]) == 2
+    finally:
+        v.public_catalog = public
+    assert_public_isolation()
+
+    with private_store.connection() as db:
+        assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+        assert db.execute("SELECT count(*) FROM catalog_release_grants").fetchone()[0] == 0
+        assert {
+            tuple(row)
+            for row in db.execute(
+                "SELECT DISTINCT public_display, rights_state, ai_allowed, discovery_allowed FROM norm_datasets"
+            )
+        } == {(0, "unreviewed", 0, 0)}
+        observation_count = db.execute("SELECT count(*) FROM norm_observations").fetchone()[0]
+    return {
+        "public_ids_preserved": len(public_ids),
+        "private_ids": sorted(private_ids),
+        "combined_ids": len(seen),
+        "private_observation_records": observation_count,
+        "mixed_comparison": compare_body["datasets"],
+        "public_private_endpoint_denials": 2 * (2 * len(private_ids) + 1),
+        "private_release_grants": 0,
+    }
+
+
+def exercise(
+    root, bundle, output, expansion_bundle=None, *, g7_receipts=None, g7_cpi_database=None
+):
     from backend.app.catalog import release100 as release
     from backend.app.catalog.release_cli import ingest
     from backend.app.catalog.releases import activate, candidates, migrate as releases
@@ -75,6 +191,13 @@ def exercise(root, bundle, output, expansion_bundle=None):
     )
     cli_bundle = expansion_bundle or bundle
     store, reader = v.state_store, NativeReader(database)
+    saved_research = (
+        "sentinel",
+        "Saved research",
+        "2020-01-01",
+        json.dumps({"finding": {"datasets": ["retired_fixture"], "configuration": {}}}),
+        "preserve",
+    )
     with store.connection(True) as db:
         native(db)
         releases(db)
@@ -85,14 +208,7 @@ def exercise(root, bundle, output, expansion_bundle=None):
             )
 
             provider_migrate(db)
-        db.execute(
-            "INSERT INTO library VALUES('sentinel','Saved research','2020-01-01',?, 'preserve')",
-            (
-                json.dumps(
-                    {"finding": {"datasets": ["retired_fixture"], "configuration": {}}}
-                ),
-            ),
-        )
+        db.execute("INSERT INTO library VALUES(?,?,?,?,?)", saved_research)
         for key in release.PRIVATE:
             db.execute(
                 "INSERT INTO ingest_datasets(id,provider,metadata,updated_at) VALUES(?,'world_bank','{}','2020-01-01')",
@@ -268,6 +384,7 @@ def exercise(root, bundle, output, expansion_bundle=None):
             stop.wait(0.15)
 
     bg = None
+    combined_g7 = None
     try:
         with TestClient(v.app) as client:
             for _ in range(120):
@@ -317,17 +434,23 @@ def exercise(root, bundle, output, expansion_bundle=None):
             stop.set()
             bg.join(timeout=30)
             assert not bg.is_alive()
+            if g7_receipts is not None:
+                combined_g7 = combined_g7_checks(
+                    v,
+                    request,
+                    set(expansion_plan["baseline_ids"]) | {row["id"] for row in expansion_plan["datasets"]},
+                    g7_receipts,
+                    g7_cpi_database,
+                    root / "private-g7",
+                )
         with store.connection() as db:
             assert (
                 db.execute("SELECT count(*) FROM ingest_observations").fetchone()[0]
                 == 2403
             )
-            assert (
-                db.execute("SELECT notes FROM library WHERE id='sentinel'").fetchone()[
-                    0
-                ]
-                == "preserve"
-            )
+            assert tuple(
+                db.execute("SELECT * FROM library WHERE id='sentinel'").fetchone()
+            ) == saved_research
             assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
             with closing(sqlite3.connect(root / "backup.sqlite3")) as backup:
                 db.backup(backup)
@@ -336,6 +459,9 @@ def exercise(root, bundle, output, expansion_bundle=None):
                     assert (
                         restored.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
                     )
+                    assert restored.execute(
+                        "SELECT * FROM library WHERE id='sentinel'"
+                    ).fetchone() == saved_research
                     assert (
                         restored.execute(
                             "SELECT count(*) FROM ingest_observations"
@@ -385,6 +511,8 @@ def exercise(root, bundle, output, expansion_bundle=None):
             "rollback_and_restore_passed": True,
             "production_access": False,
         }
+        if combined_g7 is not None:
+            result["combined_g7"] = combined_g7
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json.dumps(result, indent=2) + "\n")
         print(json.dumps(result), flush=True)
