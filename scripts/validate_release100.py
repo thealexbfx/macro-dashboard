@@ -7,6 +7,7 @@ rollback operations below affect a new temporary database, never Render.
 import argparse
 import json
 import os
+import shutil
 import sqlite3
 import statistics
 import subprocess
@@ -70,7 +71,11 @@ class RehearsalReader:
 def combined_g7_checks(v, request, public_ids, receipts, cpi_database, workspace):
     from scripts.serve_g7_core_preview import PreviewCatalog, stage
 
-    private_store, private_reader = stage(receipts, workspace, cpi_database=cpi_database)
+    # The captured standalone database can use WAL mode. SQLite needs a
+    # writable directory for its sidecars even when the connection is read-only.
+    cpi_copy = workspace.parent / "g7-cpi-input.sqlite3"
+    shutil.copyfile(cpi_database, cpi_copy)
+    private_store, private_reader = stage(receipts, workspace, cpi_database=cpi_copy)
     private_ids = set(private_reader.publications)
     assert len(private_ids) == 17 and not (private_ids & public_ids)
     private_yield, public_yield = "g7_de_23", "frb_real_yield_10y_daily"
