@@ -4,6 +4,7 @@ on:
     paths:
       - .github/workflows/g7-private-preview-browser.yml
       - scripts/capture_g7_preview_receipts.sh
+      - scripts/capture_insee_core_history.py
       - scripts/serve_g7_core_preview.py
       - scripts/test_g7_preview_browser.py
 permissions:

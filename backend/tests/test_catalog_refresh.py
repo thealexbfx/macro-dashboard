@@ -16,16 +16,28 @@ from backend.app.ingestion.catalog_refresh import (
     CatalogRefresh,
     CatalogRefreshWorker,
     migrate,
+    ordered_row_digest,
     policy,
 )
 from backend.app.ingestion.contracts import ProviderError
-from backend.app.ingestion.native import Observation
+from backend.app.ingestion.native import Observation, digest
 from backend.app.ingestion.official_snapshots import download, freeze
 from backend.app.ingestion.partition_schema import migrate as native
 from backend.app.v2.native_reader import NativeReader
 from backend.app.v2.state import Store
 
 ID = "ons_27271ab0b950200f5401"
+
+
+
+def test_streamed_refresh_digest_matches_existing_persisted_format():
+    rows = [
+        ["2001-01", "janvier – révisé", 0.0, [], None, None, None],
+        ["2001-02", "February", None, ["missing"], None, None, None],
+        ["2001-03", "March", 8.25, ["r"], "2001-04-15T12:00:00+00:00", "v2", None],
+    ]
+    assert ordered_row_digest(iter(rows)) == digest(rows)
+    assert ordered_row_digest(iter(())) is None
 
 
 def setup(tmp_path, *, mode="refresh"):

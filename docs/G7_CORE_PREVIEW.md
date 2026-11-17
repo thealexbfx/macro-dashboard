@@ -1,8 +1,9 @@
 # Private G7 core preview
 
-Run from the repository root with the backend dependencies installed. Place the eleven development receipts produced by the G7 capture commands in one local directory. Each filename must be its mapping ID plus `.json`:
+Run from the repository root with the backend dependencies installed. Place the thirteen development receipts produced by the G7 capture commands in one local directory. Each filename must be its mapping ID plus `.json`:
 
 - `G7-CA-01`, `G7-CA-11`, `G7-CA-22`, `G7-CA-23`
+- `G7-FR-07`, `G7-FR-11`
 - `G7-GB-23`, `G7-DE-23`, `G7-FR-23`, `G7-IT-23`
 - `G7-JP-01`, `G7-JP-11`, `G7-JP-23`
 
@@ -48,5 +49,5 @@ browser walkthrough from the repository root:
 python -m scripts.test_g7_preview_browser
 ```
 
-The walkthrough expects the combined 17-series preview, including the CPI
+The walkthrough expects the combined 19-series preview, including the CPI
 database. Set `MACROLENS_G7_PREVIEW_URL` if the frontend uses another port.

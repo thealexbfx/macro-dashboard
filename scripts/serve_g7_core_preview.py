@@ -27,6 +27,8 @@ SERIES = {
         f"{area}-23": (f"{name} 10-year government convergence yield", "ecb", "monthly", "Percent", f"IRS.M.{area}.L.L40.CI.0000.EUR.N.Z")
         for area, name in (("DE", "Germany"), ("FR", "France"), ("IT", "Italy"))
     },
+    "FR-07": ("France headline CPI (INSEE)", "insee", "monthly", "2025=100", "011814630"),
+    "FR-11": ("France unemployment excluding Mayotte (INSEE)", "insee", "quarterly", "Percent", "001688527"),
     "JP-01": ("Japan real GDP", "esri", "quarterly", "Billions of chained 2020 yen, annual rate", "gaku-jk2622"),
     "JP-11": ("Japan unemployment", "estat", "monthly", "Percent", "1-a-1/both-sexes"),
     "JP-23": ("Japan 10-year government constant-maturity yield", "mof_jp", "daily", "Percent", "10Y"),

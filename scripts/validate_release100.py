@@ -77,7 +77,7 @@ def combined_g7_checks(v, request, public_ids, receipts, cpi_database, workspace
     shutil.copyfile(cpi_database, cpi_copy)
     private_store, private_reader = stage(receipts, workspace, cpi_database=cpi_copy)
     private_ids = set(private_reader.publications)
-    assert len(private_ids) == 17 and not (private_ids & public_ids)
+    assert len(private_ids) == 19 and not (private_ids & public_ids)
     private_yield, public_yield = "g7_de_23", "frb_real_yield_10y_daily"
     compare_body = {
         "datasets": [private_yield, public_yield],

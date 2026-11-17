@@ -45,6 +45,7 @@ HOSTS = frozenset(
         "www.census.gov",
         "www.bea.gov",
         "apps.bea.gov",
+        "www.bdm.insee.fr",
         "www.federalreserve.gov",
         "oui.doleta.gov",
         "markets.newyorkfed.org",
@@ -68,6 +69,16 @@ def safe_url(url):
         or part.username
         or part.password
         or part.port not in (None, 443)
+        or (
+            part.hostname == "www.bdm.insee.fr"
+            and (
+                part.path not in {
+                    "/series/sdmx/data/SERIES_BDM/001688527",
+                    "/series/sdmx/data/SERIES_BDM/011814630",
+                }
+                or part.query or part.fragment
+            )
+        )
         or any(
             key.casefold() in {"api_key", "apikey", "token", "access_token", "password"}
             for key, _ in parse_qsl(part.query)

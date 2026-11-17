@@ -93,23 +93,17 @@ def endpoint(entry):
     return safe_url(url)
 
 
-def semantic(points, definition):
-    return digest(
-        sorted(
-            [
-                [
-                    native_period(p.period, definition, p.event_id).key,
-                    p.label,
-                    p.value,
-                    list(p.flags),
-                    instant(p.release_at).isoformat() if p.release_at else None,
-                    p.source_revision,
-                    p.event_id,
-                ]
-                for p in points
-            ]
-        )
-    )
+def ordered_row_digest(rows):
+    """Hash the same canonical JSON array as digest(list(rows)), one row at a time."""
+    checksum = sha256(b"[")
+    encode = json.JSONEncoder(sort_keys=True, separators=(",", ":")).encode
+    separator = b""
+    for row in rows:
+        checksum.update(separator)
+        checksum.update(encode(row).encode())
+        separator = b","
+    checksum.update(b"]")
+    return checksum.hexdigest() if separator else None
 
 
 class CatalogRefresh:
@@ -174,31 +168,44 @@ class CatalogRefresh:
             seen[period.key] = point
         if not seen or len(seen) > 50000:
             raise ProviderError("empty_or_oversized_history")
+        source_hash = ordered_row_digest(
+            [
+                period,
+                point.label,
+                point.value,
+                list(point.flags),
+                instant(point.release_at).isoformat() if point.release_at else None,
+                point.source_revision,
+                point.event_id,
+            ]
+            for period in sorted(seen)
+            for point in (seen[period],)
+        )
         with self.store.connection(timeout=2) as db:
-            old = db.execute(
-                "SELECT period_key,value,payload FROM norm_observations WHERE dataset_id=?",
-                (key,),
-            )
-            stored = []
-            for row in old:
-                point = seen.get(row[0])
-                if point is None:
-                    raise ProviderError("history_omitted")
-                if row[1] is not None and point.value is None and not point.flags:
-                    raise ProviderError("unexplained_value_loss")
-                p = json.loads(row[2])
-                stored.append(
-                    [
-                        row[0],
-                        p["period_label"],
-                        p["value"],
-                        p["flags"],
-                        p["release_at"],
-                        p["source_revision"],
-                        p["event_id"],
-                    ]
-                )
-        return semantic(points, reviewed), digest(sorted(stored)) if stored else None
+            stored_hash = ordered_row_digest(self._stored_semantic_rows(db, key, seen))
+        return source_hash, stored_hash
+
+    def _stored_semantic_rows(self, db, key, seen):
+        rows = db.execute(
+            "SELECT period_key,value,payload FROM norm_observations WHERE dataset_id=? ORDER BY period_key",
+            (key,),
+        )
+        for period, value, payload in rows:
+            point = seen.get(period)
+            if point is None:
+                raise ProviderError("history_omitted")
+            if value is not None and point.value is None and not point.flags:
+                raise ProviderError("unexplained_value_loss")
+            stored = json.loads(payload)
+            yield [
+                period,
+                stored["period_label"],
+                stored["value"],
+                stored["flags"],
+                stored["release_at"],
+                stored["source_revision"],
+                stored["event_id"],
+            ]
 
     def _download(self, key, job):
         entry, pub = self.entries[key], self.publications[key]
