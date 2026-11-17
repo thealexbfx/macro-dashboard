@@ -8,6 +8,7 @@ on:
       - scripts/test_g7_preview_browser.py
 permissions:
   contents: read
+  actions: read
 jobs:
   walkthrough:
     if: github.event.pull_request.head.repo.full_name == github.repository
@@ -33,15 +34,30 @@ jobs:
           python -m playwright install --with-deps chromium
           npm --prefix frontend-v2 ci
           npm --prefix frontend-v2 run build
+      - name: Recover the verified CPI audit database
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: g7-cpi-development-audit
+          run-id: 43352801924
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/g7-cpi-audit
       - name: Capture official publisher histories in the runner workspace
         run: |
           bash scripts/capture_g7_preview_receipts.sh "$RUNNER_TEMP/g7-capture"
-          python -m scripts.g7_cpi_refresh "$RUNNER_TEMP/g7-cpi" --initialize --all-series-once
+          database="$RUNNER_TEMP/g7-cpi-audit/live/g7-cpi-development.sqlite3"
+          if test -f "$database"; then
+            printf '%s  %s\n' 248b6bc669e8b366d1ea6c64fe5ffb9b602718e7c5a4251a58e80f3d42d7dfbc "$database" | sha256sum --check
+          else
+            python -m scripts.g7_cpi_refresh "$RUNNER_TEMP/g7-cpi" --initialize --all-series-once
+            database="$RUNNER_TEMP/g7-cpi/g7-cpi-development.sqlite3"
+          fi
+          printf 'G7_CPI_DATABASE=%s\n' "$database" >> "$GITHUB_ENV"
       - name: Walk through the private catalogue and Investigate
         run: |
           set -euo pipefail
           python -m scripts.serve_g7_core_preview "$RUNNER_TEMP/g7-capture/receipts" "$RUNNER_TEMP/g7-preview" \
-            --cpi-database "$RUNNER_TEMP/g7-cpi/g7-cpi-development.sqlite3" > "$RUNNER_TEMP/g7-backend.log" 2>&1 &
+            --cpi-database "$G7_CPI_DATABASE" > "$RUNNER_TEMP/g7-backend.log" 2>&1 &
           backend=$!
           node frontend-v2/node_modules/next/dist/bin/next start frontend-v2 --hostname 127.0.0.1 --port 3001 > "$RUNNER_TEMP/g7-frontend.log" 2>&1 &
           frontend=$!
