@@ -27,8 +27,11 @@ SERIES = {
         f"{area}-23": (f"{name} 10-year government convergence yield", "ecb", "monthly", "Percent", f"IRS.M.{area}.L.L40.CI.0000.EUR.N.Z")
         for area, name in (("DE", "Germany"), ("FR", "France"), ("IT", "Italy"))
     },
+    "FR-01": ("France real GDP (INSEE)", "insee", "quarterly", "Millions of chained 2020 euros", "011794860"),
     "FR-07": ("France headline CPI (INSEE)", "insee", "monthly", "2025=100", "011814630"),
     "FR-11": ("France unemployment excluding Mayotte (INSEE)", "insee", "quarterly", "Percent", "001688527"),
+    "US-07": ("US headline CPI, all urban consumers (BLS)", "bls", "monthly", "1982-1984=100", "CUUR0000SA0"),
+    "US-11": ("US unemployment, U-3 (BLS)", "bls", "monthly", "Percent", "LNS14000000"),
     "JP-01": ("Japan real GDP", "esri", "quarterly", "Billions of chained 2020 yen, annual rate", "gaku-jk2622"),
     "JP-11": ("Japan unemployment", "estat", "monthly", "Percent", "1-a-1/both-sexes"),
     "JP-23": ("Japan 10-year government constant-maturity yield", "mof_jp", "daily", "Percent", "10Y"),
@@ -146,7 +149,11 @@ def stage(receipts, workspace, *, cpi_database=None):
             or payload.get("production_approval") != "NOT_APPROVED"):
             raise ValueError(f"Unexpected receipt identity or rights status: {mapping}")
         source_url = payload.get("source_url") or payload["sources"]["history"]["url"]
-        adjustment = "Seasonally adjusted" if suffix.endswith(("-01", "-11")) else "Not seasonally adjusted"
+        adjustment = (
+            "Seasonally and working-day adjusted" if suffix == "FR-01"
+            else "Seasonally adjusted" if suffix.endswith(("-01", "-11"))
+            else "Not seasonally adjusted"
+        )
         dataset = Definition(mapping.lower().replace("-", "_"), provider, selector, units, frequency,
                              adjustment, SourceCalendar(f"{provider}_{frequency}"))
         points = tuple(

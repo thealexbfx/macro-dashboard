@@ -41,6 +41,7 @@ HOSTS = frozenset(
         "www.eia.gov",
         "api.eia.gov",
         "api.bls.gov",
+        "download.bls.gov",
         "api.census.gov",
         "www.census.gov",
         "www.bea.gov",
@@ -70,10 +71,16 @@ def safe_url(url):
         or part.password
         or part.port not in (None, 443)
         or (
+            part.hostname == "download.bls.gov"
+            and (part.path not in {"/pub/time.series/cu/cu.series", "/pub/time.series/ln/ln.series"}
+                 or part.query or part.fragment)
+        )
+        or (
             part.hostname == "www.bdm.insee.fr"
             and (
                 part.path not in {
                     "/series/sdmx/data/SERIES_BDM/001688527",
+                    "/series/sdmx/data/SERIES_BDM/011794860",
                     "/series/sdmx/data/SERIES_BDM/011814630",
                 }
                 or part.query or part.fragment

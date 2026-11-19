@@ -30,9 +30,11 @@ root=https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate
 get "$root/historical/jgbcme_all.csv" "$work/jgb.csv" 4000000
 get "$root/jgbcme.csv" "$work/jgb-current.csv" 4000000
 python verification/g7-core-batch1/capture-mof-jgb-history.py "$work/jgb.csv" "$receipts/G7-JP-23.json" --current "$work/jgb-current.csv"
-for pair in G7-FR-07:011814630 G7-FR-11:001688527; do
+for pair in G7-FR-01:011794860 G7-FR-07:011814630 G7-FR-11:001688527; do
     mapping=${pair%:*}
     series=${pair#*:}
     get "https://www.bdm.insee.fr/series/sdmx/data/SERIES_BDM/$series" "$work/$mapping.xml" 262144
     python -m scripts.capture_insee_core_history "$mapping" "$work/$mapping.xml" "$receipts/$mapping.json"
 done
+
+python -m scripts.capture_bls_core_history "$receipts" "$work/bls-evidence"

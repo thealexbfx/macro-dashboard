@@ -85,7 +85,8 @@ class RehearsalReader:
 
 
 def combined_g7_checks(v, request, public_ids, receipts, cpi_database, workspace):
-    from scripts.serve_g7_core_preview import PreviewCatalog, stage
+    from scripts.serve_g7_core_preview import PreviewCatalog, SERIES, stage
+    from backend.app.ingestion.g7_cpi import configuration
 
     # The captured standalone database can use WAL mode. SQLite needs a
     # writable directory for its sidecars even when the connection is read-only.
@@ -93,7 +94,8 @@ def combined_g7_checks(v, request, public_ids, receipts, cpi_database, workspace
     shutil.copyfile(cpi_database, cpi_copy)
     private_store, private_reader = stage(receipts, workspace, cpi_database=cpi_copy)
     private_ids = set(private_reader.publications)
-    assert len(private_ids) == 19 and not (private_ids & public_ids)
+    assert len(private_ids) == len(SERIES) + len(configuration()[1])
+    assert not (private_ids & public_ids)
     private_yield, public_yield = "g7_de_23", "frb_real_yield_10y_daily"
     compare_body = {
         "datasets": [private_yield, public_yield],

@@ -9,8 +9,8 @@ from scripts.capture_insee_core_history import SERIES, SOURCE, capture
 def response(mapping, *, missing_period=False, wrong_area=False):
     selector, freq, unit_code, area, _unit, first, title = SERIES[mapping]
     period = first
-    next_period = "1996-02" if freq == "M" else "1975-Q2"
-    last_period = "1996-03" if freq == "M" else "1975-Q3"
+    next_period = first[:4] + ("-02" if freq == "M" else "-Q2")
+    last_period = first[:4] + ("-03" if freq == "M" else "-Q3")
     observations = (
         f'<Obs TIME_PERIOD="{period}" OBS_VALUE="10" OBS_STATUS="A" OBS_REV="1"/>'
         + ("" if missing_period else f'<Obs TIME_PERIOD="{next_period}" OBS_STATUS="M"/>')
@@ -20,7 +20,7 @@ def response(mapping, *, missing_period=False, wrong_area=False):
         '<message:StructureSpecificData xmlns:message="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message">'
         '<message:DataSet>'
         f'<Series IDBANK="{selector}" FREQ="{freq}" UNIT_MEASURE="{unit_code}" '
-        f'UNIT_MULT="0" REF_AREA="{"wrong" if wrong_area else area}" TITLE_EN="{title}" LAST_UPDATE="2026-11-10">'
+        f'UNIT_MULT="{6 if mapping == "G7-FR-01" else 0}" REF_AREA="{"wrong" if wrong_area else area}" TITLE_EN="{title}" LAST_UPDATE="2026-11-10">'
         f'{observations}</Series></message:DataSet></message:StructureSpecificData>'
     ).encode()
 

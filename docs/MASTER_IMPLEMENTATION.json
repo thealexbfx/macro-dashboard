@@ -22,8 +22,8 @@
       "depends_on": [
         "catalog"
       ],
-      "status": "NINETEEN_PRIVATE_HISTORIES_213_REHEARSAL_PASSED_ORIGINAL_GAPS_OPEN",
-      "acceptance": "Verify handling of the next actual CPI release and expand original-source historical staging with per-series receipts."
+      "status": "TWENTYTWO_PRIVATE_HISTORIES_IMPLEMENTED_LOCAL_CAPTURE_PASSED_HOSTED_PENDING",
+      "acceptance": "Validate expanded 216-dataset rehearsal; original national histories for Germany and Italy remain open. Preserve explicit BLS publisher nulls and verify current CPI refresh."
     },
     {
       "id": "today",

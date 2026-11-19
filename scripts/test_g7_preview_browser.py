@@ -2,10 +2,13 @@
 import os
 
 from playwright.sync_api import expect, sync_playwright
+from backend.app.ingestion.g7_cpi import configuration
+from scripts.serve_g7_core_preview import SERIES
 
 
 def main():
     origin = os.environ.get("MACROLENS_G7_PREVIEW_URL", "http://127.0.0.1:3001")
+    count = len(SERIES) + len(configuration()[1])
     with sync_playwright() as playwright:
         chrome = os.getenv("BATCH0_CHROME")
         browser = playwright.chromium.launch(**({"executable_path": chrome} if chrome else {}))
@@ -22,10 +25,10 @@ def main():
         expect(page.get_by_role("note")).to_contain_text("Private development preview", timeout=30000)
         page.get_by_text("More filters", exact=True).click()
         page.get_by_label("Catalog category").select_option("G7 core")
-        expect(page.get_by_text("19 preview datasets · Page 1")).to_be_visible()
+        expect(page.get_by_text(f"{count} preview datasets · Page 1")).to_be_visible()
         expect(page.get_by_role("heading", name="Canada CPI: All-items", exact=True)).to_be_visible()
         page.get_by_role("button", name="Next page").click()
-        expect(page.get_by_text("19 preview datasets · Page 2")).to_be_visible()
+        expect(page.get_by_text(f"{count} preview datasets · Page 2")).to_be_visible()
 
         datasets = {"ca_cpi_all_items_nsa": "Canada CPI: All-items",
                     "g7_fr_07": "France headline CPI (INSEE)"}

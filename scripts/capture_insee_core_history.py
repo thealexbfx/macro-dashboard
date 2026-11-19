@@ -1,4 +1,4 @@
-"""Capture two original INSEE histories for the private preview."""
+"""Capture original INSEE national GDP, CPI and unemployment histories."""
 import argparse
 import json
 import math
@@ -12,6 +12,10 @@ SOURCE = "https://www.bdm.insee.fr/series/sdmx/data/SERIES_BDM/"
 MESSAGE = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message}"
 MAX_BYTES = 256 * 1024
 SERIES = {
+    "G7-FR-01": (
+        "011794860", "T", "EUROS", "FE", "Millions of chained 2020 euros", "1949-Q1",
+        "Total gross domestic product - Volumes chained at previous year prices - SA-WDA series",
+    ),
     "G7-FR-07": (
         "011814630", "M", "SO", "FE", "2025=100", "1996-01",
         "Consumer Price Index - Base 2025 - All households - France - COICOP classification: 00 - All items",
@@ -40,7 +44,7 @@ def capture(mapping, raw):
     series = series[0]
     expected = {
         "IDBANK": selector, "FREQ": freq, "UNIT_MEASURE": unit_code,
-        "UNIT_MULT": "0", "REF_AREA": area, "TITLE_EN": title,
+        "UNIT_MULT": "6" if mapping == "G7-FR-01" else "0", "REF_AREA": area, "TITLE_EN": title,
     }
     if any(series.get(key) != value for key, value in expected.items()):
         raise ValueError("INSEE series identity, unit, scope or title differs")
@@ -57,7 +61,7 @@ def capture(mapping, raw):
         if value is None and status not in {"L", "M"}:
             raise ValueError("INSEE value missing without publisher flag")
         if value is not None and (
-            not math.isfinite(value) or (value <= 0 if freq == "M" else not 0 <= value <= 100)
+            not math.isfinite(value) or (not 0 <= value <= 100 if unit == "Percent" else value <= 0)
         ):
             raise ValueError("INSEE observation outside its valid domain")
         flags = " ".join(f"{field}={obs.get(field)}" for field in (
