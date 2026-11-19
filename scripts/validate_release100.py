@@ -5,6 +5,7 @@ rollback operations below affect a new temporary database, never Render.
 """
 
 import argparse
+import faulthandler
 import json
 import os
 import shutil
@@ -35,6 +36,7 @@ def main():
         (args.expansion_bundle, args.g7_receipts, args.g7_cpi_database)
     ):
         parser.error("The combined G7 rehearsal requires the expansion bundle, receipts and CPI database")
+    faulthandler.dump_traceback_later(120, repeat=True)
     with tempfile.TemporaryDirectory(prefix="release100-disposable-") as directory:
         exercise(
             Path(directory),
@@ -44,6 +46,20 @@ def main():
             g7_receipts=args.g7_receipts,
             g7_cpi_database=args.g7_cpi_database,
         )
+
+
+def progress(phase, **details):
+    print(json.dumps({"rehearsal_phase": phase, **details}), flush=True)
+
+
+def bounded_backup(source, target, *, seconds=90):
+    deadline = time.monotonic() + seconds
+
+    def check_deadline(status, remaining, total):
+        if time.monotonic() > deadline:
+            raise TimeoutError("Disposable backup exceeded its time budget")
+
+    source.backup(target, pages=256, progress=check_deadline, sleep=0.05)
 
 
 class RehearsalReader:
@@ -225,6 +241,7 @@ def exercise(
                     "INSERT INTO ingest_observations VALUES(?,?,?,'fixture',1,'2020-01-01','2020-01-01','fixture')",
                     (key, f"{year:04d}-{month + 1:02d}", float(i)),
                 )
+    progress("seed_native_histories")
     for key in list(records) if expansion_plan else plan["existing_native_ids"]:
         record = records[key]
         assert (
@@ -235,6 +252,7 @@ def exercise(
         )
         with store.connection(True) as db:
             activate(db, pubs[key], reader, approved=True)
+    progress("seed_native_complete")
     now, legacy_rows = datetime.now(UTC), 0
     with store.connection(True) as db:
         for i, (key, spec) in enumerate(v.SPECS.items()):
@@ -301,6 +319,7 @@ def exercise(
     cli_peak = [0]
 
     def cli(operation, *flags):
+        progress("cli_start", operation=operation)
         command = [
             sys.executable,
             "-B",
@@ -350,6 +369,7 @@ def exercise(
                 process.kill()
                 process.wait()
         assert process.returncode == 0, stderr[-3000:]
+        progress("cli_complete", operation=operation)
         return json.loads(stdout.splitlines()[-1])
 
     def traffic(client):
@@ -396,6 +416,7 @@ def exercise(
                 if client.get("/api/v2/discovery").status_code == 200:
                     break
                 time.sleep(0.1)
+            progress("baseline_check")
             baseline = (
                 rollout.check(database, expansion_plan)
                 if expansion_plan
@@ -432,7 +453,9 @@ def exercise(
                 )
                 return response.status_code, response.json()
 
+            progress("catalog_smoke")
             smoke = checks(request)
+            progress("catalog_smoke_complete")
             assert cli("rollback", "--approve-rollback")["public"] == before_count
             assert cli("rollback", "--approve-rollback")["public"] == before_count
             assert cli("publish", "--approve-publication")["public"] == target_count
@@ -440,6 +463,7 @@ def exercise(
             bg.join(timeout=30)
             assert not bg.is_alive()
             if g7_receipts is not None:
+                progress("combined_g7")
                 combined_g7 = combined_g7_checks(
                     v,
                     request,
@@ -448,6 +472,7 @@ def exercise(
                     g7_cpi_database,
                     root / "private-g7",
                 )
+        progress("integrity_and_backup")
         with store.connection() as db:
             assert (
                 db.execute("SELECT count(*) FROM ingest_observations").fetchone()[0]
@@ -458,9 +483,13 @@ def exercise(
             ) == saved_research
             assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
             with closing(sqlite3.connect(root / "backup.sqlite3")) as backup:
-                db.backup(backup)
+                progress("backup")
+                bounded_backup(db, backup)
+                progress("backup_complete")
                 with closing(sqlite3.connect(root / "restored.sqlite3")) as restored:
-                    backup.backup(restored)
+                    progress("restore")
+                    bounded_backup(backup, restored)
+                    progress("restore_complete")
                     assert (
                         restored.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
                     )
