@@ -38,7 +38,7 @@
       "depends_on": [
         "catalog"
       ],
-      "status": "INHERITED_REQUIRES_VALIDATION",
+      "status": "CPI_COMPARISON_AND_DISCOVERY_HANDOFF_BROWSER_VALIDATED",
       "acceptance": "Test range changes, indexed comparison, filters, alignment, holiday gaps and favorites"
     },
     {
@@ -62,7 +62,7 @@
       "depends_on": [
         "research"
       ],
-      "status": "INHERITED_REQUIRES_VALIDATION",
+      "status": "LEGACY_REFERENCES_AND_DISCOVERY_SAVE_REOPEN_BROWSER_VALIDATED",
       "acceptance": "Run migration, conflict and export scenarios without changing saved IDs"
     },
     {
@@ -884,9 +884,10 @@
         "before_sqlite_steps_approx": 7872400,
         "after_sqlite_steps_approx": 72500
       },
-      "focused_capture_refresh_backup_tests_passed": 32,
-      "discovery_handoff": "Computed synthetic CPI anomaly passed comparison through the normal API. Browser save/reopen validation pending.",
-      "failure_cleanup": "Injected catalogue smoke failure returned after traffic shutdown in a synthetic 164-series rehearsal."
+      "focused_capture_refresh_backup_tests_passed": 39,
+      "discovery_handoff": "Computed synthetic CPI anomaly, comparison, research save and reopen passed the hosted browser walkthrough in run 44454962938 at commit 35582ee.",
+      "failure_cleanup": "Injected catalogue smoke failure returned after traffic shutdown in a synthetic 164-series rehearsal.",
+      "cpi_revision_import": "Regression reproduced against the prior importer. The fixed importer retains unchanged observations and the proof generations they reference."
     },
     "release_blockers": [
       "Full-catalogue refresh headroom and temporary API errors still require hosted measurement after the dataset-scoped proof query change.",
@@ -895,7 +896,7 @@
       "Discovery historical backtesting and broader grounded Ask questions remain open."
     ],
     "next": [
-      "Inspect current-head hosted Research validation, Discovery browser journey and refresh capacity receipts.",
+      "Inspect final-head hosted validation after the CPI proof-preservation regression fix.",
       "Investigate file-backed memory and classify temporary API errors without weakening workload protection.",
       "Resolve Istat CPI base-period metadata and obtain current original national CPI histories for Italy and Germany."
     ],

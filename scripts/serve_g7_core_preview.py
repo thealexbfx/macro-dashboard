@@ -93,18 +93,23 @@ def import_cpi(store, source_path):
         }
         if set(rows) != expected or source.execute("SELECT 1 FROM catalog_release_grants LIMIT 1").fetchone():
             raise ValueError("Expected a private six-series CPI audit database")
+        # Refreshes can retain unchanged observations with their original proofs.
+        generations = (
+            "SELECT active_generation FROM norm_dataset_state "
+            "UNION SELECT generation_id FROM norm_observations"
+        )
         tables = {
             "norm_datasets": "",
-            "norm_generations": " WHERE id IN (SELECT active_generation FROM norm_dataset_state)",
-            "norm_partitions": " WHERE generation_id IN (SELECT active_generation FROM norm_dataset_state)",
-            "norm_pages": """ WHERE partition_id IN (
-                SELECT p.id FROM norm_partitions p JOIN norm_dataset_state s ON p.generation_id=s.active_generation)""",
+            "norm_generations": f" WHERE id IN ({generations})",
+            "norm_partitions": f" WHERE generation_id IN ({generations})",
+            "norm_pages": f""" WHERE partition_id IN (
+                SELECT id FROM norm_partitions WHERE generation_id IN ({generations}))""",
             "norm_dataset_state": "",
-            "norm_staged": " WHERE generation_id IN (SELECT active_generation FROM norm_dataset_state)",
-            "catalog_staging_receipts": " WHERE generation_id IN (SELECT active_generation FROM norm_dataset_state)",
-            "catalog_staging_digests": " WHERE generation_id IN (SELECT active_generation FROM norm_dataset_state)",
-            "norm_observations": " WHERE generation_id IN (SELECT active_generation FROM norm_dataset_state)",
-            "catalog_dataset_completeness": " WHERE batch_id IN (SELECT active_generation FROM norm_dataset_state)",
+            "norm_staged": f" WHERE generation_id IN ({generations})",
+            "catalog_staging_receipts": f" WHERE generation_id IN ({generations})",
+            "catalog_staging_digests": f" WHERE generation_id IN ({generations})",
+            "norm_observations": f" WHERE generation_id IN ({generations})",
+            "catalog_dataset_completeness": f" WHERE batch_id IN ({generations})",
         }
         with store.connection(True) as target:
             for table, condition in tables.items():

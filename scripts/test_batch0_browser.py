@@ -241,7 +241,8 @@ def main():
                 {
                     "browser_checks": 26,
                     "passed": True,
-                    "screenshots": 6,
+                    "screenshots": 7,
+                    "discovery_research_save_reopen": True,
                     "page_errors": errors,
                 }
             )

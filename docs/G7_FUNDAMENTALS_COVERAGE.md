@@ -94,3 +94,14 @@ out-of-memory kills. This synthetic workload result supports the query
 optimization while leaving availability and capacity acceptance open.
 [Updated trial](https://github.com/thealexbfx/macro-dashboard/actions/runs/44453764941/job/135323729286)
 and [prior trial](https://github.com/thealexbfx/macro-dashboard/actions/runs/44011412227/job/133799043140).
+
+The [application browser run](https://github.com/thealexbfx/macro-dashboard/actions/runs/44454962938)
+passed the Discover-to-research journey with a computed synthetic CPI anomaly,
+comparison, save and reopen. Existing saved and retired dataset references
+were checked in the same walkthrough.
+
+The CPI preview importer also retains the generations referenced by unchanged
+observations after a revision. Its regression fixture revises one of three
+periods and requires all three observations and both proof generations to
+survive importing. The prior importer failed this test. Thirty-nine focused
+capture, refresh, proof-import and backup tests passed after the fix.
