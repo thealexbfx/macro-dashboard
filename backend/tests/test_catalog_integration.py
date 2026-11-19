@@ -510,3 +510,35 @@ def test_native_and_mixed_receipts_include_validated_generation_references(catal
     assert result["provenance"]["datasets"][0]["generation_references"] == []
     assert result["provenance"]["datasets"][1]["generation_references"]
     assert not result["provenance"]["exact_replay"]["available"]
+
+
+def test_unreviewed_market_observations_withheld_even_with_persistent_cache(tmp_path):
+    from datetime import UTC, datetime
+
+    store = Store(tmp_path / "legacy-market.sqlite3")
+    now = datetime(2026, 2, 1, tzinfo=UTC)
+    service = v.scheduled_service_class(v.DataService, v.Dataset)(
+        store, today_fn=now.date, now_fn=lambda: now
+    )
+    catalog = PublicCatalog(service, None, NativeReader(store.path))
+    payload = v.Dataset(
+        **v.SPECS["gold"].__dict__,
+        status="ok",
+        observations=[{"date": "2026-01-30", "value": 1234.0}],
+        latest_value=1234.0,
+        message="Historical cached observation",
+    ).model_dump_json()
+    with store.connection(True) as db:
+        db.execute(
+            "INSERT INTO source_cache VALUES (?,?,?,?,?)",
+            ("gold", payload, now.isoformat(), "2026-02-02T00:00:00+00:00", 0),
+        )
+
+    assert catalog.metadata("gold")["id"] == "gold"
+    result = catalog.observations("gold", date(2026, 1, 1), date(2026, 1, 31))
+    assert result["dataset"]["observations"] == []
+    assert result["dataset"]["latest_value"] is None
+    assert result["dataset"]["release_metadata"]["source_error_code"] == "market_source_rights_pending"
+    assert service.get("gold").observations == []
+    with store.connection() as db:
+        assert db.execute("SELECT payload FROM source_cache").fetchone()[0] == payload

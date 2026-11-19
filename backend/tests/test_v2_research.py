@@ -174,7 +174,7 @@ def test_routes(monkeypatch, service):
     assert (
         client.post(
             "/api/v2/compare",
-            json=req(datasets=["gold"], transformations={"gold": "mom"}).model_dump(
+            json=req(datasets=["us10y"], transformations={"us10y": "mom"}).model_dump(
                 mode="json"
             ),
         ).status_code
@@ -246,3 +246,21 @@ def test_receipt_fingerprints_change_with_values_not_retrieval_and_allow_unchang
     assert first["input_fingerprint"] != revised["input_fingerprint"]
     assert first["definition_identifier"] == revised["definition_identifier"]
     assert checked["source_checked_at"] == "2026-02-01T00:00:00Z"
+
+
+
+@pytest.mark.parametrize("datasets", [["gold"], ["cpi", "gold"], ["gold", "dxy"]])
+def test_comparison_reports_market_rights_hold_before_loading_sources(monkeypatch, datasets):
+    def forbidden(*args, **kwargs):
+        pytest.fail("Withheld comparison must not read any observations")
+
+    monkeypatch.setattr(v2.service, "get", forbidden)
+    response = TestClient(v2.app).post(
+        "/api/v2/compare",
+        json={"datasets": datasets, "start": "2020-01-01", "end": "2020-12-31"},
+    )
+    assert response.status_code == 403
+    detail = response.json()["detail"]
+    assert "pending source rights review" in detail
+    assert "gold" in detail
+    assert ("dxy" in detail) == ("dxy" in datasets)

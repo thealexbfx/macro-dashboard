@@ -4,6 +4,7 @@ import { CatalogExplorer, type CatalogPage } from '../components/catalog-explore
 import {AppShell,pageLabel,viewQuery,viewPage} from '../components/app-shell';
 import {ResearchLibrary} from '../components/research-library';
 import {ResearchDataPicker} from '../components/research-data-picker';
+import {AskEvidence} from '../components/ask-evidence';
 import {HomeDashboard} from '../components/home-dashboard';
 import { defaultRollingWindow, timeframeStart, type Timeframe } from '../lib/presentation';
 import { Button } from '../components/ui/button';
@@ -153,7 +154,7 @@ export default function Page() {
     {tab==='Investigate'&&<ResearchReview record={record} onChange={setRecord} comparison={comparing?null:comparison} canAttach={canAttach} saving={saving} onSave={save} onSaveExit={saveExit}/>}
     {tab==='Investigate'&&<CalculationHistory record={record} comparison={comparison}/>}
     {tab === 'Dataset Explorer' && <CatalogExplorer selected={selected} favorites={favorites} onFavorite={favorite} onToggle={toggle} onCompare={()=>navigate('Investigate')} onMetadata={mergeMetadata}/>}
-    {tab==='Ask MacroLens'&&<section className="ml-surface ml-empty"><h2>AI assistance is not available</h2><p>Explore observed data and develop your own interpretation.</p><Button onClick={()=>navigate('Investigate')}>Back to Research</Button></section>}
+    {tab==='Ask MacroLens'&&<AskEvidence datasets={datasets} onBrowse={()=>navigate('Dataset Explorer')}/>}
     {tab==='My Research'&&<ResearchLibrary saved={saved} drafts={research.drafts} datasets={datasets} onResume={openInvestigation} onCreate={()=>void begin()} onExport={r=>research.exportDraft(r)}/>}
     </AppShell>;
 }

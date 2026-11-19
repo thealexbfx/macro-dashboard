@@ -155,8 +155,21 @@ def similarity(then, now, compatible=True):
 
 
 class HistoricalLibrary:
-    def __init__(self, store, transform_fn):
+    def __init__(self, store, transform_fn, withheld=()):
         self.store, self.transform_fn = store, transform_fn
+        self.withheld = tuple(sorted(withheld))
+        self.visible = (
+            " WHERE NOT EXISTS (SELECT 1 FROM json_each(library.snapshot,'$.finding.datasets') "
+            "WHERE value IN (" + ",".join("?" for _ in self.withheld) + "))"
+            if self.withheld
+            else ""
+        )
+
+    def count(self):
+        with self.store.connection() as db:
+            return db.execute(
+                "SELECT COUNT(*) FROM library" + self.visible, self.withheld
+            ).fetchone()[0]
 
     def seed(self, data, now):
         sources = {d.id: d for d in data}
@@ -211,9 +224,11 @@ class HistoricalLibrary:
         records = []
         with self.store.connection() as db:
             rows = db.execute(
-                "SELECT * FROM library ORDER BY id"
+                "SELECT * FROM library"
+                + self.visible
+                + " ORDER BY id"
                 + (" LIMIT ? OFFSET ?" if limit is not None else ""),
-                (limit, offset) if limit is not None else (),
+                (*self.withheld, limit, offset) if limit is not None else self.withheld,
             ).fetchall()
         for row in rows:
             snapshot = json.loads(row["snapshot"])

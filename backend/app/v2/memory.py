@@ -115,8 +115,9 @@ def priority(f, status):
 
 
 class DiscoveryMemory:
-    def __init__(self, store):
+    def __init__(self, store, withheld=()):
         self.store = store
+        self.withheld = tuple(sorted(withheld))
 
     def apply(self, findings, data, now=None):
         now = now or datetime.now(UTC)
@@ -252,24 +253,33 @@ class DiscoveryMemory:
         return changed
 
     def counts(self):
+        where, params = self.selection()
         with self.store.connection() as db:
             counts = {
                 r["status"]: r["n"]
                 for r in db.execute(
-                    "SELECT status,COUNT(*) n FROM stories GROUP BY status"
+                    "SELECT status,COUNT(*) n FROM stories"
+                    + where
+                    + " GROUP BY status",
+                    params,
                 )
             }
             historical = db.execute("SELECT COUNT(*) FROM library").fetchone()[0]
         return {
+            "historical": historical,
             "active": sum(n for k, n in counts.items() if k != "Archived"),
             "archived": counts.get("Archived", 0),
-            "historical": historical,
         }
 
-    @staticmethod
-    def selection(archived=None, identity=None, event_keys=None, exclude=()):
+    def selection(self, archived=None, identity=None, event_keys=None, exclude=()):
         clauses = []
         params = []
+        if self.withheld:
+            clauses.append(
+                "NOT EXISTS (SELECT 1 FROM json_each(stories.snapshot,'$.datasets') "
+                "WHERE value IN (" + ",".join("?" for _ in self.withheld) + "))"
+            )
+            params.extend(self.withheld)
         if archived is not None:
             clauses.append(
                 "status='Archived'"

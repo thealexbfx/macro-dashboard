@@ -67,7 +67,7 @@ export interface Dataset {
     headline?: {name:string;transformation:Transformation;value:number|null;units:string;reference_period:string;seasonal_adjustment:string|null;source_dataset_id:string;calculation_status:string};
     verification?: {status:string;raw_status?:string;headline_status?:string;audit_checked_at?:string;source_url?:string;limitation?:string;headline_reconciliation?:{reference:string;release_date:string|null;published_value:number;calculated_value:number;rounded_to_release_precision:number;difference_at_release_precision:number;source_url:string;vintage_note:string}};
     quality_warnings?: string[];
-    release_metadata?: {release_date?:string|null;next_release_date?:string|null;distributor_updated_at?:string|null;release_url?:string|null;audit_checked_at?:string;freshness_assessment?:string};
+    release_metadata?: {source_error_code?:string;release_date?:string|null;next_release_date?:string|null;distributor_updated_at?:string|null;release_url?:string|null;audit_checked_at?:string;freshness_assessment?:string};
     stored_provenance?: {attribution:string[];license_url:string;benchmark:string;source_unit:string;stored_start:string;stored_end:string;reference_convention:string;ai_allowed:false} | null;
     provider_metadata?:Record<string,unknown>;
     revision_count?:number;

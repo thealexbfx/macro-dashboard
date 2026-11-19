@@ -51,7 +51,7 @@ def main():
             stderr=backend_log,
         )
         frontend = subprocess.Popen(
-            ["node", "node_modules/next/dist/bin/next", "start", "-p", str(frontend_port)],
+            ["node", "node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "-p", str(frontend_port)],
             cwd=root / "frontend-v2",
             env=env,
             stdout=frontend_log,
@@ -91,6 +91,10 @@ def main():
             )
             subprocess.run(
                 [sys.executable, "-B", str(root / "scripts/test_redesign_browser.py")],
+                cwd=root, env=env, check=True,
+            )
+            subprocess.run(
+                [sys.executable, "-B", str(root / "scripts/test_ask_evidence_browser.py")],
                 cwd=root, env=env, check=True,
             )
         finally:

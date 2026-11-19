@@ -848,9 +848,10 @@ def parse_boe(entry, body):
             and "not seasonally adjusted" not in description
             else "Not seasonally adjusted"
         )
-    elif selector in {"IUDBEDR", "IUDSOIA"}:
+    elif entry["frequency"] == "daily" and selector in {"IUDBEDR", "IUDSOIA", "IUDMNPY"}:
         expected = {
             "IUDBEDR": "Official Bank Rate",
+            "IUDMNPY": "Yield from British Government Securities - 10 year Nominal Par Yield",
             "IUDSOIA": "Daily Sterling overnight index average (SONIA) rate",
         }
         if description != expected[selector]:
@@ -874,7 +875,9 @@ def parse_boe(entry, body):
             "title": description,
             "unit_label": units,
             "source": "Bank of England IADB",
-            "scope": "Amounts outstanding are stocks, not monthly net-lending flows; approvals are counts, not loan amounts.",
+            "scope": "Ten-year nominal par yield fitted from British government securities using the Bank of England's VRP model."
+            if selector == "IUDMNPY"
+            else "Amounts outstanding are stocks, not monthly net-lending flows; approvals are counts, not loan amounts.",
             "source_definition_note": "IADB rejects From dates before 1963. The reviewed request starts in 1963; actual available data can begin later. Policy/reference dates are not announcement timestamps.",
         },
     )

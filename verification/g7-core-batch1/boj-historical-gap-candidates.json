@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "scope": "DISCOVERY_ONLY",
+  "historical_completeness": "PARTIAL",
+  "mapping_status": "UNCONFIGURED",
+  "commercial_rights": "PENDING",
+  "production_approval": "NOT_APPROVED",
+  "candidates": [
+    {
+      "decision_date": "2006-07-14",
+      "regime": "CALL_RATE",
+      "instrument": "UNCOLLATERALIZED_OVERNIGHT_CALL_TARGET",
+      "candidate_value": 0.25,
+      "unit": "percent_per_annum",
+      "source_url": null,
+      "corroborating_official_url": "https://www.boj.or.jp/en/research/brp/ron_2007/ron0707c.htm",
+      "verification_status": "SOURCE_DISCOVERY_PENDING",
+      "note": "Find and independently verify original decision release; research summary is not original observation authority."
+    },
+    {
+      "decision_date": "2007-02-21",
+      "regime": "CALL_RATE",
+      "instrument": "UNCOLLATERALIZED_OVERNIGHT_CALL_TARGET",
+      "candidate_value": 0.5,
+      "unit": "percent_per_annum",
+      "source_url": null,
+      "corroborating_official_url": "https://www.boj.or.jp/en/mopo/mpmsche_minu/minu_2007/g070221.pdf",
+      "verification_status": "SOURCE_DISCOVERY_PENDING",
+      "note": "Meeting minutes corroborate change; find original decision and exact effective-date evidence."
+    },
+    {
+      "decision_date": "2008-10-31",
+      "regime": "CALL_RATE",
+      "instrument": "UNCOLLATERALIZED_OVERNIGHT_CALL_TARGET",
+      "candidate_value": null,
+      "unit": "percent_per_annum",
+      "source_url": null,
+      "corroborating_official_url": "https://www.boj.or.jp/en/mopo/mpmdeci/state_2008/index.htm",
+      "verification_status": "SOURCE_DISCOVERY_PENDING",
+      "note": "Original rate-change PDF linked by official 2008 statement index; retrieve and verify target."
+    },
+    {
+      "decision_date": "2008-12-19",
+      "regime": "CALL_RATE",
+      "instrument": "UNCOLLATERALIZED_OVERNIGHT_CALL_TARGET",
+      "candidate_value": null,
+      "unit": "percent_per_annum",
+      "source_url": null,
+      "corroborating_official_url": "https://www.boj.or.jp/en/mopo/mpmdeci/state_2008/index.htm",
+      "verification_status": "SOURCE_DISCOVERY_PENDING",
+      "note": "Original policy decision linked in official annual statement index; do not infer from secondary series."
+    },
+    {
+      "decision_date": "2018-07-31",
+      "regime": "QQE_YCC",
+      "instrument": "JGB_10Y_YIELD_FLUCTUATION_GUIDANCE",
+      "candidate_value": null,
+      "unit": "percent_per_annum",
+      "source_url": null,
+      "corroborating_official_url": "https://www.boj.or.jp/en/mopo/mpmsche_minu/minu_2018/g180731.htm",
+      "verification_status": "SOURCE_DISCOVERY_PENDING",
+      "note": "Official minutes include decision attachment; resolve standalone original statement and distinguish qualitative flexibility from numeric bands."
+    },
+    {
+      "decision_date": "2021-03-19",
+      "regime": "QQE_YCC",
+      "instrument": "JGB_10Y_YIELD_FLUCTUATION_BAND",
+      "candidate_value": null,
+      "candidate_lower": -0.25,
+      "candidate_upper": 0.25,
+      "unit": "percent_per_annum",
+      "source_url": "https://www.boj.or.jp/en/mopo/mpmdeci/state_2021/k210319a.pdf",
+      "verification_status": "SOURCE_DISCOVERY_PENDING",
+      "note": "Original policy release identified; independently verify publisher bytes and distinguish band from target and purchase-operation tools."
+    }
+  ]
+}
