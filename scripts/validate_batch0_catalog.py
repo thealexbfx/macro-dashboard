@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import math
 import os
 import sqlite3
 import statistics
@@ -54,9 +55,22 @@ def serve(port):
                     }
                     for i in range(60)
                 ]
+                if key == "cpi":
+                    # A current synthetic macro history exercises the real
+                    # anomaly engine and the Discover-to-research browser path.
+                    last_month = now.year * 12 + now.month - 2
+                    value = 100.0
+                    points = []
+                    for index in range(180):
+                        month = last_month - 179 + index
+                        value *= 1 + (0.04 if index == 179 else 0.002 + 0.0004 * math.sin(index))
+                        points.append({
+                            "date": f"{month // 12:04d}-{month % 12 + 1:02d}-01",
+                            "value": value,
+                        })
                 d = v.Dataset(
                     **spec.__dict__,
-                    status="stale",
+                    status="ok" if key == "cpi" else "stale",
                     message="SYNTHETIC OFFLINE BROWSER FIXTURE",
                     observations=points,
                     latest_observation_date=points[-1]["date"],
