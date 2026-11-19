@@ -634,8 +634,8 @@ class CatalogRefresh:
             old = db.execute(
                 """SELECT id FROM norm_generations g WHERE dataset_id=?
                 AND state='complete' AND substr(id,1,8)='refresh_'
-                AND NOT EXISTS(SELECT 1 FROM norm_observations o WHERE o.generation_id=g.id)
-                AND NOT EXISTS(SELECT 1 FROM norm_dataset_state s WHERE s.active_generation=g.id)
+                AND NOT EXISTS(SELECT 1 FROM norm_observations o WHERE o.dataset_id=g.dataset_id AND o.generation_id=g.id)
+                AND NOT EXISTS(SELECT 1 FROM norm_dataset_state s WHERE s.dataset_id=g.dataset_id AND s.active_generation=g.id)
                 ORDER BY completed_at DESC LIMIT -1 OFFSET 1""",
                 (key,),
             ).fetchall()
