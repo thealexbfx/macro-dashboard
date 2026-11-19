@@ -16,7 +16,7 @@ import sys
 import tempfile
 import time
 from collections import Counter
-from contextlib import closing
+from contextlib import ExitStack, closing
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from threading import Event, Thread
@@ -36,7 +36,7 @@ def main():
         (args.expansion_bundle, args.g7_receipts, args.g7_cpi_database)
     ):
         parser.error("The combined G7 rehearsal requires the expansion bundle, receipts and CPI database")
-    faulthandler.dump_traceback_later(120, repeat=True)
+    faulthandler.dump_traceback_later(600, exit=True)
     with tempfile.TemporaryDirectory(prefix="release100-disposable-") as directory:
         exercise(
             Path(directory),
@@ -411,7 +411,7 @@ def exercise(
     bg = None
     combined_g7 = None
     try:
-        with TestClient(v.app) as client:
+        with TestClient(v.app) as client, ExitStack() as cleanup:
             for _ in range(120):
                 if client.get("/api/v2/discovery").status_code == 200:
                     break
@@ -425,6 +425,10 @@ def exercise(
             assert baseline["public"] == before_count
             bg = Thread(target=traffic, args=(client,), daemon=True)
             bg.start()
+            # Stop traffic before TestClient shuts down, including failed assertions.
+            # Otherwise teardown can wait on requests which the loop keeps creating.
+            cleanup.callback(bg.join, timeout=30)
+            cleanup.callback(stop.set)
             invocations = 0
             for _ in range(100):
                 result = cli("stage")

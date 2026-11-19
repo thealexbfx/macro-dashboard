@@ -70,3 +70,27 @@ The baseline recorded 16 HTTP 503s in 3,864 requests. The updated run recorded
 22 in 3,792 requests. At the final sample, the updated container reported
 563 MiB of file-backed memory and 187 MiB of anonymous memory. The isolated
 validator improvement alone has not verified application headroom.
+
+The [213-dataset hosted rehearsal](https://github.com/thealexbfx/macro-dashboard/actions/runs/44453307354)
+passed at commit `4e5a96d`. It preserved all 194 public IDs, read 19
+private histories containing 41,820 observation records, checked 78 denied
+public requests before and after the preview, and verified backup/restore
+and the saved-research sentinel. The legacy cache used synthetic load fixtures.
+The G7 preview imported the retained six-series CPI audit. It does not establish
+that all series are current to the latest publisher release.
+
+The next refresh change restricts proof-compaction lookups to their dataset,
+using the existing observation index. A 164-dataset synthetic query benchmark
+returned the same 11 obsolete generations with approximately 72,500 SQLite
+execution steps versus 7,872,400 before. Full application measurements remain
+necessary to establish the effect on resource use and API availability.
+
+The first matched hosted trial with the dataset-scoped query completed the
+164-series, 512 MiB refresh workload in 371.7 seconds, compared with 764.9
+seconds in the prior trial. API p95 moved from 609.5 ms to 401.5 ms. Temporary
+HTTP 503 responses were 31 of 2,922 requests in the updated trial versus
+24 of 3,852 before. Both trials reached the container memory limit with zero
+out-of-memory kills. This synthetic workload result supports the query
+optimization while leaving availability and capacity acceptance open.
+[Updated trial](https://github.com/thealexbfx/macro-dashboard/actions/runs/44453764941/job/135323729286)
+and [prior trial](https://github.com/thealexbfx/macro-dashboard/actions/runs/44011412227/job/133799043140).

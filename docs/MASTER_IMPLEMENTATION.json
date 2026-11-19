@@ -22,7 +22,7 @@
       "depends_on": [
         "catalog"
       ],
-      "status": "SIX_CPI_SERIES_REPEAT_VERIFIED_BROADER_G7_PENDING",
+      "status": "NINETEEN_PRIVATE_HISTORIES_213_REHEARSAL_PASSED_ORIGINAL_GAPS_OPEN",
       "acceptance": "Verify handling of the next actual CPI release and expand original-source historical staging with per-series receipts."
     },
     {
@@ -92,7 +92,7 @@
         "reliability",
         "discovery"
       ],
-      "status": "DISPOSABLE_REHEARSAL_PASSED_CAPACITY_HEADROOM_OPEN",
+      "status": "DISPOSABLE_213_REHEARSAL_PASSED_REFRESH_HEADROOM_OPEN",
       "acceptance": "Validate operator runbook, release and rollback in a disposable environment and obtain approval before production"
     }
   ],
@@ -185,7 +185,7 @@
     "pull_requests": [
       {
         "number": 76,
-        "title": "Run BOJ 2006–2008 source review queue in manual audit",
+        "title": "Run BOJ 2006\u20132008 source review queue in manual audit",
         "head": "chore/boj-2006-2008-queue-audit",
         "base": "main",
         "status": "merged"
@@ -705,12 +705,12 @@
     "standalone_issues": [
       {
         "number": 77,
-        "title": "MacroLens master autonomous implementation — entire platform, G7 data, research tools and release readiness",
+        "title": "MacroLens master autonomous implementation \u2014 entire platform, G7 data, research tools and release readiness",
         "state": "open"
       },
       {
         "number": 65,
-        "title": "Reconstruct BOJ 2006–2008 rate decisions and 2016–2024 YCC history",
+        "title": "Reconstruct BOJ 2006\u20132008 rate decisions and 2016\u20132024 YCC history",
         "state": "open"
       },
       {
@@ -856,6 +856,60 @@
       "refresh_memory_peak_mib": 512,
       "refresh_oom_kills": 0,
       "refresh_scope": "SYNTHETIC observations, actual captured row-count profiles and reviewed definitions; offline transport/parser injection"
+    }
+  },
+  "execution_checkpoint": {
+    "branch": "feature/macrolens-master-integration",
+    "draft_pr": 78,
+    "validated_213_rehearsal": {
+      "head": "4e5a96d053ae77ac3c13ef7feef4c88d4b5e3c24",
+      "run_id": 44453307354,
+      "public_ids_preserved": 194,
+      "private_series": 19,
+      "combined_preview_ids": 213,
+      "actual_native_observations": 176460,
+      "private_observation_records": 41820,
+      "legacy_scope": "Synthetic cached load fixtures, not legacy-source ingestion proof",
+      "public_private_endpoint_denials": 78,
+      "private_release_grants": 0,
+      "rollback_and_restore_passed": true,
+      "production_access": false
+    },
+    "local_validation": {
+      "query_benchmark": {
+        "synthetic_datasets": 164,
+        "synthetic_observations": 164000,
+        "obsolete_generations": 11,
+        "same_generations_returned": true,
+        "before_sqlite_steps_approx": 7872400,
+        "after_sqlite_steps_approx": 72500
+      },
+      "focused_capture_refresh_backup_tests_passed": 32,
+      "discovery_handoff": "Computed synthetic CPI anomaly passed comparison through the normal API. Browser save/reopen validation pending.",
+      "failure_cleanup": "Injected catalogue smoke failure returned after traffic shutdown in a synthetic 164-series rehearsal."
+    },
+    "release_blockers": [
+      "Full-catalogue refresh headroom and temporary API errors still require hosted measurement after the dataset-scoped proof query change.",
+      "Nine headline G7 concepts still require original national-publisher history evidence.",
+      "New G7 commercial rights reviews and production approval remain pending.",
+      "Discovery historical backtesting and broader grounded Ask questions remain open."
+    ],
+    "next": [
+      "Inspect current-head hosted Research validation, Discovery browser journey and refresh capacity receipts.",
+      "Investigate file-backed memory and classify temporary API errors without weakening workload protection.",
+      "Resolve Istat CPI base-period metadata and obtain current original national CPI histories for Italy and Germany."
+    ],
+    "refresh_comparison": {
+      "scope": "Synthetic 164-series workload at 512 MiB, first matched trial",
+      "before_job": 133799043140,
+      "after_job": 135323729286,
+      "before_seconds": 764.910577902,
+      "after_seconds": 371.67817695400004,
+      "before_p95_ms": 609.5221519999541,
+      "after_p95_ms": 401.5019419999817,
+      "peak_headroom_bytes": 0,
+      "out_of_memory_kills": 0,
+      "temporary_api_errors_remain": true
     }
   }
 }

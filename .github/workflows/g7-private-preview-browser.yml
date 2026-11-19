@@ -7,6 +7,10 @@ on:
       - scripts/capture_insee_core_history.py
       - scripts/serve_g7_core_preview.py
       - scripts/test_g7_preview_browser.py
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   actions: read

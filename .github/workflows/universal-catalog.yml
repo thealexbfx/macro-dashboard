@@ -14,6 +14,10 @@ on:
       - 'verification/g7-core-batch1/**'
       - '.github/workflows/universal-catalog.yml'
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   actions: read
