@@ -24,6 +24,24 @@ from threading import Event, Thread
 from scripts.linux_cgroup import snapshot
 
 
+def release_smoke_request(client, method, path, body=None, *, wait=time.sleep):
+    """Retry the app's explicit contention response in this disposable rehearsal."""
+    args = {"json": body} if body is not None else {}
+    for attempt in range(3):
+        response = client.request(method, path, **args)
+        data = response.json()
+        if (
+            response.status_code != 503
+            or response.headers.get("Retry-After") != "2"
+            or data != {"detail": "Research worker is busy; retry shortly."}
+            or attempt == 2
+        ):
+            return response.status_code, data
+        print(json.dumps({"rehearsal_phase": "smoke_busy_retry", "method": method,
+                          "path": path, "attempt": attempt + 1}), flush=True)
+        wait(2)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bundle", type=Path, required=True)
@@ -452,12 +470,7 @@ def exercise(
                 from scripts.smoke_release100 import checks
 
             def request(method, path, body=None):
-                response = (
-                    client.request(method, path, json=body)
-                    if body is not None
-                    else client.request(method, path)
-                )
-                return response.status_code, response.json()
+                return release_smoke_request(client, method, path, body)
 
             progress("catalog_smoke")
             smoke = checks(request)

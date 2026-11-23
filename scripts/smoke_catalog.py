@@ -30,13 +30,15 @@ def checks(request):
             f"/api/v2/datasets/{key}",
             f"/api/v2/observations/{key}?start=1960-01-01&end=2020-01-01",
         ):
-            assert request("GET", path)[0] in {404, 422}
+            code, _ = request("GET", path)
+            assert code in {404, 422}, f"GET {path}: expected private denial, got HTTP {code}"
             denied += 1
-        assert request(
+        code, _ = request(
             "POST",
             "/api/v2/compare",
             {"datasets": [key, "cpi"], "start": "2020-01-01", "end": "2021-01-01"},
-        )[0] in {404, 422}
+        )
+        assert code in {404, 422}, f"POST /api/v2/compare for {key}: expected private denial, got HTTP {code}"
         denied += 1
     for key in sorted(ids - set(v for v in plan["baseline_ids"])):
         # Every new ID gets a bounded on-demand range and metadata check.
