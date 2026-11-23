@@ -22,8 +22,8 @@
       "depends_on": [
         "catalog"
       ],
-      "status": "SEVENTEEN_OF_TWENTY_ONE_ORIGINAL_CORE_HISTORIES_VERIFIED",
-      "acceptance": "Verify the 214-dataset hosted rehearsal and finish German unemployment and Italian CPI/GDP/unemployment. Continue wider official histories, rights reviews and incremental refresh."
+      "status": "ALL_TWENTY_ONE_HEADLINE_CONCEPTS_HAVE_ORIGINAL_PUBLISHER_HISTORY_EVIDENCE",
+      "acceptance": "214-dataset hosted rehearsal passed. Rehearse all 28 private histories together, extend wider official histories and BOJ regime reconstruction, automate remaining development refresh, and finish rights review."
     },
     {
       "id": "today",
@@ -54,8 +54,8 @@
       "depends_on": [
         "catalog"
       ],
-      "status": "PARTIAL",
-      "acceptance": "Browser-test observation evidence and expand grounded questions using existing validated comparison receipts"
+      "status": "OBSERVATION_EVIDENCE_WITH_REFERENCE_DATE_IMPLEMENTED",
+      "acceptance": "Run the hosted historical reference-date walkthrough and add grounded cross-series questions using comparison receipts."
     },
     {
       "id": "saved",

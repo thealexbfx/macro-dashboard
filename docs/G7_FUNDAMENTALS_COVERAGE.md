@@ -13,18 +13,21 @@ observations. The French table separately lists the publisher update dates.
 | --- | --- | --- | --- |
 | Canada | Statistics Canada, `ca_cpi_all_items_nsa`, private, Jan 1914 to Oct 2026 in the separate CPI audit | Statistics Canada, `g7_ca_01`, private, quarterly expenditure GDP at market prices in chained 2017 dollars at annual rates, 1961 Q1 to 2026 Q2 | Statistics Canada, `g7_ca_11`, private, Jan 1976 to Oct 2026 |
 | France | Eurostat harmonized HICP, `eurostat_2591546ccb87a306e904` (Jan 1996 to Oct 2026). INSEE national CPI `g7_fr_07` added to private staging | Eurostat country series, `eurostat_eca8a799de8d6687fe33` (1980 Q1 to 2026 Q3). INSEE `g7_fr_01` private, 1949 Q1 to 2026 Q3, chained 2020 euros, seasonally and working-day adjusted | Eurostat monthly, `eurostat_61686fe8fdc9577e6d47` (Jan 1983 to Sep 2026). INSEE quarterly, France excluding Mayotte, `g7_fr_11` added to private staging |
-| Germany | Eurostat harmonized HICP, `eurostat_6545d7d4eb72cd90a2b8` (Jan 1996 to Oct 2026). Destatis national CPI `g7_de_07` private, Jan 1991 to Oct 2026 | Eurostat country series, `eurostat_e4b0591cf148660f3349` (1991 Q1 to 2026 Q3). Destatis `g7_de_01` private, 1991 Q1 to 2026 Q2, X13 seasonally and calendar adjusted volume index | Eurostat monthly, `eurostat_37c229cd537e5fa533bb` (Jan 1991 to Sep 2026). Original national history pending |
-| Italy | Eurostat harmonized HICP, `eurostat_8f5e1320615623acdebb` (Jan 1996 to Oct 2026). Istat national CPI backfill pending | Eurostat country series, `eurostat_6e1c74c102959c0ded7b` (1996 Q1 to 2026 Q3). Istat backfill pending | Eurostat monthly, `eurostat_c0fc01ed5efaf8a07abd` (Jan 1983 to Sep 2026). Istat backfill pending |
+| Germany | Eurostat harmonized HICP, `eurostat_6545d7d4eb72cd90a2b8` (Jan 1996 to Oct 2026). Destatis national CPI `g7_de_07` private, Jan 1991 to Oct 2026 | Eurostat country series, `eurostat_e4b0591cf148660f3349` (1991 Q1 to 2026 Q3). Destatis `g7_de_01` private, 1991 Q1 to 2026 Q2, X13 seasonally and calendar adjusted volume index | Eurostat monthly, `eurostat_37c229cd537e5fa533bb` (Jan 1991 to Sep 2026). Destatis `g7_de_11` private, Jan 2007 to Sep 2026, unadjusted ILO rate |
+| Italy | Eurostat harmonized HICP, `eurostat_8f5e1320615623acdebb` (Jan 1996 to Oct 2026). Istat `g7_it_07` private, Jan 1996 to Oct 2026, NIC linked to 2025=100 | Eurostat country series, `eurostat_6e1c74c102959c0ded7b` (1996 Q1 to 2026 Q3). Istat `g7_it_01` private, 1996 Q1 to 2026 Q3, seasonally and calendar adjusted chained 2020 euros | Eurostat monthly, `eurostat_c0fc01ed5efaf8a07abd` (Jan 1983 to Sep 2026). Istat `g7_it_11` private, Jan 2004 to Sep 2026, ages 15–74, seasonally adjusted |
 | Japan | Statistics Bureau/e-Stat, `jp_cpi_all_items_2025_nsa`, private, Jan 1970 to Sep 2026 in the CPI audit | Cabinet Office/ESRI, `g7_jp_01`, private, quarterly chained 2020 yen at annual rates, 1994 Q1 to 2026 Q2 | Statistics Bureau/e-Stat, `g7_jp_11`, private, Jan 1953 to Sep 2026 |
 | United Kingdom | ONS D7BT, `ons_24c4972dca3a5b1bbe32` (Jan 1988 to Sep 2026), monthly | ONS ABMI, `ons_a007e11b21ed0f67ccf1` (1955 Q1 to 2026 Q2), quarterly chained volume | ONS MGSX, `ons_24df6f5df34ca52bac40` (Feb 1971 to Jul 2026), monthly publication of rolling three-month estimates |
 | United States | BLS series via FRED, `cpi_nsa` (Jan 1913 to Oct 2026); original BLS private `g7_us_07` capture completed | BEA original workbook T10106-Q/A191RX, `fred_8d3240bb6b5eae523737` (1947 Q1 to 2026 Q3) | BLS U-3 via FRED, `unemployment` (Jan 1948 to Oct 2026); original BLS private `g7_us_11` capture completed |
 
-With the INSEE GDP, BLS CPI/U-3 and Destatis CPI/GDP captures, 17 of 21 core
-concepts have original-publisher history evidence. Four national backfills
-remain open: German unemployment and Italian CPI, GDP and unemployment.
-The full private preview can load 24 histories with both Destatis inputs. The hosted profile rehearses 20 private histories
-alongside the 194 public IDs.
-This core checklist does not complete the wider data programme.
+All 21 headline concepts across the seven countries now have original-publisher
+historical evidence, including the Istat NIC series derived from publisher
+levels and official coefficients. The full private preview supports 28
+histories with the additional German and Italian inputs. The [hosted rehearsal](https://github.com/thealexbfx/macro-dashboard/actions/runs/45110356264)
+verified 20 private histories (42,144 records) alongside all 194 public IDs,
+82 denied public requests for private data, zero private publication grants,
+rollback, backup and restore. The rehearsal reached the 512 MiB memory
+limit without an OOM kill. The core checklist covers CPI, real GDP and
+unemployment. Other indicator families remain in the wider data programme.
 
 The BLS capture retains 1,365 CPI values from January 1913 to October 2026 and
 945 unemployment values from January 1948 to October 2026. Each also contains
@@ -60,8 +63,7 @@ export and external AI use. [INSEE’s legal notice](https://www.insee.fr/en/inf
 lists conditions for eligible data, including source credit, the last update
 date when known, and preserving the meaning of the information.
 
-The next backfill targets are German unemployment and the three Italian
-core histories. The German
+The next backfill targets are German unemployment and Italian CPI. The German
 API returned HTTP 401, while its anonymous public CPI table and CSV options
 were accessible in the browser. Istat SDMX metadata requests timed out; its
 NSDP extracts need current-vintage and base-year checks before use.
@@ -164,11 +166,21 @@ The Q3 preliminary report is a separate release. Both Destatis receipts
 and the six refreshed CPI histories staged together in a disposable database
 with no publication grants.
 
-Istat's October 5 GDP workbook contains only 2021 Q1–2026 Q2 quarterly
-levels, so it does not replace the longer Eurostat series. Istat's monthly
-unemployment chart contains 273 data points from 2004 through September
-2026. The chart labels do not provide all the required series dimensions,
-so it remains a lead for matching against the official labour force series.
+Istat's published [NSDP SDMX route](https://www.istat.it/nsdp/) provides 123
+quarters of Italy real GDP (1996 Q1 through 2026 Q3, selector
+`NGDP_R_CH_SA_EUR`). Its 2026 Q3 change rounds to 0.0% quarterly and
+0.8% annually, matching the preliminary release. The SDMX vintage is
+kept distinct from the shorter October 5 workbook, whose revised levels
+differ in several overlapping periods. SDMX SHA-256:
+`48486b77f5c6b8d6eed510deb2c254a96e808fe5f3e3a4d745bc1056e6eb0bcd`.
+The four new German/Italian histories and six CPI histories loaded in one
+disposable private database with zero publication grants. Istat's monthly unemployment SDMX release `2026M10G29` confirms that the
+chart matches the seasonally adjusted national rate for both sexes ages
+15–74. The exact SDMX selection contains 273 values from January 2004 to
+September 2026, with no missing months. September's 6.261073% rounds
+to the published 6.3%. The pinned edition keeps later vintages from
+silently replacing evidence. SHA-256:
+`15705185650f8b4acf27db5f438c4fe5c5d9300ec22d0d713b766d95741954cd`.
 
 ## Discovery historical replay
 
@@ -191,3 +203,31 @@ The [hosted browser walkthrough](https://github.com/thealexbfx/macro-dashboard/a
 passed on commit `7a56291` with the explicit 20-history scope. Its logs
 confirmed Dataset Explorer filtering, CPI comparison, research save and
 reopen, and Ask source evidence.
+
+Destatis table 13231-0001 verifies the original, unadjusted ILO unemployment
+rate for Germany. It has 237 consecutive published rates from January 2007
+to September 2026 and 192 pre-2007 source placeholders preserved as nulls.
+The three trailing unpublished periods are kept in the capture receipt.
+The same table also offers separately defined estimated trend columns.
+Those columns are not used in the original rate or presented as seasonal
+adjustment. ZIP SHA-256:
+`d13b81eca24087ae2ed8234abe93c143a8c0bc36098941874a4f91b525bc0e96`.
+
+## Istat national CPI
+
+Istat publishes four reconstructed ECOICOP v2 NIC segments covering January
+1996 to October 2026. The linked series has 370 consecutive monthly values
+and no nulls. Older index levels are divided by the applicable product of
+Istat's official coefficients (1.398, 1.075 and 1.226). The receipt stores the
+published value and base for every row. From January 2026, values are native
+2025-base observations. The linked remainder is a MacroLens transformation,
+and remains separate from Italy's HICP. October 2026 is 105.6. Its linked
+year-on-year change rounds to 5.5% and month-on-month to 1.0%, matching the
+[Istat release](https://www.istat.it/comunicato-stampa/prezzi-al-consumo-ottobre-2026/).
+The methodology comes from Istat's [2026 CPI technical note](https://www.istat.it/wp-content/uploads/2026/02/NOTA_INFORMATIVA_PANIERE_2026.pdf).
+
+All six German and Italian additions staged alongside the six refreshed
+Canadian and Japanese CPI histories with zero release grants. Source captures
+include explicit rights holds, checksums, selection identifiers and coverage.
+The separately captured additions still require wider production refresh and
+rights review.

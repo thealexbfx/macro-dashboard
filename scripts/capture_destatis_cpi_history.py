@@ -19,18 +19,22 @@ IDENTITY = {
 }
 
 
-def read_export(path):
+def read_flat_archive(path, table, limit):
     with path.open("rb") as stream:
-        raw = stream.read(LIMIT + 1)
-    if len(raw) > LIMIT:
+        raw = stream.read(limit + 1)
+    if len(raw) > limit:
         raise ValueError("Destatis archive exceeds size limit")
     with ZipFile(io.BytesIO(raw)) as archive:
         entries = archive.infolist()
-        if (len(entries) != 1 or entries[0].filename != "61111-0002_de_flat.csv"
-                or entries[0].file_size > LIMIT):
+        if (len(entries) != 1 or entries[0].filename != f"{table}_de_flat.csv"
+                or entries[0].file_size > limit):
             raise ValueError("Unexpected Destatis archive")
         content = archive.read(entries[0]).decode("utf-8-sig")
-    reader = csv.DictReader(io.StringIO(content), delimiter=";")
+    return csv.DictReader(io.StringIO(content), delimiter=";"), sha256(raw).hexdigest()
+
+
+def read_export(path):
+    reader, checksum = read_flat_archive(path, "61111-0002", LIMIT)
     required = set(IDENTITY) | {"value_unit", "time", "1_variable_attribute_code", "value", "value_q"}
     if not required.issubset(reader.fieldnames or ()):
         raise ValueError("Missing Destatis export columns")
@@ -56,7 +60,7 @@ def read_export(path):
             if value <= 0:
                 raise ValueError(f"Nonpositive Destatis CPI in {period}")
         points[period] = {"period": period, "value": value, "publisher_flag": flag}
-    return points, sha256(raw).hexdigest()
+    return points, checksum
 
 
 def capture(history, recent):

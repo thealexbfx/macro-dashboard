@@ -83,3 +83,37 @@ python -m scripts.capture_destatis_gdp_history gdp.xlsx /path/to/receipts/G7-DE-
 
 Pass `--include-destatis-gdp` to the preview command to load the receipt.
 With both German additions enabled, the full preview loads 24 private histories.
+
+## Optional Italian real GDP
+
+Use the chain-linked GDP SDMX export linked from [Istat's NSDP](https://www.istat.it/nsdp/).
+Create the receipt with `python -m scripts.capture_istat_core_history G7-IT-01 gdp.xml /path/to/receipts/G7-IT-01.json`
+and pass `--include-istat-gdp` to the private preview. For Italian
+unemployment, download the exact `LABOR_SOURCE` URL in the capture script,
+then run `python -m scripts.capture_istat_core_history G7-IT-11 unemployment.xml /path/to/receipts/G7-IT-11.json`.
+Pass `--include-istat-unemployment` to load it. The six separately captured
+German and Italian additions bring the full preview to 28 histories.
+
+## Optional German ILO unemployment rate
+
+Select all years in [Destatis table 13231-0001](https://genesis.destatis.de/datenbank/online/statistic/13231/table/13231-0001)
+and download the German CSV (Flat) ZIP with quality flags.
+
+```sh
+python -m scripts.capture_destatis_unemployment_history labor.zip /path/to/receipts/G7-DE-11.json
+```
+
+Pass `--include-destatis-unemployment` to load the unadjusted original series.
+
+## Optional Italian headline CPI
+
+Download the exact `SOURCE` and `COEFFICIENTS` URLs in the capture script.
+The importer checks both languages of the coefficient workbook, then links
+the national all-items level segments using the published Istat factors.
+
+```sh
+python -m scripts.capture_istat_cpi_history nic.xml coefficients.xlsx /path/to/receipts/G7-IT-07.json
+```
+
+Pass `--include-istat-cpi` to load the linked series. The receipt retains
+the original period base and value as well as the linked value.

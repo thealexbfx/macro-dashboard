@@ -69,7 +69,12 @@ def main():
         expect(page.get_by_role("link", name="Source for France headline CPI (INSEE)")).to_have_attribute(
             "href", "https://www.bdm.insee.fr/series/sdmx/data/SERIES_BDM/011814630"
         )
-        print("G7 filtering, CPI comparison, research save/reopen and Ask source evidence passed")
+        page.get_by_label("Through reference date (optional)").fill("2020-03-15")
+        page.get_by_role("button", name="Show evidence").click()
+        expect(page.get_by_text("Through 2020-03-15, using the available revised history.")).to_be_visible(timeout=30000)
+        expect(page.get_by_text("2020-03-01 ·", exact=False)).to_be_visible()
+        expect(page.get_by_text("2020-02-01 ·", exact=False)).to_be_visible()
+        print("G7 filtering, CPI comparison, research save/reopen and Ask source/date evidence passed")
         browser.close()
 
 

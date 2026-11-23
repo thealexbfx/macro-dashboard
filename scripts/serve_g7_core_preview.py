@@ -139,7 +139,7 @@ def import_cpi(store, source_path):
     return publications
 
 
-def stage(receipts, workspace, *, cpi_database=None, include_destatis_cpi=False, include_destatis_gdp=False):
+def stage(receipts, workspace, *, cpi_database=None, include_destatis_cpi=False, include_destatis_gdp=False, include_istat_gdp=False, include_istat_unemployment=False, include_destatis_unemployment=False, include_istat_cpi=False):
     workspace.mkdir()
     store = Store(workspace / "private-g7.sqlite3")
     with store.connection(True) as db:
@@ -153,6 +153,18 @@ def stage(receipts, workspace, *, cpi_database=None, include_destatis_cpi=False,
     if include_destatis_gdp:
         series = series | {"DE-01": ("Germany real GDP (Destatis)", "destatis",
                                       "quarterly", "Volume index, 2020=100", "2180130/1.1/I")}
+    if include_istat_gdp:
+        series = series | {"IT-01": ("Italy real GDP (Istat)", "istat", "quarterly",
+                                      "Millions of chained 2020 euros", "NGDP_R_CH_SA_EUR")}
+    if include_istat_unemployment:
+        series = series | {"IT-11": ("Italy unemployment ages 15–74 (Istat)", "istat",
+                                      "monthly", "Percent", "M.IT.UNEM_R.Y.9.Y15-74")}
+    if include_destatis_unemployment:
+        series = series | {"DE-11": ("Germany ILO unemployment rate (Destatis)", "destatis",
+                                      "monthly", "Percent", "13231-0001/ERW089/WERTORG")}
+    if include_istat_cpi:
+        series = series | {"IT-07": ("Italy headline CPI (Istat, linked history)", "istat",
+                                      "monthly", "2025=100 (historical levels linked)", "M.IT.1+9+39+85.4.00")}
     for suffix, (name, provider, frequency, units, selector) in series.items():
         mapping = "G7-" + suffix
         path = receipts / f"{mapping}.json"
@@ -167,8 +179,8 @@ def stage(receipts, workspace, *, cpi_database=None, include_destatis_cpi=False,
             raise ValueError(f"Unexpected receipt identity or rights status: {mapping}")
         source_url = payload.get("source_url") or payload["sources"]["history"]["url"]
         adjustment = (
-            "Seasonally and working-day adjusted" if suffix in {"FR-01", "DE-01"}
-            else "Seasonally adjusted" if suffix.endswith(("-01", "-11"))
+            "Seasonally and working-day adjusted" if suffix in {"FR-01", "DE-01", "IT-01"}
+            else "Seasonally adjusted" if suffix != "DE-11" and suffix.endswith(("-01", "-11"))
             else "Not seasonally adjusted"
         )
         dataset = Definition(mapping.lower().replace("-", "_"), provider, selector, units, frequency,
@@ -191,10 +203,13 @@ def stage(receipts, workspace, *, cpi_database=None, include_destatis_cpi=False,
                 raise RuntimeError(status)
         else:
             raise RuntimeError(f"Capture exceeded staging budget: {mapping}")
+        notes = ("Publisher history captured for private development. Release rights pending.",)
+        if suffix == "IT-07":
+            notes += ("Older index levels are linked to the 2025 base using Istat's published coefficients.",)
         publications[dataset.id] = NativePublication(
             dataset, name, "G7 core", suffix[:2], source_url, source_url,
             (f"Official source: {source_url}",), "PRIVATE_PREVIEW_RIGHTS_PENDING",
-            ("Publisher history captured for private development. Release rights pending.",),
+            notes,
         )
     return store, PreviewReader(store.path, publications)
 
@@ -208,11 +223,22 @@ def main():
                         help="Load the separately exported G7-DE-07 receipt")
     parser.add_argument("--include-destatis-gdp", action="store_true",
                         help="Load the separately captured G7-DE-01 receipt")
+    parser.add_argument("--include-istat-gdp", action="store_true",
+                        help="Load the separately captured G7-IT-01 receipt")
+    parser.add_argument("--include-istat-unemployment", action="store_true",
+                        help="Load the separately captured G7-IT-11 receipt")
+    parser.add_argument("--include-destatis-unemployment", action="store_true",
+                        help="Load the separately exported G7-DE-11 receipt")
+    parser.add_argument("--include-istat-cpi", action="store_true",
+                        help="Load the separately captured G7-IT-07 receipt")
     parser.add_argument("--port", type=int, default=8140)
     args = parser.parse_args()
     store, reader = stage(args.receipts, args.new_workspace, cpi_database=args.cpi_database,
                           include_destatis_cpi=args.include_destatis_cpi,
-                          include_destatis_gdp=args.include_destatis_gdp)
+                          include_destatis_gdp=args.include_destatis_gdp, include_istat_gdp=args.include_istat_gdp,
+                          include_istat_unemployment=args.include_istat_unemployment,
+                          include_destatis_unemployment=args.include_destatis_unemployment,
+                          include_istat_cpi=args.include_istat_cpi)
     os.environ.update(MACROLENS_V2_STATE_DB=str(store.path), MACROLENS_AI_ENABLED="false",
                       MACROLENS_INGESTION_ENABLED="0", MACROLENS_CATALOG_REFRESH_ENABLED="0")
     import uvicorn

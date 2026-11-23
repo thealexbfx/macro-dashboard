@@ -17,6 +17,7 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
     const [matches, setMatches] = useState<Dataset[]>([]);
     const [searchStatus, setSearchStatus] = useState('');
     const [chosen, setChosen] = useState<Dataset>();
+    const [through, setThrough] = useState('');
     const [mode, setMode] = useState<'difference' | 'percent'>('difference');
     const [result, setResult] = useState<Preview | null>(null);
     const [pending, setPending] = useState(false);
@@ -55,9 +56,12 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
         setError('');
         setResult(null);
         try {
-            const data = await request<Preview>(`observations/${encodeURIComponent(id)}?preview=true&limit=40`, undefined, controller.signal);
+            const params = new URLSearchParams({preview: 'true', limit: '40'});
+            if (through) params.set('end', through);
+            const data = await request<Preview>(`observations/${encodeURIComponent(id)}?${params}`, undefined, controller.signal);
             if (!controller.signal.aborted) {
                 if (data.dataset.id !== id || !eligible(data.dataset)) throw Error('Dataset identity or source eligibility mismatch');
+                if (through && data.dataset.observations?.some(row => row.date > through)) throw Error('Observation beyond the requested date');
                 setResult(data);
             }
         } catch {
@@ -95,6 +99,11 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
                 <option value="">Choose a dataset</option>
                 {Array.from(options.values(), dataset => <option key={dataset.id} value={dataset.id}>{dataset.name}</option>)}
             </select>{' '}
+            <label htmlFor="ask-through">Through reference date (optional)</label>{' '}
+            <input id="ask-through" type="date" value={through} onChange={event => {
+                active.current?.abort();
+                setThrough(event.target.value); setResult(null); setError(''); setPending(false);
+            }}/>{' '}
             <label htmlFor="ask-calculation">Calculation</label>{' '}
             <select id="ask-calculation" value={mode} onChange={event =>
                 setMode(event.target.value === 'percent' ? 'percent' : 'difference')
@@ -110,6 +119,7 @@ export function AskEvidence({datasets, onBrowse}: {datasets: Dataset[]; onBrowse
             {result && !evidence && <p>Two distinct, finite observations are required in the returned preview.</p>}
             {result && evidence && <>
                 <h2>{result.dataset.name}</h2>
+                {through && <p>Through {through}, using the available revised history.</p>}
                 <p>{evidence.latest.date} · {evidence.latest.value} {result.dataset.units}</p>
                 <p>{evidence.previous.date} · {evidence.previous.value} {result.dataset.units}</p>
                 {mode === 'difference' ? (

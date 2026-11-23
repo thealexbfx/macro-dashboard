@@ -49,6 +49,7 @@ HOSTS = frozenset(
         "www.bdm.insee.fr",
         "genesis.destatis.de",
         "www.destatis.de",
+        "esploradati.istat.it",
         "www.federalreserve.gov",
         "oui.doleta.gov",
         "markets.newyorkfed.org",
@@ -78,6 +79,20 @@ def safe_url(url):
                  or part.query or part.fragment)
         )
         or (
+            part.hostname == "esploradati.istat.it"
+            and (
+                part.path not in {
+                    ("/SDMXWS/rest/data/IT1,NAG_08,1.0/"
+                    "..NFI_R_CH_SA_EUR+NGDP_R_CH_SA_EUR+NM_R_CH_SA_EUR+NX_R_CH_SA_EUR../ALL/"),
+                    "/SDMXWS/rest/data/IT1,167_745_DF_DCSP_NIC1B2025_6,1.0/M.IT..4.00/ALL/",
+                    ("/SDMXWS/rest/data/IT1,151_874_DF_DCCV_TAXDISOCCUMENS1_1,1.0/"
+                     "M.IT.UNEM_R.Y.9.Y15-74.2026M10G29/ALL/"),
+                }
+                or part.query != "detail=full&dimensionAtObservation=TIME_PERIOD&format=structurespecificdata"
+                or part.fragment
+            )
+        )
+        or (
             part.hostname == "www.destatis.de"
             and (
                 part.path != (
@@ -90,7 +105,8 @@ def safe_url(url):
         )
         or (
             part.hostname == "genesis.destatis.de"
-            and (part.path != "/datenbank/online/table/61111-0002" or part.query or part.fragment)
+            and (part.path not in {"/datenbank/online/table/61111-0002",
+                                  "/datenbank/online/statistic/13231/table/13231-0001"} or part.query or part.fragment)
         )
         or (
             part.hostname == "www.bdm.insee.fr"
