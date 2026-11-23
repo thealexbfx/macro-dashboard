@@ -22,8 +22,8 @@
       "depends_on": [
         "catalog"
       ],
-      "status": "TWENTYTWO_PRIVATE_HISTORIES_IMPLEMENTED_LOCAL_CAPTURE_PASSED_HOSTED_PENDING",
-      "acceptance": "Validate expanded 216-dataset rehearsal; original national histories for Germany and Italy remain open. Preserve explicit BLS publisher nulls and verify current CPI refresh."
+      "status": "SIXTEEN_OF_TWENTY_ONE_ORIGINAL_CORE_HISTORIES_VERIFIED",
+      "acceptance": "Validate the 214-dataset hosted rehearsal and finish German GDP/unemployment and Italian CPI/GDP/unemployment. Continue wider official histories, rights reviews and incremental refresh."
     },
     {
       "id": "today",

@@ -26,7 +26,7 @@ publisher nulls and carries receipt hashes through the native ingestion engine.
 
 To add the six Canadian and Japanese CPI histories, use the
 `live/g7-cpi-development.sqlite3` database from the
-[hosted CPI audit](https://github.com/thealexbfx/macro-dashboard/actions/runs/43352801924)
+[hosted CPI audit](https://github.com/thealexbfx/macro-dashboard/actions/runs/45109331455)
 or a new successful six-series development refresh:
 
 ```sh
@@ -52,3 +52,21 @@ python -m scripts.test_g7_preview_browser
 
 The walkthrough expects the combined 22-series preview, including the CPI
 database. Set `MACROLENS_G7_PREVIEW_URL` if the frontend uses another port.
+
+## Optional German national CPI
+
+In Destatis GENESIS table 61111-0002, download the German CSV (Flat) ZIP for
+the complete years from 1991 and a second ZIP covering the most recent years.
+The selections must overlap. Use the [historical selection](https://genesis.destatis.de/datenbank/online/url/d843791e)
+and the [current table](https://genesis.destatis.de/datenbank/online/table/61111-0002)
+to reproduce the initial capture. Then run:
+
+```sh
+python -m scripts.capture_destatis_cpi_history history.zip recent.zip /path/to/receipts/G7-DE-07.json
+python -m scripts.serve_g7_core_preview /path/to/receipts /path/to/new-workspace   --cpi-database /path/to/g7-cpi-development.sqlite3 --include-destatis-cpi
+```
+
+The importer keeps unpublished future labels in the receipt and stages the
+published index only. The hosted browser walkthrough uses the explicit
+`hosted` profile with 20 histories, excluding the direct BLS pair and this
+manually acquired German export.

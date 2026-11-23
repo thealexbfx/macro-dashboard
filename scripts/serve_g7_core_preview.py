@@ -139,14 +139,18 @@ def import_cpi(store, source_path):
     return publications
 
 
-def stage(receipts, workspace, *, cpi_database=None):
+def stage(receipts, workspace, *, cpi_database=None, include_destatis_cpi=False):
     workspace.mkdir()
     store = Store(workspace / "private-g7.sqlite3")
     with store.connection(True) as db:
         migrate(db)
         migrate_releases(db)
     publications = import_cpi(store, cpi_database) if cpi_database else {}
-    for suffix, (name, provider, frequency, units, selector) in preview_series().items():
+    series = preview_series()
+    if include_destatis_cpi:
+        series = series | {"DE-07": ("Germany headline CPI (Destatis)", "destatis",
+                                      "monthly", "2020=100", "61111-0002/PREIS1/DG")}
+    for suffix, (name, provider, frequency, units, selector) in series.items():
         mapping = "G7-" + suffix
         path = receipts / f"{mapping}.json"
         with path.open("rb") as source:
@@ -197,9 +201,12 @@ def main():
     parser.add_argument("receipts", type=Path)
     parser.add_argument("new_workspace", type=Path)
     parser.add_argument("--cpi-database", type=Path, help="Private six-series CPI audit SQLite database")
+    parser.add_argument("--include-destatis-cpi", action="store_true",
+                        help="Load the separately exported G7-DE-07 receipt")
     parser.add_argument("--port", type=int, default=8140)
     args = parser.parse_args()
-    store, reader = stage(args.receipts, args.new_workspace, cpi_database=args.cpi_database)
+    store, reader = stage(args.receipts, args.new_workspace, cpi_database=args.cpi_database,
+                          include_destatis_cpi=args.include_destatis_cpi)
     os.environ.update(MACROLENS_V2_STATE_DB=str(store.path), MACROLENS_AI_ENABLED="false",
                       MACROLENS_INGESTION_ENABLED="0", MACROLENS_CATALOG_REFRESH_ENABLED="0")
     import uvicorn

@@ -58,7 +58,7 @@ jobs:
         continue-on-error: true
         with:
           name: g7-cpi-development-audit
-          run-id: 43352801924
+          run-id: 45109331455
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/g7-cpi-audit
       - name: Capture private G7 publisher histories
@@ -69,7 +69,7 @@ jobs:
           bash scripts/capture_g7_preview_receipts.sh "$RUNNER_TEMP/g7-capture"
           database="$RUNNER_TEMP/g7-cpi-audit/live/g7-cpi-development.sqlite3"
           if test -f "$database"; then
-            printf '%s  %s\n' 248b6bc669e8b366d1ea6c64fe5ffb9b602718e7c5a4251a58e80f3d42d7dfbc "$database" | sha256sum --check
+            printf '%s  %s\n' 9ebd8ba88f1add19603addb2a8723930cd4f6fec73fecc4540534c7b4a184a55 "$database" | sha256sum --check
           else
             python -m scripts.g7_cpi_refresh "$RUNNER_TEMP/g7-cpi" --initialize --all-series-once
             database="$RUNNER_TEMP/g7-cpi/g7-cpi-development.sqlite3"
