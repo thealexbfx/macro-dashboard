@@ -298,7 +298,7 @@ def test_admin_headers_no_store_body_limits_and_heavy_capacity(monkeypatch):
     with v.analytical_workload.enter():
         r = client.post(
             "/api/v2/compare",
-            json={"datasets": ["gold"], "start": "2024-01-01", "end": "2024-12-31"},
+            json={"datasets": ["cpi"], "start": "2024-01-01", "end": "2024-12-31"},
         )
         assert r.status_code == 503 and r.headers["retry-after"] == "2"
         assert client.get("/health").status_code == 200

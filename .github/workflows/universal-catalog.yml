@@ -8,16 +8,30 @@ on:
       - 'catalog/**'
       - 'scripts/*catalog*'
       - 'scripts/validate_release100.py'
+      - 'scripts/serve_g7_core_preview.py'
+      - 'scripts/capture_g7_preview_receipts.sh'
+      - 'scripts/capture_*_history.py'
+      - 'verification/g7-core-batch1/**'
       - '.github/workflows/universal-catalog.yml'
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
+  actions: read
 jobs:
   actual_release_512m:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
+    env:
+      MACROLENS_G7_CAPTURE_PROFILE: hosted
+      COMBINED_G7: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Build production Python test runtime
         run: docker build --build-arg PYTHON_VERSION=3.14 -f scripts/phase4c.Dockerfile -t universal-catalog .
       - name: Capture baseline and exact reviewed additions from official sources
@@ -30,7 +44,39 @@ jobs:
             -v "$RUNNER_TEMP/catalog-input:/input" --entrypoint python universal-catalog \
             -m backend.app.catalog.rollout prepare --bundle /input/additions
           cp "$RUNNER_TEMP/catalog-input/baseline/audit.json" "$RUNNER_TEMP/catalog-results/source-audit.json"
-      - name: Actual complete release, API, Discovery, separate staging, rollback and restore
+      - uses: actions/setup-python@v5
+        if: env.COMBINED_G7 == 'true'
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        if: env.COMBINED_G7 == 'true'
+        with:
+          node-version: '22'
+      - name: Recover the verified CPI audit database
+        if: env.COMBINED_G7 == 'true'
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: g7-cpi-development-audit
+          run-id: 45109331455
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/g7-cpi-audit
+      - name: Capture private G7 publisher histories
+        if: env.COMBINED_G7 == 'true'
+        run: |
+          set -euo pipefail
+          python -m pip install -r backend/requirements.txt openpyxl
+          bash scripts/capture_g7_preview_receipts.sh "$RUNNER_TEMP/g7-capture"
+          database="$RUNNER_TEMP/g7-cpi-audit/live/g7-cpi-development.sqlite3"
+          if test -f "$database"; then
+            printf '%s  %s\n' 9ebd8ba88f1add19603addb2a8723930cd4f6fec73fecc4540534c7b4a184a55 "$database" | sha256sum --check
+          else
+            python -m scripts.g7_cpi_refresh "$RUNNER_TEMP/g7-cpi" --initialize --all-series-once
+            database="$RUNNER_TEMP/g7-cpi/g7-cpi-development.sqlite3"
+          fi
+          mv "$RUNNER_TEMP/g7-capture/receipts" "$RUNNER_TEMP/catalog-input/g7-receipts"
+          cp "$database" "$RUNNER_TEMP/catalog-input/g7-cpi.sqlite3"
+      - name: Complete release rehearsal, private G7 coexistence, rollback and restore
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/catalog-disk"
@@ -38,11 +84,15 @@ jobs:
           mkfs.ext4 -F "$RUNNER_TEMP/catalog-disk.img"
           sudo mount -o loop "$RUNNER_TEMP/catalog-disk.img" "$RUNNER_TEMP/catalog-disk"
           trap 'sudo umount "$RUNNER_TEMP/catalog-disk"' EXIT
+          g7=()
+          if test "$COMBINED_G7" = true; then
+            g7=(--g7-receipts /input/g7-receipts --g7-cpi-database /input/g7-cpi.sqlite3)
+          fi
           docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
-            -e TMPDIR=/disposable -v "$RUNNER_TEMP/catalog-disk:/disposable" \
+            -e MACROLENS_G7_CAPTURE_PROFILE -e TMPDIR=/disposable -v "$RUNNER_TEMP/catalog-disk:/disposable" \
             -v "$RUNNER_TEMP/catalog-input:/input:ro" -v "$RUNNER_TEMP/catalog-results:/results" \
             --entrypoint python universal-catalog -m scripts.validate_release100 \
-            --bundle /input/baseline --expansion-bundle /input/additions --output /results/capacity.json
+            --bundle /input/baseline --expansion-bundle /input/additions --output /results/capacity.json "${g7[@]}"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

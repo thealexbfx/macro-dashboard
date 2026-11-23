@@ -143,6 +143,29 @@ def main():
         expect(page.locator(".dataset-result").first).to_be_visible(timeout=30000)
         page.set_viewport_size({"width": 390, "height": 844})
         page.screenshot(path=str(output / "explorer-mobile.png"), full_page=True)
+        page.set_viewport_size({"width": 1440, "height": 1000})
+        page.get_by_role("button", name="Discover", exact=True).click()
+        finding = page.locator(".discovery-story").filter(has_text="Consumer prices (SA) rose").first
+        expect(finding).to_be_visible(timeout=60000)
+        with page.expect_response(
+            lambda response: response.url.endswith("/api/v2/compare")
+            and response.request.method == "POST"
+            and response.request.post_data_json["datasets"] == ["cpi"],
+            timeout=30000,
+        ) as calculation:
+            finding.get_by_role("button", name="Investigate", exact=True).click()
+        assert calculation.value.ok, calculation.value.text()
+        expect(page.get_by_role("region", name="Research datasets")).to_contain_text("CPI")
+        question = "What changed in this synthetic CPI discovery?"
+        page.get_by_label("Investigation question").fill(question)
+        page.get_by_role("button", name="Save and return to My Research").click()
+        card = page.get_by_role("article").filter(has_text=question)
+        expect(card).to_be_visible(timeout=30000)
+        page.reload(wait_until="networkidle")
+        card.get_by_role("button", name="Continue research").click()
+        expect(page.get_by_label("Investigation question")).to_have_value(question)
+        expect(page.get_by_role("region", name="Research datasets")).to_contain_text("CPI")
+        page.screenshot(path=str(output / "discovery-research-reopened.png"), full_page=True)
         # Admin UI uses a synthetic response; backend authentication/header
         # regressions run independently. Never provide a real token to this test.
         page.goto(URL+"/data-health", wait_until="networkidle")
@@ -218,7 +241,8 @@ def main():
                 {
                     "browser_checks": 26,
                     "passed": True,
-                    "screenshots": 6,
+                    "screenshots": 7,
+                    "discovery_research_save_reopen": True,
                     "page_errors": errors,
                 }
             )

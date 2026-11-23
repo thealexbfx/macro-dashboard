@@ -59,6 +59,31 @@ def main():
     publications = candidates()
     if args.ids:
         publications = {k: publications[k] for k in args.ids}
+    # The collector records blocked publishers as explicit source-results entries.
+    # Never index absent snapshot paths or silently validate a subset as complete.
+    unavailable = {
+        key: {
+            "state": index.get(key, {}).get("state", "missing"),
+            "reason": index.get(key, {}).get("reason", "No verified snapshot"),
+        }
+        for key in publications
+        if index.get(key, {}).get("state") != "captured"
+        or not index[key].get("snapshot_path")
+        or not index[key].get("snapshot_hash")
+    }
+    if unavailable:
+        report = {
+            "state": "blocked",
+            "requested": len(publications),
+            "captured": len(publications) - len(unavailable),
+            "blocked_sources": unavailable,
+            "public_production_activated": False,
+        }
+        (workspace / "validation.json").write_text(
+            json.dumps(report, indent=2), encoding="utf-8"
+        )
+        print(json.dumps(report), flush=True)
+        raise SystemExit("Official source capture incomplete; release validation blocked")
     reader = NativeReader(database, publications)
     stop, api_results = Event(), []
     thread = None

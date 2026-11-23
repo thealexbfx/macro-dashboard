@@ -22,15 +22,23 @@ from backend.app.v2.workload import WorkloadBusy, analytical_workload
 
 class DynamicDiscovery:
     def __init__(
-        self, data_service, transform_fn, store, workload=None, cache_seconds=30
+        self,
+        data_service,
+        transform_fn,
+        store,
+        workload=None,
+        cache_seconds=30,
+        *,
+        withheld=(),
     ):
         self.data_service, self.transform_fn, self.store = (
             data_service,
             transform_fn,
             store,
         )
-        self.memory = DiscoveryMemory(store)
-        self.library = HistoricalLibrary(store, transform_fn)
+        self.withheld = frozenset(withheld)
+        self.memory = DiscoveryMemory(store, withheld)
+        self.library = HistoricalLibrary(store, transform_fn, withheld)
         self.lock = Lock()
         self.workload = workload or analytical_workload
         self.cache_seconds = cache_seconds
@@ -58,6 +66,7 @@ class DynamicDiscovery:
                 for r in db.execute(
                     "SELECT id,checked_at,next_due,failures FROM source_cache ORDER BY id"
                 )
+                if r["id"] not in self.withheld
             ]
             report = db.execute(
                 "SELECT fingerprint,calculated_at FROM reports WHERE id='current'"
@@ -189,6 +198,7 @@ class DynamicDiscovery:
             finally:
                 self.store.release("scan", owner)
         counts = self.memory.counts()
+        historical_total = self.library.count()
         keys = set(report["active_keys"])
         current_metadata = self._metadata()
         enriched_key = (
@@ -196,7 +206,7 @@ class DynamicDiscovery:
             day,
             current_metadata[2],
             current_metadata[3],
-            counts["historical"],
+            historical_total,
         )
         if self._enriched_key != enriched_key:
             candidates = self.memory.list(
@@ -247,7 +257,7 @@ class DynamicDiscovery:
             archived=[],
             archived_total=counts["archived"],
             following_total=max(0, counts["active"] - len(report["findings"])),
-            historical_total=counts["historical"],
+            historical_total=historical_total,
             page_limits={"following": 10, "historical": 6, "archives": 20},
             source_times=[
                 {
@@ -308,7 +318,7 @@ class DynamicDiscovery:
     def historical_page(self, limit=6, offset=0):
         self.get()
         with self.workload.enter():
-            total = self.memory.counts()["historical"]
+            total = self.library.count()
             return {
                 "items": self.library.records(self._data, limit=limit, offset=offset),
                 "total": total,

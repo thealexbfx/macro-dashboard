@@ -18,7 +18,16 @@ export interface DiscoveryFinding {
     sources:{id:string;name:string;source:string;url:string;latest_observation_date:string;retrieved_at:string;publication_date:string|null;revision_count:number;verification?:{status?:string;limitation?:string};limitations:string[]}[];
     limitations:string[];methodology_version:string;
 }
+export interface DailyStreak {
+    dataset: string;
+    name: string;
+    direction: 'up' | 'down';
+    sessions: number;
+    first_move_date: string;
+    last_move_date: string;
+}
 export interface DiscoveryReport {
+    daily_streaks?: DailyStreak[];
     archived_total?:number;following_total?:number;historical_total?:number;
     following?:DiscoveryFinding[];archived?:DiscoveryFinding[];historical?:HistoricalRecord[];source_times?:{id:string;observed:string;retrieved:string;published:string|null;status:string;checked:string;next_check:string}[];
     findings:DiscoveryFinding[];as_of:string;generated_at:string;snapshot_fingerprint:string;

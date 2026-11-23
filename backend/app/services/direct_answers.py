@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import csv
-import json
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, timedelta
 from io import StringIO
 from typing import Protocol
 from urllib.parse import quote
 import requests
 
 from backend.app.registry.economic_indicators import EconomicIndicatorRegistry
+from backend.app.registry.market_rights import MARKET_RIGHTS_MESSAGE, market_observations_withheld
 from backend.app.registry.markets import MarketRegistry, MarketSpec
 from backend.app.schemas.customer_answer import AnswerBlock, CustomerAnswer, ExperienceLink
 
@@ -31,24 +31,9 @@ class PublicTimeSeriesProvider:
         return response.content
 
     def market_series(self, spec: MarketSpec, start: date, end: date) -> list[tuple[date, float]]:
-        if spec.provider == "fred":
-            return self.fred_series(spec.provider_id, start, end)
-        p1 = int(datetime.combine(start, datetime.min.time(), tzinfo=timezone.utc).timestamp())
-        p2 = int(datetime.combine(end + timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc).timestamp())
-        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(spec.provider_id, safe='')}?period1={p1}&period2={p2}&interval=1d&events=history"
-        raw = json.loads(self._get(url).decode("utf-8"))
-        result = (raw.get("chart", {}).get("result") or [None])[0]
-        if not result:
-            raise RuntimeError(f"No market data returned for {spec.name}.")
-        timestamps = result.get("timestamp") or []
-        closes = ((result.get("indicators") or {}).get("quote") or [{}])[0].get("close") or []
-        rows: list[tuple[date, float]] = []
-        for stamp, close in zip(timestamps, closes):
-            if close is not None:
-                rows.append((datetime.fromtimestamp(stamp, tz=timezone.utc).date(), float(close)))
-        if not rows:
-            raise RuntimeError(f"No usable market observations returned for {spec.name}.")
-        return rows
+        if market_observations_withheld(spec):
+            raise RuntimeError(MARKET_RIGHTS_MESSAGE)
+        return self.fred_series(spec.provider_id, start, end)
 
     def fred_series(self, series_id: str, start: date, end: date) -> list[tuple[date, float]]:
         url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={quote(series_id)}&cosd={start.isoformat()}&coed={end.isoformat()}"

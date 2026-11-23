@@ -1,0 +1,86 @@
+name: Private G7 preview browser validation
+on:
+  pull_request:
+    paths:
+      - .github/workflows/g7-private-preview-browser.yml
+      - scripts/capture_g7_preview_receipts.sh
+      - scripts/capture_insee_core_history.py
+      - scripts/capture_bls_core_history.py
+      - scripts/serve_g7_core_preview.py
+      - scripts/test_g7_preview_browser.py
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+jobs:
+  walkthrough:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      MACROLENS_G7_CAPTURE_PROFILE: hosted
+      NEXT_TELEMETRY_DISABLED: '1'
+      MACROLENS_V2_API_URL: http://127.0.0.1:8140
+      MACROLENS_G7_PREVIEW_URL: http://127.0.0.1:3001
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install frontend and local preview dependencies
+        run: |
+          python -m pip install -r backend/requirements.txt openpyxl playwright==1.65.1
+          python -m playwright install --with-deps chromium
+          npm --prefix frontend-v2 ci
+          npm --prefix frontend-v2 run build
+      - name: Recover the verified CPI audit database
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: g7-cpi-development-audit
+          run-id: 45109331455
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/g7-cpi-audit
+      - name: Capture official publisher histories in the runner workspace
+        run: |
+          bash scripts/capture_g7_preview_receipts.sh "$RUNNER_TEMP/g7-capture"
+          database="$RUNNER_TEMP/g7-cpi-audit/live/g7-cpi-development.sqlite3"
+          if test -f "$database"; then
+            printf '%s  %s\n' 9ebd8ba88f1add19603addb2a8723930cd4f6fec73fecc4540534c7b4a184a55 "$database" | sha256sum --check
+          else
+            python -m scripts.g7_cpi_refresh "$RUNNER_TEMP/g7-cpi" --initialize --all-series-once
+            database="$RUNNER_TEMP/g7-cpi/g7-cpi-development.sqlite3"
+          fi
+          printf 'G7_CPI_DATABASE=%s\n' "$database" >> "$GITHUB_ENV"
+      - name: Walk through the private catalogue and Investigate
+        run: |
+          set -euo pipefail
+          python -m scripts.serve_g7_core_preview "$RUNNER_TEMP/g7-capture/receipts" "$RUNNER_TEMP/g7-preview" \
+            --cpi-database "$G7_CPI_DATABASE" > "$RUNNER_TEMP/g7-backend.log" 2>&1 &
+          backend=$!
+          node frontend-v2/node_modules/next/dist/bin/next start frontend-v2 --hostname 127.0.0.1 --port 3001 > "$RUNNER_TEMP/g7-frontend.log" 2>&1 &
+          frontend=$!
+          trap 'kill "$backend" "$frontend" 2>/dev/null || true' EXIT
+          for attempt in {1..90}; do
+            if curl -fsS -o /dev/null "$MACROLENS_G7_PREVIEW_URL/api/v2/catalog?category=G7%20core"; then break; fi
+            kill -0 "$backend" "$frontend"
+            sleep 1
+          done
+          python -m scripts.test_g7_preview_browser
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: g7-preview-server-logs
+          path: |
+            ${{ runner.temp }}/g7-backend.log
+            ${{ runner.temp }}/g7-frontend.log
+          if-no-files-found: ignore
+          retention-days: 7

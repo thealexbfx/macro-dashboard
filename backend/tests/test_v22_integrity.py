@@ -1,11 +1,12 @@
-import json
 from dataclasses import replace
-from datetime import UTC, date, datetime
+from datetime import date
+from unittest.mock import Mock
 
 import pandas as pd
 import pytest
 
 from backend.app.registry.markets import MarketRegistry
+from backend.app.services.direct_answers import PublicTimeSeriesProvider
 from backend.app.v2.definitions import SPECS
 from backend.app.v2.integrity import assess_freshness, market_change, validate_frame
 from backend.app.v2.main import (
@@ -212,56 +213,12 @@ def test_fred_parser_preserves_explicit_missing_observations():
         p.fred_series("WRONG", date(2026, 1, 1), date(2026, 10, 23))
 
 
-def yahoo_payload(symbol="GC=F", currency="USD", kind="FUTURE"):
-    stamps = [
-        int(datetime(2026, 10, 23, 0, 30, tzinfo=UTC).timestamp()),
-        int(datetime(2026, 10, 23, 4, tzinfo=UTC).timestamp()),
-    ]
-    return {
-        "chart": {
-            "result": [
-                {
-                    "meta": {
-                        "symbol": symbol,
-                        "instrumentType": kind,
-                        "currency": currency,
-                        "exchangeTimezoneName": "America/New_York",
-                    },
-                    "timestamp": stamps,
-                    "indicators": {"quote": [{"close": [100, 101]}]},
-                }
-            ]
-        }
-    }
-
-
-def test_market_local_date_and_incomplete_session_exclusion():
-    p = V2PublicProvider(now_fn=lambda: datetime(2026, 10, 24, 2, tzinfo=UTC))
-    p._get = lambda _: json.dumps(yahoo_payload()).encode()
-    rows = p.market_series(
-        MarketRegistry().get("gold"), date(2026, 10, 1), date(2026, 10, 23)
-    )
-    assert rows == [
-        (date(2026, 10, 22), 100)
-    ]  # Oct 23 00:30 UTC is still Oct 22 New York.
-    p.now_fn = lambda: datetime(2026, 10, 24, 12, tzinfo=UTC)
-    assert (
-        len(
-            p.market_series(
-                MarketRegistry().get("gold"), date(2026, 10, 1), date(2026, 10, 23)
-            )
-        )
-        == 2
-    )
-
-
-@pytest.mark.parametrize(
-    "patch", [{"symbol": "WRONG"}, {"currency": "EUR"}, {"kind": "INDEX"}]
-)
-def test_no_silent_market_instrument_substitution(patch):
-    p = V2PublicProvider()
-    p._get = lambda _: json.dumps(yahoo_payload(**patch)).encode()
-    with pytest.raises(ValueError, match="does not match"):
-        p.market_series(
+@pytest.mark.parametrize("provider_class", [PublicTimeSeriesProvider, V2PublicProvider])
+def test_unreviewed_market_feed_cannot_make_a_request(provider_class):
+    provider = provider_class()
+    provider._get = Mock(side_effect=AssertionError("Unexpected publisher request"))
+    with pytest.raises(RuntimeError, match="rights review"):
+        provider.market_series(
             MarketRegistry().get("gold"), date(2026, 1, 1), date(2026, 10, 23)
         )
+    provider._get.assert_not_called()

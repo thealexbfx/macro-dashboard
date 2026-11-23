@@ -93,35 +93,36 @@ def endpoint(entry):
     return safe_url(url)
 
 
-def semantic(points, definition):
-    return digest(
-        sorted(
-            [
-                [
-                    native_period(p.period, definition, p.event_id).key,
-                    p.label,
-                    p.value,
-                    list(p.flags),
-                    instant(p.release_at).isoformat() if p.release_at else None,
-                    p.source_revision,
-                    p.event_id,
-                ]
-                for p in points
-            ]
-        )
-    )
+def ordered_row_digest(rows):
+    """Hash the same canonical JSON array as digest(list(rows)), one row at a time."""
+    checksum = sha256(b"[")
+    encode = json.JSONEncoder(sort_keys=True, separators=(",", ":")).encode
+    separator = b""
+    for row in rows:
+        checksum.update(separator)
+        checksum.update(encode(row).encode())
+        separator = b","
+    checksum.update(b"]")
+    return checksum.hexdigest() if separator else None
 
 
 class CatalogRefresh:
-    def __init__(self, store, *, config=CONFIG, fetch=download, now=None, cancel=None):
+    def __init__(
+        self, store, *, config=CONFIG, fetch=download, now=None, cancel=None,
+        private_sources=None,
+    ):
         self.store, self.fetch = store, fetch
         self.now = now or (lambda: datetime.now(UTC))
         self.cancel = cancel or Event()
         self.rules, self.publications, self.entries = (
-            policy(config),
-            candidates(),
-            source_entries(),
+            private_sources
+            if private_sources is not None
+            else (policy(config), candidates(), source_entries())
         )
+        if private_sources is not None and any(
+            rule["mode"] != "stage" for rule in self.rules.values()
+        ):
+            raise ValueError("Explicit sources are staging-only")
         self.reader = NativeReader(store.path, self.publications, now_fn=self.now)
         self.directory = store.path.parent / "catalog-refresh-snapshots"
         self.lock = Lock()
@@ -167,40 +168,54 @@ class CatalogRefresh:
             seen[period.key] = point
         if not seen or len(seen) > 50000:
             raise ProviderError("empty_or_oversized_history")
+        source_hash = ordered_row_digest(
+            [
+                period,
+                point.label,
+                point.value,
+                list(point.flags),
+                instant(point.release_at).isoformat() if point.release_at else None,
+                point.source_revision,
+                point.event_id,
+            ]
+            for period in sorted(seen)
+            for point in (seen[period],)
+        )
         with self.store.connection(timeout=2) as db:
-            old = db.execute(
-                "SELECT period_key,value,payload FROM norm_observations WHERE dataset_id=?",
-                (key,),
-            )
-            stored = []
-            for row in old:
-                point = seen.get(row[0])
-                if point is None:
-                    raise ProviderError("history_omitted")
-                if row[1] is not None and point.value is None and not point.flags:
-                    raise ProviderError("unexplained_value_loss")
-                p = json.loads(row[2])
-                stored.append(
-                    [
-                        row[0],
-                        p["period_label"],
-                        p["value"],
-                        p["flags"],
-                        p["release_at"],
-                        p["source_revision"],
-                        p["event_id"],
-                    ]
-                )
-        return semantic(points, reviewed), digest(sorted(stored)) if stored else None
+            stored_hash = ordered_row_digest(self._stored_semantic_rows(db, key, seen))
+        return source_hash, stored_hash
+
+    def _stored_semantic_rows(self, db, key, seen):
+        rows = db.execute(
+            "SELECT period_key,value,payload FROM norm_observations WHERE dataset_id=? ORDER BY period_key",
+            (key,),
+        )
+        for period, value, payload in rows:
+            point = seen.get(period)
+            if point is None:
+                raise ProviderError("history_omitted")
+            if value is not None and point.value is None and not point.flags:
+                raise ProviderError("unexplained_value_loss")
+            stored = json.loads(payload)
+            yield [
+                period,
+                stored["period_label"],
+                stored["value"],
+                stored["flags"],
+                stored["release_at"],
+                stored["source_revision"],
+                stored["event_id"],
+            ]
 
     def _download(self, key, job):
         entry, pub = self.entries[key], self.publications[key]
         provider = pub.definition.provider
         rule = self.rules[key]
+        private_cpi = provider in {"statcan_cpi", "estat_cpi"}
         if (
             not rule["automation_ready"]
             or provider not in PARSERS
-            and provider != "federal_reserve"
+            and provider != "federal_reserve" and not private_cpi
         ):
             raise ProviderError("source_requires_adapter_review")
         url = endpoint(entry)
@@ -211,7 +226,13 @@ class CatalogRefresh:
             from backend.app.ingestion.release_discovery import discover
 
             resolved, discovery = discover(entry, fetch=self.fetch)
-        cache_key = (resolved, self.now().date().isoformat())
+        if private_cpi:
+            from backend.app.ingestion.g7_cpi import resolve
+
+            resolved, discovery = resolve(entry, self.fetch)
+        cache_key = (
+            resolved, self.now().date().isoformat(), discovery.get("release_date")
+        )
         if self.cache and self.cache[0] == cache_key:
             body, response = self.cache[1:]
         else:
@@ -221,10 +242,11 @@ class CatalogRefresh:
                 if job["content_hash"]
                 else {}
             )
+            previous = json.loads(job.get("provenance") or "{}")
             if (
-                provider == "desnz"
-                and json.loads(job.get("provenance") or "{}").get("resolved_source_url")
-                != resolved
+                (provider == "desnz" or private_cpi)
+                and previous.get("resolved_source_url") != resolved
+                or private_cpi and previous.get("source_release") != discovery.get("release_date")
             ):
                 validators = {}  # HTTP validators belong to one artifact, not its replacement.
             if provider == "bls":
@@ -258,6 +280,7 @@ class CatalogRefresh:
                     16 * 1024**2
                     if provider == "federal_reserve"
                     and entry["source"]["selector"].split("/")[0] in {"G17", "H41"}
+                    else 32 * 1024**2 if provider == "statcan_cpi"
                     else 8 * 1024**2
                 )
                 body, response = self.fetch(
@@ -273,10 +296,11 @@ class CatalogRefresh:
             if not job["content_hash"] or not response.get("not_modified"):
                 raise ProviderError("unexpected_not_modified")
             return None, response
-        if len(body) > (16 if provider == "federal_reserve" else 8) * 1024 * 1024:
+        limit = {"federal_reserve": 16, "statcan_cpi": 32}.get(provider, 8)
+        if len(body) > limit * 1024 * 1024:
             raise ProviderError("response_size_limit")
         raw = sha256(body).hexdigest()
-        if raw == job["raw_hash"]:
+        if raw == job["raw_hash"] and not private_cpi:
             return None, response | {"raw_hash": raw}
         parse = (
             parse_ons_construction
@@ -287,7 +311,32 @@ class CatalogRefresh:
             from backend.app.ingestion.federal_reserve_bulk import parse_selected
 
             parse = parse_selected
-        definition, points, metadata = parse(entry, body)
+        if private_cpi:
+            from backend.app.ingestion.g7_cpi import parse_history
+
+            definition, points, metadata = parse_history(
+                pub.definition, entry, body, discovery
+            )
+            # Keep previously verified publication stamps when a period moves
+            # into the archive. The CSV does not supply individual vintage dates.
+            from dataclasses import replace
+
+            with self.store.connection(timeout=2) as db:
+                prior = {
+                    r[0]: json.loads(r[1]).get("release_at")
+                    for r in db.execute(
+                        "SELECT period_key,payload FROM norm_observations WHERE dataset_id=?",
+                        (key,),
+                    )
+                }
+            points = [
+                replace(p, release_at=datetime.fromisoformat(prior[p.period]))
+                if p.release_at is None and prior.get(p.period)
+                else p
+                for p in points
+            ]
+        else:
+            definition, points, metadata = parse(entry, body)
         content, stored = self._validate(key, definition, points, metadata)
         response = response | {"raw_hash": raw, "content_hash": content}
         if content == stored:
@@ -492,6 +541,8 @@ class CatalogRefresh:
             LOG.info("Catalog refresh %s", json.dumps(result))
             return result
         except Exception as exc:  # noqa: BLE001 -- keep supervisor alive, last-good data intact
+            if key and self.publications[key].definition.provider in {"statcan_cpi", "estat_cpi"}:
+                self.cache = None
             code = (
                 exc.code
                 if isinstance(exc, ProviderError)
@@ -583,8 +634,8 @@ class CatalogRefresh:
             old = db.execute(
                 """SELECT id FROM norm_generations g WHERE dataset_id=?
                 AND state='complete' AND substr(id,1,8)='refresh_'
-                AND NOT EXISTS(SELECT 1 FROM norm_observations o WHERE o.generation_id=g.id)
-                AND NOT EXISTS(SELECT 1 FROM norm_dataset_state s WHERE s.active_generation=g.id)
+                AND NOT EXISTS(SELECT 1 FROM norm_observations o WHERE o.dataset_id=g.dataset_id AND o.generation_id=g.id)
+                AND NOT EXISTS(SELECT 1 FROM norm_dataset_state s WHERE s.dataset_id=g.dataset_id AND s.active_generation=g.id)
                 ORDER BY completed_at DESC LIMIT -1 OFFSET 1""",
                 (key,),
             ).fetchall()

@@ -10,6 +10,12 @@ on:
       - 'catalog/release_candidates.json'
       - 'scripts/*expansion*'
       - '.github/workflows/dataset-expansion.yml'
+# Keep only the latest head of each PR in the hosted validation queue.
+# Never cancel a run from another PR or branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 jobs:

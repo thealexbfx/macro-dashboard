@@ -49,6 +49,7 @@ export function referenceLabel(d: Dataset): string {
     return dateLabel(d.latest_observation_date);
 }
 export function freshness(d: Dataset | undefined): string {
+    if (d?.release_metadata?.source_error_code === 'market_source_rights_pending') return 'Source rights pending';
     if (!d || d.status === 'unavailable' || d.latest_value === null || !d.latest_observation_date)
         return 'Unavailable';
     return d.status === 'stale' ? 'Stale data' : d.frequency === 'daily' ? 'Delayed data' : 'Latest available';
