@@ -139,7 +139,7 @@ def import_cpi(store, source_path):
     return publications
 
 
-def stage(receipts, workspace, *, cpi_database=None, include_destatis_cpi=False):
+def stage(receipts, workspace, *, cpi_database=None, include_destatis_cpi=False, include_destatis_gdp=False):
     workspace.mkdir()
     store = Store(workspace / "private-g7.sqlite3")
     with store.connection(True) as db:
@@ -150,6 +150,9 @@ def stage(receipts, workspace, *, cpi_database=None, include_destatis_cpi=False)
     if include_destatis_cpi:
         series = series | {"DE-07": ("Germany headline CPI (Destatis)", "destatis",
                                       "monthly", "2020=100", "61111-0002/PREIS1/DG")}
+    if include_destatis_gdp:
+        series = series | {"DE-01": ("Germany real GDP (Destatis)", "destatis",
+                                      "quarterly", "Volume index, 2020=100", "2180130/1.1/I")}
     for suffix, (name, provider, frequency, units, selector) in series.items():
         mapping = "G7-" + suffix
         path = receipts / f"{mapping}.json"
@@ -164,7 +167,7 @@ def stage(receipts, workspace, *, cpi_database=None, include_destatis_cpi=False)
             raise ValueError(f"Unexpected receipt identity or rights status: {mapping}")
         source_url = payload.get("source_url") or payload["sources"]["history"]["url"]
         adjustment = (
-            "Seasonally and working-day adjusted" if suffix == "FR-01"
+            "Seasonally and working-day adjusted" if suffix in {"FR-01", "DE-01"}
             else "Seasonally adjusted" if suffix.endswith(("-01", "-11"))
             else "Not seasonally adjusted"
         )
@@ -203,10 +206,13 @@ def main():
     parser.add_argument("--cpi-database", type=Path, help="Private six-series CPI audit SQLite database")
     parser.add_argument("--include-destatis-cpi", action="store_true",
                         help="Load the separately exported G7-DE-07 receipt")
+    parser.add_argument("--include-destatis-gdp", action="store_true",
+                        help="Load the separately captured G7-DE-01 receipt")
     parser.add_argument("--port", type=int, default=8140)
     args = parser.parse_args()
     store, reader = stage(args.receipts, args.new_workspace, cpi_database=args.cpi_database,
-                          include_destatis_cpi=args.include_destatis_cpi)
+                          include_destatis_cpi=args.include_destatis_cpi,
+                          include_destatis_gdp=args.include_destatis_gdp)
     os.environ.update(MACROLENS_V2_STATE_DB=str(store.path), MACROLENS_AI_ENABLED="false",
                       MACROLENS_INGESTION_ENABLED="0", MACROLENS_CATALOG_REFRESH_ENABLED="0")
     import uvicorn

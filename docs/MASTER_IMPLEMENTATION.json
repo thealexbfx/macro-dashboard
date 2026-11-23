@@ -22,8 +22,8 @@
       "depends_on": [
         "catalog"
       ],
-      "status": "SIXTEEN_OF_TWENTY_ONE_ORIGINAL_CORE_HISTORIES_VERIFIED",
-      "acceptance": "Validate the 214-dataset hosted rehearsal and finish German GDP/unemployment and Italian CPI/GDP/unemployment. Continue wider official histories, rights reviews and incremental refresh."
+      "status": "SEVENTEEN_OF_TWENTY_ONE_ORIGINAL_CORE_HISTORIES_VERIFIED",
+      "acceptance": "Verify the 214-dataset hosted rehearsal and finish German unemployment and Italian CPI/GDP/unemployment. Continue wider official histories, rights reviews and incremental refresh."
     },
     {
       "id": "today",
@@ -46,8 +46,8 @@
       "depends_on": [
         "research"
       ],
-      "status": "STREAKS_IMPLEMENTED_BACKTEST_PENDING",
-      "acceptance": "Confirm latest-session streaks and existing anomaly thresholds against representative historical official inputs"
+      "status": "REVISED_BLS_MONTHLY_REPLAY_PASSED_WIDER_BACKTEST_OPEN",
+      "acceptance": "Extend the revised-data BLS retrospective to daily streaks and other G7 signals. Evaluate false positives with publication vintages and official session calendars."
     },
     {
       "id": "ask",

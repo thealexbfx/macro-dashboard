@@ -70,3 +70,16 @@ The importer keeps unpublished future labels in the receipt and stages the
 published index only. The hosted browser walkthrough uses the explicit
 `hosted` profile with 20 histories, excluding the direct BLS pair and this
 manually acquired German export.
+
+## Optional German real GDP
+
+Download the [2026 Q2 Destatis X13 workbook](https://www.destatis.de/DE/Themen/Wirtschaft/Volkswirtschaftliche-Gesamtrechnungen-Inlandsprodukt/Publikationen/Downloads-Inlandsprodukt/inlandsprodukt-saisonbereinigt-xlsx-2180130.xlsx?__blob=publicationFile&v=60).
+This edition is pinned. Recheck workbook metadata and provenance when
+updating to a new edition.
+
+```sh
+python -m scripts.capture_destatis_gdp_history gdp.xlsx /path/to/receipts/G7-DE-01.json
+```
+
+Pass `--include-destatis-gdp` to the preview command to load the receipt.
+With both German additions enabled, the full preview loads 24 private histories.

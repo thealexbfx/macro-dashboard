@@ -48,6 +48,7 @@ HOSTS = frozenset(
         "apps.bea.gov",
         "www.bdm.insee.fr",
         "genesis.destatis.de",
+        "www.destatis.de",
         "www.federalreserve.gov",
         "oui.doleta.gov",
         "markets.newyorkfed.org",
@@ -75,6 +76,17 @@ def safe_url(url):
             part.hostname == "download.bls.gov"
             and (part.path not in {"/pub/time.series/cu/cu.series", "/pub/time.series/ln/ln.series"}
                  or part.query or part.fragment)
+        )
+        or (
+            part.hostname == "www.destatis.de"
+            and (
+                part.path != (
+                    "/DE/Themen/Wirtschaft/Volkswirtschaftliche-Gesamtrechnungen-Inlandsprodukt/"
+                    "Publikationen/Downloads-Inlandsprodukt/inlandsprodukt-saisonbereinigt-xlsx-2180130.xlsx"
+                )
+                or part.query != "__blob=publicationFile&v=60"
+                or part.fragment
+            )
         )
         or (
             part.hostname == "genesis.destatis.de"
