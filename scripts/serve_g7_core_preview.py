@@ -38,6 +38,16 @@ SERIES = {
 }
 
 
+def preview_series():
+    """The hosted profile excludes BLS, whose metadata server denies runner access."""
+    profile = os.getenv("MACROLENS_G7_CAPTURE_PROFILE", "full")
+    if profile == "full":
+        return SERIES
+    if profile == "hosted":
+        return {suffix: series for suffix, series in SERIES.items() if series[1] != "bls"}
+    raise ValueError(f"Unknown G7 capture profile: {profile}")
+
+
 class PreviewCatalog(PublicCatalog):
     def page(self, **filters):
         return super().page(**filters) | {"scope": "private_preview"}
@@ -136,7 +146,7 @@ def stage(receipts, workspace, *, cpi_database=None):
         migrate(db)
         migrate_releases(db)
     publications = import_cpi(store, cpi_database) if cpi_database else {}
-    for suffix, (name, provider, frequency, units, selector) in SERIES.items():
+    for suffix, (name, provider, frequency, units, selector) in preview_series().items():
         mapping = "G7-" + suffix
         path = receipts / f"{mapping}.json"
         with path.open("rb") as source:

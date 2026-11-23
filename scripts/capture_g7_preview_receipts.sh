@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Explicit development-only capture from the same publisher endpoints as the verifier.
 set -euo pipefail
+case "${MACROLENS_G7_CAPTURE_PROFILE:-full}" in
+    full|hosted) ;;
+    *) echo "Unknown G7 capture profile" >&2; exit 2 ;;
+esac
 work=$1
 mkdir "$work" "$work/receipts"
 receipts="$work/receipts"
@@ -37,4 +41,8 @@ for pair in G7-FR-01:011794860 G7-FR-07:011814630 G7-FR-11:001688527; do
     python -m scripts.capture_insee_core_history "$mapping" "$work/$mapping.xml" "$receipts/$mapping.json"
 done
 
-python -m scripts.capture_bls_core_history "$receipts" "$work/bls-evidence"
+if [[ ${MACROLENS_G7_CAPTURE_PROFILE:-full} == full ]]; then
+    python -m scripts.capture_bls_core_history "$receipts" "$work/bls-evidence"
+else
+    echo "Hosted profile excludes direct BLS CPI and U-3; see G7_FUNDAMENTALS_COVERAGE.md"
+fi

@@ -3,12 +3,12 @@ import os
 
 from playwright.sync_api import expect, sync_playwright
 from backend.app.ingestion.g7_cpi import configuration
-from scripts.serve_g7_core_preview import SERIES
+from scripts.serve_g7_core_preview import preview_series
 
 
 def main():
     origin = os.environ.get("MACROLENS_G7_PREVIEW_URL", "http://127.0.0.1:3001")
-    count = len(SERIES) + len(configuration()[1])
+    count = len(preview_series()) + len(configuration()[1])
     with sync_playwright() as playwright:
         chrome = os.getenv("BATCH0_CHROME")
         browser = playwright.chromium.launch(**({"executable_path": chrome} if chrome else {}))

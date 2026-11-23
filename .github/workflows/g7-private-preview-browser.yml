@@ -21,6 +21,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
+      MACROLENS_G7_CAPTURE_PROFILE: hosted
       NEXT_TELEMETRY_DISABLED: '1'
       MACROLENS_V2_API_URL: http://127.0.0.1:8140
       MACROLENS_G7_PREVIEW_URL: http://127.0.0.1:3001

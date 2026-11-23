@@ -128,3 +128,12 @@ suite passed 561 tests before the final URL allowlist test was added. All 2,623
 captured observation records from the three new histories staged through the
 native ingestion engine with zero publication grants. Full hosted application
 validation remains pending for this change.
+
+## Hosted capture scope
+
+The November 18 hosted browser and universal release runs received HTTP 403
+from the BLS metadata download before application validation. France GDP
+captured successfully in both runs. The hosted workflows now select an
+explicit 20-history profile (214 datasets in the combined rehearsal).
+Local capture defaults to all 22 histories. Hosted results for this profile
+do not establish BLS coverage or availability from GitHub runners.

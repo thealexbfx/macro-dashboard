@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
+      MACROLENS_G7_CAPTURE_PROFILE: hosted
       COMBINED_G7: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
       - uses: actions/checkout@v4
@@ -88,7 +89,7 @@ jobs:
             g7=(--g7-receipts /input/g7-receipts --g7-cpi-database /input/g7-cpi.sqlite3)
           fi
           docker run --rm --memory=512m --memory-swap=512m --cpus=0.5 --network=none \
-            -e TMPDIR=/disposable -v "$RUNNER_TEMP/catalog-disk:/disposable" \
+            -e MACROLENS_G7_CAPTURE_PROFILE -e TMPDIR=/disposable -v "$RUNNER_TEMP/catalog-disk:/disposable" \
             -v "$RUNNER_TEMP/catalog-input:/input:ro" -v "$RUNNER_TEMP/catalog-results:/results" \
             --entrypoint python universal-catalog -m scripts.validate_release100 \
             --bundle /input/baseline --expansion-bundle /input/additions --output /results/capacity.json "${g7[@]}"
